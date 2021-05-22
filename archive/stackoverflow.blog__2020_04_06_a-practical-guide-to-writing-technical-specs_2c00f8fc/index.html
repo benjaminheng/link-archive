@@ -1,0 +1,429 @@
+---
+url: https://stackoverflow.blog/2020/04/06/a-practical-guide-to-writing-technical-specs/
+title: A practical guide to writing technical specs - Stack Overflow Blog
+archived_at: 2021-05-23T00:58:28.313153+08:00
+---
+<div id="readability-page-1" class="page"><div>
+    
+<p>As a software engineer, your primary role is to solve technical problems. Your first impulse may be to immediately jump straight into writing code. But that can be a terrible idea if you haven’t thought through your solution. </p>
+
+
+
+<p>You can think through difficult technical problems by writing a technical spec. Writing one can be frustrating if you feel like you’re not a good writer. You may even think that it’s an unnecessary chore. But writing a technical spec increases the chances of having a successful project, service, or feature that all stakeholders involved are satisfied with. It decreases the chances of something going horribly wrong during implementation and even after you’ve launched your product. </p>
+
+
+
+<p>In this article, I’ll walk you through how to write a technical spec that ensures a strong product.  </p>
+
+
+
+<h2>What is a technical specification document?</h2>
+
+
+
+<p>A technical specification document outlines how you’re going to address a technical problem by designing and building a solution for it. It’s sometimes also referred to as a technical design document, a software design document, or an engineering design document. It’s often written by the engineer who will build the solution or be the point person during implementation, but for larger projects, it can be written by technical leads, project leads, or senior engineers. These documents show the engineer’s team and other stakeholders what the design, work involved, impact, and timeline of a feature, project, program, or service will be. </p>
+
+
+
+<h2>Why is writing a technical spec important?</h2>
+
+
+
+<p>Technical specs have immense benefits to everyone involved in a project: the engineers who write them, the teams that use them, even the projects that are designed off of them. Here are some reasons why you should write one. </p>
+
+
+
+<h3>Benefits to engineers</h3>
+
+
+
+<p>By writing a technical spec, engineers are forced to examine a problem before going straight into code, where they may overlook some aspect of the solution. When you break down, organize, and time box all the work you’ll have to do during the implementation, you get a better view of the scope of the solution. Technical specs, because they are a thorough view of the proposed solution, they also serve as documentation for the project, both for the implementation phase and after, to communicate your accomplishments on the project. </p>
+
+
+
+<p>With this well-thought out solution, your technical spec saves you from repeatedly explaining your design to multiple teammates and stakeholders. But nobody’s perfect;  your peers and more seasoned engineers may show you new things from them about design, new technologies, engineering practices, alternative solutions, etc. that you may not have come across or thought of before. They may catch exceptional cases of the solution that you may have neglected, reducing your liability. The more eyes you have on your spec, the better. </p>
+
+
+
+<h3>Benefits to a team</h3>
+
+
+
+<p>A technical spec is a straightforward and efficient way to communicate project design ideas between a team and other stakeholders. The whole team can  collaboratively solve a problem and create a solution. As more teammates and stakeholders contribute to a spec, it makes them more invested in the project and encourages them to take ownership and responsibility for it. With everyone on the same page, it limits complications that may arise from overlapping work. Newer teammates unfamiliar with the project can onboard themselves and contribute to the implementation earlier.  </p>
+
+
+
+<h3>Benefits to a project</h3>
+
+
+
+<p>Investing in a technical spec ultimately results in a superior product.  Since the team is aligned and in agreement on what needs to be done through the spec, big projects can progress faster. A spec is essential in managing complexity and preventing scope and feature creep by setting project limits. It sets priorities thereby making sure that only the most impactful and urgent parts of a project go out first. </p>
+
+
+
+<p>Post implementation, it helps resolve problems that cropped up within the project, as well as provide insight in retrospectives and postmortems. The best planned specs serve as a great guide for measuring success and return on investment of engineering time. </p>
+
+
+
+<h2>What to do before writing a technical spec</h2>
+
+
+
+<p>Gather the existing information in the problem domain before getting started. Read over any product/feature requirements that the product team has produced, as well as technical requirements/standards associated with the project. With this knowledge of the problem history, try to state the problem in detail and brainstorm all kinds of solutions you may think might resolve it. Pick the most reasonable solution out of all the options you have come up with. </p>
+
+
+
+<p>Remember that you aren’t alone in this task. Ask an experienced engineer who’s knowledgeable on the problem to be your sounding board. Invite them to a meeting and explain the problem and the solution you picked. Lay out your ideas and thought process and try to persuade them that your solution is the most appropriate. Gather their feedback and ask them to be a reviewer for your technical spec.</p>
+
+
+
+<p>Finally, it’s time to actually write the spec. Block off time in your calendar to write the first draft of the technical spec. Usea collaborative document editor that your whole team has access to. Get a technical spec template (see below) and write a rough draft. </p>
+
+
+
+<h2>Contents of a technical spec</h2>
+
+
+
+<p>There are a wide range of problems being solved by a vast number of companies today. Each organization is distinct and creates its own unique engineering culture. As a result, technical specs may not be standard even within companies, divisions, teams, and even among engineers on the same team. Every solution has different needs and you should tailor your technical spec based on the project. You do not need to include all the sections mentioned below. Select the sections that work for your design and forego the rest.</p>
+
+
+
+<p>From my experience, there are seven essential parts of a technical spec: front matter, introduction, solutions, further considerations, success evaluation, work, deliberation, and end matter. </p>
+
+
+
+<h3>1. Front matter</h3>
+
+
+
+<ul><li>Title </li><li>Author(s)</li><li>Team</li><li>Reviewer(s)</li><li>Created on</li><li>Last updated</li><li>Epic, ticket, issue, or task tracker reference link</li></ul>
+
+
+
+<h3>2. Introduction</h3>
+
+
+
+<p><strong>a. Overview, Problem Description, Summary, or Abstract</strong></p>
+
+
+
+<ul><li>Summary of the problem (from the perspective of the user), the context, suggested solution, and the stakeholders. </li></ul>
+
+
+
+<p><strong>b. Glossary  or Terminology</strong></p>
+
+
+
+<ul><li>New terms you come across as you research your design or terms you may suspect your readers/stakeholders not to know.  </li></ul>
+
+
+
+<p><strong>c. Context or Background</strong></p>
+
+
+
+<ul><li>Reasons why the problem is worth solving</li><li>Origin of the problem</li><li>How the problem affects users and company goals</li><li>Past efforts made to solve the solution and why they were not effective</li><li>How the product relates to team goals, OKRs</li><li>How the solution fits into the overall product roadmap and strategy</li><li>How the solution fits into the technical strategy</li></ul>
+
+
+
+<p><strong>d. Goals or Product and Technical Requirements</strong></p>
+
+
+
+<ul><li>Product requirements in the form of user stories </li><li>Technical requirements</li></ul>
+
+
+
+<p><strong> e. Non-Goals or Out of Scope</strong></p>
+
+
+
+<ul><li>Product and technical requirements that will be disregarded</li></ul>
+
+
+
+<p><strong>f. Future Goals</strong></p>
+
+
+
+<ul><li>Product and technical requirements slated for a future time</li></ul>
+
+
+
+<p><strong>g. Assumptions</strong></p>
+
+
+
+<ul><li>Conditions and resources that need to be present and accessible for the solution to work as described. </li></ul>
+
+
+
+<h3>3. Solutions</h3>
+
+
+
+<p><strong>a.</strong> <strong>Current or Existing Solution / Design</strong></p>
+
+
+
+<ul><li>Current solution description</li><li>Pros and cons of the current solution</li></ul>
+
+
+
+<p><strong>b. Suggested or Proposed Solution / Design </strong></p>
+
+
+
+<ul><li>External components that the solution will interact with and that it will alter</li><li>Dependencies of the current solution</li><li>Pros and cons of the proposed  solution </li><li><strong>Data Model / Schema Changes</strong><ul><li>Schema definitions</li><li>New data models</li><li>Modified data models</li><li>Data validation methods</li></ul></li><li><strong>Business Logic</strong><ul><li>API changes</li><li>Pseudocode</li><li>Flowcharts</li><li>Error states</li><li>Failure scenarios</li><li>Conditions that lead to errors and failures</li><li>Limitations</li></ul></li><li><strong>Presentation Layer</strong><ul><li>User requirements</li><li>UX changes</li><li>UI changes</li><li>Wireframes with descriptions</li><li>Links to UI/UX designer’s work</li><li>Mobile concerns</li><li>Web concerns</li><li>UI states</li><li>Error handling</li></ul></li><li><strong>Other questions to answer</strong><ul><li>How will the solution scale?</li><li>What are the limitations of the solution?</li><li>How will it recover in the event of a failure?</li><li>How will it cope with future requirements?</li></ul></li></ul>
+
+
+
+<p><strong>c. Test Plan</strong></p>
+
+
+
+<ul><li>Explanations of how the tests will make sure user requirements are met</li><li>Unit tests</li><li>Integrations tests</li><li>QA</li></ul>
+
+
+
+<p><strong>d. Monitoring and Alerting Plan </strong></p>
+
+
+
+<ul><li>Logging plan and tools</li><li>Monitoring plan and tools</li><li>Metrics to be used to measure health</li><li>How to ensure observability</li><li>Alerting plan and tools</li></ul>
+
+
+
+<p><strong>e. Release / Roll-out and Deployment Plan</strong></p>
+
+
+
+<ul><li>Deployment architecture </li><li>Deployment environments</li><li>Phased roll-out plan e.g. using feature flags</li><li>Plan outlining how to communicate changes to the users, for example, with release notes</li></ul>
+
+
+
+<p><strong>f. Rollback Plan</strong></p>
+
+
+
+<ul><li>Detailed and specific liabilities </li><li>Plan to reduce liabilities</li><li>Plan describing how to prevent other components, services, and systems from being affected</li></ul>
+
+
+
+<p><strong>g. Alternate Solutions / Designs</strong></p>
+
+
+
+<ul><li>Short summary statement for each alternative solution</li><li>Pros and cons for each alternative</li><li>Reasons why each solution couldn’t work </li><li>Ways in which alternatives were inferior to the proposed solution</li><li>Migration plan to next best alternative in case the proposed solution falls through</li></ul>
+
+
+
+<h3>4. Further Considerations</h3>
+
+
+
+<p><strong>a. Impact on other teams</strong></p>
+
+
+
+<ul><li>How will this increase the work of other people?</li></ul>
+
+
+
+<p><strong>b. Third-party services and platforms considerations</strong></p>
+
+
+
+<ul><li>Is it really worth it compared to building the service in-house?</li><li>What are some of the security and privacy concerns associated with the services/platforms?</li><li>How much will it cost?</li><li>How will it scale?</li><li>What possible future issues are anticipated? </li></ul>
+
+
+
+<p><strong>c. Cost analysis</strong></p>
+
+
+
+<ul><li>What is the cost to run the solution per day?</li><li>What does it cost to roll it out? </li></ul>
+
+
+
+<p><strong>d. Security considerations</strong></p>
+
+
+
+<ul><li>What are the potential threats?</li><li>How will they be mitigated?</li><li>How will the solution affect the security of other components, services, and systems?</li></ul>
+
+
+
+<p><strong>e. Privacy considerations</strong></p>
+
+
+
+<ul><li>Does the solution follow local laws and legal policies on data privacy?</li><li>How does the solution protect users’ data privacy?</li><li>What are some of the tradeoffs between personalization and privacy in the solution? </li></ul>
+
+
+
+<p><strong>f. Regional considerations</strong></p>
+
+
+
+<ul><li>What is the impact of internationalization and localization on the solution?</li><li>What are the latency issues?</li><li>What are the legal concerns?</li><li>What is the state of service availability?</li><li>How will data transfer across regions be achieved and what are the concerns here? </li></ul>
+
+
+
+<p><strong>g. Accessibility considerations</strong></p>
+
+
+
+<ul><li>How accessible is the solution?</li><li>What tools will you use to evaluate its accessibility? </li></ul>
+
+
+
+<p><strong>h. Operational considerations</strong></p>
+
+
+
+<ul><li>Does this solution cause adverse aftereffects?</li><li>How will data be recovered in case of failure?</li><li>How will the solution recover in case of a failure?</li><li>How will operational costs be kept low while delivering increased value to the users? </li></ul>
+
+
+
+<p><strong>i. Risks</strong></p>
+
+
+
+<ul><li>What risks are being undertaken with this solution?</li><li>Are there risks that once taken can’t be walked back?</li><li>What is the cost-benefit analysis of taking these risks? </li></ul>
+
+
+
+<p><strong>j. Support considerations</strong></p>
+
+
+
+<ul><li>How will the support team get across information to users about common issues they may face while interacting with the changes?</li><li>How will we ensure that the users are satisfied with the solution and can interact with it with minimal support?</li><li>Who is responsible for the maintenance of the solution?</li><li>How will knowledge transfer be accomplished if the project owner is unavailable? </li></ul>
+
+
+
+<h3>5. Success Evaluation</h3>
+
+
+
+<p><strong>a. Impact</strong></p>
+
+
+
+<ul><li>Security impact</li><li>Performance impact</li><li>Cost impact</li><li>Impact on other components and services</li></ul>
+
+
+
+<p><strong>b. Metrics</strong></p>
+
+
+
+<ul><li>List of metrics to capture</li><li>Tools to capture and measure metrics</li></ul>
+
+
+
+<h3>6. Work</h3>
+
+
+
+<p><strong>a. Work estimates and timelines</strong></p>
+
+
+
+<ul><li>List of specific, measurable, and time-bound tasks</li><li>Resources needed to finish each task</li><li>Time estimates for how long each task needs to be completed</li></ul>
+
+
+
+<p><strong>b. Prioritization</strong></p>
+
+
+
+<ul><li>Categorization of tasks by urgency and impact</li></ul>
+
+
+
+<p><strong>c. Milestones</strong></p>
+
+
+
+<ul><li>Dated checkpoints when significant chunks of work will have been completed</li><li>Metrics to indicate the passing of the milestone</li></ul>
+
+
+
+<p><strong>d. Future work</strong></p>
+
+
+
+<ul><li>List of tasks that will be completed in the future</li></ul>
+
+
+
+<h3>7. Deliberation</h3>
+
+
+
+<p><strong>a. Discussion</strong></p>
+
+
+
+<ul><li>Elements of the solution that members of the team do not agree on and need to be debated further to reach a consensus.</li></ul>
+
+
+
+<p><strong>b. Open Questions</strong></p>
+
+
+
+<ul><li>Questions about things you do not know the answers to or are unsure that you pose to the team and stakeholders for their input. These may include aspects of the problem you don’t know how to resolve yet. </li></ul>
+
+
+
+<h3>8. End Matter</h3>
+
+
+
+<p><strong>a. Related Work</strong></p>
+
+
+
+<ul><li>Any work external to the proposed solution that is similar to it in some way and is worked on by different teams. It’s important to know this to enable knowledge sharing between such teams when faced with related problems. </li></ul>
+
+
+
+<p><strong>b. References</strong></p>
+
+
+
+<ul><li>Links to documents and resources that you used when coming up with your design and wish to credit. </li></ul>
+
+
+
+<p><strong>c. Acknowledgments</strong></p>
+
+
+
+<ul><li>Credit people who have contributed to the design that you wish to recognize.</li></ul>
+
+
+
+<h2>After you’ve written your technical spec</h2>
+
+
+
+<p>Now that you have a spec written, it’s time to refine it. Go through your draft as if you were an independent reviewer. Ask yourself what parts of the design are unclear and you are uncertain about. Modify your draft to include these issues. Review the draft a second time as if you were tasked to implement the design just based on the technical spec alone. Make sure the spec is a clear enough implementation guideline that the team can work on if you are unavailable. If you have doubts about the solution and would like to test it out just to make sure it works, create a simple prototype to prove your concept. </p>
+
+
+
+<p>When you’ve thoroughly reviewed it, send the draft out to your team and the stakeholders. Address all comments, questions, and suggestions as soon as possible. Set deadlines to do this for every issue. Schedule meetings to talk through issues that the team is divided on or is having unusually lengthy discussions about on the document. If the team fails to agree on an issue even after having in-person meetings to hash them out, make the final call on it as the buck stops with you. Request engineers on different teams to review your spec so you can get an outsider’s perspective which will enhance how it comes across to stakeholders not part of the team. Update the document with any changes in the design, schedule, work estimates, scope, etc. even during implementation.</p>
+
+
+
+
+
+
+
+<p>Writing test specs can be an impactful way to guarantee that your project will be successful. A little planning and a little forethought can make the actual implementation of a project a whole lot easier.  </p><p>
+    Tags: <a href="https://stackoverflow.blog/tag/bulletin/" rel="tag">bulletin</a>, <a href="https://stackoverflow.blog/tag/stackoverflow/" rel="tag">stackoverflow</a>, <a href="https://stackoverflow.blog/tag/technical-specs/" rel="tag">technical specs</a>  </p></div></div>

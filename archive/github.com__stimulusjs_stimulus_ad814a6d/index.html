@@ -1,0 +1,66 @@
+---
+url: https://github.com/stimulusjs/stimulus
+title: hotwired/stimulus
+archived_at: 2021-05-23T00:59:25.803155+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text">
+<h3>A modest JavaScript framework for the HTML you already have</h3>
+<p>Stimulus is a JavaScript framework with modest ambitions. It doesn&#39;t seek to take over your entire front-end—in fact, it&#39;s not concerned with rendering HTML at all. Instead, it&#39;s designed to augment your HTML with just enough behavior to make it shine. Stimulus pairs beautifully with <a href="https://turbo.hotwire.dev" rel="nofollow">Turbo</a> to provide a complete solution for fast, compelling applications with a minimal amount of effort.</p>
+<p>How does it work? Sprinkle your HTML with controller, target, and action attributes:</p>
+<div data-snippet-clipboard-copy-content="&lt;div data-controller=&#34;hello&#34;&gt;
+  &lt;input data-hello-target=&#34;name&#34; type=&#34;text&#34;&gt;
+
+  &lt;button data-action=&#34;click-&gt;hello#greet&#34;&gt;Greet&lt;/button&gt;
+
+  &lt;span data-hello-target=&#34;output&#34;&gt;&lt;/span&gt;
+&lt;/div&gt;
+"><pre><span>&lt;</span><span>div</span> <span>data-controller</span>=&#34;<span>hello</span>&#34;<span>&gt;</span>
+  <span>&lt;</span><span>input</span> <span>data-hello-target</span>=&#34;<span>name</span>&#34; <span>type</span>=&#34;<span>text</span>&#34;<span>&gt;</span>
+
+  <span>&lt;</span><span>button</span> <span>data-action</span>=&#34;<span>click-&gt;hello#greet</span>&#34;<span>&gt;</span>Greet<span>&lt;/</span><span>button</span><span>&gt;</span>
+
+  <span>&lt;</span><span>span</span> <span>data-hello-target</span>=&#34;<span>output</span>&#34;<span>&gt;</span><span>&lt;/</span><span>span</span><span>&gt;</span>
+<span>&lt;/</span><span>div</span><span>&gt;</span></pre></div>
+<p>Then write a compatible controller. Stimulus brings it to life automatically:</p>
+<div data-snippet-clipboard-copy-content="// hello_controller.js
+import { Controller } from &#34;stimulus&#34;
+
+export default class extends Controller {
+  static targets = [ &#34;name&#34;, &#34;output&#34; ]
+
+  greet() {
+    this.outputTarget.textContent =
+      `Hello, ${this.nameTarget.value}!`
+  }
+}
+"><pre><span>// hello_controller.js</span>
+<span>import</span> <span>{</span> <span>Controller</span> <span>}</span> <span>from</span> <span>&#34;stimulus&#34;</span>
+
+<span>export</span> <span>default</span> <span>class</span> <span>extends</span> <span>Controller</span> <span>{</span>
+  <span>static</span> <span>targets</span> <span>=</span> <span>[</span> <span>&#34;name&#34;</span><span>,</span> <span>&#34;output&#34;</span> <span>]</span>
+
+  <span>greet</span><span>(</span><span>)</span> <span>{</span>
+    <span>this</span><span>.</span><span>outputTarget</span><span>.</span><span>textContent</span> <span>=</span>
+      <span>`Hello, <span><span>${</span><span>this</span><span>.</span><span>nameTarget</span><span>.</span><span>value</span><span>}</span></span>!`</span>
+  <span>}</span>
+<span>}</span></pre></div>
+<p>Stimulus continuously watches the page, kicking in as soon as attributes appear or disappear. It works with any update to the DOM, regardless of whether it comes from a full page load, a <a href="https://turbo.hotwire.dev" rel="nofollow">Turbo</a> page change, or an Ajax request. Stimulus manages the whole lifecycle.</p>
+<p>You can write your first controller in five minutes by following along in the <a href="https://stimulus.hotwire.dev/handbook/introduction" rel="nofollow">Stimulus Handbook</a>.</p>
+<p>You can read more about why we created this new framework in <a href="https://stimulus.hotwire.dev/handbook/origin" rel="nofollow">The Origin of Stimulus</a>.</p>
+<h2>Installing Stimulus</h2>
+<p>Stimulus integrates with the <a href="https://webpack.js.org/" rel="nofollow">webpack</a> asset packager to automatically load controller files from a folder in your app.</p>
+<p>You can use Stimulus with other asset packaging systems, too. And if you prefer no build step at all, just drop a <code>&lt;script&gt;</code> tag on the page and get right down to business.</p>
+<p>See the <a href="https://stimulus.hotwire.dev/handbook/installing" rel="nofollow">Installation Guide</a> for detailed instructions.</p>
+<h2>Getting Help &amp; Contributing Back</h2>
+<p>Looking for the docs? Once you&#39;ve read through the Handbook, consult the <a href="https://stimulus.hotwire.dev/reference/controllers" rel="nofollow">Stimulus Reference</a> for API details.</p>
+<p>Have a question about Stimulus? Connect with other Stimulus developers on the <a href="https://discuss.hotwire.dev/" rel="nofollow">Hotwire Discourse</a> community forum.</p>
+<p>Find a bug? Head over to our <a href="https://github.com/stimulusjs/stimulus/issues">issue tracker</a> and we&#39;ll do our best to help. We love pull requests, too!</p>
+<p>We expect all Stimulus contributors to abide by the terms of our <a href="https://github.com/hotwired/stimulus/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>.</p>
+<h2>Acknowledgments</h2>
+<p>Stimulus is <a href="https://github.com/hotwired/stimulus/blob/main/LICENSE.md">MIT-licensed</a> open-source software from <a href="https://basecamp.com/" rel="nofollow">Basecamp</a>, the creators of <a href="http://rubyonrails.org" rel="nofollow">Ruby on Rails</a>.</p>
+<p>Continuous integration VMs generously provided by <a href="https://saucelabs.com/open-source" rel="nofollow">Sauce Labs</a>.</p>
+<hr/>
+<p>© 2020 Basecamp, LLC.</p>
+</article>
+        </div></div>

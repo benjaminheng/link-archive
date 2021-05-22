@@ -1,0 +1,335 @@
+---
+url: https://opentracing.io/specification/
+title: OpenTracing specification
+archived_at: 2021-05-23T00:59:04.488341+08:00
+---
+<div id="readability-page-1" class="page"><section class="page">
+    <nav>
+      <div>
+        
+        
+<ul><li>
+    <a href="https://opentracing.io/specification/">OpenTracing specification</a>
+  </li><li>
+    <a href="https://opentracing.io/specification/organization/">Project organization</a>
+  </li><li>
+    <a href="https://opentracing.io/specification/process/">Versioning process</a>
+  </li><li>
+    <a href="https://opentracing.io/specification/conventions/">Semantic conventions</a>
+  </li><li>
+    <a href="https://opentracing.io/specification/changelog/">CHANGELOG</a>
+  </li></ul>
+
+      </div>
+    </nav>
+
+    <article>
+      <section>
+        
+
+<p><strong>Version:</strong> 1.1</p>
+
+<h2 id="document-overview">Document Overview</h2>
+
+<p>This is the “formal” OpenTracing semantic specification. Since OpenTracing must work across many languages, this document takes care to avoid language-specific concepts. That said, there is an understanding throughout that all languages have some concept of an “interface” which encapsulates a set of related capabilities.</p>
+
+<h3 id="versioning-policy">Versioning policy</h3>
+
+<p>The OpenTracing specification uses a <code>Major.Minor</code> version number but has no <code>.Patch</code> component. The major version increments when backwards-incompatible changes are made to the specification. The minor version increments for non-breaking changes like the introduction of new standard tags, log fields, or SpanContext reference types. (You can read more about the motivation for this versioning scheme at Issue <a href="https://github.com/opentracing/specification/issues/2#issuecomment-261740811">specification#2</a>)</p>
+
+<h2 id="the-opentracing-data-model">The OpenTracing Data Model</h2>
+
+<p><strong>Traces</strong> in OpenTracing are defined implicitly by their <strong>Spans</strong>. In
+particular, a <strong>Trace</strong> can be thought of as a directed acyclic graph (DAG) of
+<strong>Spans</strong>, where the edges between <strong>Spans</strong> are called <strong>References</strong>.</p>
+
+<p>For example, the following is an example <strong>Trace</strong> made up of 8 <strong>Spans</strong>:</p>
+
+<pre><code>Causal relationships between Spans in a single Trace
+
+
+        [Span A]  ←←←(the root span)
+            |
+     +------+------+
+     |             |
+ [Span B]      [Span C] ←←←(Span C is a `ChildOf` Span A)
+     |             |
+ [Span D]      +---+-------+
+               |           |
+           [Span E]    [Span F] &gt;&gt;&gt; [Span G] &gt;&gt;&gt; [Span H]
+                                       ↑
+                                       ↑
+                                       ↑
+                         (Span G `FollowsFrom` Span F)
+
+</code></pre>
+
+<p>Sometimes it’s easier to visualize <strong>Traces</strong> with a time axis as in the
+diagram below:</p>
+
+<pre><code>Temporal relationships between Spans in a single Trace
+
+
+––|–––––––|–––––––|–––––––|–––––––|–––––––|–––––––|–––––––|–&gt; time
+
+ [Span A···················································]
+   [Span B··············································]
+      [Span D··········································]
+    [Span C········································]
+         [Span E·······]        [Span F··] [Span G··] [Span H··]
+</code></pre>
+
+<p>Each <strong>Span</strong> encapsulates the following state:</p>
+
+<ul>
+<li>An operation name</li>
+<li>A start timestamp</li>
+<li>A finish timestamp</li>
+<li>A set of zero or more key:value <strong>Span Tags</strong>. The keys must be strings. The
+values may be strings, bools, or numeric types.</li>
+<li>A set of zero or more <strong>Span Logs</strong>, each of which is itself a key:value map
+paired with a timestamp. The keys must be strings, though the values may be
+of any type. Not all OpenTracing implementations must support every value
+type.</li>
+<li>A <strong>SpanContext</strong> (see below)</li>
+<li><a href="#references-between-spans"><strong>References</strong></a> to zero or more causally-related <strong>Spans</strong> (via the
+<strong>SpanContext</strong> of those related <strong>Spans</strong>)</li>
+</ul>
+
+<p>Each <strong>SpanContext</strong> encapsulates the following state:</p>
+
+<ul>
+<li>Any OpenTracing-implementation-dependent state (for example, trace and span ids) needed to refer to a distinct <strong>Span</strong> across a process boundary</li>
+<li><strong>Baggage Items</strong>, which are just key:value pairs that cross process boundaries</li>
+</ul>
+
+<h3 id="references-between-spans">References between Spans</h3>
+
+<p>A Span may reference zero or more other <strong>SpanContexts</strong> that are causally related. OpenTracing presently defines two types of references: <code>ChildOf</code> and <code>FollowsFrom</code>. <strong>Both reference types specifically model direct causal relationships between a child Span and a parent Span.</strong> In the future, OpenTracing may also support reference types for Spans with non-causal relationships (e.g., Spans that are batched together, Spans that are stuck in the same queue, etc).</p>
+
+<p><strong><code>ChildOf</code> references:</strong> A Span may be the <code>ChildOf</code> a parent Span. In a <code>ChildOf</code> reference, the parent Span depends on the child Span in some capacity. All of the following would constitute <code>ChildOf</code> relationships:</p>
+
+<ul>
+<li>A Span representing the server side of an RPC may be the <code>ChildOf</code> a Span representing the client side of that RPC</li>
+<li>A Span representing a SQL insert may be the <code>ChildOf</code> a Span representing an ORM save method</li>
+<li>Many Spans doing concurrent (perhaps distributed) work may all individually be the <code>ChildOf</code> a single parent Span that merges the results for all children that return within a deadline</li>
+</ul>
+
+<p>These could all be valid timing diagrams for children that are the <code>ChildOf</code> a parent.</p>
+
+<pre><code>    [-Parent Span---------]
+         [-Child Span----]
+
+    [-Parent Span--------------]
+         [-Child Span A----]
+          [-Child Span B----]
+        [-Child Span C----]
+         [-Child Span D---------------]
+         [-Child Span E----]
+</code></pre>
+
+<p><strong><code>FollowsFrom</code> references:</strong> Some parent Spans do not depend in any way on the result of their child Spans. In these cases, we say merely that the child Span <code>FollowsFrom</code> the parent Span in a causal sense. There are many distinct <code>FollowsFrom</code> reference sub-categories, and in future versions of OpenTracing they may be distinguished more formally.</p>
+
+<p>These can all be valid timing diagrams for children that “FollowFrom” a parent.</p>
+
+<pre><code>    [-Parent Span-]  [-Child Span-]
+
+
+    [-Parent Span--]
+     [-Child Span-]
+
+
+    [-Parent Span-]
+                [-Child Span-]
+</code></pre>
+
+<h2 id="the-opentracing-api">The OpenTracing API</h2>
+
+<p>There are three critical and inter-related types in the OpenTracing specification: <code>Tracer</code>, <code>Span</code>, and <code>SpanContext</code>. Below, we go through the behaviors of each type; roughly speaking, each behavior becomes a “method” in a typical programming language, though it may actually be a set of related sibling methods due to type overloading and so on.</p>
+
+<p>When we discuss “optional” parameters, it is understood that different languages have different ways to construe such concepts. For example, in Go we might use the “functional Options” idiom, whereas in Java we might use a builder pattern.</p>
+
+<h3 id="tracer"><code>Tracer</code></h3>
+
+<p>The <code>Tracer</code> interface creates <code>Span</code>s and understands how to <code>Inject</code>
+(serialize) and <code>Extract</code> (deserialize) them across process boundaries.
+Formally, it has the following capabilities:</p>
+
+<h4 id="start-a-new-span">Start a new <code>Span</code></h4>
+
+<p>Required parameters</p>
+
+<ul>
+<li>An <strong>operation name</strong>, a human-readable string which concisely represents the work done by the Span (for example, an RPC method name, a function name, or the name of a subtask or stage within a larger computation). The operation name should be <strong>the most general string that identifies a (statistically) interesting class of <code>Span</code> instances</strong>. That is, <code>&#34;get_user&#34;</code> is better than <code>&#34;get_user/314159&#34;</code>.</li>
+</ul>
+
+<p>For example, here are potential <strong>operation names</strong> for a <code>Span</code> that gets hypothetical account information:</p>
+
+<table>
+<thead>
+<tr>
+<th>Operation Name</th>
+<th>Guidance</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td><code>get</code></td>
+<td>Too general</td>
+</tr>
+
+<tr>
+<td><code>get_account/792</code></td>
+<td>Too specific</td>
+</tr>
+
+<tr>
+<td><code>get_account</code></td>
+<td>Good, and <code>account_id=792</code> would make a nice <strong><code>Span</code> tag</strong></td>
+</tr>
+</tbody>
+</table>
+
+<p>Optional parameters</p>
+
+<ul>
+<li>Zero or more <strong>references</strong> to related <code>SpanContext</code>s, including a shorthand for <code>ChildOf</code> and <code>FollowsFrom</code> reference types if possible.</li>
+<li>An optional explicit <strong>start timestamp</strong>; if omitted, the current walltime is used by default</li>
+<li>Zero or more <strong>tags</strong></li>
+</ul>
+
+<p><strong>Returns</strong> a <code>Span</code> instance that’s already started (but not <code>Finish</code>ed)</p>
+
+<h4 id="inject-a-spancontext-into-a-carrier">Inject a <code>SpanContext</code> into a carrier</h4>
+
+<p>Required parameters</p>
+
+<ul>
+<li>A <strong><code>SpanContext</code></strong> instance</li>
+<li>A <strong>format</strong> descriptor (typically but not necessarily a string constant) which tells the <code>Tracer</code> implementation how to encode the <code>SpanContext</code> in the carrier parameter</li>
+<li>A <strong>carrier</strong>, whose type is dictated by the <strong>format</strong>. The <code>Tracer</code> implementation will encode the <code>SpanContext</code> in this carrier object according to the <strong>format</strong>.</li>
+</ul>
+
+
+
+<p>Required parameters</p>
+
+<ul>
+<li>A <strong>format</strong> descriptor (typically but not necessarily a string constant) which tells the <code>Tracer</code> implementation how to decode <code>SpanContext</code> from the carrier parameter</li>
+<li>A <strong>carrier</strong>, whose type is dictated by the <strong>format</strong>. The <code>Tracer</code> implementation will decode the <code>SpanContext</code> from this carrier object according to <strong>format</strong>.</li>
+</ul>
+
+<p><strong>Returns</strong> a <code>SpanContext</code> instance suitable for use as a <strong>reference</strong> when starting a new <code>Span</code> via the <code>Tracer</code>.</p>
+
+<h4 id="note-required-format-s-for-injection-and-extraction">Note: required <strong>format</strong>s for injection and extraction</h4>
+
+<p>Both injection and extraction rely on an extensible <strong>format</strong> parameter that dictates the type of the associated “carrier” as well as how a <code>SpanContext</code> is encoded in that carrier. All of the following <strong>format</strong>s must be supported by all Tracer implementations.</p>
+
+<ul>
+<li><strong>Text Map</strong>: an arbitrary string-to-string map with an unrestricted character set for both keys and values</li>
+<li><strong>HTTP Headers</strong>: a string-to-string map with keys and values that are suitable for use in HTTP headers (a la <a href="https://tools.ietf.org/html/rfc7230#section-3.2.4">RFC 7230</a>). In practice, since there is such “diversity” in the way that HTTP headers are treated in the wild, it is strongly recommended that Tracer implementations use a limited HTTP header key space and escape values conservatively.</li>
+<li><strong>Binary</strong>: a (single) arbitrary binary blob representing a <code>SpanContext</code></li>
+</ul>
+
+<h3 id="span"><code>Span</code></h3>
+
+<p>With the exception of the method to retrieve the <code>Span</code>’s <code>SpanContext</code>, none of the below may be called after the <code>Span</code> is finished.</p>
+
+<h4 id="retrieve-the-span-s-spancontext">Retrieve the <code>Span</code>s <code>SpanContext</code></h4>
+
+<p>There should be no parameters.</p>
+
+<p><strong>Returns</strong> the <code>SpanContext</code> for the given <code>Span</code>. The returned value may be used even after the <code>Span</code> is finished.</p>
+
+<h4 id="overwrite-the-operation-name">Overwrite the operation name</h4>
+
+<p>Required parameters</p>
+
+<ul>
+<li>The new <strong>operation name</strong>, which supersedes whatever was passed in when the <code>Span</code> was started</li>
+</ul>
+
+<h4 id="finish-the-span">Finish the <code>Span</code></h4>
+
+<p>Optional parameters</p>
+
+<ul>
+<li>An explicit <strong>finish timestamp</strong> for the <code>Span</code>; if omitted, the current walltime is used implicitly.</li>
+</ul>
+
+<p>With the exception of the method to retrieve a <code>Span</code>’s <code>SpanContext</code>, no method may be called on a <code>Span</code> instance after it’s finished.</p>
+
+<h4 id="set-a-span-tag">Set a <code>Span</code> tag</h4>
+
+<p>Required parameters</p>
+
+<ul>
+<li>The tag key, which must be a string</li>
+<li>The tag value, which must be either a string, a boolean value, or a numeric type</li>
+</ul>
+
+<p>Note that the OpenTracing project documents certain <strong><a href="https://opentracing.io/specification/semantic_conventions.md">“standard tags”</a></strong> that have prescribed semantic meanings.</p>
+
+<h4 id="log-structured-data">Log structured data</h4>
+
+<p>Required parameters</p>
+
+<ul>
+<li>One or more key:value pairs, where the keys must be strings and the values may have any type at all. Some OpenTracing implementations may handle more (or more of) certain log values than others.</li>
+</ul>
+
+<p>Optional parameters</p>
+
+<ul>
+<li>An explicit timestamp. If specified, it must fall between the local start and finish time for the span.</li>
+</ul>
+
+<p>Note that the OpenTracing project documents certain <strong><a href="https://opentracing.io/specification/semantic_conventions.md">“standard log keys”</a></strong> which have prescribed semantic meanings.</p>
+
+<h4 id="set-a-baggage-item">Set a <strong>baggage</strong> item</h4>
+
+<p>Baggage items are key:value string pairs that apply to the given <code>Span</code>, its <code>SpanContext</code>, and <strong>all <code>Spans</code> which directly or transitively <em>reference</em> the local <code>Span</code>.</strong> That is, baggage items propagate in-band along with the trace itself.</p>
+
+<p>Baggage items enable powerful functionality given a full-stack OpenTracing integration (for example, arbitrary application data from a mobile app can make it, transparently, all the way into the depths of a storage system), and with it some powerful costs: use this feature with care.</p>
+
+<p>Use this feature thoughtfully and with care. Every key and value is copied into every local <em>and remote</em> child of the associated Span, and that can add up to a lot of network and cpu overhead.</p>
+
+<p>Required parameters</p>
+
+<ul>
+<li>The <strong>baggage key</strong>, a string</li>
+<li>The <strong>baggage value</strong>, a string</li>
+</ul>
+
+<h4 id="get-a-baggage-item">Get a <strong>baggage</strong> item</h4>
+
+<p>Required parameters</p>
+
+<ul>
+<li>The <strong>baggage key</strong>, a string</li>
+</ul>
+
+<p><strong>Returns</strong> either the corresponding <strong>baggage value</strong>, or some indication that such a value was missing.</p>
+
+<h3 id="spancontext"><code>SpanContext</code></h3>
+
+<p>The <code>SpanContext</code> is more of a “concept” than a useful piece of functionality at the generic OpenTracing layer. That said, it is of critical importance to OpenTracing <em>implementations</em> and does present a thin API of its own. Most OpenTracing users only interact with <code>SpanContext</code> via <a href="#references-between-spans"><strong>references</strong></a> when starting new <code>Span</code>s, or when injecting/extracting a trace to/from some transport protocol.</p>
+
+<p>In OpenTracing we force <code>SpanContext</code> instances to be <strong>immutable</strong> in order to avoid complicated lifetime issues around <code>Span</code> finish and references.</p>
+
+<h4 id="iterate-through-all-baggage-items">Iterate through all baggage items</h4>
+
+<p>This is modeled in different ways depending on the language, but semantically the caller should be able to efficiently iterate through all baggage items in one pass given a <code>SpanContext</code> instance.</p>
+
+<h3 id="nooptracer"><code>NoopTracer</code></h3>
+
+<p>All OpenTracing language APIs must also provide some sort of <code>NoopTracer</code> implementation which can be used to flag-control OpenTracing or inject something harmless for tests (et cetera). In some cases (for example, Java) the <code>NoopTracer</code> may be in its own packaging artifact.</p>
+
+<h3 id="optional-api-elements">Optional API Elements</h3>
+
+<p>Some languages also provide utilities to pass an active <code>Span</code> and/or <code>SpanContext</code> around a single process. For instance, <code>opentracing-go</code> provides helpers to set and get the active <code>Span</code> in Go’s <code>context.Context</code> mechanism.</p>
+
+      </section>
+    </article>
+  </section></div>

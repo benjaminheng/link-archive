@@ -1,0 +1,441 @@
+---
+url: https://github.com/turbolinks/turbolinks
+title: turbolinks/turbolinks
+archived_at: 2021-05-23T00:59:24.927657+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text">
+<p>Please note that Turbolinks is no longer under active development. It has been superseded by a new framework called <a href="https://github.com/hotwired/turbo">Turbo</a>, which is part of the <a href="https://hotwire.dev" rel="nofollow">Hotwire</a> umbrella.</p>
+
+<p><strong>Turbolinks® makes navigating your web application faster.</strong> Get the performance benefits of a single-page application without the added complexity of a client-side JavaScript framework. Use HTML to render your views on the server side and link to pages as usual. When you follow a link, Turbolinks automatically fetches the page, swaps in its <code>&lt;body&gt;</code>, and merges its <code>&lt;head&gt;</code>, all without incurring the cost of a full page load.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://camo.githubusercontent.com/0202622b841ee1c6a039fe2894f0a885086a99842577d560706ab64e466af19d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f747572626f6c696e6b732e676966"><img src="https://camo.githubusercontent.com/0202622b841ee1c6a039fe2894f0a885086a99842577d560706ab64e466af19d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f747572626f6c696e6b732e676966" alt="Turbolinks" data-canonical-src="https://s3.amazonaws.com/turbolinks-docs/images/turbolinks.gif"/></a></p>
+<h2>Features</h2>
+<ul>
+<li><strong>Optimizes navigation automatically.</strong> No need to annotate links or specify which parts of the page should change.</li>
+<li><strong>No server-side cooperation necessary.</strong> Respond with full HTML pages, not partial page fragments or JSON.</li>
+<li><strong>Respects the web.</strong> The Back and Reload buttons work just as you’d expect. Search engine-friendly by design.</li>
+<li><strong>Supports mobile apps.</strong> Adapters for <a href="https://github.com/turbolinks/turbolinks-ios">iOS</a> and <a href="https://github.com/turbolinks/turbolinks-android">Android</a> let you build hybrid applications using native navigation controls.</li>
+</ul>
+<h2>Supported Browsers</h2>
+<p>Turbolinks works in all modern desktop and mobile browsers. It depends on the <a href="http://caniuse.com/#search=pushState" rel="nofollow">HTML5 History API</a> and <a href="http://caniuse.com/#search=requestAnimationFrame" rel="nofollow">Window.requestAnimationFrame</a>. In unsupported browsers, Turbolinks gracefully degrades to standard navigation.</p>
+<h2>Installation</h2>
+<p>Turbolinks automatically initializes itself when loaded via a standalone <code>&lt;script&gt;</code> tag or a traditional concatenated JavaScript bundle. If you load Turbolinks as a CommonJS or AMD module, first require the module, then call the provided <code>start()</code> function.</p>
+<h3>Installation Using Ruby on Rails</h3>
+<p>Your Ruby on Rails application can use the <a href="https://github.com/turbolinks/turbolinks-rails"><code>turbolinks</code> RubyGem</a> to install Turbolinks. This gem contains a Rails engine which integrates seamlessly with the Rails asset pipeline.</p>
+<ol>
+<li>Add the <code>turbolinks</code> gem, version 5, to your Gemfile: <code>gem &#39;turbolinks&#39;, &#39;~&gt; 5.2.0&#39;</code></li>
+<li>Run <code>bundle install</code>.</li>
+<li>Add <code>//= require turbolinks</code> to your JavaScript manifest file (usually found at <code>app/assets/javascripts/application.js</code>).</li>
+</ol>
+<p>The gem also provides server-side support for Turbolinks redirection, which can be used without the asset pipeline.</p>
+<h3>Installation Using npm</h3>
+<p>Your application can use the <a href="https://www.npmjs.com/package/turbolinks" rel="nofollow"><code>turbolinks</code> npm package</a> to install Turbolinks as a module for build tools like <a href="http://webpack.github.io/" rel="nofollow">webpack</a>.</p>
+<ol>
+<li>
+<p>Add the <code>turbolinks</code> package to your application: <code>npm install --save turbolinks</code>.</p>
+</li>
+<li>
+<p>Require and start Turbolinks in your JavaScript bundle:</p>
+<div data-snippet-clipboard-copy-content="var Turbolinks = require(&#34;turbolinks&#34;)
+Turbolinks.start()
+"><pre><span>var</span> <span>Turbolinks</span> <span>=</span> <span>require</span><span>(</span><span>&#34;turbolinks&#34;</span><span>)</span>
+<span>Turbolinks</span><span>.</span><span>start</span><span>(</span><span>)</span></pre></div>
+</li>
+</ol>
+<p>The npm package alone does not provide server-side support for Turbolinks redirection. See <a href="#following-redirects">Following Redirects</a> for details on adding support.</p>
+<h4>Table of Contents</h4>
+<p><a href="#navigating-with-turbolinks">Navigating with Turbolinks</a></p>
+<ul>
+<li><a href="#each-navigation-is-a-visit">Each Navigation is a Visit</a></li>
+<li><a href="#application-visits">Application Visits</a></li>
+<li><a href="#restoration-visits">Restoration Visits</a></li>
+<li><a href="#canceling-visits-before-they-start">Canceling Visits Before They Start</a></li>
+<li><a href="#disabling-turbolinks-on-specific-links">Disabling Turbolinks on Specific Links</a></li>
+</ul>
+<p><a href="#building-your-turbolinks-application">Building Your Turbolinks Application</a></p>
+<ul>
+<li><a href="#working-with-script-elements">Working with Script Elements</a>
+<ul>
+<li><a href="#loading-your-applications-javascript-bundle">Loading Your Application’s JavaScript Bundle</a></li>
+</ul>
+</li>
+<li><a href="#understanding-caching">Understanding Caching</a>
+<ul>
+<li><a href="#preparing-the-page-to-be-cached">Preparing the Page to be Cached</a></li>
+<li><a href="#detecting-when-a-preview-is-visible">Detecting When a Preview is Visible</a></li>
+<li><a href="#opting-out-of-caching">Opting Out of Caching</a></li>
+</ul>
+</li>
+<li><a href="#installing-javascript-behavior">Installing JavaScript Behavior</a>
+<ul>
+<li><a href="#observing-navigation-events">Observing Navigation Events</a></li>
+<li><a href="#attaching-behavior-with-stimulus">Attaching Behavior With Stimulus</a></li>
+</ul>
+</li>
+<li><a href="#making-transformations-idempotent">Making Transformations Idempotent</a></li>
+<li><a href="#persisting-elements-across-page-loads">Persisting Elements Across Page Loads</a></li>
+</ul>
+<p><a href="#advanced-usage">Advanced Usage</a></p>
+<ul>
+<li><a href="#displaying-progress">Displaying Progress</a></li>
+<li><a href="#reloading-when-assets-change">Reloading When Assets Change</a></li>
+<li><a href="#ensuring-specific-pages-trigger-a-full-reload">Ensuring Specific Pages Trigger a Full Reload</a></li>
+<li><a href="#setting-a-root-location">Setting a Root Location</a></li>
+<li><a href="#following-redirects">Following Redirects</a></li>
+<li><a href="#redirecting-after-a-form-submission">Redirecting After a Form Submission</a></li>
+<li><a href="#setting-custom-http-headers">Setting Custom HTTP Headers</a></li>
+</ul>
+<p><a href="#api-reference">API Reference</a></p>
+<ul>
+<li><a href="#turbolinksvisit">Turbolinks.visit</a></li>
+<li><a href="#turbolinksclearcache">Turbolinks.clearCache</a></li>
+<li><a href="#turbolinkssetprogressbardelay">Turbolinks.setProgressBarDelay</a></li>
+<li><a href="#turbolinkssupported">Turbolinks.supported</a></li>
+<li><a href="#full-list-of-events">Full List of Events</a></li>
+</ul>
+<p><a href="#contributing-to-turbolinks">Contributing to Turbolinks</a></p>
+<ul>
+<li><a href="#building-from-source">Building From Source</a></li>
+<li><a href="#running-tests">Running Tests</a></li>
+</ul>
+
+<p>Turbolinks intercepts all clicks on <code>&lt;a href&gt;</code> links to the same domain. When you click an eligible link, Turbolinks prevents the browser from following it. Instead, Turbolinks changes the browser’s URL using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/History" rel="nofollow">History API</a>, requests the new page using <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest" rel="nofollow"><code>XMLHttpRequest</code></a>, and then renders the HTML response.</p>
+<p>During rendering, Turbolinks replaces the current <code>&lt;body&gt;</code> element outright and merges the contents of the <code>&lt;head&gt;</code> element. The JavaScript <code>window</code> and <code>document</code> objects, and the HTML <code>&lt;html&gt;</code> element, persist from one rendering to the next.</p>
+<h2>Each Navigation is a Visit</h2>
+<p>Turbolinks models navigation as a <em>visit</em> to a <em>location</em> (URL) with an <em>action</em>.</p>
+<p>Visits represent the entire navigation lifecycle from click to render. That includes changing browser history, issuing the network request, restoring a copy of the page from cache, rendering the final response, and updating the scroll position.</p>
+<p>There are two types of visit: an <em>application visit</em>, which has an action of <em>advance</em> or <em>replace</em>, and a <em>restoration visit</em>, which has an action of <em>restore</em>.</p>
+<h2>Application Visits</h2>
+<p>Application visits are initiated by clicking a Turbolinks-enabled link, or programmatically by calling <a href="#turbolinksvisit"><code>Turbolinks.visit(location)</code></a>.</p>
+<p>An application visit always issues a network request. When the response arrives, Turbolinks renders its HTML and completes the visit.</p>
+<p>If possible, Turbolinks will render a preview of the page from cache immediately after the visit starts. This improves the perceived speed of frequent navigation between the same pages.</p>
+<p>If the visit’s location includes an anchor, Turbolinks will attempt to scroll to the anchored element. Otherwise, it will scroll to the top of the page.</p>
+<p>Application visits result in a change to the browser’s history; the visit’s <em>action</em> determines how.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://camo.githubusercontent.com/65c3da6b659dd5184601fc6d2539518bcc548dfd6cea2e778391a59198e5f3ae/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f616476616e63652e737667"><img src="https://camo.githubusercontent.com/65c3da6b659dd5184601fc6d2539518bcc548dfd6cea2e778391a59198e5f3ae/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f616476616e63652e737667" alt="Advance visit action" data-canonical-src="https://s3.amazonaws.com/turbolinks-docs/images/advance.svg"/></a></p>
+<p>The default visit action is <em>advance</em>. During an advance visit, Turbolinks pushes a new entry onto the browser’s history stack using <a href="https://developer.mozilla.org/en-US/docs/Web/API/History/pushState" rel="nofollow"><code>history.pushState</code></a>.</p>
+<p>Applications using the Turbolinks <a href="https://github.com/turbolinks/turbolinks-ios">iOS adapter</a> typically handle advance visits by pushing a new view controller onto the navigation stack. Similarly, applications using the <a href="https://github.com/turbolinks/turbolinks-android">Android adapter</a> typically push a new activity onto the back stack.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://camo.githubusercontent.com/cac753a131a25f4716cefbf8e896f0e1729e01be274f2938c510ea767959ccb1/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f7265706c6163652e737667"><img src="https://camo.githubusercontent.com/cac753a131a25f4716cefbf8e896f0e1729e01be274f2938c510ea767959ccb1/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f7265706c6163652e737667" alt="Replace visit action" data-canonical-src="https://s3.amazonaws.com/turbolinks-docs/images/replace.svg"/></a></p>
+<p>You may wish to visit a location without pushing a new history entry onto the stack. The <em>replace</em> visit action uses <a href="https://developer.mozilla.org/en-US/docs/Web/API/History/pushState" rel="nofollow"><code>history.replaceState</code></a> to discard the topmost history entry and replace it with the new location.</p>
+<p>To specify that following a link should trigger a replace visit, annotate the link with <code>data-turbolinks-action=&#34;replace&#34;</code>:</p>
+<div data-snippet-clipboard-copy-content="&lt;a href=&#34;/edit&#34; data-turbolinks-action=&#34;replace&#34;&gt;Edit&lt;/a&gt;
+"><pre><span>&lt;</span><span>a</span> <span>href</span>=&#34;<span>/edit</span>&#34; <span>data-turbolinks-action</span>=&#34;<span>replace</span>&#34;<span>&gt;</span>Edit<span>&lt;/</span><span>a</span><span>&gt;</span></pre></div>
+<p>To programmatically visit a location with the replace action, pass the <code>action: &#34;replace&#34;</code> option to <a href="#turbolinksvisit"><code>Turbolinks.visit</code></a>:</p>
+<div data-snippet-clipboard-copy-content="Turbolinks.visit(&#34;/edit&#34;, { action: &#34;replace&#34; })
+"><pre><span>Turbolinks</span><span>.</span><span>visit</span><span>(</span><span>&#34;/edit&#34;</span><span>,</span> <span>{</span> <span>action</span>: <span>&#34;replace&#34;</span> <span>}</span><span>)</span></pre></div>
+<p>Applications using the Turbolinks <a href="https://github.com/turbolinks/turbolinks-ios">iOS adapter</a> typically handle replace visits by dismissing the topmost view controller and pushing a new view controller onto the navigation stack without animation.</p>
+<h2>Restoration Visits</h2>
+<p>Turbolinks automatically initiates a restoration visit when you navigate with the browser’s Back or Forward buttons. Applications using the <a href="https://github.com/turbolinks/turbolinks-ios">iOS</a> or <a href="https://github.com/turbolinks/turbolinks-android">Android</a> adapters initiate a restoration visit when moving backward in the navigation stack.</p>
+<p><a target="_blank" rel="noopener noreferrer" href="https://camo.githubusercontent.com/f0aeff066bc66e699242975cdce6f187e865e842f54d1db7e3a3e1ae4af9cbbd/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f726573746f72652e737667"><img src="https://camo.githubusercontent.com/f0aeff066bc66e699242975cdce6f187e865e842f54d1db7e3a3e1ae4af9cbbd/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f747572626f6c696e6b732d646f63732f696d616765732f726573746f72652e737667" alt="Restore visit action" data-canonical-src="https://s3.amazonaws.com/turbolinks-docs/images/restore.svg"/></a></p>
+<p>If possible, Turbolinks will render a copy of the page from cache without making a request. Otherwise, it will retrieve a fresh copy of the page over the network. See <a href="#understanding-caching">Understanding Caching</a> for more details.</p>
+<p>Turbolinks saves the scroll position of each page before navigating away and automatically returns to this saved position on restoration visits.</p>
+<p>Restoration visits have an action of <em>restore</em> and Turbolinks reserves them for internal use. You should not attempt to annotate links or invoke <a href="#turbolinksvisit"><code>Turbolinks.visit</code></a> with an action of <code>restore</code>.</p>
+<h2>Canceling Visits Before They Start</h2>
+<p>Application visits can be canceled before they start, regardless of whether they were initiated by a link click or a call to <a href="#turbolinksvisit"><code>Turbolinks.visit</code></a>.</p>
+<p>Listen for the <code>turbolinks:before-visit</code> event to be notified when a visit is about to start, and use <code>event.data.url</code> (or <code>$event.originalEvent.data.url</code>, when using jQuery) to check the visit’s location. Then cancel the visit by calling <code>event.preventDefault()</code>.</p>
+<p>Restoration visits cannot be canceled and do not fire <code>turbolinks:before-visit</code>. Turbolinks issues restoration visits in response to history navigation that has <em>already taken place</em>, typically via the browser’s Back or Forward buttons.</p>
+<h2>Disabling Turbolinks on Specific Links</h2>
+<p>Turbolinks can be disabled on a per-link basis by annotating a link or any of its ancestors with <code>data-turbolinks=&#34;false&#34;</code>.</p>
+<div data-snippet-clipboard-copy-content="&lt;a href=&#34;/&#34; data-turbolinks=&#34;false&#34;&gt;Disabled&lt;/a&gt;
+
+&lt;div data-turbolinks=&#34;false&#34;&gt;
+  &lt;a href=&#34;/&#34;&gt;Disabled&lt;/a&gt;
+&lt;/div&gt;
+"><pre><span>&lt;</span><span>a</span> <span>href</span>=&#34;<span>/</span>&#34; <span>data-turbolinks</span>=&#34;<span>false</span>&#34;<span>&gt;</span>Disabled<span>&lt;/</span><span>a</span><span>&gt;</span>
+
+<span>&lt;</span><span>div</span> <span>data-turbolinks</span>=&#34;<span>false</span>&#34;<span>&gt;</span>
+  <span>&lt;</span><span>a</span> <span>href</span>=&#34;<span>/</span>&#34;<span>&gt;</span>Disabled<span>&lt;/</span><span>a</span><span>&gt;</span>
+<span>&lt;/</span><span>div</span><span>&gt;</span></pre></div>
+<p>To reenable when an ancestor has opted out, use <code>data-turbolinks=&#34;true&#34;</code>:</p>
+<div data-snippet-clipboard-copy-content="&lt;div data-turbolinks=&#34;false&#34;&gt;
+  &lt;a href=&#34;/&#34; data-turbolinks=&#34;true&#34;&gt;Enabled&lt;/a&gt;
+&lt;/div&gt;
+"><pre><span>&lt;</span><span>div</span> <span>data-turbolinks</span>=&#34;<span>false</span>&#34;<span>&gt;</span>
+  <span>&lt;</span><span>a</span> <span>href</span>=&#34;<span>/</span>&#34; <span>data-turbolinks</span>=&#34;<span>true</span>&#34;<span>&gt;</span>Enabled<span>&lt;/</span><span>a</span><span>&gt;</span>
+<span>&lt;/</span><span>div</span><span>&gt;</span></pre></div>
+<p>Links with Turbolinks disabled will be handled normally by the browser.</p>
+
+<p>Turbolinks is fast because it doesn’t reload the page when you follow a link. Instead, your application becomes a persistent, long-running process in the browser. This requires you to rethink the way you structure your JavaScript.</p>
+<p>In particular, you can no longer depend on a full page load to reset your environment every time you navigate. The JavaScript <code>window</code> and <code>document</code> objects retain their state across page changes, and any other objects you leave in memory will stay in memory.</p>
+<p>With awareness and a little extra care, you can design your application to gracefully handle this constraint without tightly coupling it to Turbolinks.</p>
+<h2>Working with Script Elements</h2>
+<p>Your browser automatically loads and evaluates any <code>&lt;script&gt;</code> elements present on the initial page load.</p>
+<p>When you navigate to a new page, Turbolinks looks for any <code>&lt;script&gt;</code> elements in the new page’s <code>&lt;head&gt;</code> which aren’t present on the current page. Then it appends them to the current <code>&lt;head&gt;</code> where they’re loaded and evaluated by the browser. You can use this to load additional JavaScript files on-demand.</p>
+<p>Turbolinks evaluates <code>&lt;script&gt;</code> elements in a page’s <code>&lt;body&gt;</code> each time it renders the page. You can use inline body scripts to set up per-page JavaScript state or bootstrap client-side models. To install behavior, or to perform more complex operations when the page changes, avoid script elements and use the <code>turbolinks:load</code> event instead.</p>
+<p>Annotate <code>&lt;script&gt;</code> elements with <code>data-turbolinks-eval=&#34;false&#34;</code> if you do not want Turbolinks to evaluate them after rendering. Note that this annotation will not prevent your browser from evaluating scripts on the initial page load.</p>
+<h3>Loading Your Application’s JavaScript Bundle</h3>
+<p>Always make sure to load your application’s JavaScript bundle using <code>&lt;script&gt;</code> elements in the <code>&lt;head&gt;</code> of your document. Otherwise, Turbolinks will reload the bundle with every page change.</p>
+<div data-snippet-clipboard-copy-content="&lt;head&gt;
+  ...
+  &lt;script src=&#34;/application-cbd3cd4.js&#34; defer&gt;&lt;/script&gt;
+&lt;/head&gt;
+"><pre><span>&lt;</span><span>head</span><span>&gt;</span>
+  ...
+  <span>&lt;</span><span>script</span> <span>src</span>=&#34;<span>/application-cbd3cd4.js</span>&#34; <span>defer</span><span>&gt;</span><span>&lt;/</span><span>script</span><span>&gt;</span>
+<span>&lt;/</span><span>head</span><span>&gt;</span></pre></div>
+<p>If you have traditionally placed application scripts at the end of <code>&lt;body&gt;</code> for performance reasons, consider using the <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#attr-defer" rel="nofollow"><code>&lt;script defer&gt;</code></a> attribute instead. It has <a href="https://caniuse.com/#feat=script-defer" rel="nofollow">widespread browser support</a> and allows you to keep your scripts in <code>&lt;head&gt;</code> for Turbolinks compatibility.</p>
+<p>You should also consider configuring your asset packaging system to fingerprint each script so it has a new URL when its contents change. Then you can use the <code>data-turbolinks-track</code> attribute to force a full page reload when you deploy a new JavaScript bundle. See <a href="#reloading-when-assets-change">Reloading When Assets Change</a> for information.</p>
+<h2>Understanding Caching</h2>
+<p>Turbolinks maintains a cache of recently visited pages. This cache serves two purposes: to display pages without accessing the network during restoration visits, and to improve perceived performance by showing temporary previews during application visits.</p>
+<p>When navigating by history (via <a href="#restoration-visits">Restoration Visits</a>), Turbolinks will restore the page from cache without loading a fresh copy from the network, if possible.</p>
+<p>Otherwise, during standard navigation (via <a href="#application-visits">Application Visits</a>), Turbolinks will immediately restore the page from cache and display it as a preview while simultaneously loading a fresh copy from the network. This gives the illusion of instantaneous page loads for frequently accessed locations.</p>
+<p>Turbolinks saves a copy of the current page to its cache just before rendering a new page. Note that Turbolinks copies the page using <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/cloneNode" rel="nofollow"><code>cloneNode(true)</code></a>, which means any attached event listeners and associated data are discarded.</p>
+<h3>Preparing the Page to be Cached</h3>
+<p>Listen for the <code>turbolinks:before-cache</code> event if you need to prepare the document before Turbolinks caches it. You can use this event to reset forms, collapse expanded UI elements, or tear down any third-party widgets so the page is ready to be displayed again.</p>
+<div data-snippet-clipboard-copy-content="document.addEventListener(&#34;turbolinks:before-cache&#34;, function() {
+  // ...
+})
+"><pre><span>document</span><span>.</span><span>addEventListener</span><span>(</span><span>&#34;turbolinks:before-cache&#34;</span><span>,</span> <span>function</span><span>(</span><span>)</span> <span>{</span>
+  <span>// ...</span>
+<span>}</span><span>)</span></pre></div>
+<h3>Detecting When a Preview is Visible</h3>
+<p>Turbolinks adds a <code>data-turbolinks-preview</code> attribute to the <code>&lt;html&gt;</code> element when it displays a preview from cache. You can check for the presence of this attribute to selectively enable or disable behavior when a preview is visible.</p>
+<div data-snippet-clipboard-copy-content="if (document.documentElement.hasAttribute(&#34;data-turbolinks-preview&#34;)) {
+  // Turbolinks is displaying a preview
+}
+"><pre><span>if</span> <span>(</span><span>document</span><span>.</span><span>documentElement</span><span>.</span><span>hasAttribute</span><span>(</span><span>&#34;data-turbolinks-preview&#34;</span><span>)</span><span>)</span> <span>{</span>
+  <span>// Turbolinks is displaying a preview</span>
+<span>}</span></pre></div>
+<h3>Opting Out of Caching</h3>
+<p>You can control caching behavior on a per-page basis by including a <code>&lt;meta name=&#34;turbolinks-cache-control&#34;&gt;</code> element in your page’s <code>&lt;head&gt;</code> and declaring a caching directive.</p>
+<p>Use the <code>no-preview</code> directive to specify that a cached version of the page should not be shown as a preview during an application visit. Pages marked no-preview will only be used for restoration visits.</p>
+<p>To specify that a page should not be cached at all, use the <code>no-cache</code> directive. Pages marked no-cache will always be fetched over the network, including during restoration visits.</p>
+<div data-snippet-clipboard-copy-content="&lt;head&gt;
+  ...
+  &lt;meta name=&#34;turbolinks-cache-control&#34; content=&#34;no-cache&#34;&gt;
+&lt;/head&gt;
+"><pre><span>&lt;</span><span>head</span><span>&gt;</span>
+  ...
+  <span>&lt;</span><span>meta</span> <span>name</span>=&#34;<span>turbolinks-cache-control</span>&#34; <span>content</span>=&#34;<span>no-cache</span>&#34;<span>&gt;</span>
+<span>&lt;/</span><span>head</span><span>&gt;</span></pre></div>
+<p>To completely disable caching in your application, ensure every page contains a no-cache directive.</p>
+<h2>Installing JavaScript Behavior</h2>
+<p>You may be used to installing JavaScript behavior in response to the <code>window.onload</code>, <code>DOMContentLoaded</code>, or jQuery <code>ready</code> events. With Turbolinks, these events will fire only in response to the initial page load, not after any subsequent page changes. We compare two strategies for connecting JavaScript behavior to the DOM below.</p>
+<h3>Observing Navigation Events</h3>
+<p>Turbolinks triggers a series of events during navigation. The most significant of these is the <code>turbolinks:load</code> event, which fires once on the initial page load, and again after every Turbolinks visit.</p>
+<p>You can observe the <code>turbolinks:load</code> event in place of <code>DOMContentLoaded</code> to set up JavaScript behavior after every page change:</p>
+<div data-snippet-clipboard-copy-content="document.addEventListener(&#34;turbolinks:load&#34;, function() {
+  // ...
+})
+"><pre><span>document</span><span>.</span><span>addEventListener</span><span>(</span><span>&#34;turbolinks:load&#34;</span><span>,</span> <span>function</span><span>(</span><span>)</span> <span>{</span>
+  <span>// ...</span>
+<span>}</span><span>)</span></pre></div>
+<p>Keep in mind that your application will not always be in a pristine state when this event is fired, and you may need to clean up behavior installed for the previous page.</p>
+<p>Also note that Turbolinks navigation may not be the only source of page updates in your application, so you may wish to move your initialization code into a separate function which you can call from <code>turbolinks:load</code> and anywhere else you may change the DOM.</p>
+<p>When possible, avoid using the <code>turbolinks:load</code> event to add other event listeners directly to elements on the page body. Instead, consider using <a href="https://learn.jquery.com/events/event-delegation/" rel="nofollow">event delegation</a> to register event listeners once on <code>document</code> or <code>window</code>.</p>
+<p>See the <a href="#full-list-of-events">Full List of Events</a> for more information.</p>
+<h3>Attaching Behavior With Stimulus</h3>
+<p>New DOM elements can appear on the page at any time by way of Ajax request handlers, WebSocket handlers, or client-side rendering operations, and these elements often need to be initialized as if they came from a fresh page load.</p>
+<p>You can handle all of these updates, including updates from Turbolinks page loads, in a single place with the conventions and lifecycle callbacks provided by Turbolinks’ sister framework, <a href="https://github.com/stimulusjs/stimulus">Stimulus</a>.</p>
+<p>Stimulus lets you annotate your HTML with controller, action, and target attributes:</p>
+<div data-snippet-clipboard-copy-content="&lt;div data-controller=&#34;hello&#34;&gt;
+  &lt;input data-target=&#34;hello.name&#34; type=&#34;text&#34;&gt;
+  &lt;button data-action=&#34;click-&gt;hello#greet&#34;&gt;Greet&lt;/button&gt;
+&lt;/div&gt;
+"><pre><span>&lt;</span><span>div</span> <span>data-controller</span>=&#34;<span>hello</span>&#34;<span>&gt;</span>
+  <span>&lt;</span><span>input</span> <span>data-target</span>=&#34;<span>hello.name</span>&#34; <span>type</span>=&#34;<span>text</span>&#34;<span>&gt;</span>
+  <span>&lt;</span><span>button</span> <span>data-action</span>=&#34;<span>click-&gt;hello#greet</span>&#34;<span>&gt;</span>Greet<span>&lt;/</span><span>button</span><span>&gt;</span>
+<span>&lt;/</span><span>div</span><span>&gt;</span></pre></div>
+<p>Implement a compatible controller and Stimulus connects it automatically:</p>
+<div data-snippet-clipboard-copy-content="// hello_controller.js
+import { Controller } from &#34;stimulus&#34;
+
+export default class extends Controller {
+  greet() {
+    console.log(`Hello, ${this.name}!`)
+  }
+
+  get name() {
+    return this.targets.find(&#34;name&#34;).value
+  }
+}
+"><pre><span>// hello_controller.js</span>
+<span>import</span> <span>{</span> <span>Controller</span> <span>}</span> <span>from</span> <span>&#34;stimulus&#34;</span>
+
+<span>export</span> <span>default</span> <span>class</span> <span>extends</span> <span>Controller</span> <span>{</span>
+  <span>greet</span><span>(</span><span>)</span> <span>{</span>
+    <span>console</span><span>.</span><span>log</span><span>(</span><span>`Hello, <span><span>${</span><span>this</span><span>.</span><span>name</span><span>}</span></span>!`</span><span>)</span>
+  <span>}</span>
+
+  <span>get</span> <span>name</span><span>(</span><span>)</span> <span>{</span>
+    <span>return</span> <span>this</span><span>.</span><span>targets</span><span>.</span><span>find</span><span>(</span><span>&#34;name&#34;</span><span>)</span><span>.</span><span>value</span>
+  <span>}</span>
+<span>}</span></pre></div>
+<p>Stimulus connects and disconnects these controllers and their associated event handlers whenever the document changes using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver" rel="nofollow">MutationObserver</a> API. As a result, it handles Turbolinks page changes the same way it handles any other type of DOM update.</p>
+<p>See the <a href="https://github.com/stimulusjs/stimulus">Stimulus repository on GitHub</a> for more information.</p>
+<h2>Making Transformations Idempotent</h2>
+<p>Often you’ll want to perform client-side transformations to HTML received from the server. For example, you might want to use the browser’s knowledge of the user’s current time zone to group a collection of elements by date.</p>
+<p>Suppose you have annotated a set of elements with <code>data-timestamp</code> attributes indicating the elements’ creation times in UTC. You have a JavaScript function that queries the document for all such elements, converts the timestamps to local time, and inserts date headers before each element that occurs on a new day.</p>
+<p>Consider what happens if you’ve configured this function to run on <code>turbolinks:load</code>. When you navigate to the page, your function inserts date headers. Navigate away, and Turbolinks saves a copy of the transformed page to its cache. Now press the Back button—Turbolinks restores the page, fires <code>turbolinks:load</code> again, and your function inserts a second set of date headers.</p>
+<p>To avoid this problem, make your transformation function <em>idempotent</em>. An idempotent transformation is safe to apply multiple times without changing the result beyond its initial application.</p>
+<p>One technique for making a transformation idempotent is to keep track of whether you’ve already performed it by setting a <code>data</code> attribute on each processed element. When Turbolinks restores your page from cache, these attributes will still be present. Detect these attributes in your transformation function to determine which elements have already been processed.</p>
+<p>A more robust technique is simply to detect the transformation itself. In the date grouping example above, that means checking for the presence of a date divider before inserting a new one. This approach gracefully handles newly inserted elements that weren’t processed by the original transformation.</p>
+<h2>Persisting Elements Across Page Loads</h2>
+<p>Turbolinks allows you to mark certain elements as <em>permanent</em>. Permanent elements persist across page loads, so that any changes you make to those elements do not need to be reapplied after navigation.</p>
+<p>Consider a Turbolinks application with a shopping cart. At the top of each page is an icon with the number of items currently in the cart. This counter is updated dynamically with JavaScript as items are added and removed.</p>
+<p>Now imagine a user who has navigated to several pages in this application. She adds an item to her cart, then presses the Back button in her browser. Upon navigation, Turbolinks restores the previous page’s state from cache, and the cart item count erroneously changes from 1 to 0.</p>
+<p>You can avoid this problem by marking the counter element as permanent. Designate permanent elements by giving them an HTML <code>id</code> and annotating them with <code>data-turbolinks-permanent</code>.</p>
+<div data-snippet-clipboard-copy-content="&lt;div id=&#34;cart-counter&#34; data-turbolinks-permanent&gt;1 item&lt;/div&gt;
+"><pre><span>&lt;</span><span>div</span> <span>id</span>=&#34;<span>cart-counter</span>&#34; <span>data-turbolinks-permanent</span><span>&gt;</span>1 item<span>&lt;/</span><span>div</span><span>&gt;</span></pre></div>
+<p>Before each render, Turbolinks matches all permanent elements by <code>id</code> and transfers them from the original page to the new page, preserving their data and event listeners.</p>
+
+<h2>Displaying Progress</h2>
+<p>During Turbolinks navigation, the browser will not display its native progress indicator. Turbolinks installs a CSS-based progress bar to provide feedback while issuing a request.</p>
+<p>The progress bar is enabled by default. It appears automatically for any page that takes longer than 500ms to load. (You can change this delay with the <a href="#turbolinkssetprogressbardelay"><code>Turbolinks.setProgressBarDelay</code></a> method.)</p>
+<p>The progress bar is a <code>&lt;div&gt;</code> element with the class name <code>turbolinks-progress-bar</code>. Its default styles appear first in the document and can be overridden by rules that come later.</p>
+<p>For example, the following CSS will result in a thick green progress bar:</p>
+<div data-snippet-clipboard-copy-content=".turbolinks-progress-bar {
+  height: 5px;
+  background-color: green;
+}
+"><pre>.<span>turbolinks-progress-bar</span> {
+  <span>height</span><span>:</span> <span>5<span>px</span></span>;
+  <span>background-color</span><span>:</span> green;
+}</pre></div>
+<p>To disable the progress bar entirely, set its <code>visibility</code> style to <code>hidden</code>:</p>
+<div data-snippet-clipboard-copy-content=".turbolinks-progress-bar {
+  visibility: hidden;
+}
+"><pre>.<span>turbolinks-progress-bar</span> {
+  <span>visibility</span><span>:</span> hidden;
+}</pre></div>
+<h2>Reloading When Assets Change</h2>
+<p>Turbolinks can track the URLs of asset elements in <code>&lt;head&gt;</code> from one page to the next and automatically issue a full reload if they change. This ensures that users always have the latest versions of your application’s scripts and styles.</p>
+<p>Annotate asset elements with <code>data-turbolinks-track=&#34;reload&#34;</code> and include a version identifier in your asset URLs. The identifier could be a number, a last-modified timestamp, or better, a digest of the asset’s contents, as in the following example.</p>
+<div data-snippet-clipboard-copy-content="&lt;head&gt;
+  ...
+  &lt;link rel=&#34;stylesheet&#34; href=&#34;/application-258e88d.css&#34; data-turbolinks-track=&#34;reload&#34;&gt;
+  &lt;script src=&#34;/application-cbd3cd4.js&#34; data-turbolinks-track=&#34;reload&#34;&gt;&lt;/script&gt;
+&lt;/head&gt;
+"><pre><span>&lt;</span><span>head</span><span>&gt;</span>
+  ...
+  <span>&lt;</span><span>link</span> <span>rel</span>=&#34;<span>stylesheet</span>&#34; <span>href</span>=&#34;<span>/application-258e88d.css</span>&#34; <span>data-turbolinks-track</span>=&#34;<span>reload</span>&#34;<span>&gt;</span>
+  <span>&lt;</span><span>script</span> <span>src</span>=&#34;<span>/application-cbd3cd4.js</span>&#34; <span>data-turbolinks-track</span>=&#34;<span>reload</span>&#34;<span>&gt;</span><span>&lt;/</span><span>script</span><span>&gt;</span>
+<span>&lt;/</span><span>head</span><span>&gt;</span></pre></div>
+<h2>Ensuring Specific Pages Trigger a Full Reload</h2>
+<p>You can ensure visits to a certain page will always trigger a full reload by including a <code>&lt;meta name=&#34;turbolinks-visit-control&#34;&gt;</code> element in the page’s <code>&lt;head&gt;</code>.</p>
+<div data-snippet-clipboard-copy-content="&lt;head&gt;
+  ...
+  &lt;meta name=&#34;turbolinks-visit-control&#34; content=&#34;reload&#34;&gt;
+&lt;/head&gt;
+"><pre><span>&lt;</span><span>head</span><span>&gt;</span>
+  ...
+  <span>&lt;</span><span>meta</span> <span>name</span>=&#34;<span>turbolinks-visit-control</span>&#34; <span>content</span>=&#34;<span>reload</span>&#34;<span>&gt;</span>
+<span>&lt;/</span><span>head</span><span>&gt;</span></pre></div>
+<p>This setting may be useful as a workaround for third-party JavaScript libraries that don’t interact well with Turbolinks page changes.</p>
+<h2>Setting a Root Location</h2>
+<p>By default, Turbolinks only loads URLs with the same origin—i.e. the same protocol, domain name, and port—as the current document. A visit to any other URL falls back to a full page load.</p>
+<p>In some cases, you may want to further scope Turbolinks to a path on the same origin. For example, if your Turbolinks application lives at <code>/app</code>, and the non-Turbolinks help site lives at <code>/help</code>, links from the app to the help site shouldn’t use Turbolinks.</p>
+<p>Include a <code>&lt;meta name=&#34;turbolinks-root&#34;&gt;</code> element in your pages’ <code>&lt;head&gt;</code> to scope Turbolinks to a particular root location. Turbolinks will only load same-origin URLs that are prefixed with this path.</p>
+<div data-snippet-clipboard-copy-content="&lt;head&gt;
+  ...
+  &lt;meta name=&#34;turbolinks-root&#34; content=&#34;/app&#34;&gt;
+&lt;/head&gt;
+"><pre><span>&lt;</span><span>head</span><span>&gt;</span>
+  ...
+  <span>&lt;</span><span>meta</span> <span>name</span>=&#34;<span>turbolinks-root</span>&#34; <span>content</span>=&#34;<span>/app</span>&#34;<span>&gt;</span>
+<span>&lt;/</span><span>head</span><span>&gt;</span></pre></div>
+<h2>Following Redirects</h2>
+<p>When you visit location <code>/one</code> and the server redirects you to location <code>/two</code>, you expect the browser’s address bar to display the redirected URL.</p>
+<p>However, Turbolinks makes requests using <code>XMLHttpRequest</code>, which transparently follows redirects. There’s no way for Turbolinks to tell whether a request resulted in a redirect without additional cooperation from the server.</p>
+<p>To work around this problem, send the <code>Turbolinks-Location</code> header in the final response to a visit that was redirected, and Turbolinks will replace the browser’s topmost history entry with the value you provide.</p>
+<p>The Turbolinks Rails engine sets <code>Turbolinks-Location</code> automatically when using <code>redirect_to</code> in response to a Turbolinks visit.</p>
+<h2>Redirecting After a Form Submission</h2>
+<p>Submitting an HTML form to the server and redirecting in response is a common pattern in web applications. Standard form submission is similar to navigation, resulting in a full page load. Using Turbolinks you can improve the performance of form submission without complicating your server-side code.</p>
+<p>Instead of submitting forms normally, submit them with XHR. In response to an XHR submit on the server, return JavaScript that performs a <a href="#turbolinksvisit"><code>Turbolinks.visit</code></a> to be evaluated by the browser.</p>
+<p>If form submission results in a state change on the server that affects cached pages, consider clearing Turbolinks’ cache with <a href="#turbolinksclearcache"><code>Turbolinks.clearCache()</code></a>.</p>
+<p>The Turbolinks Rails engine performs this optimization automatically for non-GET XHR requests that redirect with the <code>redirect_to</code> helper.</p>
+<h2>Setting Custom HTTP Headers</h2>
+<p>You can observe the <code>turbolinks:request-start</code> event to set custom headers on Turbolinks requests. Access the request’s XMLHttpRequest object via <code>event.data.xhr</code>, then call the <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest" rel="nofollow"><code>setRequestHeader</code></a> method as many times as you wish.</p>
+<p>For example, you might want to include a request ID with every Turbolinks link click and programmatic visit.</p>
+<div data-snippet-clipboard-copy-content="document.addEventListener(&#34;turbolinks:request-start&#34;, function(event) {
+  var xhr = event.data.xhr
+  xhr.setRequestHeader(&#34;X-Request-Id&#34;, &#34;123...&#34;)
+})
+"><pre><span>document</span><span>.</span><span>addEventListener</span><span>(</span><span>&#34;turbolinks:request-start&#34;</span><span>,</span> <span>function</span><span>(</span><span>event</span><span>)</span> <span>{</span>
+  <span>var</span> <span>xhr</span> <span>=</span> <span>event</span><span>.</span><span>data</span><span>.</span><span>xhr</span>
+  <span>xhr</span><span>.</span><span>setRequestHeader</span><span>(</span><span>&#34;X-Request-Id&#34;</span><span>,</span> <span>&#34;123...&#34;</span><span>)</span>
+<span>}</span><span>)</span></pre></div>
+
+<h2>Turbolinks.visit</h2>
+<p>Usage:</p>
+<div data-snippet-clipboard-copy-content="Turbolinks.visit(location)
+Turbolinks.visit(location, { action: action })
+"><pre><span>Turbolinks</span><span>.</span><span>visit</span><span>(</span><span>location</span><span>)</span>
+<span>Turbolinks</span><span>.</span><span>visit</span><span>(</span><span>location</span><span>,</span> <span>{</span> <span>action</span>: <span>action</span> <span>}</span><span>)</span></pre></div>
+<p>Performs an <a href="#application-visits">Application Visit</a> to the given <em>location</em> (a string containing a URL or path) with the specified <em>action</em> (a string, either <code>&#34;advance&#34;</code> or <code>&#34;replace&#34;</code>).</p>
+<p>If <em>location</em> is a cross-origin URL, or falls outside of the specified root (see <a href="#setting-a-root-location">Setting a Root Location</a>), or if the value of <a href="#turbolinkssupported"><code>Turbolinks.supported</code></a> is <code>false</code>, Turbolinks performs a full page load by setting <code>window.location</code>.</p>
+<p>If <em>action</em> is unspecified, Turbolinks assumes a value of <code>&#34;advance&#34;</code>.</p>
+<p>Before performing the visit, Turbolinks fires a <code>turbolinks:before-visit</code> event on <code>document</code>. Your application can listen for this event and cancel the visit with <code>event.preventDefault()</code> (see <a href="#canceling-visits-before-they-start">Canceling Visits Before They Start</a>).</p>
+<h2>Turbolinks.clearCache</h2>
+<p>Usage:</p>
+
+<p>Removes all entries from the Turbolinks page cache. Call this when state has changed on the server that may affect cached pages.</p>
+<h2>Turbolinks.setProgressBarDelay</h2>
+<p>Usage:</p>
+<div data-snippet-clipboard-copy-content="Turbolinks.setProgressBarDelay(delayInMilliseconds)
+"><pre><span>Turbolinks</span><span>.</span><span>setProgressBarDelay</span><span>(</span><span>delayInMilliseconds</span><span>)</span></pre></div>
+<p>Sets the delay after which the <a href="#displaying-progress">progress bar</a> will appear during navigation, in milliseconds. The progress bar appears after 500ms by default.</p>
+<p>Note that this method has no effect when used with the iOS or Android adapters.</p>
+<h2>Turbolinks.supported</h2>
+<p>Usage:</p>
+<div data-snippet-clipboard-copy-content="if (Turbolinks.supported) {
+  // ...
+}
+"><pre><span>if</span> <span>(</span><span>Turbolinks</span><span>.</span><span>supported</span><span>)</span> <span>{</span>
+  <span>// ...</span>
+<span>}</span></pre></div>
+<p>Detects whether Turbolinks is supported in the current browser (see <a href="#supported-browsers">Supported Browsers</a>).</p>
+<h2>Full List of Events</h2>
+<p>Turbolinks emits events that allow you to track the navigation lifecycle and respond to page loading. Except where noted, Turbolinks fires events on the <code>document</code> object.<br/>
+Note that when using jQuery, the data on the event must be accessed as <code>$event.originalEvent.data</code>.</p>
+<ul>
+<li>
+<p><code>turbolinks:click</code> fires when you click a Turbolinks-enabled link. The clicked element is the event target. Access the requested location with <code>event.data.url</code>. Cancel this event to let the click fall through to the browser as normal navigation.</p>
+</li>
+<li>
+<p><code>turbolinks:before-visit</code> fires before visiting a location, except when navigating by history. Access the requested location with <code>event.data.url</code>. Cancel this event to prevent navigation.</p>
+</li>
+<li>
+<p><code>turbolinks:visit</code> fires immediately after a visit starts.</p>
+</li>
+<li>
+<p><code>turbolinks:request-start</code> fires before Turbolinks issues a network request to fetch the page. Access the XMLHttpRequest object with <code>event.data.xhr</code>.</p>
+</li>
+<li>
+<p><code>turbolinks:request-end</code> fires after the network request completes. Access the XMLHttpRequest object with <code>event.data.xhr</code>.</p>
+</li>
+<li>
+<p><code>turbolinks:before-cache</code> fires before Turbolinks saves the current page to cache.</p>
+</li>
+<li>
+<p><code>turbolinks:before-render</code> fires before rendering the page. Access the new <code>&lt;body&gt;</code> element with <code>event.data.newBody</code>.</p>
+</li>
+<li>
+<p><code>turbolinks:render</code> fires after Turbolinks renders the page. This event fires twice during an application visit to a cached location: once after rendering the cached version, and again after rendering the fresh version.</p>
+</li>
+<li>
+<p><code>turbolinks:load</code> fires once after the initial page load, and again after every Turbolinks visit. Access visit timing metrics with the <code>event.data.timing</code> object.</p>
+</li>
+</ul>
+
+<p>Turbolinks is open-source software, freely distributable under the terms of an <a href="https://github.com/turbolinks/turbolinks/blob/master/LICENSE">MIT-style license</a>. The <a href="https://github.com/turbolinks/turbolinks">source code is hosted on GitHub</a>.
+Development is sponsored by <a href="https://basecamp.com/" rel="nofollow">Basecamp</a>.</p>
+<p>We welcome contributions in the form of bug reports, pull requests, or thoughtful discussions in the <a href="https://github.com/turbolinks/turbolinks/issues">GitHub issue tracker</a>.</p>
+<p>Please note that this project is released with a <a href="https://github.com/turbolinks/turbolinks/blob/master/CONDUCT.md">Contributor Code of Conduct</a>. By participating in this project you agree to abide by its terms.</p>
+<h2>Building From Source</h2>
+<p>Turbolinks is written in <a href="https://www.typescriptlang.org" rel="nofollow">TypeScript</a>. To build from source, first make sure you have the <a href="https://yarnpkg.com" rel="nofollow">Yarn package manager</a> installed. Then issue the following commands to build the distributable files in <code>dist/</code>:</p>
+<div data-snippet-clipboard-copy-content="$ yarn install
+$ yarn build
+"><pre><code>$ yarn install
+$ yarn build
+</code></pre></div>
+<p>Include the resulting <code>dist/turbolinks.js</code> file in your application’s JavaScript bundle.</p>
+<h2>Running Tests</h2>
+<p>Turbolinks is tested with the <a href="https://theintern.io" rel="nofollow">Intern testing library</a>.</p>
+<p>To run the test suite, follow the instructions for <em>Building From Source</em> above, then run:</p>
+
+<p>If you are testing changes to the Turbolinks source, remember to run <code>yarn build</code> before each test run. Or, run <code>yarn watch</code> to build automatically as you work.</p>
+<hr/>
+<p>© 2019 Basecamp, LLC.</p>
+</article>
+        </div></div>

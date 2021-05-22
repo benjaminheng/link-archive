@@ -1,0 +1,132 @@
+---
+url: https://wiki.postgresql.org/wiki/Lock_Monitoring
+title: Lock Monitoring - PostgreSQL wiki
+archived_at: 2021-05-23T00:59:19.708159+08:00
+---
+<div id="readability-page-1" class="page"><div id="mw-content-text" lang="en" dir="ltr"><div id="toc"><p lang="en" dir="ltr"><h2>Contents</h2></p>
+<ul>
+<li><a href="#Online_view_current_locks"><span>1</span> <span>Online view current locks</span></a>
+<ul>
+<li><a href="#pg_locks_view"><span>1.1</span> <span>pg_locks view</span></a></li>
+<li><a href="#pg_stat_activity_view"><span>1.2</span> <span>pg_stat_activity view</span></a></li>
+<li><a href="#.D0.A1ombination_of_blocked_and_blocking_activity"><span>1.3</span> <span>Сombination of blocked and blocking activity</span></a>
+<ul>
+<li><a href="#Here.27s_an_alternate_view_of_that_same_data_that_includes_application_name.27s"><span>1.3.1</span> <span>Here&#39;s an alternate view of that same data that includes application_name&#39;s</span></a></li>
+<li><a href="#Here.27s_an_alternate_view_of_that_same_data_that_includes_an_idea_how_old_the_state_is"><span>1.3.2</span> <span>Here&#39;s an alternate view of that same data that includes an idea how old the state is</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Logging_for_later_analysis"><span>2</span> <span>Logging for later analysis</span></a></li>
+<li><a href="#See_also"><span>3</span> <span>See also</span></a></li>
+</ul>
+</div>
+
+
+<h2><span id="pg_locks_view">pg_locks view</span></h2>
+<p>Looking at <a rel="nofollow" href="http://www.postgresql.org/docs/current/static/view-pg-locks.html">pg_locks</a> shows you what locks are granted and what processes are waiting for locks to be acquired.  A good query to start looking for lock problems:
+</p>
+<div dir="ltr"><pre><span></span>  <span>select</span> <span>relation</span><span>::</span><span>regclass</span><span>,</span> <span>*</span> <span>from</span> <span>pg_locks</span> <span>where</span> <span>not</span> <span>granted</span><span>;</span>
+</pre></div>
+<h2><span id="pg_stat_activity_view">pg_stat_activity view</span></h2>
+<ul><li>Figuring out what the processes holding or waiting for locks is easier if you cross-reference against the information in <a rel="nofollow" href="http://www.postgresql.org/docs/current/static/monitoring-stats.html">pg_stat_activity</a></li></ul>
+<h2><span id="Сombination_of_blocked_and_blocking_activity"></span><span id=".D0.A1ombination_of_blocked_and_blocking_activity">Сombination of blocked and blocking activity</span></h2>
+<p>The following query may be helpful to see what processes are blocking SQL statements (these only find row-level locks, not object-level locks).
+</p>
+<div dir="ltr"><pre><span></span>  <span>SELECT</span> <span>blocked_locks</span><span>.</span><span>pid</span>     <span>AS</span> <span>blocked_pid</span><span>,</span>
+         <span>blocked_activity</span><span>.</span><span>usename</span>  <span>AS</span> <span>blocked_user</span><span>,</span>
+         <span>blocking_locks</span><span>.</span><span>pid</span>     <span>AS</span> <span>blocking_pid</span><span>,</span>
+         <span>blocking_activity</span><span>.</span><span>usename</span> <span>AS</span> <span>blocking_user</span><span>,</span>
+         <span>blocked_activity</span><span>.</span><span>query</span>    <span>AS</span> <span>blocked_statement</span><span>,</span>
+         <span>blocking_activity</span><span>.</span><span>query</span>   <span>AS</span> <span>current_statement_in_blocking_process</span>
+   <span>FROM</span>  <span>pg_catalog</span><span>.</span><span>pg_locks</span>         <span>blocked_locks</span>
+    <span>JOIN</span> <span>pg_catalog</span><span>.</span><span>pg_stat_activity</span> <span>blocked_activity</span>  <span>ON</span> <span>blocked_activity</span><span>.</span><span>pid</span> <span>=</span> <span>blocked_locks</span><span>.</span><span>pid</span>
+    <span>JOIN</span> <span>pg_catalog</span><span>.</span><span>pg_locks</span>         <span>blocking_locks</span> 
+        <span>ON</span> <span>blocking_locks</span><span>.</span><span>locktype</span> <span>=</span> <span>blocked_locks</span><span>.</span><span>locktype</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>database</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>database</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>relation</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>relation</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>page</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>page</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>tuple</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>tuple</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>virtualxid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>virtualxid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>transactionid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>transactionid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>classid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>classid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>objid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>objid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>objsubid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>objsubid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>pid</span> <span>!=</span> <span>blocked_locks</span><span>.</span><span>pid</span>
+
+    <span>JOIN</span> <span>pg_catalog</span><span>.</span><span>pg_stat_activity</span> <span>blocking_activity</span> <span>ON</span> <span>blocking_activity</span><span>.</span><span>pid</span> <span>=</span> <span>blocking_locks</span><span>.</span><span>pid</span>
+   <span>WHERE</span> <span>NOT</span> <span>blocked_locks</span><span>.</span><span>granted</span><span>;</span>
+</pre></div>
+<h3><span id="Here&#39;s_an_alternate_view_of_that_same_data_that_includes_application_name&#39;s"></span><span id="Here.27s_an_alternate_view_of_that_same_data_that_includes_application_name.27s">Here&#39;s an alternate view of that same data that includes application_name&#39;s</span></h3>
+<p>Setting application_name variable in the begging of each transaction allows you to which logical process blocks another one. It can be information which source code line starts transaction or any other information that helps you to match application_name to your code.
+</p>
+<div dir="ltr"><pre><span></span><span>SET</span> <span>application_name</span><span>=</span><span>&#39;%your_logical_name%&#39;</span><span>;</span>
+</pre></div>
+<div dir="ltr"><pre><span></span><span>SELECT</span> <span>blocked_locks</span><span>.</span><span>pid</span>     <span>AS</span> <span>blocked_pid</span><span>,</span>
+         <span>blocked_activity</span><span>.</span><span>usename</span>  <span>AS</span> <span>blocked_user</span><span>,</span>
+         <span>blocking_locks</span><span>.</span><span>pid</span>     <span>AS</span> <span>blocking_pid</span><span>,</span>
+         <span>blocking_activity</span><span>.</span><span>usename</span> <span>AS</span> <span>blocking_user</span><span>,</span>
+         <span>blocked_activity</span><span>.</span><span>query</span>    <span>AS</span> <span>blocked_statement</span><span>,</span>
+         <span>blocking_activity</span><span>.</span><span>query</span>   <span>AS</span> <span>current_statement_in_blocking_process</span><span>,</span>
+         <span>blocked_activity</span><span>.</span><span>application_name</span> <span>AS</span> <span>blocked_application</span><span>,</span>
+         <span>blocking_activity</span><span>.</span><span>application_name</span> <span>AS</span> <span>blocking_application</span>
+   <span>FROM</span>  <span>pg_catalog</span><span>.</span><span>pg_locks</span>         <span>blocked_locks</span>
+    <span>JOIN</span> <span>pg_catalog</span><span>.</span><span>pg_stat_activity</span> <span>blocked_activity</span>  <span>ON</span> <span>blocked_activity</span><span>.</span><span>pid</span> <span>=</span> <span>blocked_locks</span><span>.</span><span>pid</span>
+    <span>JOIN</span> <span>pg_catalog</span><span>.</span><span>pg_locks</span>         <span>blocking_locks</span> 
+        <span>ON</span> <span>blocking_locks</span><span>.</span><span>locktype</span> <span>=</span> <span>blocked_locks</span><span>.</span><span>locktype</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>DATABASE</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>DATABASE</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>relation</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>relation</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>page</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>page</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>tuple</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>tuple</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>virtualxid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>virtualxid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>transactionid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>transactionid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>classid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>classid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>objid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>objid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>objsubid</span> <span>IS</span> <span>NOT</span> <span>DISTINCT</span> <span>FROM</span> <span>blocked_locks</span><span>.</span><span>objsubid</span>
+        <span>AND</span> <span>blocking_locks</span><span>.</span><span>pid</span> <span>!=</span> <span>blocked_locks</span><span>.</span><span>pid</span>
+ 
+    <span>JOIN</span> <span>pg_catalog</span><span>.</span><span>pg_stat_activity</span> <span>blocking_activity</span> <span>ON</span> <span>blocking_activity</span><span>.</span><span>pid</span> <span>=</span> <span>blocking_locks</span><span>.</span><span>pid</span>
+   <span>WHERE</span> <span>NOT</span> <span>blocked_locks</span><span>.</span><span>GRANTED</span><span>;</span>
+</pre></div>
+<p>Note: While this query will mostly work fine, it still has some correctness issues <a rel="nofollow" href="https://git.postgresql.org/gitweb/?p=postgresql.git;a=commit;h=52f5d578d6c29bf254e93c69043b817d4047ca67">[1]</a>, particularly on 9.6.
+</p>
+<h3><span id="Here&#39;s_an_alternate_view_of_that_same_data_that_includes_an_idea_how_old_the_state_is"></span><span id="Here.27s_an_alternate_view_of_that_same_data_that_includes_an_idea_how_old_the_state_is">Here&#39;s an alternate view of that same data that includes an idea how old the state is</span></h3>
+<div dir="ltr"><pre><span></span><span>SELECT</span> <span>a</span><span>.</span><span>datname</span><span>,</span>
+         <span>l</span><span>.</span><span>relation</span><span>::</span><span>regclass</span><span>,</span>
+         <span>l</span><span>.</span><span>transactionid</span><span>,</span>
+         <span>l</span><span>.</span><span>mode</span><span>,</span>
+         <span>l</span><span>.</span><span>GRANTED</span><span>,</span>
+         <span>a</span><span>.</span><span>usename</span><span>,</span>
+         <span>a</span><span>.</span><span>query</span><span>,</span>
+         <span>a</span><span>.</span><span>query_start</span><span>,</span>
+         <span>age</span><span>(</span><span>now</span><span>(),</span> <span>a</span><span>.</span><span>query_start</span><span>)</span> <span>AS</span> <span>&#34;age&#34;</span><span>,</span>
+         <span>a</span><span>.</span><span>pid</span>
+<span>FROM</span> <span>pg_stat_activity</span> <span>a</span>
+<span>JOIN</span> <span>pg_locks</span> <span>l</span> <span>ON</span> <span>l</span><span>.</span><span>pid</span> <span>=</span> <span>a</span><span>.</span><span>pid</span>
+<span>ORDER</span> <span>BY</span> <span>a</span><span>.</span><span>query_start</span><span>;</span>
+</pre></div>
+<p>For PostgreSQL older than 9.0:
+</p>
+<div dir="ltr"><pre><span></span>  <span>select</span> <span>a</span><span>.</span><span>datname</span><span>,</span>
+         <span>c</span><span>.</span><span>relname</span><span>,</span>
+         <span>l</span><span>.</span><span>transactionid</span><span>,</span>
+         <span>l</span><span>.</span><span>mode</span><span>,</span>
+         <span>l</span><span>.</span><span>granted</span><span>,</span>
+         <span>a</span><span>.</span><span>usename</span><span>,</span>
+         <span>a</span><span>.</span><span>current_query</span><span>,</span> 
+         <span>a</span><span>.</span><span>query_start</span><span>,</span>
+         <span>age</span><span>(</span><span>now</span><span>(),</span> <span>a</span><span>.</span><span>query_start</span><span>)</span> <span>as</span> <span>&#34;age&#34;</span><span>,</span> 
+         <span>a</span><span>.</span><span>procpid</span> 
+    <span>from</span>  <span>pg_stat_activity</span> <span>a</span>
+     <span>join</span> <span>pg_locks</span>         <span>l</span> <span>on</span> <span>l</span><span>.</span><span>pid</span> <span>=</span> <span>a</span><span>.</span><span>procpid</span>
+     <span>join</span> <span>pg_class</span>         <span>c</span> <span>on</span> <span>c</span><span>.</span><span>oid</span> <span>=</span> <span>l</span><span>.</span><span>relation</span>
+    <span>order</span> <span>by</span> <span>a</span><span>.</span><span>query_start</span><span>;</span>
+</pre></div>
+
+<ul><li>If you suspect intermittent locks are causing problems only sometimes, but are having trouble catching them in one of these live views, setting the <a rel="nofollow" href="http://www.postgresql.org/docs/current/static/runtime-config-logging.html#GUC-LOG-LOCK-WAITS">log_lock_waits</a> and related <a rel="nofollow" href="http://www.postgresql.org/docs/current/static/runtime-config-locks.html#GUC-DEADLOCK-TIMEOUT">deadlock_timeout</a> parameters can be helpful.  Then slow lock acquisition will appear in the database logs for later analysis.</li></ul>
+
+<ul><li><a href="https://wiki.postgresql.org/wiki/Lock_dependency_information" title="Lock dependency information">Lock dependency information</a></li></ul>
+
+
+
+</div></div>

@@ -1,0 +1,235 @@
+---
+url: https://github.com/jaegertracing/jaeger-kubernetes
+title: jaegertracing/jaeger-kubernetes
+archived_at: 2021-05-23T00:59:11.769122+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text"><p><a href="https://travis-ci.org/jaegertracing/jaeger-kubernetes" rel="nofollow"><img src="https://camo.githubusercontent.com/cead93208aa618dd18dd4781fc2b3eb09a1a8db1d58cb2ce2be363e3be890bc5/68747470733a2f2f7472617669732d63692e6f72672f6a616567657274726163696e672f6a61656765722d6b756265726e657465732e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/jaegertracing/jaeger-kubernetes.svg?branch=master"/></a></p>
+
+<h2>This repository is deprecated!</h2>
+<p>The recommended way of installing and managing Jaeger in a production Kubernetes cluster is via the <a href="https://github.com/jaegertracing/jaeger-operator">Jaeger Operator</a>.</p>
+<p>The Jaeger Operator provides a <a href="https://github.com/jaegertracing/jaeger-operator#experimental-generate-kubernetes-manifest-file">CLI to generate</a> Kubernetes manifests from the Jaeger CR.
+This can be considered as an alternative source of plain Kubernetes manifest files.</p>
+<p>Jaeger ecosystem also provides a <a href="https://github.com/jaegertracing/helm-charts">Helm chart</a> as an alternative way of deploying Jaeger.</p>
+<h2>How to contribute</h2>
+<p>Please see <a href="https://github.com/jaegertracing/jaeger-kubernetes/blob/master/CONTRIBUTING.md">CONTRIBUTING.md</a></p>
+<h2>Development setup</h2>
+<p>This template uses an in-memory storage with a limited functionality for local testing and development. The image used defaults to the latest version <a href="https://github.com/jaegertracing/jaeger/releases">released</a>.
+Do not use this template in production environments. Note that functionality may differ from the pinned docker versions for production.</p>
+<p>Install everything in the current namespace:</p>
+<div data-snippet-clipboard-copy-content="kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
+"><pre>kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml</pre></div>
+<p>Once everything is ready, <code>kubectl get service jaeger-query</code> tells you where to find Jaeger URL.
+If you are using <code>minikube</code> to setup your Kubernetes cluster, the command <code>minikube service jaeger-query --url</code>
+can be used instead.</p>
+<h2>Production setup</h2>
+<h3>Pinned Production Version</h3>
+<p>The docker image tags are manually pinned and manually updated. You should use the current pinned version for production.</p>
+<h3>Backing storage</h3>
+<p>The Jaeger Collector and Query require a backing storage to exist before being started up. As a starting point for your own
+templates, we provide basic templates deploying Cassandra and Elasticsearch. None of them are ready for production and should
+be adapted before any real usage.</p>
+<p>To use our Cassandra template:</p>
+<div data-snippet-clipboard-copy-content="kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production/configmap.yml
+kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production/cassandra.yml
+"><pre><code>kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production/configmap.yml
+kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production/cassandra.yml
+</code></pre></div>
+<p>For Elasticsearch, use:</p>
+<div data-snippet-clipboard-copy-content="kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production-elasticsearch/configmap.yml
+kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production-elasticsearch/elasticsearch.yml
+"><pre><code>kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production-elasticsearch/configmap.yml
+kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/production-elasticsearch/elasticsearch.yml
+</code></pre></div>
+<p>The Cassandra template includes also a Kubernetes <code>Job</code> that creates the schema required by the Jaeger components. It&#39;s advisable
+to wait for this job to finish before deploying the Jaeger components. To check the status of the job, run:</p>
+<div data-snippet-clipboard-copy-content="kubectl get job jaeger-cassandra-schema-job
+"><pre><code>kubectl get job jaeger-cassandra-schema-job
+</code></pre></div>
+<p>The job should have <code>1</code> in the <code>SUCCESSFUL</code> column.</p>
+<h3>Jaeger configuration</h3>
+<p>The Jaeger Collector, Query and Agent require a <code>ConfigMap</code> to exist on the same namespace, named <code>jaeger-configuration</code>.
+This <code>ConfigMap</code> is included in the storage templates, as each backing storage have their own specific configuration entries,
+but in your environment, you&#39;ll probably manage it differently.</p>
+<p>If changes are required for the configuration, the <code>edit</code> command can be used:</p>
+<div data-snippet-clipboard-copy-content="kubectl edit configmap jaeger-configuration
+"><pre><code>kubectl edit configmap jaeger-configuration
+</code></pre></div>
+<h3>Jaeger components</h3>
+<p>The main production template deploys the Collector and the Query Service (with UI) as separate individually scalable services,
+as well as the Agent as <code>DaemonSet</code>.</p>
+<div data-snippet-clipboard-copy-content="kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/jaeger-production-template.yml
+"><pre><code>kubectl create -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/jaeger-production-template.yml
+</code></pre></div>
+<p>If the backing storage is not ready by the time the Collector/Agent start, they will fail and Kubernetes will reschedule the
+pod. It&#39;s advisable to either wait for the backing storage to stabilize, or to ignore such failures for the first few minutes.</p>
+<p>Once everything is ready, <code>kubectl get service jaeger-query</code> tells you where to find Jaeger URL, or
+<code>minikube service jaeger-query --url</code> when using <code>minikube</code>.</p>
+<p>As the agent is deployed as a <code>DaemonSet</code>, the node&#39;s IP address can be stored as an environment variable and passed down
+to the application as:</p>
+<div data-snippet-clipboard-copy-content="env:
+- name: JAEGER_AGENT_HOST
+  valueFrom:
+    fieldRef:
+      fieldPath: status.hostIP
+"><pre><span>env</span>:
+- <span>name</span>: <span>JAEGER_AGENT_HOST</span>
+  <span>valueFrom</span>:
+    <span>fieldRef</span>:
+      <span>fieldPath</span>: <span>status.hostIP</span></pre></div>
+<h3>Deploying the agent as sidecar</h3>
+<p>The Jaeger Agent is designed to be deployed local to your service, so that it can receive traces via UDP keeping your
+application&#39;s load minimal. By default, the template above installs the agent as a <code>DaemonSet</code>, but this means that all
+pods running on a given node will send data to the same agent. If that&#39;s not suitable for your workload, an alternative
+is to deploy the agent as a sidecar. To accomplish that, just add it as a container within any struct that supports
+<code>spec.containers</code>, like a <code>Pod</code>, <code>Deployment</code> and so on. More about this be found on the blog post
+<a href="https://medium.com/jaegertracing/deployment-strategies-for-the-jaeger-agent-1d6f91796d09" rel="nofollow">Deployment strategies for the Jaeger Agent</a>.</p>
+<p>Assuming that your application is named <code>myapp</code> and the image is for it is <code>mynamespace/hello-myimage</code>, your
+<code>Deployment</code> descriptor would be something like:</p>
+<div data-snippet-clipboard-copy-content="- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: myapp
+  spec:
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: myapp
+    template:
+      metadata:
+        labels:
+          app.kubernetes.io/name: myapp
+      spec:
+        containers:
+        - image: mynamespace/hello-myimage
+          name: myapp
+          ports:
+          - containerPort: 8080
+        - image: jaegertracing/jaeger-agent
+          name: jaeger-agent
+          ports:
+          - containerPort: 5775
+            protocol: UDP
+          - containerPort: 6831
+            protocol: UDP
+          - containerPort: 6832
+            protocol: UDP
+          - containerPort: 5778
+            protocol: TCP
+          args: [&#34;--collector.host-port=jaeger-collector.jaeger-infra.svc:14267&#34;]
+"><pre>- <span>apiVersion</span>: <span>apps/v1</span>
+  <span>kind</span>: <span>Deployment</span>
+  <span>metadata</span>:
+    <span>name</span>: <span>myapp</span>
+  <span>spec</span>:
+    <span>selector</span>:
+      <span>matchLabels</span>:
+        <span>app.kubernetes.io/name</span>: <span>myapp</span>
+    <span>template</span>:
+      <span>metadata</span>:
+        <span>labels</span>:
+          <span>app.kubernetes.io/name</span>: <span>myapp</span>
+      <span>spec</span>:
+        <span>containers</span>:
+        - <span>image</span>: <span>mynamespace/hello-myimage</span>
+          <span>name</span>: <span>myapp</span>
+          <span>ports</span>:
+          - <span>containerPort</span>: <span>8080</span>
+        - <span>image</span>: <span>jaegertracing/jaeger-agent</span>
+          <span>name</span>: <span>jaeger-agent</span>
+          <span>ports</span>:
+          - <span>containerPort</span>: <span>5775</span>
+            <span>protocol</span>: <span>UDP</span>
+          - <span>containerPort</span>: <span>6831</span>
+            <span>protocol</span>: <span>UDP</span>
+          - <span>containerPort</span>: <span>6832</span>
+            <span>protocol</span>: <span>UDP</span>
+          - <span>containerPort</span>: <span>5778</span>
+            <span>protocol</span>: <span>TCP</span>
+          <span>args</span>: <span>[&#34;--collector.host-port=jaeger-collector.jaeger-infra.svc:14267&#34;]</span></pre></div>
+<p>The Jaeger Agent will then be available to your application at <code>localhost:5775</code>/<code>localhost:6831</code>/<code>localhost:6832</code>/<code>localhost:5778</code>.
+In most cases, you don&#39;t need to specify a hostname or port to your Jaeger Tracer, as it will default to the right
+values already.</p>
+<h3>Configure UDP/HTTP Senders</h3>
+<p>As the Jaeger Agent is deployed with the other components, your application needs to tell the Jaeger Client where to find the agent. Refer to your client&#39;s documentation for the appropriate mechanism, but most clients allow this to be set via the environment variable <code>JAEGER_AGENT_HOST</code> in environment variable like so:</p>
+<div data-snippet-clipboard-copy-content="env:
+    - name: JAEGER_SERVICE_NAME
+    value: &lt;YOUR SERVICE NAME&gt;
+    - name: JAEGER_AGENT_HOST
+    value: jaeger-agent
+    - name: JAEGER_SAMPLER_TYPE
+    value: const
+    - name: JAEGER_SAMPLER_PARAM
+    value: &#34;1&#34;
+"><pre><span>env</span>:
+    - <span>name</span>: <span>JAEGER_SERVICE_NAME</span>
+    <span>value</span>: <span>&lt;YOUR SERVICE NAME&gt;</span>
+    - <span>name</span>: <span>JAEGER_AGENT_HOST</span>
+    <span>value</span>: <span>jaeger-agent</span>
+    - <span>name</span>: <span>JAEGER_SAMPLER_TYPE</span>
+    <span>value</span>: <span>const</span>
+    - <span>name</span>: <span>JAEGER_SAMPLER_PARAM</span>
+    <span>value</span>: <span><span>&#34;</span>1<span>&#34;</span></span></pre></div>
+<p>The following service names are supported by HTTP sender:</p>
+<table>
+<thead>
+<tr>
+<th>Service Name</th>
+<th>Port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>jaeger-collector</code></td>
+<td>14268</td>
+</tr>
+<tr>
+<td><code>zipkin</code></td>
+<td>9411</td>
+</tr>
+</tbody>
+</table>
+<p>The following service names are supported by UDP sender:</p>
+<ul>
+<li>jaeger-agent</li>
+</ul>
+<h3>Persistent storage</h3>
+<p>Even though this template uses a stateful Cassandra, backing storage is set to <code>emptyDir</code>. It&#39;s more
+appropriate to create a <code>PersistentVolumeClaim</code>/<code>PersistentVolume</code> and use it instead. Note that this
+Cassandra deployment does not support deleting pods or scaling down, as this might require
+administrative tasks that are dependent on the final deployment architecture.</p>
+<h3>Service Dependencies</h3>
+<p>Jaeger production deployment needs an external process to derive dependency links between
+services. Project <a href="https://github.com/jaegertracing/spark-dependencies">spark-dependencies</a> provides
+this functionality.</p>
+<p>This job should be periodically run before end of a day. The following command creates <code>CronJob</code>
+scheduled 5 minutes before the midnight.</p>
+<p>For Cassandra, use:</p>
+<div data-snippet-clipboard-copy-content="kubectl run jaeger-spark-dependencies --schedule=&#34;55 23 * * *&#34; --env=&#34;STORAGE=cassandra&#34; --env=&#34;CASSANDRA_CONTACT_POINTS=cassandra:9042&#34; --restart=Never --image=jaegertracing/spark-dependencies
+"><pre>kubectl run jaeger-spark-dependencies --schedule=<span><span>&#34;</span>55 23 * * *<span>&#34;</span></span> --env=<span><span>&#34;</span>STORAGE=cassandra<span>&#34;</span></span> --env=<span><span>&#34;</span>CASSANDRA_CONTACT_POINTS=cassandra:9042<span>&#34;</span></span> --restart=Never --image=jaegertracing/spark-dependencies</pre></div>
+<p>For Elasticsearch, use:</p>
+<div data-snippet-clipboard-copy-content="kubectl run jaeger-spark-dependencies --schedule=&#34;55 23 * * *&#34; --env=&#34;STORAGE=elasticsearch&#34; --env=&#34;ES_NODES=elasticsearch:9200&#34; --env=&#34;ES_USERNAME=changeme&#34; --env=&#34;ES_PASSWORD=changeme&#34; --restart=Never --image=jaegertracing/spark-dependencies
+"><pre>kubectl run jaeger-spark-dependencies --schedule=<span><span>&#34;</span>55 23 * * *<span>&#34;</span></span> --env=<span><span>&#34;</span>STORAGE=elasticsearch<span>&#34;</span></span> --env=<span><span>&#34;</span>ES_NODES=elasticsearch:9200<span>&#34;</span></span> --env=<span><span>&#34;</span>ES_USERNAME=changeme<span>&#34;</span></span> --env=<span><span>&#34;</span>ES_PASSWORD=changeme<span>&#34;</span></span> --restart=Never --image=jaegertracing/spark-dependencies</pre></div>
+<p>If you want to run the job only once and immediately then remove scheduled flag.</p>
+<h2>Deploying Docker Tags</h2>
+<p>The Jaeger project automatically creates new Docker images with tags that mirror the release number. The production manifests uses pinned versions as to not accidentally break people on new releases.</p>
+<blockquote>
+<p>A general tip for deploying docker images (i.e. on kubernetes): it&#39;s recommended that you do not use the tag <code>:latest</code> in production but rather pin the latest version. See the <a href="https://kubernetes.io/docs/concepts/configuration/overview/#container-images" rel="nofollow">kubernetes best practices</a> for more details.</p>
+</blockquote>
+<h2>Helm support</h2>
+<p>A curated <a href="https://github.com/kubernetes/charts/tree/master/incubator/jaeger">Chart for Kubernetes Helm</a> that adds all components required to run Jaeger.</p>
+<h2>Uninstalling</h2>
+<p>If you need to remove the Jaeger components created by this template, run:</p>
+<div data-snippet-clipboard-copy-content="kubectl delete all,daemonset,configmap -l jaeger-infra
+"><pre>kubectl delete all,daemonset,configmap -l jaeger-infra</pre></div>
+<h2>Testing</h2>
+<p>Tests are based on <a href="http://arquillian.org/arquillian-cube/" rel="nofollow">Arquillian Cube</a> which require an active connection to
+kubernetes cluster (via <code>kubectl</code>). When executing tests from IDE make sure that template is copied to
+<code>target/test-classes</code>.</p>
+<div data-snippet-clipboard-copy-content="minikube start
+./mvnw clean verify -Pcassandra,elasticsearch,all-in-one
+"><pre>minikube start
+./mvnw clean verify -Pcassandra,elasticsearch,all-in-one</pre></div>
+<h2>License</h2>
+<p><a href="https://github.com/jaegertracing/jaeger-kubernetes/blob/master/LICENSE">Apache 2.0 License</a>.</p>
+</article>
+        </div></div>
