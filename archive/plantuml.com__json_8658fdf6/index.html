@@ -1,0 +1,212 @@
+---
+url: https://plantuml.com/json
+title: ""
+archived_at: 2021-06-12T14:14:37.751222+08:00
+---
+<div id="readability-page-1" class="page"><div width="100%"><tbody><tr width="100%"><td><a href="https://en.wikipedia.org/wiki/JSON">JSON</a> format is widely used in software.  You can use PlantUML to visualize your data.  To activate this feature, the diagram must: <ul><li>begin with <code>@startjson</code> keyword</li><li>end with <code>@endjson</code> keyword. </li></ul><div><p><code><pre>@startjson
+{
+   &#34;fruit&#34;:&#34;Apple&#34;,
+   &#34;size&#34;:&#34;Large&#34;,
+   &#34;color&#34;:&#34;Red&#34;
+}
+@endjson
+</pre></code></p><p><img width="109" height="85" src="https://s.plantuml.com/imgw/img-4b4091bd8d25868cfc4fd0d0b6ecdfca.png"/></p></div><h2>Complex example<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=9b905dab753004a4703f9b93138cbdf8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=9b905dab753004a4703f9b93138cbdf8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=9b905dab753004a4703f9b93138cbdf8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use complex JSON structure. <div><p><code><pre>@startjson
+{
+  &#34;firstName&#34;: &#34;John&#34;,
+  &#34;lastName&#34;: &#34;Smith&#34;,
+  &#34;isAlive&#34;: true,
+  &#34;age&#34;: 27,
+  &#34;address&#34;: {
+    &#34;streetAddress&#34;: &#34;21 2nd Street&#34;,
+    &#34;city&#34;: &#34;New York&#34;,
+    &#34;state&#34;: &#34;NY&#34;,
+    &#34;postalCode&#34;: &#34;10021-3100&#34;
+  },
+  &#34;phoneNumbers&#34;: [
+    {
+      &#34;type&#34;: &#34;home&#34;,
+      &#34;number&#34;: &#34;212 555-1234&#34;
+    },
+    {
+      &#34;type&#34;: &#34;office&#34;,
+      &#34;number&#34;: &#34;646 555-4567&#34;
+    }
+  ],
+  &#34;children&#34;: [],
+  &#34;spouse&#34;: null
+}
+@endjson
+</pre></code></p><p><img width="603" height="201" src="https://s.plantuml.com/imgw/img-8a5e08385d6b72600be01a2b34ecb081.png"/></p></div><span id="ezoic-pub-ad-placeholder-179"></span><h2>Highlight parts<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=1b6b8d6c715c3de9b82c6d725a9219df&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=1b6b8d6c715c3de9b82c6d725a9219df&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=1b6b8d6c715c3de9b82c6d725a9219df&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><div><p><code><pre>@startjson
+#highlight &#34;lastName&#34;
+#highlight &#34;address&#34; / &#34;city&#34;
+#highlight &#34;phoneNumbers&#34; / &#34;0&#34; / &#34;number&#34;
+{
+  &#34;firstName&#34;: &#34;John&#34;,
+  &#34;lastName&#34;: &#34;Smith&#34;,
+  &#34;isAlive&#34;: true,
+  &#34;age&#34;: 28,
+  &#34;address&#34;: {
+    &#34;streetAddress&#34;: &#34;21 2nd Street&#34;,
+    &#34;city&#34;: &#34;New York&#34;,
+    &#34;state&#34;: &#34;NY&#34;,
+    &#34;postalCode&#34;: &#34;10021-3100&#34;
+  },
+  &#34;phoneNumbers&#34;: [
+    {
+      &#34;type&#34;: &#34;home&#34;,
+      &#34;number&#34;: &#34;212 555-1234&#34;
+    },
+    {
+      &#34;type&#34;: &#34;office&#34;,
+      &#34;number&#34;: &#34;646 555-4567&#34;
+    }
+  ],
+  &#34;children&#34;: [],
+  &#34;spouse&#34;: null
+}
+@endjson
+</pre></code></p><p><img width="603" height="201" src="https://s.plantuml.com/imgw/img-9acf789db5bf7060556b1f42fa0a6a92.png"/></p></div><h2>JSON basic element<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=9115e9f65aae7e9b8a7fff504f1dab03&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=9115e9f65aae7e9b8a7fff504f1dab03&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=9115e9f65aae7e9b8a7fff504f1dab03&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>Synthesis of all JSON basic element</h3><div><p><code><pre>@startjson
+{
+&#34;null&#34;: null,
+&#34;true&#34;: true,
+&#34;false&#34;: false,
+&#34;JSON_Number&#34;: [-1, -1.1, &#34;&lt;color:green&gt;TBC&#34;],
+&#34;JSON_String&#34;: &#34;a\nb\rc\td &lt;color:green&gt;TBC...&#34;,
+&#34;JSON_Object&#34;: {
+  &#34;{}&#34;: {},
+  &#34;k_int&#34;: 123,
+  &#34;k_str&#34;: &#34;abc&#34;,
+  &#34;k_obj&#34;: {&#34;k&#34;: &#34;v&#34;}
+},
+&#34;JSON_Array&#34; : [
+  [],
+  [true, false],
+  [-1, 1],
+  [&#34;a&#34;, &#34;b&#34;, &#34;c&#34;],
+  [&#34;mix&#34;, null, true, 1, {&#34;k&#34;: &#34;v&#34;}]
+]
+}
+@endjson
+</pre></code></p><p><img width="496" height="530" src="https://s.plantuml.com/imgw/img-5bad1a56aed81cc01ce47ca5b39a9656.png"/></p></div><span id="ezoic-pub-ad-placeholder-114"></span><span data-ez-name="plantuml_com-box-4"></span><h2>JSON array or table<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=63f1e241ceb6fdac3fe7f20102e1bf26&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=63f1e241ceb6fdac3fe7f20102e1bf26&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=63f1e241ceb6fdac3fe7f20102e1bf26&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>Array type</h3><div><p><code><pre>@startjson
+{
+&#34;Numeric&#34;: [1, 2, 3],
+&#34;String &#34;: [&#34;v1a&#34;, &#34;v2b&#34;, &#34;v3c&#34;],
+&#34;Boolean&#34;: [true, false, true]
+}
+@endjson
+</pre></code></p><p><img width="198" height="251" src="https://s.plantuml.com/imgw/img-45180a8a0d39053b69dd4f6384764bb2.png"/></p></div><h3>Minimal array or table</h3><h4>Number array</h4><div><p><code><pre>@startjson
+[1, 2, 3]
+@endjson
+</pre></code></p><p><img width="39" height="85" src="https://s.plantuml.com/imgw/img-5222e4e107d5be0ac9d64fd2c595f20a.png"/></p></div><h4>String array</h4><div><p><code><pre>@startjson
+[&#34;1a&#34;, &#34;2b&#34;, &#34;3c&#34;]
+@endjson
+</pre></code></p><p><img width="47" height="85" src="https://s.plantuml.com/imgw/img-c4cf303646656f504a248b0a33aa83f5.png"/></p></div><h4>Boolean array</h4><div><p><code><pre>@startjson
+[true, false, true]
+@endjson
+</pre></code></p><p><img width="77" height="85" src="https://s.plantuml.com/imgw/img-24a6386162f86d0c7ffa917e0432f662.png"/></p></div><h2>JSON numbers<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=c41fecdfa808fd99a4baff5ac21286b7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=c41fecdfa808fd99a4baff5ac21286b7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=c41fecdfa808fd99a4baff5ac21286b7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><div><p><code><pre>@startjson
+{
+&#34;DecimalNumber&#34;: [-1, 0, 1],
+&#34;DecimalNumber . Digits&#34;: [-1.1, 0.1, 1.1],
+&#34;DecimalNumber ExponentPart&#34;: [1E5]
+}
+@endjson
+</pre></code></p><p><img width="313" height="209" src="https://s.plantuml.com/imgw/img-2b715f50b94d09b1ca2adcc9cfed643c.png"/></p></div><span id="ezoic-pub-ad-placeholder-115"></span><span data-ez-name="plantuml_com-banner-1"></span><h2>JSON strings<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=75ae50593375d93eaed505486e7a4158&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=75ae50593375d93eaed505486e7a4158&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=75ae50593375d93eaed505486e7a4158&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>JSON Unicode</h3> On JSON you can use Unicode directly or by using escaped form like <code>\uXXXX</code>. <div><p><code><pre>@startjson
+{
+  &#34;&lt;color:blue&gt;&lt;b&gt;code&#34;: &#34;&lt;color:blue&gt;&lt;b&gt;value&#34;,
+  &#34;a\\u005Cb&#34;:           &#34;a\u005Cb&#34;,
+  &#34;\\uD83D\\uDE10&#34;:      &#34;\uD83D\uDE10&#34;,
+  &#34;😐&#34;:                  &#34;😐&#34;
+}
+@endjson
+</pre></code></p><p><img width="175" height="107" src="https://s.plantuml.com/imgw/img-20867097e3c43400fc7ece7b8802c43c.png"/></p></div><h3>JSON two-character escape sequence</h3><div><p><code><pre>@startjson
+{
+ &#34;**legend**: character name&#34;:               [&#34;**two-character escape sequence**&#34;, &#34;example (between &#39;a&#39; and &#39;b&#39;)&#34;],
+ &#34;quotation mark character (U+0022)&#34;:        [&#34;\\\&#34;&#34;, &#34;a\&#34;b&#34;],
+ &#34;reverse solidus character (U+005C)&#34;:       [&#34;\\\\&#34;, &#34;a\\b&#34;],
+ &#34;solidus character (U+002F)&#34;:               [&#34;\\\/&#34;, &#34;a\/b&#34;],
+ &#34;backspace character (U+0008)&#34;:             [&#34;\\b&#34;, &#34;a\bb&#34;],
+ &#34;form feed character (U+000C)&#34;:             [&#34;\\f&#34;, &#34;a\fb&#34;],
+ &#34;line feed character (U+000A)&#34;:             [&#34;\\n&#34;, &#34;a\nb&#34;],
+ &#34;carriage return character (U+000D)&#34;:       [&#34;\\r&#34;, &#34;a\rb&#34;],
+ &#34;character tabulation character (U+0009)&#34;:  [&#34;\\t&#34;, &#34;a\tb&#34;]
+}
+@endjson
+</pre></code></p><p><img width="579" height="588" src="https://s.plantuml.com/imgw/img-5c6480e9b30a0b330924e038e0c855c6.png"/></p></div><p>FIXME</p> FIXME or not 😉, on the same item as <code>\n</code> management in PlantUML 😉 <em>See <a href="https://forum.plantuml.net/13066">Report Bug on QA-13066</a></em><p>FIXME</p><div><p><code><pre>@startjson
+[
+&#34;\\\\&#34;,
+&#34;\\n&#34;,
+&#34;\\r&#34;,
+&#34;\\t&#34;
+]
+@endjson
+</pre></code></p><p><img width="63" height="142" src="https://s.plantuml.com/imgw/img-0dd241d863dfe88b7f356ed49a6f2e22.png"/></p></div><h2>Minimal JSON examples<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=e160bb058913090e41ddb8ef2cad5379&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=e160bb058913090e41ddb8ef2cad5379&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=e160bb058913090e41ddb8ef2cad5379&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><div><p><code><pre>@startjson
+&#34;Hello world!&#34;
+@endjson
+</pre></code></p><p><img width="104" height="42" src="https://s.plantuml.com/imgw/img-be5de22188d18d28ffacf6ca335e3a93.png"/></p></div><div><p><code><pre>@startjson
+42
+@endjson
+</pre></code></p><p><img width="47" height="42" src="https://s.plantuml.com/imgw/img-48a1c296da936571cdf666ff19632b7d.png"/></p></div><div><p><code><pre>@startjson
+true
+@endjson
+</pre></code></p><p><img width="72" height="42" src="https://s.plantuml.com/imgw/img-45e19c4e95a1d24ba1035db4fb0d05ca.png"/></p></div><em>(Examples come from <a href="https://tools.ietf.org/html/std90#page-13">STD 90 - Examples</a>)</em><a name="bb2ede32ce6accb8"></a><span id="ezoic-pub-ad-placeholder-116"></span><h2>Using (global) style<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/json?do=edit&amp;title=bb2ede32ce6accb8c505ae0bf884d862&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/json?do=edit&amp;title=bb2ede32ce6accb8c505ae0bf884d862&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/json?do=edit&amp;title=bb2ede32ce6accb8c505ae0bf884d862&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fjson"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>Without style <em>(by default)</em></h3><div><p><code><pre>@startjson
+#highlight &#34;1&#34; / &#34;hr&#34;
+[
+  {
+    &#34;name&#34;: &#34;Mark McGwire&#34;,
+    &#34;hr&#34;:   65,
+    &#34;avg&#34;:  0.278
+  },
+  {
+    &#34;name&#34;: &#34;Sammy Sosa&#34;,
+    &#34;hr&#34;:   63,
+    &#34;avg&#34;:  0.288
+  }
+]
+@endjson
+</pre></code></p><p><img width="226" height="168" src="https://s.plantuml.com/imgw/img-765a64894713632d8e00bd5dba4f19e4.png"/></p></div><h3>With style</h3> You can use <a href="https://plantuml.com/style-evolution">style</a> to change rendering of elements. <div><p><code><pre>@startjson
+&lt;style&gt;
+jsonDiagram {
+  node {
+    BackGroundColor Khaki
+    LineColor lightblue
+    FontName Helvetica
+    FontColor red
+    FontSize 18
+    FontStyle bold
+    RoundCorner 0
+    LineThickness 2
+    LineStyle 10;5
+    separator {
+      LineThickness 0.5
+      LineColor black
+      LineStyle 1;5
+    }
+  }
+  arrow {
+    BackGroundColor lightblue
+    LineColor green
+    LineThickness 2
+    LineStyle 2;5
+  }
+  highlight {
+    BackGroundColor red
+    FontColor white
+    FontStyle italic
+  }
+}
+&lt;/style&gt;
+#highlight &#34;1&#34; / &#34;hr&#34;
+[
+  {
+    &#34;name&#34;: &#34;Mark McGwire&#34;,
+    &#34;hr&#34;:   65,
+    &#34;avg&#34;:  0.278
+  },
+  {
+    &#34;name&#34;: &#34;Sammy Sosa&#34;,
+    &#34;hr&#34;:   63,
+    &#34;avg&#34;:  0.288
+  }
+]
+@endjson
+</pre></code></p><p><img width="276" height="198" src="https://s.plantuml.com/imgw/img-4ac2a6b969920f900601412dd01e7c01.png"/></p></div><em>[Adapted from <a href="https://forum.plantuml.net/13123">QA-13123</a> and <a href="https://forum.plantuml.net/13288/">QA-13288</a>]</em></td><td id="toctd"><div id="toc"><ul><li><a href="#9b905dab753004a4">Complex example</a></li><li><a href="#1b6b8d6c715c3de9">Highlight parts</a></li><li><a href="#9115e9f65aae7e9b">JSON basic element</a></li><li><a href="#63f1e241ceb6fdac">JSON array or table</a></li><li><a href="#c41fecdfa808fd99">JSON numbers</a></li><li><a href="#75ae50593375d93e">JSON strings</a></li><li><a href="#e160bb058913090e">Minimal JSON examples</a></li><li><a href="#bb2ede32ce6accb8">Using (global) style</a></li></ul></div></td></tr></tbody></div></div>

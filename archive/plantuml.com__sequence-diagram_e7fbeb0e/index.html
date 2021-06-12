@@ -1,0 +1,874 @@
+---
+url: https://plantuml.com/sequence-diagram
+title: Sequence Diagram syntax and features
+archived_at: 2021-06-12T14:14:39.105664+08:00
+---
+<div id="readability-page-1" class="page"><div><a name="5e05164bff244555"></a><h2>Basic examples<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=5e05164bff244555eb3a98392ec50423&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=5e05164bff244555eb3a98392ec50423&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=5e05164bff244555eb3a98392ec50423&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The sequence <code>-&gt;</code> is used to draw a message between two participants. Participants do not have to be explicitly declared.  To have a dotted arrow, you use <code>--&gt;</code> It is also possible to use <code>&lt;-</code> and <code>&lt;--</code>. That does not change the drawing, but may improve readability. Note that this is only true for sequence diagrams, rules are different for the other diagrams. <div><p><code><pre>@startuml
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+
+Alice -&gt; Bob: Another authentication Request
+Alice &lt;-- Bob: Another authentication Response
+@enduml
+</pre></code></p><p><img width="275" height="226" src="https://s.plantuml.com/imgw/img-852100d0752a865dc962d79e4517a171.png"/></p></div><span id="ezoic-pub-ad-placeholder-179"></span><span data-ez-name="plantuml_com-medrectangle-4"></span><h2>Declaring participant<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=5d2ed256d73a7298d8c6083f77a5f474&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=5d2ed256d73a7298d8c6083f77a5f474&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=5d2ed256d73a7298d8c6083f77a5f474&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> If the keyword <code>participant</code> is used to declare a participant, more control on that participant is possible.  The order of declaration will be the (default) <strong>order of display</strong>.  Using these other keywords to declare participants will <strong>change the shape</strong> of the participant representation: <ul><li><code>actor</code></li><li><code>boundary</code></li><li><code>control</code></li><li><code>entity</code></li><li><code>database</code></li><li><code>collections</code></li><li><code>queue</code></li></ul><div><p><code><pre>@startuml
+participant participant as Foo
+actor       actor       as Foo1
+boundary    boundary    as Foo2
+control     control     as Foo3
+entity      entity      as Foo4
+database    database    as Foo5
+collections collections as Foo6
+queue       queue       as Foo7
+Foo -&gt; Foo1 : To actor 
+Foo -&gt; Foo2 : To boundary
+Foo -&gt; Foo3 : To control
+Foo -&gt; Foo4 : To entity
+Foo -&gt; Foo5 : To database
+Foo -&gt; Foo6 : To collections
+Foo -&gt; Foo7: To queue
+@enduml
+</pre></code></p><p><img width="571" height="404" src="https://s.plantuml.com/imgw/img-794532de23406a42f95cb971cb5b127e.png"/></p></div> Rename a participant using the <code>as</code> keyword.  You can also change the background <a href="https://plantuml.com/color">color</a> of actor or participant. <div><p><code><pre>@startuml
+actor Bob #red
+&#39; The only difference between actor
+&#39;and participant is the drawing
+participant Alice
+participant &#34;I have a really\nlong name&#34; as L #99FF99
+/&#39; You can also declare:
+   participant L as &#34;I have a really\nlong name&#34;  #99FF99
+  &#39;/
+
+Alice-&gt;Bob: Authentication Request
+Bob-&gt;Alice: Authentication Response
+Bob-&gt;L: Log transaction
+@enduml
+</pre></code></p><p><img width="338" height="283" src="https://s.plantuml.com/imgw/img-8667cf692e73e4a3df0ad633653143e3.png"/></p></div> You can use the <code>order</code> keyword to customize the display order of participants. <div><p><code><pre>@startuml
+participant Last order 30
+participant Middle order 20
+participant First order 10
+@enduml
+</pre></code></p><p><img width="184" height="105" src="https://s.plantuml.com/imgw/img-db8239ec2aea13937e89b6e3c40a8518.png"/></p></div><h2>Use non-letters in participants<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=2210ebadb511770999221c9fae154e28&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=2210ebadb511770999221c9fae154e28&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=2210ebadb511770999221c9fae154e28&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use quotes to define participants. And you can use the <code>as</code> keyword to give an alias to those participants. <div><p><code><pre>@startuml
+Alice -&gt; &#34;Bob()&#34; : Hello
+&#34;Bob()&#34; -&gt; &#34;This is very\nlong&#34; as Long
+&#39; You can also declare:
+&#39; &#34;Bob()&#34; -&gt; Long as &#34;This is very\nlong&#34;
+Long --&gt; &#34;Bob()&#34; : ok
+@enduml
+</pre></code></p><p><img width="225" height="215" src="https://s.plantuml.com/imgw/img-ba90908ea85b2952dca5734f7642ae11.png"/></p></div><a name="f5050860884ddf31"></a><span id="ezoic-pub-ad-placeholder-114"></span><span data-ez-name="plantuml_com-box-4"></span><h2>Message to Self<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=f5050860884ddf311fa3380f300ee272&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=f5050860884ddf311fa3380f300ee272&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=f5050860884ddf311fa3380f300ee272&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> A participant can send a message to itself.  It is also possible to have multi-line using <code>\n</code>. <div><p><code><pre>@startuml
+Alice -&gt; Alice: This is a signal to self.\nIt also demonstrates\nmultiline \ntext
+@enduml
+</pre></code></p><p><img width="172" height="197" src="https://s.plantuml.com/imgw/img-9d8889c6bd6627fe314f0187289440e0.png"/></p></div><div><p><code><pre>@startuml
+Alice &lt;- Alice: This is a signal to self.\nIt also demonstrates\nmultiline \ntext
+@enduml
+</pre></code></p><p><img width="177" height="197" src="https://s.plantuml.com/imgw/img-dd672b89f95b55e1d7386308ef3ab22b.png"/></p></div><p><em>[Ref. <a href="https://forum.plantuml.net/1361">QA-1361</a>]</em><a name="bf6bee6d96403148"></a></p><h2>Text alignment<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=bf6bee6d96403148e9cd065820514efb&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=bf6bee6d96403148e9cd065820514efb&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=bf6bee6d96403148e9cd065820514efb&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> Text alignment on arrows can be set to <code>left</code>, <code>right</code> or <code>center</code> using <code>skinparam sequenceMessageAlign</code>.  You can also use <code>direction</code> or <code>reverseDirection</code> to align text depending on arrow direction. Further details and examples of this are available on the <a href="https://plantuml.com/skinparam">skinparam</a> page. <div><p><code><pre>@startuml
+skinparam sequenceMessageAlign right
+Bob -&gt; Alice : Request
+Alice -&gt; Bob : Response
+@enduml
+</pre></code></p><p><img width="141" height="165" src="https://s.plantuml.com/imgw/img-ca2d5f4509f131c2e3c6e0aaee905eeb.png"/></p></div><h3>Text of response message below the arrow</h3> You can put the text of the response message below the arrow, with the <code>skinparam responseMessageBelowArrow true</code> command. <div><p><code><pre>@startuml
+skinparam responseMessageBelowArrow true
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img width="115" height="165" src="https://s.plantuml.com/imgw/img-176bd62b341af1fb4a3430f06cef64a2.png"/></p></div><span id="ezoic-pub-ad-placeholder-115"></span><span data-ez-name="plantuml_com-banner-1"></span><h2>Change arrow style<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=efeda651e89e596c1bec9fc2bd48f4e1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=efeda651e89e596c1bec9fc2bd48f4e1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=efeda651e89e596c1bec9fc2bd48f4e1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can change arrow style by several ways: <ul><li>add a final <code>x</code> to denote a lost message</li><li>use <code>\</code> or <code>/</code> instead of <code>&lt;</code> or <code>&gt;</code> to have only the bottom or top part of the arrow</li><li>repeat the arrow head (for example, <code>&gt;&gt;</code> or <code>//</code>) head to have a thin drawing</li><li>use <code>--</code> instead of <code>-</code> to have a dotted arrow</li><li>add a final &#34;o&#34; at arrow head</li><li>use bidirectional arrow <code>&lt;-&gt;</code></li></ul><div><p><code><pre>@startuml
+Bob -&gt;x Alice
+Bob -&gt; Alice
+Bob -&gt;&gt; Alice
+Bob -\ Alice
+Bob \\- Alice
+Bob //-- Alice
+
+Bob -&gt;o Alice
+Bob o\\-- Alice
+
+Bob &lt;-&gt; Alice
+Bob &lt;-&gt;o Alice
+@enduml
+</pre></code></p><p><img width="115" height="245" src="https://s.plantuml.com/imgw/img-f6a449ccfce3b98058eece9ff4ca5a15.png"/></p></div><a name="0b2e57c3d4eafdda"></a><h2>Change arrow color<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=0b2e57c3d4eafddad56708626d9b3bbd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=0b2e57c3d4eafddad56708626d9b3bbd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=0b2e57c3d4eafddad56708626d9b3bbd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can change the color of individual arrows using the following notation: <div><p><code><pre>@startuml
+Bob -[#red]&gt; Alice : hello
+Alice -[#0000FF]-&gt;Bob : ok
+@enduml
+</pre></code></p><p><img width="115" height="165" src="https://s.plantuml.com/imgw/img-f3bbe2bc5c61896f5ab0fef88bc3c3c8.png"/></p></div><a name="ce3f7eb577ad5f4d"></a><span id="ezoic-pub-ad-placeholder-116"></span><span data-ez-name="plantuml_com-large-leaderboard-2"></span><h2>Message sequence numbering<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=ce3f7eb577ad5f4dc72168c3eae6c8d7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=ce3f7eb577ad5f4dc72168c3eae6c8d7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=ce3f7eb577ad5f4dc72168c3eae6c8d7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The keyword <code>autonumber</code> is used to automatically add an incrementing number to messages. <div><p><code><pre>@startuml
+autonumber
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+@enduml
+</pre></code></p><p><img width="239" height="165" src="https://s.plantuml.com/imgw/img-cfe535f32fd6012856aa1875af0a14c0.png"/></p></div> You can specify a startnumber with <code>autonumber //start//</code> , and also an increment with <code>autonumber //start// //increment//</code>. <div><p><code><pre>@startuml
+autonumber
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+
+autonumber 15
+Bob -&gt; Alice : Another authentication Request
+Bob &lt;- Alice : Another authentication Response
+
+autonumber 40 10
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+
+@enduml
+</pre></code></p><p><img width="315" height="287" src="https://s.plantuml.com/imgw/img-e7c1cca0666da2dd027d7c8ceb7cc651.png"/></p></div> You can specify a format for your number by using between double-quote.  The formatting is done with the Java class <code>DecimalFormat</code> (<code>0</code> means digit, <code>#</code> means digit and zero if absent).  You can use some html tag in the format. <div><p><code><pre>@startuml
+autonumber &#34;&lt;b&gt;[000]&#34;
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+
+autonumber 15 &#34;&lt;b&gt;(&lt;u&gt;##&lt;/u&gt;)&#34;
+Bob -&gt; Alice : Another authentication Request
+Bob &lt;- Alice : Another authentication Response
+
+autonumber 40 10 &#34;&lt;font color=red&gt;&lt;b&gt;Message 0  &#34;
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+
+@enduml
+</pre></code></p><p><img width="382" height="287" src="https://s.plantuml.com/imgw/img-4e3a5664694bb34a28eb2963923126dc.png"/></p></div> You can also use <code>autonumber stop</code> and <code>autonumber resume //increment// //format//</code> to respectively pause and resume automatic numbering. <div><p><code><pre>@startuml
+autonumber 10 10 &#34;&lt;b&gt;[000]&#34;
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+
+autonumber stop
+Bob -&gt; Alice : dummy
+
+autonumber resume &#34;&lt;font color=red&gt;&lt;b&gt;Message 0  &#34;
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+
+autonumber stop
+Bob -&gt; Alice : dummy
+
+autonumber resume 1 &#34;&lt;font color=blue&gt;&lt;b&gt;Message 0  &#34;
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+@enduml
+</pre></code></p><p><img width="382" height="348" src="https://s.plantuml.com/imgw/img-c7b14e9c7cfec0ecc1f00e2f40cff569.png"/></p></div> Your startnumber can also be a 2 or 3 digit sequence using a field delimiter such as <code>.</code>, <code>;</code>, <code>,</code>, <code>:</code> or a mix of these. For example: <code>1.1.1</code> or <code>1.1:1</code>.  Automatically the last digit will increment.  To increment the first digit, use: <code>autonumber inc A</code>. To increment the second digit, use: <code>autonumber inc B</code>. <div><p><code><pre>@startuml
+autonumber 1.1.1
+Alice -&gt; Bob: Authentication request
+Bob --&gt; Alice: Response
+
+autonumber inc A
+&#39;Now we have 2.1.1
+Alice -&gt; Bob: Another authentication request
+Bob --&gt; Alice: Response
+
+autonumber inc B
+&#39;Now we have 2.2.1
+Alice -&gt; Bob: Another authentication request
+Bob --&gt; Alice: Response
+
+autonumber inc A
+&#39;Now we have 3.1.1
+Alice -&gt; Bob: Another authentication request
+autonumber inc B
+&#39;Now we have 3.2.1
+Bob --&gt; Alice: Response
+@enduml
+</pre></code></p><p><img width="293" height="348" src="https://s.plantuml.com/imgw/img-b73c394e8e29c42a49ed271085168863.png"/></p></div><h2>Page Title, Header and Footer<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=77852febc7dde95216884553a2b147b1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=77852febc7dde95216884553a2b147b1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=77852febc7dde95216884553a2b147b1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The <code>title</code> keyword is used to add a title to the page.  Pages can display headers and footers using <code>header</code> and <code>footer</code>. <div><p><code><pre>@startuml
+
+header Page Header
+footer Page %page% of %lastpage%
+
+title Example Title
+
+Alice -&gt; Bob : message 1
+Alice -&gt; Bob : message 2
+
+@enduml
+</pre></code></p><p><img width="149" height="232" src="https://s.plantuml.com/imgw/img-c353e0fc5609df2dcb4169382a703d83.png"/></p></div><a name="45d7d5b32d17a0f9"></a><span id="ezoic-pub-ad-placeholder-117"></span><span data-ez-name="plantuml_com-leader-1"></span><h2>Splitting diagrams<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=45d7d5b32d17a0f96de73aa527da63b4&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=45d7d5b32d17a0f96de73aa527da63b4&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=45d7d5b32d17a0f96de73aa527da63b4&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The <code>newpage</code> keyword is used to split a diagram into several images.  You can put a title for the new page just after the <code>newpage</code> keyword. This title overrides the previously specified title if any.  This is very handy with <em>Word</em> to print long diagram on several pages.  (Note: this really does work. Only the first page is shown below, but it is a display artifact.) <div><p><code><pre>@startuml
+
+Alice -&gt; Bob : message 1
+Alice -&gt; Bob : message 2
+
+newpage
+
+Alice -&gt; Bob : message 3
+Alice -&gt; Bob : message 4
+
+newpage A title for the\nlast page
+
+Alice -&gt; Bob : message 5
+Alice -&gt; Bob : message 6
+@enduml
+</pre></code></p><p><img width="149" height="166" src="https://s.plantuml.com/imgw/img-523a5a84abc937a78c70dfa01662913b.png"/></p></div><a name="425ba4350c02142c"></a><h2>Grouping message<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=425ba4350c02142c30734e2de01fa65b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=425ba4350c02142c30734e2de01fa65b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=425ba4350c02142c30734e2de01fa65b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is possible to group messages together using the following keywords: <ul><li><code>alt/else</code></li><li><code>opt</code></li><li><code>loop</code></li><li><code>par</code></li><li><code>break</code></li><li><code>critical</code></li><li><code>group</code>, followed by a text to be displayed</li></ul> It is possible to add a text that will be displayed into the header (for <code>group</code>, see next paragraph <em>&#39;Secondary group label&#39;</em>).  The <code>end</code> keyword is used to close the group.  Note that it is possible to nest groups. <div><p><code><pre>@startuml
+Alice -&gt; Bob: Authentication Request
+
+alt successful case
+
+    Bob -&gt; Alice: Authentication Accepted
+
+else some kind of failure
+
+    Bob -&gt; Alice: Authentication Failure
+    group My own label
+    Alice -&gt; Log : Log attack start
+        loop 1000 times
+            Alice -&gt; Bob: DNS Attack
+        end
+    Alice -&gt; Log : Log attack end
+    end
+
+else Another type of failure
+
+   Bob -&gt; Alice: Please repeat
+
+end
+@enduml
+</pre></code></p><p><img width="336" height="446" src="https://s.plantuml.com/imgw/img-8cecf9b98b965e26f249a5cd55c79260.png"/></p></div><span id="ezoic-pub-ad-placeholder-118"></span><span data-ez-name="plantuml_com-large-mobile-banner-1"></span><h2>Secondary group label<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=7aad256d9e87308ce33f827975a9c3b9&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=7aad256d9e87308ce33f827975a9c3b9&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=7aad256d9e87308ce33f827975a9c3b9&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> For <code>group</code>, it is possible to add, between<code>[</code> and <code>]</code>, a secondary text or label that will be displayed into the header. <div><p><code><pre>@startuml
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Failure
+group My own label [My own label 2]
+    Alice -&gt; Log : Log attack start
+    loop 1000 times
+        Alice -&gt; Bob: DNS Attack
+    end
+    Alice -&gt; Log : Log attack end
+end
+@enduml
+</pre></code></p><p><img width="309" height="321" src="https://s.plantuml.com/imgw/img-9c4adeb2cd2a88a259fdb8a04e058d31.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/2503">QA-2503</a>]</em><a name="012d3e8694a98cc1"></a><h2>Notes on messages<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=012d3e8694a98cc1f7e3772e81659bd1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=012d3e8694a98cc1f7e3772e81659bd1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=012d3e8694a98cc1f7e3772e81659bd1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is possible to put notes on message using the <code>note left</code> or <code>note right</code> keywords <em>just after the message</em>.  You can have a multi-line note using the <code>end note</code> keywords. <div><p><code><pre>@startuml
+Alice-&gt;Bob : hello
+note left: this is a first note
+
+Bob-&gt;Alice : ok
+note right: this is another note
+
+Bob-&gt;Bob : I am thinking
+note left
+a note
+can also be defined
+on several lines
+end note
+@enduml
+</pre></code></p><p><img width="333" height="258" src="https://s.plantuml.com/imgw/img-eea23dee0d0fb7afe93297543bdddfc0.png"/></p></div><a name="f8c59a77112b60e7"></a><span id="ezoic-pub-ad-placeholder-119"></span><span data-ez-name="plantuml_com-leader-4"></span><h2>Some other notes<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=f8c59a77112b60e7ec275b2531674266&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=f8c59a77112b60e7ec275b2531674266&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=f8c59a77112b60e7ec275b2531674266&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is also possible to place notes relative to participant with <code>note left of</code> , <code>note right of</code> or <code>note over</code> keywords.  It is possible to highlight a note by changing its background <a href="https://plantuml.com/color">color</a>.  You can also have a multi-line note using the <code>end note</code> keywords. <div><p><code><pre>@startuml
+participant Alice
+participant Bob
+note left of Alice #aqua
+This is displayed
+left of Alice.
+end note
+
+note right of Alice: This is displayed right of Alice.
+
+note over Alice: This is displayed over Alice.
+
+note over Alice, Bob #FFAAAA: This is displayed\n over Bob and Alice.
+
+note over Bob, Alice
+This is yet another
+example of
+a long note.
+end note
+@enduml
+</pre></code></p><p><img width="341" height="372" src="https://s.plantuml.com/imgw/img-35974d25c2fb1ea32238efddde4dfe8c.png"/></p></div><a name="84de38ea1ca38165"></a><h2>Changing notes shape [hnote, rnote]<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=84de38ea1ca38165fae1824e287c18e8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=84de38ea1ca38165fae1824e287c18e8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=84de38ea1ca38165fae1824e287c18e8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use <code>hnote</code> and <code>rnote</code> keywords to change note shapes : <ul><li><code>hnote</code> for hexagonal note;</li><li><code>rnote</code> for rectangle note.</li></ul><div><p><code><pre>@startuml
+caller -&gt; server : conReq
+hnote over caller : idle
+caller &lt;- server : conConf
+rnote over server
+ &#34;r&#34; as rectangle
+ &#34;h&#34; as hexagon
+endrnote
+rnote over server
+ this is
+ on several
+ lines
+endrnote
+hnote over caller
+ this is
+ on several
+ lines
+endhnote
+@enduml
+</pre></code></p><p><img width="167" height="385" src="https://s.plantuml.com/imgw/img-4ca8d464411e6f1a252a2352c18e9d09.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/1765/is-it-possible-to-have-different-shapes-for-notes?show=1806#c1806">QA-1765</a>]</em><a name="39755e6414c00844"></a><span id="ezoic-pub-ad-placeholder-120"></span><span data-ez-name="plantuml_com-large-mobile-banner-2"></span><h2>Note over all participants [across]<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=39755e6414c00844e527c220e4bfa472&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=39755e6414c00844e527c220e4bfa472&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=39755e6414c00844e527c220e4bfa472&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can directly make a note over all participants, with the syntax: <ul><li><code>note across: note_description</code></li></ul><div><p><code><pre>@startuml
+Alice-&gt;Bob:m1
+Bob-&gt;Charlie:m2
+note over Alice, Charlie: Old method for note over all part. with:\n &#34;&#34;note over //FirstPart, LastPart//&#34;&#34;.
+note across: New method with:\n&#34;&#34;note across&#34;&#34;
+Bob-&gt;Alice
+hnote across:Note across all part.
+@enduml
+</pre></code></p><p><img width="272" height="328" src="https://s.plantuml.com/imgw/img-b81bdc429f4ea20fd337fe8f834194ed.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/9738">QA-9738</a>]</em><a name="7514641e1b91c8ee"></a><h2>Several notes aligned at the same level [/]<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=7514641e1b91c8eefbdae2091c1c02b7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=7514641e1b91c8eefbdae2091c1c02b7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=7514641e1b91c8eefbdae2091c1c02b7&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can make several notes aligned at the same level, with the syntax <code>/</code>: <ul><li>without <code>/</code><em>(by default, the notes are not aligned)</em></li></ul><div><p><code><pre>@startuml
+note over Alice : initial state of Alice
+note over Bob : initial state of Bob
+Bob -&gt; Alice : hello
+@enduml
+</pre></code></p><p><img width="194" height="216" src="https://s.plantuml.com/imgw/img-84941e5823856a0642032150c584565e.png"/></p></div><ul><li>with <code>/</code><em>(the notes are aligned)</em></li></ul><div><p><code><pre>@startuml
+note over Alice : initial state of Alice
+/ note over Bob : initial state of Bob
+Bob -&gt; Alice : hello
+@enduml
+</pre></code></p><p><img width="281" height="175" src="https://s.plantuml.com/imgw/img-25297d36a94c4b78fddd33257f819766.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/354">QA-354</a>]</em><a name="28881bae78acd047"></a><span id="ezoic-pub-ad-placeholder-121"></span><span data-ez-name="plantuml_com-leader-2"></span><h2>Creole and HTML<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=28881bae78acd047f00b1cf7503faa09&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=28881bae78acd047f00b1cf7503faa09&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=28881bae78acd047f00b1cf7503faa09&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><a href="https://plantuml.com/creole">It is also possible to use creole formatting:</a><div><p><code><pre>@startuml
+participant Alice
+participant &#34;The **Famous** Bob&#34; as Bob
+
+Alice -&gt; Bob : hello --there--
+... Some ~~long delay~~ ...
+Bob -&gt; Alice : ok
+note left
+  This is **bold**
+  This is //italics//
+  This is &#34;&#34;monospaced&#34;&#34;
+  This is --stroked--
+  This is __underlined__
+  This is ~~waved~~
+end note
+
+Alice -&gt; Bob : A //well formatted// message
+note right of Alice
+ This is &lt;back:cadetblue&gt;&lt;size:18&gt;displayed&lt;/size&gt;&lt;/back&gt;
+ __left of__ Alice.
+end note
+note left of Bob
+ &lt;u:red&gt;This&lt;/u&gt; is &lt;color #118888&gt;displayed&lt;/color&gt;
+ **&lt;color purple&gt;left of&lt;/color&gt; &lt;s:red&gt;Alice&lt;/strike&gt; Bob**.
+end note
+note over Alice, Bob
+ &lt;w:#FF33FF&gt;This is hosted&lt;/w&gt; by &lt;img sourceforge.jpg&gt;
+end note
+@enduml
+</pre></code></p><p><img width="405" height="505" src="https://s.plantuml.com/imgw/img-fa3b5f0e4960866857b4519a24b61230.png"/></p></div><a name="d4b2df53a72661cc"></a><h2>Divider or separator<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=d4b2df53a72661cce3c86bda398e1744&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=d4b2df53a72661cce3c86bda398e1744&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=d4b2df53a72661cce3c86bda398e1744&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> If you want, you can split a diagram using <code>==</code> separator to divide your diagram into logical steps. <div><p><code><pre>@startuml
+
+== Initialization ==
+
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+
+== Repetition ==
+
+Alice -&gt; Bob: Another authentication Request
+Alice &lt;-- Bob: another authentication Response
+
+@enduml
+</pre></code></p><p><img width="275" height="315" src="https://s.plantuml.com/imgw/img-b7d70d8c41cab61d66f7afa3fff85ccb.png"/></p></div><span id="ezoic-pub-ad-placeholder-122"></span><span data-ez-name="plantuml_com-leader-3"></span><h2>Reference<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=63d5049791d9d79d86e9a108b0a999ca&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=63d5049791d9d79d86e9a108b0a999ca&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=63d5049791d9d79d86e9a108b0a999ca&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use reference in a diagram, using the keyword <code>ref over</code>. <div><p><code><pre>@startuml
+participant Alice
+actor Bob
+
+ref over Alice, Bob : init
+
+Alice -&gt; Bob : hello
+
+ref over Bob
+  This can be on
+  several lines
+end ref
+@enduml
+</pre></code></p><p><img width="158" height="334" src="https://s.plantuml.com/imgw/img-4df616776c07a83e121cce6429e5e5b7.png"/></p></div><a name="8f497c1a3d15af9e"></a><h2>Delay<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=8f497c1a3d15af9e0c215019f26b887d&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=8f497c1a3d15af9e0c215019f26b887d&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=8f497c1a3d15af9e0c215019f26b887d&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use <code>...</code> to indicate a delay in the diagram. And it is also possible to put a message with this delay. <div><p><code><pre>@startuml
+
+Alice -&gt; Bob: Authentication Request
+...
+Bob --&gt; Alice: Authentication Response
+...5 minutes later...
+Bob --&gt; Alice: Good Bye !
+
+@enduml
+</pre></code></p><p><img width="228" height="266" src="https://s.plantuml.com/imgw/img-4425d9559bcd54144e09827c90a44a4e.png"/></p></div><span id="ezoic-pub-ad-placeholder-123"></span><h2>Text wrapping<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=8659eac9bf4c26292033e0d6474d39fd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=8659eac9bf4c26292033e0d6474d39fd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=8659eac9bf4c26292033e0d6474d39fd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> To break long messages, you can manually add <code>\n</code> in your text.  Another option is to use <code>maxMessageSize</code> setting: <div><p><code><pre>@startuml
+skinparam maxMessageSize 50
+participant a
+participant b
+a -&gt; b :this\nis\nmanually\ndone
+a -&gt; b :this is a very long message on several words
+@enduml
+</pre></code></p><p><img width="117" height="313" src="https://s.plantuml.com/imgw/img-c138ef9e8f8e7dc3bb35abfb3c5ba43c.png"/></p></div><h2>Space<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=d511f8439ecde36647437fbba67a4394&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=d511f8439ecde36647437fbba67a4394&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=d511f8439ecde36647437fbba67a4394&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use <code>|||</code> to indicate some spacing in the diagram.  It is also possible to specify a number of pixel to be used. <div><p><code><pre>@startuml
+
+Alice -&gt; Bob: message 1
+Bob --&gt; Alice: ok
+|||
+Alice -&gt; Bob: message 2
+Bob --&gt; Alice: ok
+||45||
+Alice -&gt; Bob: message 3
+Bob --&gt; Alice: ok
+
+@enduml
+</pre></code></p><p><img width="147" height="357" src="https://s.plantuml.com/imgw/img-e760fc96c31aa0dcede481249cecf567.png"/></p></div><a name="5cc0040514e70f7b"></a><h2>Lifeline Activation and Destruction<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=5cc0040514e70f7b861e9aba9e087d30&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=5cc0040514e70f7b861e9aba9e087d30&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=5cc0040514e70f7b861e9aba9e087d30&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The <code>activate</code> and <code>deactivate</code> are used to denote participant activation.  Once a participant is activated, its lifeline appears.  The <code>activate</code> and <code>deactivate</code> apply on the previous message.  The <code>destroy</code> denote the end of the lifeline of a participant. <div><p><code><pre>@startuml
+participant User
+
+User -&gt; A: DoWork
+activate A
+
+A -&gt; B: &lt;&lt; createRequest &gt;&gt;
+activate B
+
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+
+B --&gt; A: RequestCreated
+deactivate B
+
+A -&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img width="370" height="287" src="https://s.plantuml.com/imgw/img-c72bb4329debd263bc7a4d8c423349bc.png"/></p></div> Nested lifeline can be used, and it is possible to add a <a href="https://plantuml.com/color">color</a> on the lifeline. <div><p><code><pre>@startuml
+participant User
+
+User -&gt; A: DoWork
+activate A #FFBBBB
+
+A -&gt; A: Internal call
+activate A #DarkSalmon
+
+A -&gt; B: &lt;&lt; createRequest &gt;&gt;
+activate B
+
+B --&gt; A: RequestCreated
+deactivate B
+deactivate A
+A -&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img width="280" height="269" src="https://s.plantuml.com/imgw/img-dab53876d6da5829c4744bea154b668d.png"/></p></div> Autoactivation is possible and works with the return keywords: <div><p><code><pre>@startuml
+autoactivate on
+alice -&gt; bob : hello
+bob -&gt; bob : self call
+bill -&gt; bob #005500 : hello from thread 2
+bob -&gt; george ** : create
+return done in thread 2
+return rc
+bob -&gt; george !! : delete
+return success
+
+@enduml
+</pre></code></p><p><img width="347" height="390" src="https://s.plantuml.com/imgw/img-99086732990293c24c272d191c6606b1.png"/></p></div><a name="988fd738de9c6d17"></a><h2>Return<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=988fd738de9c6d177440c5dcf69e73ce&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=988fd738de9c6d177440c5dcf69e73ce&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=988fd738de9c6d177440c5dcf69e73ce&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> Command <code>return</code> generates a return message with optional text label.  The return point is that which caused the most recent life-line activation.  The syntax is <code>return label</code> where <code>label</code> if provided is any string acceptable for conventional messages. <div><p><code><pre>@startuml
+Bob -&gt; Alice : hello
+activate Alice
+Alice -&gt; Alice : some action
+return bye
+@enduml
+</pre></code></p><p><img width="171" height="209" src="https://s.plantuml.com/imgw/img-0a0935dd3ecf445b465feb9955192793.png"/></p></div><a name="b2c1d43bde93c643"></a><h2>Participant creation<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=b2c1d43bde93c643c93b416f243e7da8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=b2c1d43bde93c643c93b416f243e7da8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=b2c1d43bde93c643c93b416f243e7da8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use the <code>create</code> keyword just before the first reception of a message to emphasize the fact that this message is actually <em>creating</em> this new object. <div><p><code><pre>@startuml
+Bob -&gt; Alice : hello
+
+create Other
+Alice -&gt; Other : new
+
+create control String
+Alice -&gt; String
+note right : You can also put notes!
+
+Alice --&gt; Bob : ok
+
+@enduml
+</pre></code></p><p><img width="404" height="299" src="https://s.plantuml.com/imgw/img-a4d089d637fff96c368f9cfabe884a54.png"/></p></div><a name="35480215b426d170"></a><h2>Shortcut syntax for activation, deactivation, creation<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=35480215b426d170526e7beb155725d1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=35480215b426d170526e7beb155725d1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=35480215b426d170526e7beb155725d1&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> Immediately after specifying the target participant, the following syntax can be used: <ul><li><code>++</code> Activate the target (optionally a <a href="https://plantuml.com/color">#color</a> may follow this)</li><li><code>--</code> Deactivate the source</li><li><code>**</code> Create an instance of the target</li><li><code>!!</code> Destroy an instance of the target</li></ul><div><p><code><pre>@startuml
+alice -&gt; bob ++ : hello
+bob -&gt; bob ++ : self call
+bob -&gt; bib ++  #005500 : hello
+bob -&gt; george ** : create
+return done
+return rc
+bob -&gt; george !! : delete
+return success
+@enduml
+</pre></code></p><p><img width="275" height="390" src="https://s.plantuml.com/imgw/img-8593ba1778c24d0a265482f56ba03f34.png"/></p></div> Then you can mix activation and deactivation, on same line: <div><p><code><pre>@startuml
+alice   -&gt;  bob     ++   : hello1
+bob     -&gt;  charlie --++ : hello2
+charlie --&gt; alice   --   : ok
+@enduml
+</pre></code></p><p><img width="188" height="196" src="https://s.plantuml.com/imgw/img-105ded140988e610acbaec040a0054c2.png"/></p></div><div><p><code><pre>@startuml
+@startuml
+alice -&gt; bob   --++ #gold: hello
+bob   -&gt; alice --++ #gold: you too
+alice -&gt; bob   --: step1
+alice -&gt; bob   : step2
+@enduml
+@enduml
+</pre></code></p><p><img width="130" height="226" src="https://s.plantuml.com/imgw/img-46e8f57ecfdf10d5ab4cd73acdc23060.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/4834/activation-shorthand-for-sequence-diagrams?show=13054#c13054">QA-4834</a>, <a href="https://forum.plantuml.net/9573">QA-9573</a> and <a href="https://forum.plantuml.net/13234">QA-13234</a>]</em><a name="05984b1743e67542"></a><h2>Incoming and outgoing messages<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=05984b1743e67542ce811d73e05e7097&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=05984b1743e67542ce811d73e05e7097&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=05984b1743e67542ce811d73e05e7097&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use incoming or outgoing arrows if you want to focus on a part of the diagram.  Use square brackets to denote the left &#34;<code>[</code>&#34; or the right &#34;<code>]</code>&#34; side of the diagram. <div><p><code><pre>@startuml
+[-&gt; A: DoWork
+
+activate A
+
+A -&gt; A: Internal call
+activate A
+
+A -&gt;] : &lt;&lt; createRequest &gt;&gt;
+
+A&lt;--] : RequestCreated
+deactivate A
+[&lt;- A: Done
+deactivate A
+@enduml
+</pre></code></p><p><img width="234" height="269" src="https://s.plantuml.com/imgw/img-e7ecaa64811915e3bba0331160a43c22.png"/></p></div> You can also have the following syntax: <div><p><code><pre>@startuml
+participant Alice
+participant Bob #lightblue
+Alice -&gt; Bob
+Bob -&gt; Carol
+...
+[-&gt; Bob
+[o-&gt; Bob
+[o-&gt;o Bob
+[x-&gt; Bob
+...
+[&lt;- Bob
+[x&lt;- Bob
+...
+Bob -&gt;]
+Bob -&gt;o]
+Bob o-&gt;o]
+Bob -&gt;x]
+...
+Bob &lt;-]
+Bob x&lt;-]
+
+@enduml
+</pre></code></p><p><img width="178" height="413" src="https://s.plantuml.com/imgw/img-802e31b3bf415a7824d4ceef0f95a3a5.png"/></p></div><h2>Short arrows for incoming and outgoing messages<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=098797a007f231eac4edfa513078ac4b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=098797a007f231eac4edfa513078ac4b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=098797a007f231eac4edfa513078ac4b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can have <strong>short</strong> arrows with using <code>?</code>. <div><p><code><pre>@startuml
+?-&gt; Alice    : &#34;&#34;?-&gt;&#34;&#34;\n**short** to actor1
+[-&gt; Alice    : &#34;&#34;[-&gt;&#34;&#34;\n**from start** to actor1
+[-&gt; Bob      : &#34;&#34;[-&gt;&#34;&#34;\n**from start** to actor2
+?-&gt; Bob      : &#34;&#34;?-&gt;&#34;&#34;\n**short** to actor2
+Alice -&gt;]    : &#34;&#34;-&gt;]&#34;&#34;\nfrom actor1 **to end**
+Alice -&gt;?    : &#34;&#34;-&gt;?&#34;&#34;\n**short** from actor1
+Alice -&gt; Bob : &#34;&#34;-&gt;&#34;&#34; \nfrom actor1 to actor2
+@enduml
+</pre></code></p><p><img width="313" height="436" src="https://s.plantuml.com/imgw/img-c3c3adfa52ef79fb401caefab4c5017a.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/310">QA-310</a>]</em><a name="77c3940b98127fb8"></a><h2>Anchors and Duration<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=77c3940b98127fb8fe913aed1e99bfa0&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=77c3940b98127fb8fe913aed1e99bfa0&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=77c3940b98127fb8fe913aed1e99bfa0&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> With <code>teoz</code> usage it is possible to add anchors to the diagram and use the anchors to specify duration time. <div><p><code><pre>@startuml
+!pragma teoz true
+
+{start} Alice -&gt; Bob : start doing things during duration
+Bob -&gt; Max : something
+Max -&gt; Bob : something else
+{end} Bob -&gt; Alice : finish
+
+{start} &lt;-&gt; {end} : some time
+
+@enduml
+</pre></code></p><p><img width="384" height="225" src="https://s.plantuml.com/imgw/img-bc01b716b636d0e66b9b7d8b76798140.png"/></p></div><a name="94190c2f242a5df2"></a><h2>Stereotypes and Spots<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=94190c2f242a5df22718a2463f47c24d&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=94190c2f242a5df22718a2463f47c24d&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=94190c2f242a5df22718a2463f47c24d&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is possible to add stereotypes to participants using <code>&lt;&lt;</code> and <code>&gt;&gt;</code>.  In the stereotype, you can add a spotted character in a colored circle using the syntax <code>(X,color)</code>. <div><p><code><pre>@startuml
+
+participant &#34;Famous Bob&#34; as Bob &lt;&lt; Generated &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) Testable &gt;&gt;
+
+Bob-&gt;Alice: First message
+
+@enduml
+</pre></code></p><p><img width="243" height="170" src="https://s.plantuml.com/imgw/img-b6aa2fac51e48a8a06e82fea41d2ca47.png"/></p></div> By default, the <em>guillemet</em> character is used to display the stereotype. You can change this behavious using the skinparam <code>guillemet</code>: <div><p><code><pre>@startuml
+
+skinparam guillemet false
+participant &#34;Famous Bob&#34; as Bob &lt;&lt; Generated &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) Testable &gt;&gt;
+
+Bob-&gt;Alice: First message
+
+@enduml
+</pre></code></p><p><img width="291" height="170" src="https://s.plantuml.com/imgw/img-988cce16f786ff255d4adc04bdd9113b.png"/></p></div><div><p><code><pre>@startuml
+
+participant Bob &lt;&lt; (C,#ADD1B2) &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) &gt;&gt;
+
+Bob-&gt;Alice: First message
+
+@enduml
+</pre></code></p><p><img width="194" height="144" src="https://s.plantuml.com/imgw/img-988042624f22aefa8d4179bc6aa6e9b2.png"/></p></div><a name="a21f56b1869e89e5"></a><h2>More information on titles<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=a21f56b1869e89e5e4b7caaf0b48001f&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=a21f56b1869e89e5e4b7caaf0b48001f&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=a21f56b1869e89e5e4b7caaf0b48001f&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use <a href="https://plantuml.com/creole">creole formatting</a> in the title. <div><p><code><pre>@startuml
+
+title __Simple__ **communication** example
+
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img width="289" height="202" src="https://s.plantuml.com/imgw/img-cd7ea357b3b8c3a3e174a776207d7564.png"/></p></div><p> You can add newline using <code>\n</code> in the title description. </p><div><p><code><pre>@startuml
+
+title __Simple__ communication example\non several lines
+
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img width="273" height="225" src="https://s.plantuml.com/imgw/img-ccb83ae249ccfa62d914883c57fb2763.png"/></p></div><p> You can also define title on several lines using <code>title</code> and <code>end title</code> keywords. </p><div><p><code><pre>@startuml
+
+title
+ &lt;u&gt;Simple&lt;/u&gt; communication example
+ on &lt;i&gt;several&lt;/i&gt; lines and using &lt;font color=red&gt;html&lt;/font&gt;
+ This is hosted by &lt;img:sourceforge.jpg&gt;
+end title
+
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img width="273" height="256" src="https://s.plantuml.com/imgw/img-8fc26b28676c3474182e4428c1e81602.png"/></p></div><a name="f52672a8f74a07df"></a><h2>Participants encompass<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=f52672a8f74a07dff2ff94117fc9d953&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=f52672a8f74a07dff2ff94117fc9d953&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=f52672a8f74a07dff2ff94117fc9d953&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is possible to draw a box around some participants, using <code>box</code> and <code>end box</code> commands.  You can add an optional title or a optional background color, after the <code>box</code> keyword. <div><p><code><pre>@startuml
+
+box &#34;Internal Service&#34; #LightBlue
+participant Bob
+participant Alice
+end box
+participant Other
+
+Bob -&gt; Alice : hello
+Alice -&gt; Other : hello
+
+@enduml
+</pre></code></p><p><img width="179" height="188" src="https://s.plantuml.com/imgw/img-fe4b1bf4ff88f18eb7c2f555a4b03e2d.png"/></p></div><a name="21380379ba44081d"></a><h2>Removing Foot Boxes<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=21380379ba44081d339b6ee74b0d902b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=21380379ba44081d339b6ee74b0d902b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=21380379ba44081d339b6ee74b0d902b&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use the <code>hide footbox</code> keywords to remove the foot boxes of the diagram. <div><p><code><pre>@startuml
+
+hide footbox
+title Foot Box removed
+
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img width="228" height="164" src="https://s.plantuml.com/imgw/img-b5346420471a5769687155e3e8f7bb1b.png"/></p></div><a name="7aa53dbdfc2137bf"></a><h2>Skinparam<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=7aa53dbdfc2137bf0189ecb9ea1dc7d8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=7aa53dbdfc2137bf0189ecb9ea1dc7d8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=7aa53dbdfc2137bf0189ecb9ea1dc7d8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use the <a href="https://plantuml.com/skinparam">skinparam</a> command to change colors and fonts for the drawing.  You can use this command: <ul><li>In the diagram definition, like any other commands,</li><li>In an <a href="https://plantuml.com/preprocessing">included file</a>,</li><li>In a configuration file, provided in the <a href="https://plantuml.com/command-line">command line</a> or the <a href="https://plantuml.com/ant-task">ANT task</a>.</li></ul> You can also change other rendering parameter, as seen in the following examples: <div><p><code><pre>@startuml
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam sequenceParticipant underline
+
+actor User
+participant &#34;First Class&#34; as A
+participant &#34;Second Class&#34; as B
+participant &#34;Last Class&#34; as C
+
+User -&gt; A: DoWork
+activate A
+
+A -&gt; B: Create Request
+activate B
+
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+
+B --&gt; A: Request Created
+deactivate B
+
+A --&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img width="354" height="407" src="https://s.plantuml.com/imgw/img-ffdf51c5bc75a666200c0d454b50113b.png"/></p></div><div><p><code><pre>@startuml
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+
+skinparam sequence {
+ArrowColor DeepSkyBlue
+ActorBorderColor DeepSkyBlue
+LifeLineBorderColor blue
+LifeLineBackgroundColor #A9DCDF
+
+ParticipantBorderColor DeepSkyBlue
+ParticipantBackgroundColor DodgerBlue
+ParticipantFontName Impact
+ParticipantFontSize 17
+ParticipantFontColor #A9DCDF
+
+ActorBackgroundColor aqua
+ActorFontColor DeepSkyBlue
+ActorFontSize 17
+ActorFontName Aapex
+}
+
+actor User
+participant &#34;First Class&#34; as A
+participant &#34;Second Class&#34; as B
+participant &#34;Last Class&#34; as C
+
+User -&gt; A: DoWork
+activate A
+
+A -&gt; B: Create Request
+activate B
+
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+
+B --&gt; A: Request Created
+deactivate B
+
+A --&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img width="395" height="381" src="https://s.plantuml.com/imgw/img-6c63f125c659aa8999988e75d09faeb1.png"/></p></div><a name="33cee7c2521befd3"></a><h2>Changing padding<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=33cee7c2521befd3069465e55e42f9d9&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=33cee7c2521befd3069465e55e42f9d9&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=33cee7c2521befd3069465e55e42f9d9&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is possible to tune some padding settings. <div><p><code><pre>@startuml
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+box &#34;Foo1&#34;
+participant Alice1
+participant Alice2
+end box
+box &#34;Foo2&#34;
+participant Bob1
+participant Bob2
+end box
+Alice1 -&gt; Bob1 : hello
+Alice1 -&gt; Out : out
+@enduml
+</pre></code></p><p><img width="529" height="188" src="https://s.plantuml.com/imgw/img-c7a7132090dd71989e55880fa99e8bf5.png"/></p></div><a name="4764f83f72ed032f"></a><h2>Appendix: Examples of all arrow type<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=4764f83f72ed032f1e6fccc28747086e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=4764f83f72ed032f1e6fccc28747086e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=4764f83f72ed032f1e6fccc28747086e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>Normal arrow</h3><div><p><code><pre>@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     b : &#34;&#34;-&gt;   &#34;&#34;
+a -&gt;&gt;    b : &#34;&#34;-&gt;&gt;  &#34;&#34;
+a -\     b : &#34;&#34;-\   &#34;&#34;
+a -\\    b : &#34;&#34;-\\\\&#34;&#34;
+a -/     b : &#34;&#34;-/   &#34;&#34;
+a -//    b : &#34;&#34;-//  &#34;&#34;
+a -&gt;x    b : &#34;&#34;-&gt;x  &#34;&#34;
+a x-&gt;    b : &#34;&#34;x-&gt;  &#34;&#34;
+a o-&gt;    b : &#34;&#34;o-&gt;  &#34;&#34;
+a -&gt;o    b : &#34;&#34;-&gt;o  &#34;&#34;
+a o-&gt;o   b : &#34;&#34;o-&gt;o &#34;&#34;
+a &lt;-&gt;    b : &#34;&#34;&lt;-&gt;  &#34;&#34;
+a o&lt;-&gt;o  b : &#34;&#34;o&lt;-&gt;o&#34;&#34;
+a x&lt;-&gt;x  b : &#34;&#34;x&lt;-&gt;x&#34;&#34;
+a -&gt;&gt;o   b : &#34;&#34;-&gt;&gt;o &#34;&#34;
+a -\o    b : &#34;&#34;-\o  &#34;&#34;
+a -\\o   b : &#34;&#34;-\\\\o&#34;&#34;
+a -/o    b : &#34;&#34;-/o  &#34;&#34;
+a -//o   b : &#34;&#34;-//o &#34;&#34;
+a x-&gt;o   b : &#34;&#34;x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img width="123" height="724" src="https://s.plantuml.com/imgw/img-eee7d8dfb15edc45c61379f39effccb5.png"/></p></div><h3>Itself arrow</h3><div><p><code><pre>@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     a : &#34;&#34;-&gt;   &#34;&#34;
+a -&gt;&gt;    a : &#34;&#34;-&gt;&gt;  &#34;&#34;
+a -\     a : &#34;&#34;-\   &#34;&#34;
+a -\\    a : &#34;&#34;-\\\\&#34;&#34;
+a -/     a : &#34;&#34;-/   &#34;&#34;
+a -//    a : &#34;&#34;-//  &#34;&#34;
+a -&gt;x    a : &#34;&#34;-&gt;x  &#34;&#34;
+a x-&gt;    a : &#34;&#34;x-&gt;  &#34;&#34;
+a o-&gt;    a : &#34;&#34;o-&gt;  &#34;&#34;
+a -&gt;o    a : &#34;&#34;-&gt;o  &#34;&#34;
+a o-&gt;o   a : &#34;&#34;o-&gt;o &#34;&#34;
+a &lt;-&gt;    a : &#34;&#34;&lt;-&gt;  &#34;&#34;
+a o&lt;-&gt;o  a : &#34;&#34;o&lt;-&gt;o&#34;&#34;
+a x&lt;-&gt;x  a : &#34;&#34;x&lt;-&gt;x&#34;&#34;
+a -&gt;&gt;o   a : &#34;&#34;-&gt;&gt;o &#34;&#34;
+a -\o    a : &#34;&#34;-\o  &#34;&#34;
+a -\\o   a : &#34;&#34;-\\\\o&#34;&#34;
+a -/o    a : &#34;&#34;-/o  &#34;&#34;
+a -//o   a : &#34;&#34;-//o &#34;&#34;
+a x-&gt;o   a : &#34;&#34;x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img width="115" height="984" src="https://s.plantuml.com/imgw/img-602ba408e09291b839955673f57992e0.png"/></p></div><h3>Incoming and outgoing messages (with &#39;[&#39;, &#39;]&#39;)</h3><h4>Incoming messages (with &#39;[&#39;)</h4><div><p><code><pre>@startuml
+participant Alice as a
+participant Bob   as b
+[-&gt;      b : &#34;&#34;[-&gt;   &#34;&#34;
+[-&gt;&gt;     b : &#34;&#34;[-&gt;&gt;  &#34;&#34;
+[-\      b : &#34;&#34;[-\   &#34;&#34;
+[-\\     b : &#34;&#34;[-\\\\&#34;&#34;
+[-/      b : &#34;&#34;[-/   &#34;&#34;
+[-//     b : &#34;&#34;[-//  &#34;&#34;
+[-&gt;x     b : &#34;&#34;[-&gt;x  &#34;&#34;
+[x-&gt;     b : &#34;&#34;[x-&gt;  &#34;&#34;
+[o-&gt;     b : &#34;&#34;[o-&gt;  &#34;&#34;
+[-&gt;o     b : &#34;&#34;[-&gt;o  &#34;&#34;
+[o-&gt;o    b : &#34;&#34;[o-&gt;o &#34;&#34;
+[&lt;-&gt;     b : &#34;&#34;[&lt;-&gt;  &#34;&#34;
+[o&lt;-&gt;o   b : &#34;&#34;[o&lt;-&gt;o&#34;&#34;
+[x&lt;-&gt;x   b : &#34;&#34;[x&lt;-&gt;x&#34;&#34;
+[-&gt;&gt;o    b : &#34;&#34;[-&gt;&gt;o &#34;&#34;
+[-\o     b : &#34;&#34;[-\o  &#34;&#34;
+[-\\o    b : &#34;&#34;[-\\\\o&#34;&#34;
+[-/o     b : &#34;&#34;[-/o  &#34;&#34;
+[-//o    b : &#34;&#34;[-//o &#34;&#34;
+[x-&gt;o    b : &#34;&#34;[x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img width="115" height="724" src="https://s.plantuml.com/imgw/img-5b9de67f20152629d916a4bab68b1c9b.png"/></p></div><h4>Outgoing messages (with &#39;]&#39;)</h4><div><p><code><pre>@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;]      : &#34;&#34;-&gt;]   &#34;&#34;
+a -&gt;&gt;]     : &#34;&#34;-&gt;&gt;]  &#34;&#34;
+a -\]      : &#34;&#34;-\]   &#34;&#34;
+a -\\]     : &#34;&#34;-\\\\]&#34;&#34;
+a -/]      : &#34;&#34;-/]   &#34;&#34;
+a -//]     : &#34;&#34;-//]  &#34;&#34;
+a -&gt;x]     : &#34;&#34;-&gt;x]  &#34;&#34;
+a x-&gt;]     : &#34;&#34;x-&gt;]  &#34;&#34;
+a o-&gt;]     : &#34;&#34;o-&gt;]  &#34;&#34;
+a -&gt;o]     : &#34;&#34;-&gt;o]  &#34;&#34;
+a o-&gt;o]    : &#34;&#34;o-&gt;o] &#34;&#34;
+a &lt;-&gt;]     : &#34;&#34;&lt;-&gt;]  &#34;&#34;
+a o&lt;-&gt;o]   : &#34;&#34;o&lt;-&gt;o]&#34;&#34;
+a x&lt;-&gt;x]   : &#34;&#34;x&lt;-&gt;x]&#34;&#34;
+a -&gt;&gt;o]    : &#34;&#34;-&gt;&gt;o] &#34;&#34;
+a -\o]     : &#34;&#34;-\o]  &#34;&#34;
+a -\\o]    : &#34;&#34;-\\\\o]&#34;&#34;
+a -/o]     : &#34;&#34;-/o]  &#34;&#34;
+a -//o]    : &#34;&#34;-//o] &#34;&#34;
+a x-&gt;o]    : &#34;&#34;x-&gt;o] &#34;&#34;
+@enduml
+</pre></code></p><p><img width="116" height="724" src="https://s.plantuml.com/imgw/img-9bff3428f4c888c671c5982240eb73f4.png"/></p></div><h3>Short incoming and outgoing messages (with &#39;?&#39;)</h3><h4>Short incoming (with &#39;?&#39;)</h4><div><p><code><pre>@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     b : //Long long label//
+?-&gt;      b : &#34;&#34;?-&gt;   &#34;&#34;
+?-&gt;&gt;     b : &#34;&#34;?-&gt;&gt;  &#34;&#34;
+?-\      b : &#34;&#34;?-\   &#34;&#34;
+?-\\     b : &#34;&#34;?-\\\\&#34;&#34;
+?-/      b : &#34;&#34;?-/   &#34;&#34;
+?-//     b : &#34;&#34;?-//  &#34;&#34;
+?-&gt;x     b : &#34;&#34;?-&gt;x  &#34;&#34;
+?x-&gt;     b : &#34;&#34;?x-&gt;  &#34;&#34;
+?o-&gt;     b : &#34;&#34;?o-&gt;  &#34;&#34;
+?-&gt;o     b : &#34;&#34;?-&gt;o  &#34;&#34;
+?o-&gt;o    b : &#34;&#34;?o-&gt;o &#34;&#34;
+?&lt;-&gt;     b : &#34;&#34;?&lt;-&gt;  &#34;&#34;
+?o&lt;-&gt;o   b : &#34;&#34;?o&lt;-&gt;o&#34;&#34;
+?x&lt;-&gt;x   b : &#34;&#34;?x&lt;-&gt;x&#34;&#34;
+?-&gt;&gt;o    b : &#34;&#34;?-&gt;&gt;o &#34;&#34;
+?-\o     b : &#34;&#34;?-\o  &#34;&#34;
+?-\\o    b : &#34;&#34;?-\\\\o &#34;&#34;
+?-/o     b : &#34;&#34;?-/o  &#34;&#34;
+?-//o    b : &#34;&#34;?-//o &#34;&#34;
+?x-&gt;o    b : &#34;&#34;?x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img width="171" height="755" src="https://s.plantuml.com/imgw/img-c72e080e02fa6d73ffb8adc842b76754.png"/></p></div><h4>Short outgoing (with &#39;?&#39;)</h4><div><p><code><pre>@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     b : //Long long label//
+a -&gt;?      : &#34;&#34;-&gt;?   &#34;&#34;
+a -&gt;&gt;?     : &#34;&#34;-&gt;&gt;?  &#34;&#34;
+a -\?      : &#34;&#34;-\?   &#34;&#34;
+a -\\?     : &#34;&#34;-\\\\?&#34;&#34;
+a -/?      : &#34;&#34;-/?   &#34;&#34;
+a -//?     : &#34;&#34;-//?  &#34;&#34;
+a -&gt;x?     : &#34;&#34;-&gt;x?  &#34;&#34;
+a x-&gt;?     : &#34;&#34;x-&gt;?  &#34;&#34;
+a o-&gt;?     : &#34;&#34;o-&gt;?  &#34;&#34;
+a -&gt;o?     : &#34;&#34;-&gt;o?  &#34;&#34;
+a o-&gt;o?    : &#34;&#34;o-&gt;o? &#34;&#34;
+a &lt;-&gt;?     : &#34;&#34;&lt;-&gt;?  &#34;&#34;
+a o&lt;-&gt;o?   : &#34;&#34;o&lt;-&gt;o?&#34;&#34;
+a x&lt;-&gt;x?   : &#34;&#34;x&lt;-&gt;x?&#34;&#34;
+a -&gt;&gt;o?    : &#34;&#34;-&gt;&gt;o? &#34;&#34;
+a -\o?     : &#34;&#34;-\o?  &#34;&#34;
+a -\\o?    : &#34;&#34;-\\\\o?&#34;&#34;
+a -/o?     : &#34;&#34;-/o?  &#34;&#34;
+a -//o?    : &#34;&#34;-//o? &#34;&#34;
+a x-&gt;o?    : &#34;&#34;x-&gt;o? &#34;&#34;
+@enduml
+</pre></code></p><p><img width="171" height="755" src="https://s.plantuml.com/imgw/img-d47d7729420ee3a90f96b67c3d7045ac.png"/></p></div><h2>Specific SkinParameter<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=75b4984abd04b14f1ef8282296cc783e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=75b4984abd04b14f1ef8282296cc783e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=75b4984abd04b14f1ef8282296cc783e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>By default</h3><div><p><code><pre>@startuml
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img width="115" height="165" src="https://s.plantuml.com/imgw/img-c9d5a8219e5ca24a0eb5840fd860fc3a.png"/></p></div><h3>LifelineStrategy </h3><ul><li>nosolid <em>(by default)</em></li></ul><div><p><code><pre>@startuml
+skinparam lifelineStrategy nosolid
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img width="115" height="165" src="https://s.plantuml.com/imgw/img-bc31f2278227ae0dec5802bde2a77e51.png"/></p></div><p><em>[Ref. <a href="https://forum.plantuml.net/9016/">QA-9016</a>]</em></p><ul><li>solid</li></ul> In order to have solid life line in sequence diagrams, you can use: <code>skinparam lifelineStrategy solid</code><div><p><code><pre>@startuml
+skinparam lifelineStrategy solid
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img width="115" height="165" src="https://s.plantuml.com/imgw/img-10f2beb6d17f8c8c104d9fba8205aa8b.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/2794">QA-2794</a>]</em><h3>style strictuml</h3> To be conform to strict UML (<em>for arrow style: emits triangle rather than sharp arrowheads</em>), you can use: <ul><li><code>skinparam style strictuml</code></li></ul><div><p><code><pre>@startuml
+skinparam style strictuml
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img width="103" height="124" src="https://s.plantuml.com/imgw/img-fd65b31a628b3b3fe555363c92668b19.png"/></p></div><p><em>[Ref. <a href="https://forum.plantuml.net/1047">QA-1047</a>]</em><a name="fc006eba0d9dcacc"></a></p><h2>Hide unlinked participant <img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/sequence-diagram?do=edit&amp;title=fc006eba0d9dcacca7aebacd2cdc7433&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/sequence-diagram?do=edit&amp;title=fc006eba0d9dcacca7aebacd2cdc7433&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/sequence-diagram?do=edit&amp;title=fc006eba0d9dcacca7aebacd2cdc7433&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fsequence-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> By default, all participants are displayed. <div><p><code><pre>@startuml
+participant Alice
+participant Bob
+participant Carol
+
+Alice -&gt; Bob : hello
+@enduml
+</pre></code></p><p><img width="177" height="135" src="https://s.plantuml.com/imgw/img-6fc1c233c1ecb4eb063c7715273feee8.png"/></p></div> But you can <code>hide unlinked</code> participant. <div><p><code><pre>@startuml
+hide unlinked
+participant Alice
+participant Bob
+participant Carol
+
+Alice -&gt; Bob : hello
+@enduml
+</pre></code></p><p><img width="115" height="135" src="https://s.plantuml.com/imgw/img-7786d74a9b1a56d97938b3ce869471cd.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/4247">QA-4247</a>]</em></div></div>

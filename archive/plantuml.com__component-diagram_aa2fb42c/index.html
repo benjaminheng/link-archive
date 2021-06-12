@@ -1,0 +1,308 @@
+---
+url: https://plantuml.com/component-diagram
+title: Component Diagram syntax and features
+archived_at: 2021-06-12T14:14:40.034536+08:00
+---
+<div id="readability-page-1" class="page"><div width="100%"><tbody><tr width="100%"><td> Let&#39;s have few examples. <a name="05bbb43b3d923283"></a><h2>Components<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=05bbb43b3d923283e0b6ffafd088f41f&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=05bbb43b3d923283e0b6ffafd088f41f&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=05bbb43b3d923283e0b6ffafd088f41f&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> Components must be bracketed.  You can also use the <code>component</code> keyword to define a component. And you can define an alias, using the <code>as</code> keyword. This alias will be used later, when defining relations. <div><p><code><pre>@startuml
+
+[First component]
+[Another component] as Comp2
+component Comp3
+component [Last\ncomponent] as Comp4
+
+@enduml
+</pre></code></p><p><img width="361" height="193" src="https://s.plantuml.com/imgw/img-78308967c22da86b1a22cd0a5c32c88d.png"/></p></div><span id="ezoic-pub-ad-placeholder-179"></span><h2>Interfaces<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=756640f0aea5f5bea1cbe250a9d08989&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=756640f0aea5f5bea1cbe250a9d08989&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=756640f0aea5f5bea1cbe250a9d08989&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> Interface can be defined using the <code>()</code> symbol (because this looks like a circle).  You can also use the <code>interface</code> keyword to define an interface. And you can define an alias, using the <code>as</code> keyword. This alias will be used latter, when defining relations.  We will see latter that interface definition is optional. <div><p><code><pre>@startuml
+
+() &#34;First Interface&#34;
+() &#34;Another interface&#34; as Interf2
+interface Interf3
+interface &#34;Last\ninterface&#34; as Interf4
+
+[component]
+footer //Adding &#34;component&#34; to force diagram to be a **component diagram**//
+@enduml
+</pre></code></p><p><img width="348" height="226" src="https://s.plantuml.com/imgw/img-7d8247044dd570d97d5da3613aab55bb.png"/></p></div><h2>Basic example<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=c96ad883675e26af3b01396eff972697&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=c96ad883675e26af3b01396eff972697&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=c96ad883675e26af3b01396eff972697&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> Links between elements are made using combinations of dotted line (<code>..</code>), straight line (<code>--</code>), and arrows (<code>--&gt;</code>) symbols. <div><p><code><pre>@startuml
+
+DataAccess - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img width="246" height="202" src="https://s.plantuml.com/imgw/img-8480f58724123cf0fd5da3f08c40bccd.png"/></p></div><span id="ezoic-pub-ad-placeholder-114"></span><span data-ez-name="plantuml_com-box-4"></span><h2>Using notes<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=d50d8f9219a414359ed2f766da473f39&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=d50d8f9219a414359ed2f766da473f39&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=d50d8f9219a414359ed2f766da473f39&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use the <code>note left of</code> , <code>note right of</code> , <code>note top of</code> , <code>note bottom of</code> keywords to define notes related to a single object.  A note can be also define alone with the <code>note</code> keywords, then linked to other objects using the <code>..</code> symbol. <div><p><code><pre>@startuml
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+note left of HTTP : Web Service only
+
+note right of [First Component]
+  A note can also
+  be on several lines
+end note
+
+@enduml
+</pre></code></p><p><img width="414" height="185" src="https://s.plantuml.com/imgw/img-672cc9a606e1ab9a06d92943c8dbda78.png"/></p></div><h2>Grouping Components<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=58bb821cf05c48a2cf018b406a937cbf&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=58bb821cf05c48a2cf018b406a937cbf&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=58bb821cf05c48a2cf018b406a937cbf&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use several keywords to group components and interfaces together: <ul><li><code>package</code></li><li><code>node</code></li><li><code>folder</code></li><li><code>frame</code></li><li><code>cloud</code></li><li><code>database</code></li></ul><div><p><code><pre>@startuml
+
+package &#34;Some Group&#34; {
+  HTTP - [First Component]
+  [Another Component]
+}
+
+node &#34;Other Groups&#34; {
+  FTP - [Second Component]
+  [First Component] --&gt; FTP
+}
+
+cloud {
+  [Example 1]
+}
+
+
+database &#34;MySql&#34; {
+  folder &#34;This is my folder&#34; {
+    [Folder 3]
+  }
+  frame &#34;Foo&#34; {
+    [Frame 4]
+  }
+}
+
+
+[Another Component] --&gt; [Example 1]
+[Example 1] --&gt; [Folder 3]
+[Folder 3] --&gt; [Frame 4]
+
+@enduml
+</pre></code></p><p><img width="487" height="572" src="https://s.plantuml.com/imgw/img-b5a1530ee95219ce01c054ddfaebddd4.png"/></p></div><span id="ezoic-pub-ad-placeholder-115"></span><h2>Changing arrows direction<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=9a49d5ae2dd333a4383349c978d76966&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=9a49d5ae2dd333a4383349c978d76966&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=9a49d5ae2dd333a4383349c978d76966&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> By default, links between classes have two dashes <code>--</code> and are vertically oriented. It is possible to use horizontal link by putting a single dash (or dot) like this: <div><p><code><pre>@startuml
+[Component] --&gt; Interface1
+[Component] -&gt; Interface2
+@enduml
+</pre></code></p><p><img width="202" height="184" src="https://s.plantuml.com/imgw/img-99d56629ab1754ac4f40147ff775c035.png"/></p></div> You can also change directions by reversing the link: <div><p><code><pre>@startuml
+Interface1 &lt;-- [Component]
+Interface2 &lt;- [Component]
+@enduml
+</pre></code></p><p><img width="208" height="167" src="https://s.plantuml.com/imgw/img-8443be4fb5139216a41e8faf8bcc22c0.png"/></p></div> It is also possible to change arrow direction by adding <code>left</code>, <code>right</code>, <code>up</code> or <code>down</code> keywords inside the arrow: <div><p><code><pre>@startuml
+[Component] -left-&gt; left
+[Component] -right-&gt; right
+[Component] -up-&gt; up
+[Component] -down-&gt; down
+@enduml
+</pre></code></p><p><img width="238" height="281" src="https://s.plantuml.com/imgw/img-2ac234649d1bd35e78bd17fc194a24ae.png"/></p></div> You can shorten the arrow by using only the first character of the direction (for example, <code>-d-</code> instead of <code>-down-</code>) or the two first characters (<code>-do-</code>).  Please note that you should not abuse this functionality : <em>Graphviz</em> gives usually good results without tweaking.  And with the <a href="https://plantuml.com/use-case-diagram#d551e48d272b2b07"><code>left to right direction</code></a> parameter: <div><p><code><pre>@startuml
+left to right direction
+[Component] -left-&gt; left
+[Component] -right-&gt; right
+[Component] -up-&gt; up
+[Component] -down-&gt; down
+@enduml
+</pre></code></p><p><img width="323" height="189" src="https://s.plantuml.com/imgw/img-30b1863e179718ee34c7a68498ec209c.png"/></p></div><h2>Use UML2 notation<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=7709bf1c8595d539a01067201fe8eabd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=7709bf1c8595d539a01067201fe8eabd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=7709bf1c8595d539a01067201fe8eabd&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> By default <em>(from v1.2020.13-14)</em>, UML2 notation is used. <div><p><code><pre>@startuml
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img width="248" height="202" src="https://s.plantuml.com/imgw/img-bbbaf9b90ee80a9317d4693b17bd1e02.png"/></p></div><span id="ezoic-pub-ad-placeholder-116"></span><span data-ez-name="plantuml_com-large-leaderboard-2"></span><h2>Use UML1 notation<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=ad4599d2cea99367c7dd54e6f123c6de&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=ad4599d2cea99367c7dd54e6f123c6de&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=ad4599d2cea99367c7dd54e6f123c6de&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The <code>skinparam componentStyle uml1</code> command is used to switch to UML1 notation. <div><p><code><pre>@startuml
+skinparam componentStyle uml1
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img width="228" height="192" src="https://s.plantuml.com/imgw/img-6d8d965764cef084a168bf01b9e2785f.png"/></p></div><h2>Use rectangle notation (remove UML notation)<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=209c2b6d887c7fde90c73e6a759755ab&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=209c2b6d887c7fde90c73e6a759755ab&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=209c2b6d887c7fde90c73e6a759755ab&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> The <code>skinparam componentStyle rectangle</code> command is used to switch to rectangle notation <em>(without any UML notation)</em>. <div><p><code><pre>@startuml
+skinparam componentStyle rectangle
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img width="226" height="192" src="https://s.plantuml.com/imgw/img-6c49f207b558f23dcb985be87c767c0f.png"/></p></div><span id="ezoic-pub-ad-placeholder-117"></span><span data-ez-name="plantuml_com-leader-1"></span><h2>Long description<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=a52ab216dd03c49902ff2a66d8c12f36&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=a52ab216dd03c49902ff2a66d8c12f36&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=a52ab216dd03c49902ff2a66d8c12f36&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> It is possible to put description on several lines using square brackets. <div><p><code><pre>@startuml
+component comp1 [
+This component
+has a long comment
+on several lines
+]
+@enduml
+</pre></code></p><p><img width="187" height="102" src="https://s.plantuml.com/imgw/img-2744a869ebe3eed0eb1d547fd944b3d1.png"/></p></div><h2>Individual colors<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=ea805db4a048a1b73ac4c0889044fbf2&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=ea805db4a048a1b73ac4c0889044fbf2&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=ea805db4a048a1b73ac4c0889044fbf2&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can specify a color after component definition. <div><p><code><pre>@startuml
+component  [Web Server] #Yellow
+@enduml
+</pre></code></p><p><img width="135" height="67" src="https://s.plantuml.com/imgw/img-d37135371b73c8a2ae7284dd98dc4155.png"/></p></div><span id="ezoic-pub-ad-placeholder-118"></span><h2>Using Sprite in Stereotype<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=1f0a05cc7e12084975f79b48ce9f8a16&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=1f0a05cc7e12084975f79b48ce9f8a16&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=1f0a05cc7e12084975f79b48ce9f8a16&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use sprites within stereotype components. <div><p><code><pre>@startuml
+sprite $businessProcess [16x16/16] {
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFF0FFFFF
+FFFFFFFFFF00FFFF
+FF00000000000FFF
+FF000000000000FF
+FF00000000000FFF
+FFFFFFFFFF00FFFF
+FFFFFFFFFF0FFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+}
+
+
+rectangle &#34; End to End\nbusiness process&#34; &lt;&lt;$businessProcess&gt;&gt; {
+ rectangle &#34;inner process 1&#34; &lt;&lt;$businessProcess&gt;&gt; as src
+ rectangle &#34;inner process 2&#34; &lt;&lt;$businessProcess&gt;&gt; as tgt
+ src -&gt; tgt
+}
+@enduml
+</pre></code></p><p><img width="321" height="158" src="https://s.plantuml.com/imgw/img-a1d13cab0c404d7f9e9ac73e66c2ae79.png"/></p></div><a name="7aa53dbdfc2137bf"></a><h2>Skinparam<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=7aa53dbdfc2137bf0189ecb9ea1dc7d8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=7aa53dbdfc2137bf0189ecb9ea1dc7d8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=7aa53dbdfc2137bf0189ecb9ea1dc7d8&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can use the <a href="https://plantuml.com/skinparam">skinparam</a> command to change colors and fonts for the drawing.  You can use this command : <ul><li>In the diagram definition, like any other commands;</li><li>In an <a href="https://plantuml.com/preprocessing">included file</a>;</li><li>In a configuration file, provided in the <a href="https://plantuml.com/command-line">command line</a> or the <a href="https://plantuml.com/ant-task">Ant task</a>.</li></ul> You can define specific color and fonts for stereotyped components and interfaces. <div><p><code><pre>@startuml
+
+skinparam interface {
+  backgroundColor RosyBrown
+  borderColor orange
+}
+
+skinparam component {
+  FontSize 13
+  BackgroundColor&lt;&lt;Apache&gt;&gt; Pink
+  BorderColor&lt;&lt;Apache&gt;&gt; #FF6655
+  FontName Courier
+  BorderColor black
+  BackgroundColor gold
+  ArrowFontName Impact
+  ArrowColor #FF6655
+  ArrowFontColor #777777
+}
+
+() &#34;Data Access&#34; as DA
+Component &#34;Web Server&#34; as WS &lt;&lt; Apache &gt;&gt;
+
+DA - [First Component]
+[First Component] ..&gt; () HTTP : use
+HTTP - WS
+
+@enduml
+</pre></code></p><p><img width="346" height="208" src="https://s.plantuml.com/imgw/img-768251ff81e67e5015a2c558c8a2ddda.png"/></p></div><div><p><code><pre>@startuml
+[AA] &lt;&lt;static lib&gt;&gt;
+[BB] &lt;&lt;shared lib&gt;&gt;
+[CC] &lt;&lt;static lib&gt;&gt;
+
+node node1
+node node2 &lt;&lt;shared node&gt;&gt;
+database Production
+
+skinparam component {
+    backgroundColor&lt;&lt;static lib&gt;&gt; DarkKhaki
+    backgroundColor&lt;&lt;shared lib&gt;&gt; Green
+}
+
+skinparam node {
+borderColor Green
+backgroundColor Yellow
+backgroundColor&lt;&lt;shared node&gt;&gt; Magenta
+}
+skinparam databaseBackgroundColor Aqua
+
+@enduml
+</pre></code></p><p><img width="423" height="203" src="https://s.plantuml.com/imgw/img-c7803b5bf4173f5e9c40c55b92273ef4.png"/></p></div><span id="ezoic-pub-ad-placeholder-119"></span><span data-ez-name="plantuml_com-large-mobile-banner-1"></span><h2>Specific SkinParameter<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=75b4984abd04b14f1ef8282296cc783e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=75b4984abd04b14f1ef8282296cc783e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=75b4984abd04b14f1ef8282296cc783e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2><h3>componentStyle </h3><ul><li>By default (or with <code>skinparam componentStyle uml2</code>), you have an icon for component</li></ul><div><p><code><pre>@startuml
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+component A {
+   component &#34;A.1&#34; {
+}
+   component A.44 {
+      [A4.1]
+}
+   component &#34;A.2&#34;
+   [A.3]
+   component A.5 [
+A.5] 
+   component A.6 [
+]
+}
+[a]-&gt;[b]
+@enduml
+</pre></code></p><p><img width="584" height="272" src="https://s.plantuml.com/imgw/img-8a3b91cc301a9cf2549b3524bbdc40af.png"/></p></div><ul><li>If you want to suppress it, and to have only the rectangle, you can use <code>skinparam componentStyle rectangle</code></li></ul><div><p><code><pre>@startuml
+skinparam BackgroundColor transparent
+skinparam componentStyle rectangle
+component A {
+   component &#34;A.1&#34; {
+}
+   component A.44 {
+      [A4.1]
+}
+   component &#34;A.2&#34;
+   [A.3]
+   component A.5 [
+A.5] 
+   component A.6 [
+]
+}
+[a]-&gt;[b]
+@enduml
+</pre></code></p><p><img width="462" height="250" src="https://s.plantuml.com/imgw/img-0a2cc33fffafbf9f516857517d5817e9.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/10798">10798</a>]</em><a name="0a05899a20325958"></a><h2>Hide or Remove unlinked component<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=0a05899a203259580c9b0b8c81f1749e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=0a05899a203259580c9b0b8c81f1749e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=0a05899a203259580c9b0b8c81f1749e&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> By default, all components are displayed: <div><p><code><pre>@startuml
+component C1
+component C2
+component C3
+C1 -- C2
+@enduml
+</pre></code></p><p><img width="171" height="175" src="https://s.plantuml.com/imgw/img-a46fcbc9cac0735287d558a97316aa58.png"/></p></div> But you can: <ul><li><code>hide @unlinked</code> components:</li></ul><div><p><code><pre>@startuml
+component C1
+component C2
+component C3
+C1 -- C2
+
+hide @unlinked
+@enduml
+</pre></code></p><p><img width="171" height="175" src="https://s.plantuml.com/imgw/img-1c5fdb010ab7c3fcaa265df5fda36c6b.png"/></p></div><ul><li>or <code>remove @unlinked</code> components:</li></ul><div><p><code><pre>@startuml
+component C1
+component C2
+component C3
+C1 -- C2
+
+remove @unlinked
+@enduml
+</pre></code></p><p><img width="78" height="175" src="https://s.plantuml.com/imgw/img-09d1a7a1a010799823a244e5ba60b806.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/11052">QA-11052</a>]</em><a name="e966f55ffa507384"></a><span id="ezoic-pub-ad-placeholder-120"></span><h2>Hide, Remove or Restore tagged component or wildcard<img onclick="window.scrollTo(0,0);" title="Back to top" src="https://s.plantuml.com/backtop.png" width="20" height="20"/><a target="_blank" href="http://alphadoc.plantuml.com/action/dokuwiki/en/component-diagram?do=edit&amp;title=e966f55ffa50738488d3c6b079b8d34c&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Dokuwiki syntax" src="https://plantuml.com/dokuwiki.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/asciidoc/en/component-diagram?do=edit&amp;title=e966f55ffa50738488d3c6b079b8d34c&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Asciidoc syntax" src="https://plantuml.com/asciidoc32.png" width="20" height="20"/></a><a target="_blank" href="http://alphadoc.plantuml.com/action/markdown/en/component-diagram?do=edit&amp;title=e966f55ffa50738488d3c6b079b8d34c&amp;orig=https%3A%2F%2Fplantuml.com%2Fen%2Fcomponent-diagram"><img title="Edit using Markdown syntax" src="https://plantuml.com/markdown.png" width="20" height="20"/></a></h2> You can put <code>$tags</code> (using <code>$</code>) on components, then remove, hide or restore components either individually or by tags.  By default, all components are displayed: <div><p><code><pre>@startuml
+component C1 $tag13
+component C2
+component C3 $tag13
+C1 -- C2
+@enduml
+</pre></code></p><p><img width="171" height="175" src="https://s.plantuml.com/imgw/img-1aceb18ef7f140ef7ff34e1add215b34.png"/></p></div> But you can: <ul><li><code>hide $tag13</code> components:</li></ul><div><p><code><pre>@startuml
+component C1 $tag13
+component C2
+component C3 $tag13
+C1 -- C2
+
+hide $tag13
+@enduml
+</pre></code></p><p><img width="171" height="175" src="https://s.plantuml.com/imgw/img-fcb03db95c753317785d0175f96bcceb.png"/></p></div><ul><li>or <code>remove $tag13</code> components:</li></ul><div><p><code><pre>@startuml
+component C1 $tag13
+component C2
+component C3 $tag13
+C1 -- C2
+
+remove $tag13
+@enduml
+</pre></code></p><p><img width="78" height="67" src="https://s.plantuml.com/imgw/img-4a9874eda6a7dc6ab47731bcf0468183.png"/></p></div><ul><li>or <code>remove $tag13 and restore $tag1</code> components:</li></ul><div><p><code><pre>@startuml
+component C1 $tag13 $tag1
+component C2
+component C3 $tag13
+C1 -- C2
+
+remove $tag13
+restore $tag1
+@enduml
+</pre></code></p><p><img width="78" height="175" src="https://s.plantuml.com/imgw/img-08a006e9b5201e16f62ea51c9615bb89.png"/></p></div><ul><li>or <code>remove * and restore $tag1</code> components:</li></ul><div><p><code><pre>@startuml
+component C1 $tag13 $tag1
+component C2
+component C3 $tag13
+C1 -- C2
+
+remove *
+restore $tag1
+@enduml
+</pre></code></p><p><img width="78" height="67" src="https://s.plantuml.com/imgw/img-7d1d3ba6795c630ba82a182a6aba3f09.png"/></p></div><em>[Ref. <a href="https://forum.plantuml.net/7337">QA-7337</a> and <a href="https://forum.plantuml.net/11052">QA-11052</a>]</em></td><td id="toctd"><div id="toc"><ul><li><a href="#05bbb43b3d923283">Components</a></li><li><a href="#756640f0aea5f5be">Interfaces</a></li><li><a href="#c96ad883675e26af">Basic example</a></li><li><a href="#d50d8f9219a41435">Using notes</a></li><li><a href="#58bb821cf05c48a2">Grouping Components</a></li><li><a href="#9a49d5ae2dd333a4">Changing arrows direction</a></li><li><a href="#7709bf1c8595d539">Use UML2 notation</a></li><li><a href="#ad4599d2cea99367">Use UML1 notation</a></li><li><a href="#209c2b6d887c7fde">Use rectangle notation (remove UML notation)</a></li><li><a href="#a52ab216dd03c499">Long description</a></li><li><a href="#ea805db4a048a1b7">Individual colors</a></li><li><a href="#1f0a05cc7e120849">Using Sprite in Stereotype</a></li><li><a href="#7aa53dbdfc2137bf">Skinparam</a></li><li><a href="#75b4984abd04b14f">Specific SkinParameter</a></li><li><a href="#0a05899a20325958">Hide or Remove unlinked component</a></li><li><a href="#e966f55ffa507384">Hide, Remove or Restore tagged component or wildcard</a></li></ul></div></td></tr></tbody></div></div>
