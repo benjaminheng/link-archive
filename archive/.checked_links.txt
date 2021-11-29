@@ -8,7 +8,9 @@ blog.datawrapper.de__beautifulcolors_46a5d0aa
 blog.timescale.com__blog_what-are-traces-and-how-sql-yes-sql-and-opentelemetry-can-help-us-get-more-_7886d1f1
 bmjtherapy.com_d4775717
 brouter.de__brouter-web_db0648fa
+bugs.python.org__issue26260_718591c6
 cdn.discordapp.com__attachments_150412836500275200_726425653859319868_yaku.png_331866d6
+ch.tetr.io__u_wqwqwq_74b61187
 citeseerx.ist.psu.edu__viewdoc_download-doi-10.1.1.869.7869rep-rep1type-pdf_8d9cc75d
 clig.dev_bf333f46
 climbingshop.hampivillage.com__20_0a24fa67
@@ -20,6 +22,7 @@ danluu.com__tracing-analytics_90189649
 dev.opera.com__articles_drum-sounds-webaudio_3452c90d
 developers.google.com__android_images_82932a21
 docs.google.com__spreadsheets_d_1LqvgWWfybs6BTFVSKtN_bq8ddY3YhRucKZTnQIc0Zzg_edit_6d4ef34a
+docs.python.org__3.1_library_sys.html_afa120f3
 doki-doki-literature-club.fandom.com__wiki_Monika27s_Talk_024d5f84
 eev.ee__blog_2016_09_15_music-theory-for-nerds_5a62a0e0
 ejucovy.github.io__readability_6973f16a
@@ -32,12 +35,14 @@ engineering.kablamo.com.au__posts_2021_memcached-vs-redis-whats-the-difference_3
 engineering.salesforce.com__anomaly-detection-in-zipkin-trace-data-87c8a2ded8a1_dcd30ddf
 eshop-prices.com__prices-currency-SGD_0db15cbd
 euophrys.itch.io__mahjong-efficiency-trainer_9d273761
+fle.github.io__git-tip-keep-your-branch-clean-with-fixup-and-autosquash.html_c777e04d
 fontjoy.com_d5907c6f
 forum.xda-developers.com__pixel-3a_development_twrp-3-3-1-pixel-3a-t3943413_post82928369_80012eac
 freeyourmusic.com__blog_how-much-does-spotify-pay-per-stream_82c15e4a
 gds.blog.gov.uk__2020_04_03_how-gov-uk-notify-reliably-sends-text-messages-to-users_1244050f
 getwaves.io_bff6b605
 gist.github.com__rgreenjr_3637525_fd8d1c93
+git-scm.com__book_en_v2_Git-Tools-Rewriting-History_8bdd7371
 github.com__benjaminheng_link-archive_fa623415
 github.com__darold_pgbadger_0badca9e
 github.com__golang_vscode-go_issues_45_ee4ef177
@@ -52,6 +57,8 @@ github.com__stimulusjs_stimulus_ad814a6d
 github.com__topjohnwu_magisk_files_tree_canary_92145618
 github.com__turbolinks_turbolinks_4d5495d1
 gmb.io__hip-mobility_0743a29a
+hackernewsbooks.com_dae83f1c
+hakibenita.com__postgresql-unknown-features_0a513294
 hakibenita.com__sql-anomaly-detection_db370fec
 hampi.in__bouldering-guide-golden-boulders_8e8d30b8
 handbrake.fr_f94dec2c
@@ -59,6 +66,8 @@ haseebq.com__how-not-to-bomb-your-offer-negotiation_c968420b
 haseebq.com__my-ten-rules-for-negotiating-a-job-offer_be050c1e
 hbenjamin.com__post_knowledge-base_086de616
 hnrss.github.io_8ba8fff8
+hyperboleandahalf.blogspot.com__2011_10_adventures-in-depression.html_f2468f89
+hyperboleandahalf.blogspot.com__2013_05_depression-part-two.html_6f36150c
 kb.hbenjamin.com_e2f1ab66
 khonkaenclimbing.com__kkbf-2020-info_dfe162da
 khonkaenclimbing.com__our-services_ec1b1ef0
@@ -79,6 +88,7 @@ monzo.com__blog_how-weve-evolved-on-call-at-monzo_0790c6d1
 musically.com__2020_05_13_what-are-user-centric-music-streaming-payouts_3dd0604a
 ncase.me__crowds_cad07458
 ncona.com__2020_06_create-diagrams-with-code-using-graphviz_37b80e7b
+nesslabs.com__digital-garden-set-up_1e0addb2
 netflixtechblog.com__building-netflixs-distributed-tracing-infrastructure-bb856c319304_a4d89ba2
 netflixtechblog.com__lessons-from-building-observability-tools-at-netflix-7cfafed6ab17_36bad54e
 news.ycombinator.com__item-id-12528144_54bb834d
@@ -86,6 +96,7 @@ news.ycombinator.com__item-id-14800579_f96f4475
 news.ycombinator.com__item-id-20116699_79ac4ba4
 news.ycombinator.com__item-id-20331654_fa73af7b
 news.ycombinator.com__item-id-23072333_6b33c0b6
+news.ycombinator.com__item-id-29236676_4bb32d57
 news.ycombinator.com__item-id-5630445_7e585354
 old.reddit.com__r_bodyweightfitness_wiki_kb_recommended_routine_689686de
 omata.com__collections_all_products_omata-one-kph-variant-47672917909_53028eff
@@ -96,6 +107,7 @@ plantuml.com__component-diagram_aa2fb42c
 plantuml.com__json_8658fdf6
 plantuml.com__sequence-diagram_e7fbeb0e
 plantuml.com_c72debd2
+randomlylondon.com__london-guide_b05bfc01
 real-world-plantuml.com_2532d02b
 renenyffenegger.ch__notes_tools_Graphviz_examples_index_5548169e
 ridewithgps.com__routes_new_72abbcb1
@@ -104,17 +116,23 @@ siawyoung.com__understanding-money_dac855f0
 stackoverflow.blog__2020_04_06_a-practical-guide-to-writing-technical-specs_2c00f8fc
 stevenlow.org__overcoming-tendonitis_8805fa8a
 stevenlow.org__treatment-of-climber-hand-and-finger-injuries_3ae82eef
+store.steampowered.com__app_1247940_Greyhat__A_Digital_Detective_Adventure_ef578998
 streamable.com__i130n_bb900d7f
 svelte.dev_68168b2e
 thegoancorner.wordpress.com_3b2a0fd4
+themighty.com__2016_05_high-functioning-depression-we-cant-overlook-the-overachievers_015d70d9
 thoughtbot.com__blog_improving-the-command-line-postgres-experience_09677398
 topjohnwu.github.io__Magisk_install.html_1a25cf86
 twitter.com__mattklein123_status_1049813546077323264_9a490313
 undraw.co__illustrations_964d4e53
+unicodebook.readthedocs.io__about.html_4a8d941c
+unicodebook.readthedocs.io__guess_encoding.html_054a2d8b
+unicodebook.readthedocs.io__unicode_encodings.html_03c9a16a
 whitehoodhacker.net__posts_2021-10-04-the-big-rick_e2e84295
 wiki.postgresql.org__wiki_Disk_Usage_12eb219c
 wiki.postgresql.org__wiki_Lock_Monitoring_f0e25986
 www.2ndquadrant.com__en_blog_on-the-impact-of-full-page-writes_728d8aed
+www.2ndquadrant.com__en_blog_postgresql-10-identity-columns_49057edc
 www.8bitdo.com__sn30-pro-plus_e5d6705a
 www.8bitdo.com__wireless-usb-adapter_d016b7e6
 www.blackdiamondequipment.com__en_US_stories_experience-story-esther-smith-nagging-finger-injuries_fc402f78
@@ -125,7 +143,9 @@ www.climbing.com__skills_training-hangboard-ladders-for-finger-strength_7157035a
 www.covermytunes.com_321f67cc
 www.crimpd.com_c3e3d0ae
 www.dekudeals.com_acacf893
+www.depressionquest.com__dqfinal.html_15bb15b3
 www.elastic.co__guide_en_elasticsearch_reference_5.1_docs-delete-by-query.html_ede869b7
+www.glassattic.com_5cf42840
 www.google.com__maps_d_u_0_viewer-mid-1d-f3wTmqM3jmT7C1LtTzorsRbGwshorturl-1ll-1.3332256195494552C10_e020e7b7
 www.google.com__maps_d_u_0_viewer-msa-0dg-featuremid-1wpVo946QUwM2HM4MvNmvr2UdYG0ll-1.41527485450207_1b2ae844
 www.gov.uk__guidance_content-design_writing-for-gov-uk_01b9fe3e
@@ -151,6 +171,8 @@ www.reddit.com__r_Mahjong_comments_hu9dum_when_should_i_go_for_chiponkan_open_me
 www.reddit.com__r_bodyweightfitness_comments_ek0j4h_when_just_get_started_feels_like_just_do_this_fd_4ef105ca
 www.reddit.com__r_bodyweightfitness_comments_nns5an_how_to_periodize_your_bodyweight_strength_3eec24a6
 www.reddit.com__r_climbing_comments_gegy44_a_throwback_to_better_days_longboats_and_fpoc8t6_3ad5066a
+www.reddit.com__r_polymerclay_comments_lqtiy0_i_made_some_little_green_polymer_puppies_gojllsw_-cont_5a2a4d91
+www.reddit.com__r_polymerclay_comments_qe3pv5_small_gifts_for_my_catloving_friends_2b002368
 www.redditdiscuss.com_fa29c255
 www.researchgate.net__publication_334898123_Materials_types_and_selection_for_carabiners_manufacturi_37f06f8e
 www.satisfye.com__products_zengrip-go_c57e1125
@@ -162,6 +184,7 @@ www.tripadvisor.com.sg__Hotel_Review-g319725-d1822740-Reviews-Goan_Corner-Hampi_
 www.udemy.com__course_sight-reading_9b555dc9
 www.vdiffclimbing.com__clean-bolted-anchor_81af98d6
 www.youtube.com__channel_UC5jRwTUqG15l-BcqQHbVFtA_videos_a39bdda1
+www.youtube.com__watch-v--yZtOL7cFCYt-1596s_68fda8b0
 www.youtube.com__watch-v-FEq_QANqEmI_8f101309
 www.youtube.com__watch-v-FXyc3DdRnns_39398a55
 www.youtube.com__watch-v-G7N5RcsSyUw_b05e43f5
@@ -177,7 +200,9 @@ www.youtube.com__watch-v-fCEgANP9ScM_899923b1
 www.youtube.com__watch-v-fghQL8EJSwY_9dc5eb7c
 www.youtube.com__watch-v-k7X7sZzSXYs_440fb69e
 www.youtube.com__watch-v-oWvGC3fi4gA_c205006c
+www.youtube.com__watch-v-qgBXDFfJSfU_c3643a3d
 www.youtube.com__watch-v-sU2ES4dvWkc_1d0d0581
 www.youtube.com__watch-v-syBMUZmyJlA_89dc8f36
 www.youtube.com__watch-v-x-1OJW3OMb4_bf2b1f77
+www.youtube.com__watch-v-x_tROGXipzU_90d59427
 youtu.be__zsmeXwHu6W0_7aa98d8a

@@ -1,0 +1,1424 @@
+---
+url: https://hakibenita.com/postgresql-unknown-features
+title: Lesser Known PostgreSQL Features
+archived_at: 2021-11-30T00:41:53.972656+08:00
+---
+<div id="readability-page-1" class="page"><article data-progress-indicator="">
+        <hr/>
+<p>In 2006 Microsoft conducted a customer survey to find what new features users want in new versions of Microsoft Office. To their surprise, more than 90% of what users asked for already existed, they just didn&#39;t know about it. To address the &#34;discoverability&#34; issue, they came up with the &#34;Ribbon UI&#34; that we know from Microsoft Office products today.</p>
+<p>Office is not unique in this sense. Most of us are not aware of all the features in tools we use on a daily basis, especially if it&#39;s big and extensive like PostgreSQL. With PostgreSQL 14 released just a few weeks ago, what a better opportunity to shed a light on some lesser known features that already exist in PostgreSQL, but you may not know.</p>
+<p><strong>In this article I present lesser known features of PostgreSQL.</strong></p>
+
+<details open="">
+    <summary>Table of Contents</summary>
+<div>
+<ul>
+<li><a href="#get-the-number-of-updated-and-inserted-rows-in-an-upsert">Get the Number of Updated and Inserted Rows in an Upsert</a></li>
+<li><a href="#grant-permissions-on-specific-columns">Grant Permissions on Specific Columns</a></li>
+<li><a href="#match-against-multiple-patterns">Match Against Multiple Patterns</a></li>
+<li><a href="#find-the-current-value-of-a-sequence-without-advancing-it">Find the Current Value of a Sequence Without Advancing It</a></li>
+<li><a href="#use-copy-with-multi-line-sql">Use \copy With Multi-line SQL</a></li>
+<li><a href="#prevent-setting-the-value-of-an-auto-generated-key">Prevent Setting the Value of an Auto Generated Key</a></li>
+<li><a href="#two-more-ways-to-produce-a-pivot-table">Two More Ways to Produce a Pivot Table</a></li>
+<li><a href="#dollar-quoting">Dollar Quoting</a></li>
+<li><a href="#comment-on-database-objects">Comment on Database Objects</a></li>
+<li><a href="#keep-a-separate-history-file-per-database">Keep a Separate History File Per Database</a></li>
+<li><a href="#autocomplete-reserved-words-in-uppercase">Autocomplete Reserved Words in Uppercase</a></li>
+<li><a href="#sleep-for-interval">Sleep for Interval</a></li>
+<li><a href="#get-the-first-or-last-row-in-a-group-without-sub-queries">Get the First or Last Row in a Group Without Sub-Queries</a></li>
+<li><a href="#generate-uuid-without-extensions">Generate UUID Without Extensions</a></li>
+<li><a href="#generate-reproducible-random-data">Generate Reproducible Random Data</a></li>
+<li><a href="#add-constraints-without-validating-immediately">Add Constraints Without Validating Immediately</a></li>
+<li><a href="#synonyms-in-postgresql">Synonyms in PostgreSQL</a></li>
+<li><a href="#find-overlapping-ranges">Find Overlapping Ranges</a></li>
+</ul>
+</div>
+</details>
+<hr/>
+<h2 id="get-the-number-of-updated-and-inserted-rows-in-an-upsert"><a href="#get-the-number-of-updated-and-inserted-rows-in-an-upsert">Get the Number of Updated and Inserted Rows in an Upsert</a></h2>
+<p><code>INSERT ON CONFLICT</code>, also known as &#34;merge&#34; (in Oracle) or &#34;upsert&#34; (a mashup of UPDATE and INSERT), is a very useful command, especially in ETL processes. Using the <code>ON CONFLICT</code> clause of an <code>INSERT</code> statement, you can tell the database what to do when a collision is detected in one or more key columns.</p>
+<p>For example, here is a query to sync data in an employees table:</p>
+<div><pre><span></span><span>db=#</span> <span>WITH</span> <span>new_employees</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span> <span>*</span> <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;George&#39;</span><span>,</span> <span>&#39;Sales&#39;</span><span>,</span>    <span>&#39;Manager&#39;</span><span>,</span>   <span>1000</span><span>),</span>
+        <span>(</span><span>&#39;Jane&#39;</span><span>,</span>   <span>&#39;R&amp;D&#39;</span><span>,</span>      <span>&#39;Developer&#39;</span><span>,</span> <span>1200</span><span>)</span>
+    <span>)</span> <span>AS</span> <span>t</span><span>(</span>
+         <span>name</span><span>,</span>      <span>department</span><span>,</span> <span>role</span><span>,</span>       <span>salary</span>
+    <span>)</span>
+<span>)</span>
+<span>INSERT</span> <span>INTO</span> <span>employees</span> <span>(</span><span>name</span><span>,</span> <span>department</span><span>,</span> <span>role</span><span>,</span> <span>salary</span><span>)</span>
+<span>SELECT</span> <span>name</span><span>,</span> <span>department</span><span>,</span> <span>role</span><span>,</span> <span>salary</span>
+<span>FROM</span> <span>new_employees</span>
+<span><span>ON</span> <span>CONFLICT</span> <span>(</span><span>name</span><span>)</span> <span>DO</span> <span>UPDATE</span> <span>SET</span>
+</span>    <span>department</span> <span>=</span> <span>EXCLUDED</span><span>.</span><span>department</span><span>,</span>
+    <span>role</span> <span>=</span> <span>EXCLUDED</span><span>.</span><span>role</span><span>,</span>
+    <span>salary</span> <span>=</span> <span>EXCLUDED</span><span>.</span><span>salary</span>
+<span>RETURNING</span> <span>*</span><span>;</span>
+
+<span>  name  │ department │   role    │ salary</span>
+<span>────────┼────────────┼───────────┼────────</span>
+<span> George │ Sales      │ Manager   │   1000</span>
+<span> Jane   │ R&amp;D        │ Developer │   1200</span>
+<span>INSERT 0 2</span>
+</pre></div>
+
+
+<p>The query inserts new employee data to the table. If there is an attempt to add an employee with a name that already exists, the query will update that row instead.</p>
+
+<p>You can see from the output of the command above, <code>INSERT 0 2</code>, that two employees were affected. But how many were inserted, and how many were updated? The output is not giving us any clue!</p>
+<p>While I was looking for a way to improve the logging of some ETL process that used such query, I stumbled upon <a href="https://stackoverflow.com/a/39204667/2000875" rel="noopener">this Stack Overflow answer</a> that suggested a pretty clever solution to this exact problem:</p>
+<div><pre><span></span><span>db=#</span> <span>WITH</span> <span>new_employees</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span> <span>*</span> <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;George&#39;</span><span>,</span> <span>&#39;Sales&#39;</span><span>,</span>    <span>&#39;Manager&#39;</span><span>,</span>   <span>1000</span><span>),</span>
+        <span>(</span><span>&#39;Jane&#39;</span><span>,</span>   <span>&#39;R&amp;D&#39;</span><span>,</span>      <span>&#39;Developer&#39;</span><span>,</span> <span>1200</span><span>)</span>
+    <span>)</span> <span>AS</span> <span>t</span><span>(</span>
+         <span>name</span><span>,</span>      <span>department</span><span>,</span> <span>role</span><span>,</span>       <span>salary</span>
+    <span>)</span>
+<span>)</span>
+<span>INSERT</span> <span>INTO</span> <span>employees</span> <span>(</span><span>name</span><span>,</span> <span>department</span><span>,</span> <span>role</span><span>,</span> <span>salary</span><span>)</span>
+<span>SELECT</span> <span>name</span><span>,</span> <span>department</span><span>,</span> <span>role</span><span>,</span> <span>salary</span>
+<span>FROM</span> <span>new_employees</span>
+<span>ON</span> <span>CONFLICT</span> <span>(</span><span>name</span><span>)</span> <span>DO</span> <span>UPDATE</span> <span>SET</span>
+    <span>department</span> <span>=</span> <span>EXCLUDED</span><span>.</span><span>department</span><span>,</span>
+    <span>role</span> <span>=</span> <span>EXCLUDED</span><span>.</span><span>role</span><span>,</span>
+    <span>salary</span> <span>=</span> <span>EXCLUDED</span><span>.</span><span>salary</span>
+<span><span>RETURNING</span> <span>*</span><span>,</span> <span>(</span><span>xmax</span> <span>=</span> <span>0</span><span>)</span> <span>AS</span> <span>inserted</span><span>;</span>
+</span>
+<span>  name  │ department │   role    │ salary │ inserted</span>
+<span>────────┼────────────┼───────────┼────────┼──────────</span>
+<span> Jane   │ R&amp;D        │ Developer │   1200 │ t</span>
+<span> George │ Sales      │ Manager   │   1000 │ f</span>
+<span>INSERT 0 2</span>
+</pre></div>
+
+
+<p>Notice the difference in the <code>RETUNING</code> clause. It includes the calculated field <code>inserted</code> that uses the special column <code>xmax</code> to determine how many rows were inserted. From the data returned by the command, you can spot that a new row was inserted for &#34;Jane&#34;, but &#34;George&#34; was already in the table, so the row was updated.</p>
+<p>The <code>xmax</code> column is a <a href="https://www.postgresql.org/docs/current/ddl-system-columns.html" rel="noopener">special system column</a>:</p>
+<blockquote>
+<p>The identity (transaction ID) of the deleting transaction, or zero for an undeleted row version.</p>
+</blockquote>
+<p>In PostgreSQL, when a row is updated, the previous version is deleted, and <code>xmax</code> holds the ID of the deleting transaction. When the row is inserted, no previous row is deleted, so <code>xmax</code> is zero. This &#34;trick&#34; is cleverly using this behavior to distinguish between updated and inserted rows.</p>
+<hr/>
+<h2 id="grant-permissions-on-specific-columns"><a href="#grant-permissions-on-specific-columns">Grant Permissions on Specific Columns</a></h2>
+<p>Say you have a users table that contain sensitive information such as credentials, passwords or PII:</p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>TABLE</span> <span>users</span> <span>(</span>
+    <span>id</span> <span>INT</span><span>,</span>
+    <span>username</span> <span>VARCHAR</span><span>(</span><span>20</span><span>),</span>
+    <span>personal_id</span> <span>VARCHAR</span><span>(</span><span>10</span><span>),</span>
+    <span>password_hash</span> <span>VARCHAR</span><span>(</span><span>256</span><span>)</span>
+<span>);</span>
+<span>CREATE TABLE</span>
+
+<span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>users</span> <span>VALUES</span> <span>(</span><span>1</span><span>,</span> <span>&#39;haki&#39;</span><span>,</span> <span>&#39;12222227&#39;</span><span>,</span> <span>&#39;super-secret-hash&#39;</span><span>);</span>
+<span>INSERT 1 0</span>
+</pre></div>
+
+
+<p>The table is used by different people in your organization, such as analysts, to access data and produce ad-hoc reports. To allow access to analysts, you add a special user in the database:</p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>USER</span> <span>analyst</span><span>;</span>
+<span>CREATE USER</span>
+
+<span>db=#</span> <span>GRANT</span> <span>SELECT</span> <span>ON</span> <span>users</span> <span>TO</span> <span>analyst</span><span>;</span>
+<span>GRANT</span>
+</pre></div>
+
+
+<p>The user <code>analyst</code> can now access the <code>users</code> table:</p>
+<div><pre><span></span><span>db=#</span> <span>\connect</span> <span>db</span> <span>analyst</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;analyst&#34;.</span>
+
+<span>db=&gt;</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>users</span><span>;</span>
+<span> id │ username │ personal_id │   password_hash</span>
+<span>────┼──────────┼─────────────┼───────────────────</span>
+<span>  1 │ haki     │ 12222227    │ super-secret-hash</span>
+</pre></div>
+
+
+<p>As mentioned previously, analysts access users data to produce reports and conduct analysis, but they should not have access to sensitive information or PII.</p>
+<p>To provide granular control over which data a user can access in a table, PostgreSQL allows you to grant permissions only on specific columns of a table:</p>
+<div><pre><span></span><span>db=#</span> <span>\connect</span> <span>db</span> <span>postgres</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;postgres&#34;.</span>
+
+<span>db=#</span> <span>REVOKE</span> <span>SELECT</span> <span>ON</span> <span>users</span> <span>FROM</span> <span>analyst</span><span>;</span>
+<span>REVOKE</span>
+
+<span><span>db=#</span> <span>GRANT</span> <span>SELECT</span> <span>(</span><span>id</span><span>,</span> <span>username</span><span>)</span> <span>ON</span> <span>users</span> <span>TO</span> <span>analyst</span><span>;</span>
+</span><span>GRANT</span>
+</pre></div>
+
+
+<p>After revoking the existing select permission on the table, you granted <code>analyst</code> select permission only on the <code>id</code> and <code>username</code> columns. Now, <code>analyst</code> can no longer   access these columns:</p>
+<div><pre><span></span><span>db=#</span> <span>\connect</span> <span>db</span> <span>analyst</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;analyst&#34;.</span>
+
+<span>db=&gt;</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>users</span><span>;</span>
+<span><span>ERROR:</span><span>  permission denied for table users</span>
+</span>
+<span>db=&gt;</span> <span>SELECT</span> <span>id</span><span>,</span> <span>username</span><span>,</span> <span>personal_id</span> <span>FROM</span> <span>users</span><span>;</span>
+<span><span>ERROR:</span><span>  permission denied for table users</span>
+</span>
+<span>db=&gt;</span> <span>SELECT</span> <span>id</span><span>,</span> <span>username</span> <span>FROM</span> <span>users</span><span>;</span>
+<span> id │ username</span>
+<span>────┼──────────</span>
+<span><span>  1 │ haki</span>
+</span></pre></div>
+
+
+<p>Notice that when the user <code>analyst</code> attempts to access any of the restricted columns, either explicitly or implicitly using <code>*</code>, they get a &#34;permission denied&#34; error.</p>
+<hr/>
+<h2 id="match-against-multiple-patterns"><a href="#match-against-multiple-patterns">Match Against Multiple Patterns</a></h2>
+<p>It&#39;s not uncommon to use pattern matching in SQL. For example, here is a query to find users with a &#34;gmail.com&#34; email account:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>users</span>
+<span>WHERE</span> <span>email</span> <span>LIKE</span> <span>&#39;%@gmail.com&#39;</span><span>;</span>
+</pre></div>
+
+
+<p>This query uses the wildcard &#39;%&#39; to find users with emails that end with &#34;@gmail.com&#34;. What if, for example, in the same query you also want to find users with a &#34;yahoo.com&#34; email account?</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>users</span>
+<span>WHERE</span>
+    <span>email</span> <span>LIKE</span> <span>&#39;%@gmail.com&#39;</span>
+    <span>OR</span> <span>email</span> <span>LIKE</span> <span>&#39;%@yahoo.com&#39;</span>
+</pre></div>
+
+
+<p>To match against either one of these patterns, you can construct an <code>OR</code> condition. In PostgreSQL however, there is another way to match against multiple patterns:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>users</span>
+<span><span>WHERE</span> <span>email</span> <span>SIMILAR</span> <span>TO</span> <span>&#39;%@gmail.com|%@yahoo.com&#39;</span>
+</span></pre></div>
+
+
+<p>Using <a href="https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP" rel="noopener"><code>SIMILAR TO</code></a> you can match against multiple patterns and keep the query simple.</p>
+<p>Another way to match against multiple patterns is using regexp:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>users</span>
+<span><span>WHERE</span> <span>email</span> <span>~</span> <span>&#39;@gmail\.com$|@yahoo\.com$&#39;</span>
+</span></pre></div>
+
+
+<p>When using regexp you need to take be a bit more cautious. A period &#34;<code>.</code>&#34; will match anything, so to match the period &#34;<code>.</code>&#34; in <code>gmail.com</code> or <code>yahoo.com</code>, you need to add the escape character &#34;<code>\.</code>&#34;.</p>
+<p>When I posted this <a href="https://twitter.com/be_haki/status/1435859174538293248?s=20" rel="noopener">on twitter</a> I got some interesting responses. <a href="https://twitter.com/psycopg/status/1435926642388516866?s=20" rel="noopener">One comment</a> from the official account of <a href="https://www.psycopg.org/" rel="noopener">psycopg</a>, a PostgreSQL driver for Python, suggested another way:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>users</span>
+<span><span>WHERE</span> <span>email</span> <span>~</span> <span>ANY</span><span>(</span><span>&#39;{@gmail\.com$|@yahoo\.com$}&#39;</span><span>)</span>
+</span></pre></div>
+
+
+<p>This query uses the <code>ANY</code> operator to match against an array of patterns. If an email matches any of the patterns, the condition will be true. This approach is easier to work with from a host language such as Python:</p>
+<div><pre><span></span><span>with</span> <span>connection</span><span>.</span><span>cursor</span><span>()</span> <span>as</span> <span>cursor</span><span>:</span>
+    <span>cursor</span><span>.</span><span>execute</span><span>(</span><span>&#39;&#39;&#39;</span>
+<span>        SELECT *</span>
+<span>        FROM users</span>
+<span><span>        WHERE email ~ ANY(ARRAY</span><span>%(patterns)s</span><span>)</span>
+</span><span>    &#39;&#39;&#39;</span> <span>%</span> <span>{</span>
+        <span>&#39;patterns&#39;</span><span>:</span> <span>[</span>
+            <span>&#39;@gmail\.com$&#39;</span><span>,</span>
+            <span>&#39;@yahoo\.com$&#39;</span><span>,</span>
+        <span>],</span>
+    <span>})</span>
+</pre></div>
+
+
+<p>Unlike the previous approach that used <code>SIMILAR TO</code>, using <code>ANY</code> you can bind a list of patterns to the variable.</p>
+<hr/>
+<h2 id="find-the-current-value-of-a-sequence-without-advancing-it"><a href="#find-the-current-value-of-a-sequence-without-advancing-it">Find the Current Value of a Sequence Without Advancing It</a></h2>
+<p>If you ever needed to find the current value of a sequence, your first attempt was most likely using <a href="https://www.postgresql.org/docs/current/functions-sequence.html" rel="noopener"><code>currval</code></a>:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>currval</span><span>(</span><span>&#39;sale_id_seq&#39;</span><span>);</span>
+<span>ERROR:</span><span>  currval of sequence &#34;sale_id_seq&#34; is not yet defined in this session</span>
+</pre></div>
+
+
+<p>Just like me, you probably found that <code>currval</code> only works if the sequence was defined or used in the current session. Advancing a sequence for no good reason is usually not something you want to do, so this is not an acceptable solution.</p>
+<p>In PostgreSQL 10 the view <a href="https://www.postgresql.org/docs/current/view-pg-sequences.html" rel="noopener"><code>pg_sequences</code></a> was added to provide easy access to information about sequences:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>pg_sequences</span> <span>WHERE</span> <span>sequencename</span> <span>=</span> <span>&#39;sale_id_seq&#39;</span><span>;</span>
+<span>─[ RECORD 1 ]─┬────────────</span>
+<span>schemaname    │ public</span>
+<span>sequencename  │ sale_id_seq</span>
+<span>sequenceowner │ db</span>
+<span>data_type     │ integer</span>
+<span>start_value   │ 1</span>
+<span>min_value     │ 1</span>
+<span>max_value     │ 2147483647</span>
+<span>increment_by  │ 1</span>
+<span>cycle         │ f</span>
+<span>cache_size    │ 1</span>
+<span><span>last_value    │ 155</span>
+</span></pre></div>
+
+
+<p>This table can answer your question, but it&#39;s not really a &#34;lesser known feature&#34;, it&#39;s just another table in the information schema.</p>
+<p>Another way to get the current value of a sequence is using the undocumented function <code>pg_sequence_last_value</code>:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>pg_sequence_last_value</span><span>(</span><span>&#39;sale_id_seq&#39;</span><span>);</span>
+<span> pg_sequence_last_value</span>
+<span>────────────────────────</span>
+<span>                   155</span>
+</pre></div>
+
+
+<p>It&#39;s not clear why this function is not documented, but I couldn&#39;t find any mention of it in the <a href="https://www.postgresql.org/search/?u=%2Fdocs%2F14%2F&amp;q=pg_sequence_last_value" rel="noopener">official documentation</a>. Take that under consideration if you decide to use it.</p>
+<p>Another interesting thing I found while I was researching this, is that you can query a sequence, just like you would a table:</p>
+<div><pre><span></span><span><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>sale_id_seq</span><span>;</span>
+</span>
+<span> last_value │ log_cnt │ is_called</span>
+<span>────────────┼─────────┼───────────</span>
+<span>        155 │      10 │ t</span>
+</pre></div>
+
+
+<p>This really makes you wonder what other types of objects you can query in PostgreSQL, and what you&#39;ll get in return.</p>
+<p>It&#39;s important to note that this feature should not be used for anything except getting a cursory look at a sequence. You should not try to update ID&#39;s based on values from this output, for that you should use <code>nextval</code>.</p>
+<hr/>
+<h2 id="use-copy-with-multi-line-sql"><a href="#use-copy-with-multi-line-sql">Use <code>\copy</code> With Multi-line SQL</a></h2>
+<p>If you work with psql a lot you probably use <code>\COPY</code> very often to export data from the database. I know I do. One of the most annoying things about <code>\COPY</code> is that it does not allow multi-line queries:</p>
+<div><pre><span></span><span>db=#</span> <span>\COPY</span> <span>(</span>
+<span>\copy: parse error at end of line</span>
+</pre></div>
+
+
+<p>When you try to add a new line to a <code>\copy</code> command you get this error message.</p>
+<p>To overcome this restriction, my first idea was to use a view:</p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>VIEW</span> <span>v_department_dbas</span> <span>AS</span>
+    <span>SELECT</span> <span>department</span><span>,</span> <span>count</span><span>(</span><span>*</span><span>)</span> <span>AS</span> <span>employees</span>
+    <span>FROM</span> <span>emp</span>
+    <span>WHERE</span> <span>role</span> <span>=</span> <span>&#39;dba&#39;</span>
+    <span>GROUP</span> <span>BY</span> <span>department</span>
+    <span>ORDER</span> <span>BY</span> <span>employees</span><span>;</span>
+<span>CREATE VIEW</span>
+
+<span><span>db=#</span> <span>\COPY</span> <span>(SELECT</span> <span>*</span> <span>FROM</span> <span>v_department_dbas)</span> <span>TO</span> <span>department_dbas.csv</span> <span>WITH</span> <span>CSV</span> <span>HEADER;</span>
+</span><span>COPY 5</span>
+
+<span>db=#</span> <span>DROP</span> <span>VIEW</span> <span>v_department_dbas</span><span>;</span>
+<span>DROP VIEW;</span>
+</pre></div>
+
+
+<p>This works, but if something fails in the middle it can leave views laying around. I like to keep my schema tidy, so I looked for a way to automatically cleanup after me. A quick search brought up <a href="https://www.postgresql.org/docs/current/sql-createview.html#id-1.9.3.97.6" rel="noopener">temporary views</a>:</p>
+<div><pre><span></span><span><span>db=#</span> <span>CREATE</span> <span>TEMPORARY</span> <span>VIEW</span> <span>v_department_dbas</span> <span>AS</span> <span>#</span> <span>...</span>
+</span><span>CREATE</span> <span>VIEW</span>
+
+<span>db=#</span> <span>\COPY</span> <span>(SELECT</span> <span>*</span> <span>FROM</span> <span>v_department_dbas)</span> <span>TO</span> <span>department_dbas.csv</span> <span>WITH</span> <span>CSV</span> <span>HEADER;</span>
+<span>COPY 5</span>
+</pre></div>
+
+
+<p>Using temporary views I no longer had to cleanup after myself, because temporary views are automatically dropped when the session terminates.</p>
+<p>I used temporary views for a while, until I struck this little gem in the <a href="https://www.postgresql.org/docs/current/app-psql.html#APP-PSQL-META-COMMANDS-COPY" rel="noopener">psql documentation</a>:</p>
+<div><pre><span></span><span><span>db=#</span> <span>COPY</span> <span>(</span>
+</span>    <span>SELECT</span> <span>department</span><span>,</span> <span>count</span><span>(</span><span>*</span><span>)</span> <span>AS</span> <span>employees</span>
+    <span>FROM</span> <span>emp</span>
+    <span>WHERE</span> <span>role</span> <span>=</span> <span>&#39;dba&#39;</span>
+    <span>GROUP</span> <span>BY</span> <span>department</span>
+    <span>ORDER</span> <span>BY</span> <span>employees</span>
+<span><span>)</span> <span>TO</span> <span>STDOUT</span> <span>WITH</span> <span>CSV</span> <span>HEADER</span> <span>\g</span> <span>department_dbas.csv</span>
+</span><span>COPY</span> <span>5</span>
+</pre></div>
+
+
+<p>Nice, right? Let&#39;s break it down:</p>
+<ul>
+<li>
+<p><strong>Use <code>COPY</code> instead of <code>\COPY</code></strong>: the <code>COPY</code> command is a server command executed <em>in the server</em>, and <code>\COPY</code> is a psql command with the same interface. So while <code>\COPY</code> does not support multi-line queries, <code>COPY</code> does!</p>
+</li>
+<li>
+<p><strong>Write results to STDOUT</strong>: Using <code>COPY</code> we can write results to a directory on the server, or write results to the standard output, using <code>TO STDOUT</code>.</p>
+</li>
+<li>
+<p><strong>Use <code>\g</code> to write STDOUT to local file</strong>: Finally, psql provides a command to write the output from standard output to a file.</p>
+</li>
+</ul>
+<p>Combining these three features did exactly what I wanted.</p>
+
+<hr/>
+<h2 id="prevent-setting-the-value-of-an-auto-generated-key"><a href="#prevent-setting-the-value-of-an-auto-generated-key">Prevent Setting the Value of an Auto Generated Key</a></h2>
+<p>If you are using auto generated primary keys in PostgreSQL, it&#39;s possible you are still using the <a href="https://www.postgresql.org/docs/current/datatype-numeric.html#DATATYPE-SERIAL" rel="noopener"><code>SERIAL</code> datatype</a>:</p>
+<div><pre><span></span><span>CREATE</span> <span>TABLE</span> <span>sale</span> <span>(</span>
+<span>    <span>id</span> <span>SERIAL</span> <span>PRIMARY</span> <span>KEY</span><span>,</span>
+</span>    <span>sold_at</span> <span>TIMESTAMPTZ</span><span>,</span>
+    <span>amount</span> <span>INT</span>
+<span>);</span>
+</pre></div>
+
+
+<p>Behind the scenes, PostgreSQL creates a sequence to use when rows are added:</p>
+<div><pre><span></span><span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>sold_at</span><span>,</span> <span>amount</span><span>)</span> <span>VALUES</span> <span>(</span><span>now</span><span>(),</span> <span>1000</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>sale</span><span>;</span>
+<span> id │           sold_at             │ amount</span>
+<span>────┼───────────────────────────────┼────────</span>
+<span>  1 │ 2021-09-25 10:06:56.646298+03 │   1000</span>
+</pre></div>
+
+
+<p>The <code>SERIAL</code> data type is unique to PostgreSQL and <a href="https://www.2ndquadrant.com/en/blog/postgresql-10-identity-columns/" rel="noopener">has some known problems</a>, so starting at version 10, the <code>SERIAL</code> datatype was softly deprecated in favor of <em>identity columns</em>:</p>
+<div><pre><span></span><span>CREATE</span> <span>TABLE</span> <span>sale</span> <span>(</span>
+<span>    <span>id</span> <span>INT</span> <span>GENERATED</span> <span>BY</span> <span>DEFAULT</span> <span>AS</span> <span>IDENTITY</span> <span>PRIMARY</span> <span>KEY</span><span>,</span>
+</span>    <span>sold_at</span> <span>TIMESTAMPTZ</span><span>,</span>
+    <span>amount</span> <span>INT</span>
+<span>);</span>
+</pre></div>
+
+
+<p>Identity columns work very similar to the <code>SERIAL</code> data type:</p>
+<div><pre><span></span><span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>sold_at</span><span>,</span> <span>amount</span><span>)</span> <span>VALUES</span> <span>(</span><span>now</span><span>(),</span> <span>1000</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>sale</span><span>;</span>
+<span> id │           sold_at             │ amount</span>
+<span>────┼───────────────────────────────┼────────</span>
+<span>  1 │ 2021-09-25 10:11:57.771121+03 │   1000</span>
+</pre></div>
+
+
+<p>But, consider this scenario:</p>
+<div><pre><span></span><span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>id</span><span>,</span> <span>sold_at</span><span>,</span> <span>amount</span><span>)</span> <span>VALUES</span> <span>(</span><span>2</span><span>,</span> <span>now</span><span>(),</span> <span>1000</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>sold_at</span><span>,</span> <span>amount</span><span>)</span> <span>VALUES</span> <span>(</span><span>now</span><span>(),</span> <span>1000</span><span>);</span>
+<span><span>ERROR:</span><span>  duplicate key value violates unique constraint &#34;sale_pkey&#34;</span>
+</span><span>DETAIL:</span><span>  Key (id)=(2) already exists.</span>
+</pre></div>
+
+
+<p>Why did it fail?</p>
+<ul>
+<li>The first <code>INSERT</code> command explicitly provides the value 2 of the <code>id</code> column, so the sequence was not used.</li>
+<li>The second <code>INSERT</code> command does not provide a value for <code>id</code>, so the sequence is used. The next value of the sequence happened to be 2, so the command failed with a unique constraint violation.</li>
+</ul>
+<p>Auto-incrementing IDs rarely need to be set manually, and doing so can cause a mess. So how can you prevent users from setting them?</p>
+<div><pre><span></span><span>CREATE</span> <span>TABLE</span> <span>sale</span> <span>(</span>
+<span>    <span>id</span> <span>INT</span> <span>GENERATED</span> <span>ALWAYS</span> <span>AS</span> <span>IDENTITY</span> <span>PRIMARY</span> <span>KEY</span><span>,</span>
+</span>    <span>sold_at</span> <span>TIMESTAMPTZ</span><span>,</span>
+    <span>amount</span> <span>INT</span>
+<span>);</span>
+</pre></div>
+
+
+<p>Instead of using <code>GENERATED BY DEFAULT</code>, use <code>GENERATED ALWAYS</code>. To understand the difference, try the same scenario again:</p>
+<div><pre><span></span><span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>sold_at</span><span>,</span> <span>amount</span><span>)</span> <span>VALUES</span> <span>(</span><span>now</span><span>(),</span> <span>1000</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>id</span><span>,</span> <span>sold_at</span><span>,</span> <span>amount</span><span>)</span> <span>VALUES</span> <span>(</span><span>2</span><span>,</span> <span>now</span><span>(),</span> <span>1000</span><span>);</span>
+<span><span>ERROR:</span><span>  cannot insert into column &#34;id&#34;</span>
+</span><span><span>DETAIL:</span><span>  Column &#34;id&#34; is an identity column defined as GENERATED ALWAYS.</span>
+</span><span>HINT:</span><span>  Use OVERRIDING SYSTEM VALUE to override.</span>
+</pre></div>
+
+
+<p>What changed?</p>
+<ul>
+<li>The first <code>INSERT</code> does not provide a value for <code>id</code> and completes successfully.</li>
+<li>The second <code>INSERT</code> command however, attempts to set the value 2 for <code>id</code> and fails!</li>
+</ul>
+<p>In the error message, PostgreSQL is kind enough to offer a solution for when you actually <em>do</em> want to set the value for an identity column explicitly:</p>
+<div><pre><span></span><span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>sale</span> <span>(</span><span>id</span><span>,</span> <span>sold_at</span><span>,</span> <span>amount</span><span>)</span>
+<span><span>OVERRIDING</span> <span>SYSTEM</span> <span>VALUE</span> <span>VALUES</span> <span>(</span><span>2</span><span>,</span> <span>now</span><span>(),</span> <span>1000</span><span>);</span>
+</span>
+<span>INSERT 0 1</span>
+</pre></div>
+
+
+<p>By adding the <code>OVERRIDING SYSTEM VALUE</code> to the <code>INSERT</code> command you explicitly instruct PostgreSQL to allow you to set the value of an identity column. You still have to handle a possible unique constraint violation, but you can no longer blame PostgreSQL for it!</p>
+<hr/>
+<h2 id="two-more-ways-to-produce-a-pivot-table"><a href="#two-more-ways-to-produce-a-pivot-table">Two More Ways to Produce a Pivot Table</a></h2>
+<p>In one of my previous articles I demonstrated <a href="https://hakibenita.com/sql-for-data-analysis#pivot-tables">how to produce pivot tables using conditional aggregates</a>. After writing the article, I found two more ways to generate pivot tables in PostgreSQL.</p>
+<p>Say you want to get the number of employees, at each role, in each department:</p>
+<div><pre><span></span><span>db=#</span> <span>WITH</span> <span>employees</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span> <span>*</span> <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;Haki&#39;</span><span>,</span>    <span>&#39;R&amp;D&#39;</span><span>,</span>      <span>&#39;Manager&#39;</span><span>),</span>
+        <span>(</span><span>&#39;Dan&#39;</span><span>,</span>     <span>&#39;R&amp;D&#39;</span><span>,</span>      <span>&#39;Developer&#39;</span><span>),</span>
+        <span>(</span><span>&#39;Jax&#39;</span><span>,</span>     <span>&#39;R&amp;D&#39;</span><span>,</span>      <span>&#39;Developer&#39;</span><span>),</span>
+        <span>(</span><span>&#39;George&#39;</span><span>,</span>  <span>&#39;Sales&#39;</span><span>,</span>    <span>&#39;Manager&#39;</span><span>),</span>
+        <span>(</span><span>&#39;Bill&#39;</span><span>,</span>    <span>&#39;Sales&#39;</span><span>,</span>    <span>&#39;Developer&#39;</span><span>),</span>
+        <span>(</span><span>&#39;David&#39;</span><span>,</span>   <span>&#39;Sales&#39;</span><span>,</span>    <span>&#39;Developer&#39;</span><span>)</span>
+    <span>)</span> <span>AS</span> <span>t</span><span>(</span>
+        <span>name</span><span>,</span>       <span>department</span><span>,</span>  <span>role</span>
+    <span>)</span>
+<span>)</span>
+<span>SELECT</span> <span>role</span><span>,</span> <span>department</span><span>,</span> <span>count</span><span>(</span><span>*</span><span>)</span>
+<span>FROM</span> <span>employees</span>
+<span>GROUP</span> <span>BY</span> <span>role</span><span>,</span> <span>department</span><span>;</span>
+
+<span>   role    │ department │ count</span>
+<span>───────────┼────────────┼───────</span>
+<span> Developer │ Sales      │     2</span>
+<span> Manager   │ Sales      │     1</span>
+<span> Manager   │ R&amp;D        │     1</span>
+<span> Developer │ R&amp;D        │     2</span>
+</pre></div>
+
+
+<p>A better way of viewing this would be as a pivot table. In psql you can use the <code>\crosstabview</code> command to transform the results of the last query to a pivot table:</p>
+<div><pre><span></span><span><span>db=#</span> <span>\crosstabview</span>
+</span>
+<span>   role    │ Sales │ R&amp;D</span>
+<span>───────────┼───────┼─────</span>
+<span> Developer │     2 │   2</span>
+<span> Manager   │     1 │   1</span>
+</pre></div>
+
+
+<p>Magic!</p>
+<p>By default, the command will produce the pivot table from the first two columns, but you can control that with arguments:</p>
+<div><pre><span></span><span><span>db=#</span> <span>\crosstabview</span> <span>department</span> <span>role</span>
+</span>
+<span> department │ Developer │ Manager</span>
+<span>────────────┼───────────┼─────────</span>
+<span> Sales      │         2 │       1</span>
+<span> R&amp;D        │         2 │       1</span>
+</pre></div>
+
+
+<p>Another, slightly less magical way to produce a pivot table is using the built-in <a href="https://www.postgresql.org/docs/current/tablefunc.html" rel="noopener"><code>tablefunc</code> extension</a>:</p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>EXTENSION</span> <span>tablefunc</span><span>;</span>
+<span>CREATE EXTENSION</span>
+
+<span><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>crosstab</span><span>(</span><span>&#39;</span>
+</span><span>    SELECT role, department, count(*) AS employees</span>
+<span>    FROM employees</span>
+<span>    GROUP BY 1, 2</span>
+<span>    ORDER BY role</span>
+<span>&#39;</span><span>,</span> <span>&#39;</span>
+<span>    SELECT DISTINCT department</span>
+<span>    FROM employees</span>
+<span>    ORDER BY 1</span>
+<span>&#39;</span><span>)</span> <span>AS</span> <span>t</span><span>(</span><span>role</span> <span>text</span><span>,</span> <span>sales</span> <span>int</span><span>,</span> <span>rnd</span> <span>int</span><span>);</span>
+
+<span>   role    │ sales │ rnd</span>
+<span>───────────┼───────┼─────</span>
+<span> Developer │     2 │   2</span>
+<span> Manager   │     1 │   1</span>
+</pre></div>
+
+
+<p>Using the function <a href="https://www.postgresql.org/docs/current/tablefunc.html#id-1.11.7.47.5.5" rel="noopener"><code>crosstab</code></a> you can produce a pivot table. The downside of this method is that you need to define the output columns in advance. The advantage however, is that the <code>crosstab</code> function produces a table, which you can use as a sub-query for further processing.</p>
+<hr/>
+<h2 id="dollar-quoting"><a href="#dollar-quoting">Dollar Quoting</a></h2>
+<p>If you store text fields in your database, especially entire paragraphs, you are probably familiar with escape characters. For example, to include a single quote <code>&#39;</code> in a text literal you need to escape it using another single quote <code>&#39;&#39;</code>:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>&#39;John&#39;&#39;s Pizza&#39;</span><span>;</span>
+<span>   ?column?</span>
+<span>──────────────</span>
+<span> John&#39;s Pizza</span>
+</pre></div>
+
+
+<p>When text starts to get bigger, and include characters like backslashes and new lines, it can get pretty annoying to add escape characters. To address this, PostgreSQL provides another way to write string constants:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>$$a long</span>
+<span>string with new lines</span>
+<span>and &#39;single quotes&#39;</span>
+<span>and &#34;double quotes</span>
+
+<span>PostgreSQL doesn&#39;t mind ;)$$</span> <span>AS</span> <span>text</span><span>;</span>
+<span>           text</span>
+<span>───────────────────────────</span>
+<span> a long                   ↵</span>
+<span> string with new lines    ↵</span>
+<span> and &#39;single quotes&#39;      ↵</span>
+<span> and &#34;double quotes       ↵</span>
+<span>                          ↵</span>
+<span> PostgreSQL doesn&#39;t mind ;)</span>
+</pre></div>
+
+
+<p>Notice the dollar signs <code>$$</code> at the beginning and end of the string. Anything in between <code>$$</code> is treated as a string. PostgreSQL calls this <a href="https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING" rel="noopener">&#34;Dollar Quoting&#34;</a>.</p>
+<p>But there is more, if you happen to need to use the sign <code>$$</code> in the text, you can add a tag, which makes this even more useful. For example:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>$</span><span>JSON</span><span>${</span>
+<span>    &#34;name&#34;: &#34;John&#39;s Pizza&#34;,</span>
+<span>    &#34;tagline&#34;: &#34;Best value for your $$&#34;</span>
+<span>}$</span><span>JSON</span><span>$</span> <span>AS</span> <span>json</span><span>;</span>
+
+<span>                  json</span>
+<span>─────────────────────────────────────────</span>
+<span> {                                      ↵</span>
+<span>     &#34;name&#34;: &#34;John&#39;s Pizza&#34;,            ↵</span>
+<span>     &#34;tagline&#34;: &#34;Best value for your $$&#34;↵</span>
+<span> }</span>
+</pre></div>
+
+
+<p>Notice that we choose to tag this block with <code>$JSON$</code>, so the sign &#34;$$&#34; was included as a whole in the output.</p>
+<p>You can also use this to quickly generate jsonb objects that include special characters:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>$</span><span>JSON</span><span>${</span>
+<span>    &#34;name&#34;: &#34;John&#39;s Pizza&#34;,</span>
+<span>    &#34;tagline&#34;: &#34;Best value for your $$&#34;</span>
+<span><span>}$</span><span>JSON</span><span>$</span><span>::</span><span>jsonb</span> <span>AS</span> <span>json</span><span>;</span>
+</span><span>                          json</span>
+<span>─────────────────────────────────────────────────────────────</span>
+<span> {&#34;name&#34;: &#34;John&#39;s Pizza&#34;, &#34;tagline&#34;: &#34;Best value for your $$&#34;}</span>
+</pre></div>
+
+
+<p>The value is now a jsonb object which you can manipulate as you wish!</p>
+<hr/>
+
+<p>PostgreSQL has this nice little feature where you can <a href="https://www.postgresql.org/docs/current/sql-comment.html" rel="noopener">add a comments on just about every database object</a>. For example, adding a comment on a table:</p>
+<div><pre><span></span><span>db</span><span>=#</span> <span>COMMENT</span> <span>ON</span> <span>TABLE</span> <span>sale</span> <span>IS</span> <span>&#39;Sales made in the system&#39;</span><span>;</span>
+<span>COMMENT</span>
+</pre></div>
+
+
+<p>You can now view this comment in psql (and probably other IDEs):</p>
+<div><pre><span></span><span>db=#</span> <span>\dt+</span> <span>sale</span>
+<span>                                  List of relations</span>
+<span> Schema │ Name │ Type  │ Owner │ Persistence │    Size    │       Description</span>
+<span>────────┼──────┼───────┼───────┼─────────────┼────────────┼──────────────────────────</span>
+<span> public │ sale │ table │ haki  │ permanent   │ 8192 bytes │ Sales made in the system</span>
+</pre></div>
+
+
+<p>You can also add comments on table columns, and view them when using extended describe:</p>
+<div><pre><span></span><span>db=#</span> <span>COMMENT</span> <span>ON</span> <span>COLUMN</span> <span>sale</span><span>.</span><span>sold_at</span> <span>IS</span> <span>&#39;When was the sale finalized&#39;</span><span>;</span>
+<span>COMMENT</span>
+
+<span>db=#</span> <span>\d+</span> <span>sale</span>
+<span>  Column  │           Type           │         Description</span>
+<span>──────────┼──────────────────────────┼─────────────────────────────</span>
+<span> id       │ integer                  │</span>
+<span><span> sold_at │ timestamp with time zone │ When was the sale finalized</span>
+</span><span> amount   │ integer                  │</span>
+</pre></div>
+
+
+<p>You can also combine the <code>COMMENT</code> command with dollar quoting to include longer and more meaningful descriptions of, for example, functions:</p>
+<div><pre><span></span><span>COMMENT</span> <span>ON</span> <span>FUNCTION</span> <span>generate_random_string</span> <span>IS</span> <span>$</span><span>docstring</span><span>$</span>
+<span>Generate</span> <span>a</span> <span>random</span> <span>string</span> <span>at</span> <span>a</span> <span>given</span> <span>length</span> <span>from</span> <span>a</span> <span>list</span> <span>of</span> <span>possible</span> <span>characters</span><span>.</span>
+
+<span>Parameters</span><span>:</span>
+
+    <span>-</span> <span>length</span> <span>(</span><span>int</span><span>):</span> <span>length</span> <span>of</span> <span>the</span> <span>output</span> <span>string</span>
+    <span>-</span> <span>characters</span> <span>(</span><span>text</span><span>):</span> <span>possible</span> <span>characters</span> <span>to</span> <span>choose</span> <span>from</span>
+
+<span>Example</span><span>:</span>
+
+    <span>db</span><span>=#</span> <span>SELECT</span> <span>generate_random_string</span><span>(</span><span>10</span><span>);</span>
+<span>     generate_random_string</span>
+<span>    ────────────────────────</span>
+<span>     o0QsrMYRvp</span>
+
+<span>    db=# SELECT generate_random_string(3, &#39;AB&#39;);</span>
+<span>     generate_random_string</span>
+<span>    ────────────────────────</span>
+<span>     ABB</span>
+<span>$docstring$;</span>
+</pre></div>
+
+
+<p>This is a function I used in the past to demonstrate the <a href="https://hakibenita.com/sql-medium-text-performance#toast-compression">performance impact of medium sized texts on performance</a>. Now I no longer have to go back to the article to remember how to use the function, I have the docstring right there in the comments:</p>
+<div><pre><span></span><span>db=#</span> <span>\df+</span> <span>generate_random_string</span>
+<span>List of functions</span>
+<span>────────────┬────────────────────────────────────────────────────────────────────────────────</span>
+<span>Schema      │ public</span>
+<span>Name        │ generate_random_string</span>
+<span>/* ... */</span>
+<span>Description │ Generate a random string at a given length from a list of possible characters.↵</span>
+<span>            │                                                                               ↵</span>
+<span>            │ Parameters:                                                                   ↵</span>
+<span>            │                                                                               ↵</span>
+<span>            │     - length (int): length of the output string                               ↵</span>
+<span>            │     - characters (text): possible characters to choose from                   ↵</span>
+<span>            │                                                                               ↵</span>
+<span>            │ Example:                                                                      ↵</span>
+<span>            │                                                                               ↵</span>
+<span>            │     db=# SELECT generate_random_string(10);                                   ↵</span>
+<span>            │      generate_random_string                                                   ↵</span>
+<span>            │     ────────────────────────                                                  ↵</span>
+<span>            │      o0QsrMYRvp                                                               ↵</span>
+<span>            │                                                                               ↵</span>
+<span>            │     db=# SELECT generate_random_string(3, &#39;AB&#39;);                              ↵</span>
+<span>            │      generate_random_string                                                   ↵</span>
+<span>            │     ────────────────────────                                                  ↵</span>
+<span>            │      ABB                                                                      ↵</span>
+<span>            │</span>
+</pre></div>
+
+
+<hr/>
+<h2 id="keep-a-separate-history-file-per-database"><a href="#keep-a-separate-history-file-per-database">Keep a Separate History File Per Database</a></h2>
+<p>If you are working with CLI tools you probably use the ability to search past commands very often. In bash and psql, a reverse search is usually available by hitting <kbd>CTRL + R</kbd>.</p>
+<p>If in addition to working with the terminal, you also work with multiple databases, you might find it useful to keep a separate history file per database:</p>
+<div><pre><span></span><span>db=#</span> <span>\set</span> <span>HISTFILE</span> <span>~/.psql_history-</span> <span>:DBNAME</span>
+</pre></div>
+
+
+<p>This way, you are more likely to find a relevant match for the database you are currently connected to. You can drop this in your <a href="https://www.postgresql.org/docs/current/app-psql.html#id-1.9.4.20.10" rel="noopener"><code>~/.psqlrc</code> file</a> to make it persistent.</p>
+<hr/>
+<h2 id="autocomplete-reserved-words-in-uppercase"><a href="#autocomplete-reserved-words-in-uppercase">Autocomplete Reserved Words in Uppercase</a></h2>
+<p>There is always a lot of debate (and jokes!) on whether keywords in SQL should be in lower or upper case. I think my opinion on this subject is pretty clear.</p>
+<p>If like me, you like using uppercase keywords in SQL, there is an option in psql to autocomplete keywords in uppercase:</p>
+<div><pre><span></span><span>db=#</span> <span>selec</span> <span>&lt;</span><span>tab</span><span>&gt;</span>
+<span>db=#</span> <span>select</span>
+
+<span><span>db=#</span> <span>\set</span> <span>COMP_KEYWORD_CASE</span> <span>upper</span>
+</span><span>db=#</span> <span>selec</span> <span>&lt;</span><span>tab</span><span>&gt;</span>
+<span>db=#</span> <span>SELECT</span>
+</pre></div>
+
+
+<p>After setting <code>COMP_KEYWORD_CASE</code> to upper, when you hit <kbd>TAB</kbd> for autocomplete, keywords will be autocompleted in uppercase.</p>
+<hr/>
+<h2 id="sleep-for-interval"><a href="#sleep-for-interval">Sleep for Interval</a></h2>
+<p>Delaying the execution of a program can be pretty useful for things like testing or throttling. To delay the execution of a program in PostgreSQL, the go-to function is usually <code>pg_sleep</code>:</p>
+<div><pre><span></span><span>db=#</span> <span>\timing</span>
+<span>Timing is on.</span>
+
+<span><span>db=#</span> <span>SELECT</span> <span>pg_sleep</span><span>(</span><span>3</span><span>);</span>
+</span><span> pg_sleep</span>
+<span>──────────</span>
+
+<span>(1 row)</span>
+
+<span><span>Time: 3014.913 ms (00:03.015)</span>
+</span></pre></div>
+
+
+<p>The function sleeps for the given number of seconds. However, when you need to sleep for longer than just a few seconds, calculating the number of seconds can be annoying, for example:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>pg_sleep</span><span>(</span><span>255</span><span>);</span>
+</pre></div>
+
+
+<p>How long will this function sleep for? Don&#39;t take out the calculator, the function will sleep for 4 minutes and 15 seconds.</p>
+<p>To make it more convenient to sleep for longer periods of time, PostgreSQL offers another function:</p>
+<div><pre><span></span><span><span>db=#</span> <span>SELECT</span> <span>pg_sleep_for</span><span>(</span><span>&#39;4 minutes 15 seconds&#39;</span><span>);</span>
+</span></pre></div>
+
+
+<p>Unlike its sibling <code>pg_sleep</code>, the function <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-DELAY" rel="noopener"><code>pg_sleep_for</code></a> accepts an interval, which is much more natural to read and understand than the number of seconds.</p>
+<hr/>
+<h2 id="get-the-first-or-last-row-in-a-group-without-sub-queries"><a href="#get-the-first-or-last-row-in-a-group-without-sub-queries">Get the First or Last Row in a Group Without Sub-Queries</a></h2>
+<p>When I initially compiled this list I did not think about this feature as a lesser known one, mostly because I use it <em>all the time</em>. But to my surprise, I keep running into weird solutions to this problem, that can be easily solved with what I&#39;m about to show you, so I figured it deserves a place on the list!</p>
+<p>Say you have the this table of students:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>students</span><span>;</span>
+
+<span>  name  │ class │ height</span>
+<span>────────┼───────┼────────</span>
+<span> Haki   │ A     │    186</span>
+<span> Dan    │ A     │    175</span>
+<span> Jax    │ A     │    182</span>
+<span> George │ B     │    178</span>
+<span> Bill   │ B     │    167</span>
+<span> David  │ B     │    178</span>
+</pre></div>
+
+
+<details>
+<summary>⚙ Table data</summary>
+<p>You can use the following CTE to reproduce queries in this section</p>
+<div><pre><span></span><span>WITH</span> <span>students</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span> <span>*</span> <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;Haki&#39;</span><span>,</span>    <span>&#39;A&#39;</span><span>,</span>    <span>186</span><span>),</span>
+        <span>(</span><span>&#39;Dan&#39;</span><span>,</span>     <span>&#39;A&#39;</span><span>,</span>    <span>175</span><span>),</span>
+        <span>(</span><span>&#39;Jax&#39;</span><span>,</span>     <span>&#39;A&#39;</span><span>,</span>    <span>182</span><span>),</span>
+        <span>(</span><span>&#39;George&#39;</span><span>,</span>  <span>&#39;B&#39;</span><span>,</span>    <span>178</span><span>),</span>
+        <span>(</span><span>&#39;Bill&#39;</span><span>,</span>    <span>&#39;B&#39;</span><span>,</span>    <span>167</span><span>),</span>
+        <span>(</span><span>&#39;David&#39;</span><span>,</span>   <span>&#39;B&#39;</span><span>,</span>    <span>178</span><span>)</span>
+    <span>)</span> <span>AS</span> <span>t</span><span>(</span>
+        <span>name</span><span>,</span>       <span>class</span><span>,</span>  <span>height</span>
+    <span>)</span>
+<span>)</span>
+<span>SELECT</span> <span>*</span> <span>FROM</span> <span>students</span><span>;</span>
+</pre></div>
+
+
+</details>
+<p><strong>How would you get the entire row of the tallest student in each class?</strong></p>
+<p>On first thought you might try something like this:</p>
+<div><pre><span></span><span>SELECT</span> <span>class</span><span>,</span> <span>max</span><span>(</span><span>height</span><span>)</span> <span>as</span> <span>tallest</span>
+<span>FROM</span> <span>students</span>
+<span>GROUP</span> <span>BY</span> <span>class</span><span>;</span>
+
+<span> class │ tallest</span>
+<span>───────┼─────────</span>
+<span> A     │     186</span>
+<span> B     │     178</span>
+</pre></div>
+
+
+<p>This gets you the height, but it doesn&#39;t get you the name of the student. As a second attempt you might try to find the tallest student based on its height, using a sub-query:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>students</span>
+<span><span>WHERE</span> <span>(</span><span>class</span><span>,</span> <span>height</span><span>)</span> <span>IN</span> <span>(</span>
+</span>    <span>SELECT</span> <span>class</span><span>,</span> <span>max</span><span>(</span><span>height</span><span>)</span> <span>as</span> <span>tallest</span>
+    <span>FROM</span> <span>students</span>
+    <span>GROUP</span> <span>BY</span> <span>class</span>
+<span>);</span>
+
+<span>  name  │ class │ height</span>
+<span>────────┼───────┼────────</span>
+<span> Haki   │ A     │    186</span>
+<span> George │ B     │    178</span>
+<span> David  │ B     │    178</span>
+</pre></div>
+
+
+<p>Now you have all the information about the tallest students in each class, but there is another problem.</p>
+<div>
+<p>side note</p>
+<p>The ability to match a set of records like in the previous query (<code>(class, height) IN (...)</code>), is another lesser known, but a very powerful feature of PostgreSQL.</p>
+</div>
+<p>In class &#34;B&#34;, there are two students with the same height, which also happen to be the tallest. Using the aggregate function <code>MAX</code> you only get the height, so you may encounter this type of situation.</p>
+<p>The challenge with using <code>MAX</code> is that you choose the height based only on the height, which makes perfect sense in this case, but you still need to pick just one student. A different approach that lets you &#34;rank&#34; rows based on more than one column, is using a window function:</p>
+<div><pre><span></span><span>SELECT</span>
+    <span>students</span><span>.</span><span>*</span><span>,</span>
+<span>    <span>ROW_NUMBER</span><span>()</span> <span>OVER</span> <span>(</span>
+</span><span>        <span>PARTITION</span> <span>BY</span> <span>class</span>
+</span><span>        <span>ORDER</span> <span>BY</span> <span>height</span> <span>DESC</span><span>,</span> <span>name</span>
+</span><span>    <span>)</span> <span>AS</span> <span>rn</span>
+</span><span>FROM</span>
+    <span>students</span><span>;</span>
+
+<span>  name  │ class │ height │ rn</span>
+<span>────────┼───────┼────────┼────</span>
+<span> Haki   │ A     │    186 │  1</span>
+<span> Jax    │ A     │    182 │  2</span>
+<span> Dan    │ A     │    175 │  3</span>
+<span> David  │ B     │    178 │  1</span>
+<span> George │ B     │    178 │  2</span>
+<span> Bill   │ B     │    167 │  3</span>
+</pre></div>
+
+
+<p>To &#34;rank&#34; students bases on their height you can attach a row number for each row. The row number is determined for each class (<code>PARTITION BY class</code>) and ranked first by height in descending order, and then by the students&#39; name (<code>ORDER BY height DESC, name</code>). Adding the student name in addition to the height makes the results deterministic (assuming the name is unique).</p>
+<p>To get the rows of only the tallest student in each class you can use a sub-query:</p>
+<div><pre><span></span><span>SELECT</span>
+    <span>name</span><span>,</span> <span>class</span><span>,</span> <span>height</span>
+<span>FROM</span> <span>(</span>
+    <span>SELECT</span>
+        <span>students</span><span>.</span><span>*</span><span>,</span>
+        <span>ROW_NUMBER</span><span>()</span> <span>OVER</span> <span>(</span>
+            <span>PARTITION</span> <span>BY</span> <span>class</span>
+            <span>ORDER</span> <span>BY</span> <span>height</span> <span>DESC</span><span>,</span> <span>name</span>
+        <span>)</span> <span>AS</span> <span>rn</span>
+    <span>FROM</span>
+        <span>students</span>
+<span>)</span> <span>as</span> <span>inner</span>
+<span>WHERE</span>
+<span>    <span>rn</span> <span>=</span> <span>1</span><span>;</span>
+</span>
+<span> name  │ class │ height</span>
+<span>───────┼───────┼────────</span>
+<span> Haki  │ A     │    186</span>
+<span> David │ B     │    178</span>
+</pre></div>
+
+
+<p>You made it! This is the entire row for the tallest student in each class.</p>
+<p><strong>Using <code>DISTINCT ON</code></strong></p>
+<p>Now that you went through all of this trouble, let me show you an easier way:</p>
+<div><pre><span></span><span><span>SELECT</span> <span>DISTINCT</span> <span>ON</span> <span>(</span><span>class</span><span>)</span>
+</span>    <span>*</span>
+<span>FROM</span>
+    <span>students</span>
+<span>ORDER</span> <span>BY</span>
+<span>    <span>class</span><span>,</span> <span>height</span> <span>DESC</span><span>,</span> <span>name</span><span>;</span>
+</span>
+<span> name  │ class │ height</span>
+<span>───────┼───────┼────────</span>
+<span> Haki  │ A     │    186</span>
+<span> David │ B     │    178</span>
+</pre></div>
+
+
+<p>Pretty nice, right? I was blown away when <a href="https://hakibenita.com/the-many-faces-of-distinct-in-postgre-sql#distinct-on">I first discovered <code>DISTINCT ON</code></a>. Coming from Oracle, there was nothing like that, and as far as I know, no other database other than PostgreSQL does.</p>
+<p><strong>Intuitively understand <code>DISTINCT ON</code></strong></p>
+<p>To understand how <code>DISTINCT ON</code> works, let&#39;s go over what it does step by step. This is the raw data in the table:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>students</span><span>;</span>
+
+<span>  name  │ class │ height</span>
+<span>────────┼───────┼────────</span>
+<span> Haki   │ A     │    186</span>
+<span> Dan    │ A     │    175</span>
+<span> Jax    │ A     │    182</span>
+<span> George │ B     │    178</span>
+<span> Bill   │ B     │    167</span>
+<span> David  │ B     │    178</span>
+</pre></div>
+
+
+<p>Next, sort the data:</p>
+<div><pre><span></span><span>SELECT</span> <span>*</span>
+<span>FROM</span> <span>students</span>
+<span><span>ORDER</span> <span>BY</span> <span>class</span><span>,</span> <span>height</span> <span>DESC</span><span>,</span> <span>name</span><span>;</span>
+</span>
+<span>  name  │ class │ height</span>
+<span>────────┼───────┼────────</span>
+<span> Haki   │ A     │    186</span>
+<span> Jax    │ A     │    182</span>
+<span> Dan    │ A     │    175</span>
+<span> David  │ B     │    178</span>
+<span> George │ B     │    178</span>
+<span> Bill   │ B     │    167</span>
+</pre></div>
+
+
+<p>Then, add the <code>DISTINCT ON</code> clause:</p>
+<div><pre><span></span><span><span>SELECT</span> <span>DISTINCT</span> <span>ON</span> <span>(</span><span>class</span><span>)</span> <span>*</span>
+</span><span>FROM</span> <span>students</span>
+<span>ORDER</span> <span>BY</span> <span>class</span><span>,</span> <span>height</span> <span>DESC</span><span>,</span> <span>name</span><span>;</span>
+</pre></div>
+
+
+<p>To understand what <code>DISTINCT ON</code> does at this point, we need to take two steps.</p>
+<p>First, split the data to groups based on the columns in the <code>DISTINCT ON</code> clause, in this case by <code>class</code>:</p>
+<div><pre><span></span>  name  │ class │ height
+─────────────────────────
+ Haki   │ A     │    186  ┓
+ Jax    │ A     │    182  ┣━━ class=A
+ Dan    │ A     │    175  ┛
+
+ David  │ B     │    178  ┓
+ George │ B     │    178  ┣━━ class=B
+ Bill   │ B     │    167  ┛
+</pre></div>
+
+
+<p>Next, keep only the first row in each group:</p>
+<div><pre><span></span>  name  │ class │ height
+─────────────────────────
+ Haki   │ A     │    186  ┣━━ class=A
+ David  │ B     │    178  ┣━━ class=B
+</pre></div>
+
+
+<p>And there you have it! The tallest student in each class.</p>
+<p>The only requirement <code>DISTINCT ON</code> has, is that the leading columns in the <code>ORDER BY</code> clause will match the columns in the <code>DISTINCT ON</code> clause. The remaining columns in the <code>ORDER BY</code> clause are used to determine which row is selected for each group.</p>
+<p>To illustrate how the <code>ORDER BY</code> affect the results, consider this query to find the <em>shortest</em> student in each class:</p>
+<div><pre><span></span><span>SELECT</span> <span>DISTINCT</span> <span>ON</span> <span>(</span><span>class</span><span>)</span>
+    <span>*</span>
+<span>FROM</span>
+    <span>students</span>
+<span>ORDER</span> <span>BY</span>
+<span>    <span>class</span><span>,</span> <span>height</span><span>,</span> <span>name</span><span>;</span>
+</span>
+<span> name │ class │ height</span>
+<span>──────┼───────┼────────</span>
+<span> Dan  │ A     │    175</span>
+<span> Bill │ B     │    167</span>
+</pre></div>
+
+
+<p>To pick the shortest student in each class, you only have to change the sort order, so that the first row of each group is the shortest student.</p>
+<hr/>
+<h2 id="generate-uuid-without-extensions"><a href="#generate-uuid-without-extensions">Generate UUID Without Extensions</a></h2>
+<p>To generate UUIDs in PostgreSQL prior to version 13 you probably used the <a href="https://www.postgresql.org/docs/current/uuid-ossp.html#id-1.11.7.53.5" rel="noopener"><code>uuid-ossp</code> extension</a>:</p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>EXTENSION</span> <span>&#34;uuid-ossp&#34;</span><span>;</span>
+<span>CREATE EXTENSION</span>
+
+<span><span>db=#</span> <span>SELECT</span> <span>uuid_generate_v4</span><span>()</span> <span>AS</span> <span>uuid</span><span>;</span>
+</span><span>                 uuid</span>
+<span>──────────────────────────────────────</span>
+<span> 8e55146d-0ce5-40ab-a346-5dbd466ff5f2</span>
+</pre></div>
+
+
+<p>Starting at version 13 there is a <a href="https://www.postgresql.org/docs/current/functions-uuid.html" rel="noopener">built-in function to generate random (version 4) UUIDs</a>:</p>
+<div><pre><span></span><span><span>db=#</span> <span>SELECT</span> <span>gen_random_uuid</span><span>()</span> <span>AS</span> <span>uuid</span><span>;</span>
+</span><span>                 uuid</span>
+<span>──────────────────────────────────────</span>
+<span> ba1ac0f5-5d4d-4d80-974d-521dbdcca2b2</span>
+</pre></div>
+
+
+<p>The <code>uuid-ossp</code> extension is still needed if you want to generate UUIDs other than version 4.</p>
+<hr/>
+<h2 id="generate-reproducible-random-data"><a href="#generate-reproducible-random-data">Generate Reproducible Random Data</a></h2>
+<p>Generating radom data is very useful for many things such for demonstrations or testing. In both cases, it&#39;s also useful to be able to reproduce the &#34;random&#34; data.</p>
+<p>Using PostgreSQL <code>random</code> function you can <a href="https://hakibenita.com/sql-for-data-analysis#random">produce different types of random data</a>. For example:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span>
+    <span>random</span><span>()</span> <span>AS</span> <span>random_float</span><span>,</span>
+    <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>10</span><span>)</span> <span>AS</span> <span>random_int_0_10</span><span>,</span>
+    <span>&#39;2022-01-01&#39;</span><span>::</span><span>date</span> <span>+</span> <span>interval</span> <span>&#39;1 days&#39;</span> <span>*</span> <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>365</span><span>)</span> <span>AS</span> <span>random_day_in_2022</span><span>;</span>
+
+<span>─[ RECORD 1 ]──────┬────────────────────</span>
+<span>random_float       │ 0.6031888056092001</span>
+<span>random_int_0_10    │ 3</span>
+<span>random_day_in_2022 │ 2022-11-10 00:00:00</span>
+</pre></div>
+
+
+<p>If you execute this query again, you will get different results:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span>
+    <span>random</span><span>()</span> <span>AS</span> <span>random_float</span><span>,</span>
+    <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>10</span><span>)</span> <span>AS</span> <span>random_int_0_10</span><span>,</span>
+    <span>&#39;2022-01-01&#39;</span><span>::</span><span>date</span> <span>+</span> <span>interval</span> <span>&#39;1 days&#39;</span> <span>*</span> <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>365</span><span>)</span> <span>AS</span> <span>random_day_in_2022</span><span>;</span>
+
+<span>─[ RECORD 1 ]──────┬────────────────────</span>
+<span>random_float       │ 0.7363406030115378</span>
+<span>random_int_0_10    │ 2</span>
+<span>random_day_in_2022 │ 2022-02-23 00:00:00</span>
+</pre></div>
+
+
+<p>To generate reproducible random data, you can use <a href="https://www.postgresql.org/docs/current/functions-math.html#FUNCTIONS-MATH-RANDOM-TABLE" rel="noopener"><code>setseed</code></a>:</p>
+<div><pre><span></span><span><span>db=#</span> <span>SELECT</span> <span>setseed</span><span>(</span><span>0.4050</span><span>);</span>
+</span><span> setseed</span>
+<span>─────────</span>
+
+<span>(1 row)</span>
+
+<span>db=#</span> <span>SELECT</span>
+    <span>random</span><span>()</span> <span>AS</span> <span>random_float</span><span>,</span>
+    <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>10</span><span>)</span> <span>AS</span> <span>random_int_0_10</span><span>,</span>
+    <span>&#39;2022-01-01&#39;</span><span>::</span><span>date</span> <span>+</span> <span>interval</span> <span>&#39;1 days&#39;</span> <span>*</span> <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>365</span><span>)</span> <span>AS</span> <span>random_day_in_2022</span>
+<span>FROM</span>
+    <span>generate_series</span><span>(</span><span>1</span><span>,</span> <span>2</span><span>);</span>
+
+<span>    random_float    │ random_int_0_10 │ random_day_in_2022</span>
+<span>────────────────────┼─────────────────┼─────────────────────</span>
+<span><span> 0.1924247516794324 │               9 │ 2022-12-17 00:00:00</span>
+</span><span><span> 0.9720620908236377 │               5 │ 2022-06-13 00:00:00</span>
+</span></pre></div>
+
+
+<p>If you execute the same block again in a new session, even in a different database, it will produce the exact same results:</p>
+<div><pre><span></span><span><span>otherdb=#</span> <span>SELECT</span> <span>setseed</span><span>(</span><span>0.4050</span><span>);</span>
+</span><span> setseed</span>
+<span>─────────</span>
+
+<span>(1 row)</span>
+
+<span>otherdb=#</span> <span>SELECT</span>
+    <span>random</span><span>()</span> <span>AS</span> <span>random_float</span><span>,</span>
+    <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>10</span><span>)</span> <span>AS</span> <span>random_int_0_10</span><span>,</span>
+    <span>&#39;2022-01-01&#39;</span><span>::</span><span>date</span> <span>+</span> <span>interval</span> <span>&#39;1 days&#39;</span> <span>*</span> <span>ceil</span><span>(</span><span>random</span><span>()</span> <span>*</span> <span>365</span><span>)</span> <span>AS</span> <span>random_day_in_2022</span>
+<span>FROM</span>
+    <span>generate_series</span><span>(</span><span>1</span><span>,</span> <span>2</span><span>);</span>
+
+<span>    random_float    │ random_int_0_10 │ random_day_in_2022</span>
+<span>────────────────────┼─────────────────┼─────────────────────</span>
+<span><span> 0.1924247516794324 │               9 │ 2022-12-17 00:00:00</span>
+</span><span><span> 0.9720620908236377 │               5 │ 2022-06-13 00:00:00</span>
+</span></pre></div>
+
+
+<p>Notice how the results are random, but still exactly the same. The next time you do a demonstration or share a script, make sure to include <code>setseed</code> so your results could be easily reproduced.</p>
+<hr/>
+
+<p>Constraint are an integral part of any RDBMS. They keep data clean and reliable, and should be used whenever possible. In living breathing systems, you often need to add new constraints, and adding certain types of constraints may require very restrictive locks that interfere with the operation of the live system.</p>
+<p>To illustrate, add a simple check constraint on a large table:</p>
+<div><pre><span></span><span>db=#</span> <span>ALTER</span> <span>TABLE</span> <span>orders</span> <span>ADD</span> <span>CONSTRAINT</span> <span>check_price_gt_zero</span> <span>CHECK</span> <span>(</span><span>price</span> <span>&gt;=</span> <span>0</span><span>);</span>
+<span>ALTER TABLE</span>
+<span>Time: 10745.662 ms (00:10.746)</span>
+</pre></div>
+
+
+<p>This statement adds a check constraint on the price of an order, to make sure it&#39;s greater than or equal to zero. In the process of adding the constraint, the database scanned the entire table to make sure the constraint is valid for all the existing rows. The process took ~10s, and during that time, the table was locked.</p>
+<p><strong>In PostgreSQL, you can split the process of adding a constraint into two steps.</strong></p>
+<p>First, add the constraint and only validate new data, but don&#39;t check that existing data is valid:</p>
+<div><pre><span></span><span>db=#</span> <span>ALTER</span> <span>TABLE</span> <span>orders</span> <span>ADD</span> <span>CONSTRAINT</span> <span>check_price_gt_zero</span> <span>CHECK</span> <span>(</span><span>price</span> <span>&gt;=</span> <span>0</span><span>)</span> <span>NOT</span> <span>VALID</span><span>;</span>
+<span>ALTER TABLE</span>
+<span>Time: 13.590 ms</span>
+</pre></div>
+
+
+<p>The <code>NOT VALID</code> in the end tells PostgreSQL to not validate the new constraint for existing rows. This means the database does not have to scan the entire table. Notice how this statement took significantly less time compared to the previous, it was almost instantaneous.</p>
+<p>Next, validate the constraint for the existing data with a much more permissive lock that allows other operations on the table:</p>
+<div><pre><span></span><span>db=#</span> <span>ALTER</span> <span>TABLE</span> <span>orders</span> <span>VALIDATE</span> <span>CONSTRAINT</span> <span>check_price_gt_zero</span><span>;</span>
+<span>ALTER TABLE</span>
+<span>Time: 11231.189 ms (00:11.231)</span>
+</pre></div>
+
+
+<p>Notice how validating the constraint took roughly the same time as the first example, which added and validated the constraint. This reaffirms that when adding a constraint to an existing table, most time is spent validating existing rows. Splitting the process into two steps allows you to reduce the time the table is locked.</p>
+<p>The documentation also mentions <a href="https://www.postgresql.org/docs/current/sql-altertable.html#SQL-ALTERTABLE-NOTES" rel="noopener">another use case for <code>NOT VALID</code></a> - enforcing a constraint only on future updates, even if there are some existing bad values. That is, you would add <code>NOT VALID</code> and never do the <code>VALIDATE</code>.</p>
+<p>Check out this great article from the engineering team at Paypal about <a href="https://medium.com/paypal-tech/postgresql-at-scale-database-schema-changes-without-downtime-20d3749ed680" rel="noopener">making schema changes without downtime</a>, and my own tip to <a href="https://hakibenita.com/sql-tricks-application-dba#disable-constraints-and-indexes-during-bulk-loads" rel="noopener">disable constraints and indexes during bulk loads</a>.</p>
+<hr/>
+<h2 id="synonyms-in-postgresql"><a href="#synonyms-in-postgresql">Synonyms in PostgreSQL</a></h2>
+<p>Synonyms are a way to reference objects by another name, similar to symlinks in Linux. If you&#39;re coming from Oracle you are probably familiar with synonyms, but otherwise you may have never heard about it. PostgreSQL does not have a feature called &#34;synonyms&#34;, but it doesn&#39;t mean it&#39;s not possible.</p>
+<p>To have a name reference a different database object, you first need to understand how PostgreSQL resolves unqualified names. For example, if you are connected to the database with the user <code>haki</code>, and you reference a table <code>foo</code>, PostgreSQL will search for the following objects, in this order:</p>
+<ol>
+<li><code>haki.foo</code></li>
+<li><code>public.foo</code></li>
+</ol>
+<p>This order is determined by the <a href="https://www.postgresql.org/docs/current/ddl-schemas.html#DDL-SCHEMAS-PATH" rel="noopener"><code>search_path</code> parameter</a>:</p>
+<div><pre><span></span><span>db=#</span> <span>SHOW</span> <span>search_path</span><span>;</span>
+<span>   search_path</span>
+<span>─────────────────</span>
+<span> &#34;$user&#34;, public</span>
+</pre></div>
+
+
+<p>The first value, <code>&#34;$user&#34;</code> is a special value that resolves to the name of the currently connected user. The second value, <code>public</code>, is the name of the default schema.</p>
+<p>To demonstrate some of the things you can do with search path, create a table <code>foo</code> in database <code>db</code>:</p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>TABLE</span> <span>foo</span> <span>(</span><span>value</span> <span>TEXT</span><span>);</span>
+<span>CREATE TABLE</span>
+
+<span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>foo</span> <span>VALUES</span> <span>(</span><span>&#39;A&#39;</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>foo</span><span>;</span>
+<span> value</span>
+<span>───────</span>
+<span> A</span>
+<span>(1 row)</span>
+</pre></div>
+
+
+<p>If for some reason you want the user <code>haki</code> to view a different object when they reference the name <code>foo</code>, you have two options:</p>
+<p><strong>1. Create an object named <code>foo</code> in a schema called <code>haki</code>:</strong></p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>SCHEMA</span> <span>haki</span><span>;</span>
+<span>CREATE SCHEMA</span>
+
+<span>db=#</span> <span>CREATE</span> <span>TABLE</span> <span>haki</span><span>.</span><span>foo</span> <span>(</span><span>value</span> <span>text</span><span>);</span>
+<span>CREATE TABLE</span>
+
+<span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>haki</span><span>.</span><span>foo</span> <span>VALUES</span> <span>(</span><span>&#39;B&#39;</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>\conninfo</span>
+<span>You are connected to database &#34;db&#34; as user &#34;haki&#34;</span>
+
+<span><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>foo</span><span>;</span>
+</span><span><span>value</span>
+</span><span><span>───────</span>
+</span><span><span>B</span>
+</span></pre></div>
+
+
+<p>Notice how when the user <code>haki</code> referenced the name <code>foo</code>, PostgreSQL resolved the name to <code>haki.foo</code> and not <code>public.foo</code>. This is because the schema <code>haki</code> comes before <code>public</code> in the search path.</p>
+<p><strong>2. Update the search path:</strong></p>
+<div><pre><span></span><span>db=#</span> <span>CREATE</span> <span>SCHEMA</span> <span>synonyms</span><span>;</span>
+<span>CREATE SCHEMA</span>
+
+<span>db=#</span> <span>CREATE</span> <span>TABLE</span> <span>synonyms</span><span>.</span><span>foo</span> <span>(</span><span>value</span> <span>text</span><span>);</span>
+<span>CREATE TABLE</span>
+
+<span>db=#</span> <span>INSERT</span> <span>INTO</span> <span>synonyms</span><span>.</span><span>foo</span> <span>VALUES</span> <span>(</span><span>&#39;C&#39;</span><span>);</span>
+<span>INSERT 0 1</span>
+
+<span>db=#</span> <span>SHOW</span> <span>search_path</span><span>;</span>
+<span>   search_path</span>
+<span>─────────────────</span>
+<span><span> &#34;$user&#34;, public</span>
+</span>
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>foo</span><span>;</span>
+<span> value</span>
+<span>───────</span>
+<span><span> A</span>
+</span>
+<span><span>db=#</span> <span>SET</span> <span>search_path</span> <span>TO</span> <span>synonyms</span><span>,</span> <span>&#34;$user&#34;</span><span>,</span> <span>public</span><span>;</span>
+</span><span>SET</span>
+
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>foo</span><span>;</span>
+<span> value</span>
+<span>───────</span>
+<span><span> C</span>
+</span></pre></div>
+
+
+<p>Notice how after changing the search path to include the schema <code>synonyms</code>, PostgreSQL resolved the name <code>foo</code> to <code>synonyms.foo</code>.</p>
+<p><strong>When synonyms are useful?</strong></p>
+<p>I used to think that synonyms are a code smell that should be avoided, but over time I found a few valid use cases for when they are useful. One of those use cases are zero downtime migrations.</p>
+<p>When you are making changes to a table on a live system, you often need to support both the new and the old version of the application at the same time. This poses a challenge, because each version of the application expects the table to have a different structure.</p>
+<p>Take for example a migration to remove a column from a table. While the migration is running, the old version of the application is active, and it expects the column to exist in the table, so you can&#39;t simply remove it. One way to deal with this is to release the new version in two stages - the first ignores the field, and the second removes it.</p>
+<p>If however, you need to make the change in a single release, you can provide the old version with a view of the table that includes the column, and only then remove it. For that, you can use a &#34;synonym&#34;:</p>
+<div><pre><span></span><span>db=#</span> <span>\conninfo</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;app&#34;.</span>
+
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>users</span><span>;</span>
+<span> username │ active</span>
+<span>──────────┼────────</span>
+<span> haki     │ t</span>
+</pre></div>
+
+
+<p>The application is connected to database <code>db</code> with the user <code>app</code>. You want to remove the column <code>active</code>, but the application is using this column. To safely apply the migration you need to &#34;fool&#34; the user <code>app</code> into thinking the column is still there while the old version is active:</p>
+<div><pre><span></span><span>db=#</span> <span>\conninfo</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;admin&#34;.</span>
+
+<span>db=#</span> <span>CREATE</span> <span>SCHEMA</span> <span>app</span><span>;</span>
+<span>CREATE SCHEMA</span>
+
+<span>db=#</span> <span>GRANT</span> <span>USAGE</span> <span>ON</span> <span>SCHEMA</span> <span>app</span> <span>TO</span> <span>app</span><span>;</span>
+<span>GRANT</span>
+
+<span><span>db=#</span> <span>CREATE</span> <span>VIEW</span> <span>app</span><span>.</span><span>users</span> <span>AS</span> <span>SELECT</span> <span>username</span><span>,</span> <span>true</span> <span>AS</span> <span>active</span> <span>FROM</span> <span>public</span><span>.</span><span>users</span><span>;</span>
+</span><span>CREATE VIEW</span>
+
+<span>db=#</span> <span>GRANT</span> <span>SELECT</span> <span>ON</span> <span>app</span><span>.</span><span>users</span> <span>TO</span> <span>app</span><span>;</span>
+<span>GRANT</span>
+</pre></div>
+
+
+<p>To &#34;fool&#34; the user <code>app</code>, you created a schema by the name of the user, and a view with a calculated field <code>active</code>. Now, when the application is connected with user <code>app</code>, it will see the view and not the table, so it&#39;s safe to remove the column:</p>
+<div><pre><span></span><span>db=#</span> <span>\conninfo</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;admin&#34;.</span>
+
+<span><span>db=#</span> <span>ALTER</span> <span>TABLE</span> <span>users</span> <span>DROP</span> <span>COLUMN</span> <span>active</span><span>;</span>
+</span><span>ALTER TABLE</span>
+
+<span>db=#</span> <span>\connect</span> <span>db</span> <span>app</span>
+<span>You are now connected to database &#34;db&#34; as user &#34;app&#34;.</span>
+
+<span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>users</span><span>;</span>
+<span> username │ active</span>
+<span>──────────┼────────</span>
+<span><span> haki     │ t</span>
+</span></pre></div>
+
+
+<p>You dropped the column and the application sees the calculated field instead! All is left is some cleanup and you are done.</p>
+<hr/>
+<h2 id="find-overlapping-ranges"><a href="#find-overlapping-ranges">Find Overlapping Ranges</a></h2>
+<p>Say you have a table of meetings:</p>
+<div><pre><span></span><span>db=#</span> <span>SELECT</span> <span>*</span> <span>FROM</span> <span>meetings</span><span>;</span>
+<span>       starts_at     │        ends_at</span>
+<span>─────────────────────┼─────────────────────</span>
+<span> 2021-10-01 10:00:00 │ 2021-10-01 10:30:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00</span>
+<span> 2021-10-01 12:30:00 │ 2021-10-01 12:45:00</span>
+</pre></div>
+
+
+<details>
+<summary>⚙ Table data</summary>
+<p>You can use the following CTE to reproduce the queries in this section:</p>
+<div><pre><span></span><span>WITH</span> <span>meetings</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span>
+        <span>starts_at</span><span>::</span><span>timestamptz</span> <span>AS</span> <span>starts_at</span><span>,</span>
+        <span>ends_at</span><span>::</span><span>timestamptz</span> <span>AS</span> <span>ends_at</span>
+    <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;2021-10-01 10:00 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 10:30 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;2021-10-01 11:15 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:00 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;2021-10-01 12:30 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:45 UTC&#39;</span><span>)</span>
+    <span>)</span> <span>AS</span> <span>t</span><span>(</span>
+        <span>starts_at</span><span>,</span>               <span>ends_at</span><span>)</span>
+<span>)</span>
+<span>SELECT</span> <span>*</span> <span>FROM</span> <span>meetings</span><span>;</span>
+</pre></div>
+
+
+</details>
+<p>You want to schedule a new meeting, but before you do that, you want to make sure it does not overlap with another meeting. There are several scenarios you need to consider:</p>
+<ul>
+<li><strong>[A]</strong> New meeting ends after an existing meeting starts</li>
+</ul>
+<div><pre><span></span>|-------NEW MEETING--------|
+    |*******EXISTING MEETING*******|
+</pre></div>
+
+
+<ul>
+<li><strong>[B]</strong> New meeting starts before an existing meetings ends</li>
+</ul>
+<div><pre><span></span>        |-------NEW MEETING--------|
+|*******EXISTING MEETING*******|
+</pre></div>
+
+
+<ul>
+<li><strong>[C]</strong> New meeting takes place during an existing meeting</li>
+</ul>
+<div><pre><span></span>    |----NEW MEETING----|
+|*******EXISTING MEETING*******|
+</pre></div>
+
+
+<ul>
+<li><strong>[D]</strong> Existing meeting takes place while the new meeting is scheduled</li>
+</ul>
+<div><pre><span></span>|--------NEW MEETING--------|
+    |**EXISTING MEETING**|
+</pre></div>
+
+
+<ul>
+<li><strong>[E]</strong> New meeting is scheduled at exactly the same time as an existing meeting</li>
+</ul>
+<div><pre><span></span>|--------NEW MEETING--------|
+|*****EXISTING MEETING******|
+</pre></div>
+
+
+<p>To test a query that check for overlaps, you can prepare a table with all the scenarios above, and try a simple condition:</p>
+<div><pre><span></span><span>WITH</span> <span>new_meetings</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span>
+        <span>id</span><span>,</span>
+        <span>starts_at</span><span>::</span><span>timestamptz</span> <span>as</span> <span>starts_at</span><span>,</span>
+        <span>ends_at</span><span>::</span><span>timestamptz</span> <span>as</span> <span>ends_at</span>
+    <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;A&#39;</span><span>,</span> <span>&#39;2021-10-01 11:10 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:55 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;B&#39;</span><span>,</span> <span>&#39;2021-10-01 11:20 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:05 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;C&#39;</span><span>,</span> <span>&#39;2021-10-01 11:20 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:55 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;D&#39;</span><span>,</span> <span>&#39;2021-10-01 11:10 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:05 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;E&#39;</span><span>,</span> <span>&#39;2021-10-01 11:15 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:00 UTC&#39;</span><span>)</span>
+    <span>)</span> <span>as</span> <span>t</span><span>(</span>
+        <span>id</span><span>,</span>   <span>starts_at</span><span>,</span>               <span>ends_at</span>
+    <span>)</span>
+<span>)</span>
+<span>SELECT</span>
+    <span>*</span>
+<span>FROM</span>
+    <span>meetings</span><span>,</span> <span>new_meetings</span>
+<span>WHERE</span>
+    <span>new_meetings</span><span>.</span><span>starts_at</span> <span>BETWEEN</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>meetings</span><span>.</span><span>ends_at</span>
+    <span>OR</span> <span>new_meetings</span><span>.</span><span>ends_at</span> <span>BETWEEN</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>meetings</span><span>.</span><span>ends_at</span><span>;</span>
+
+<span>       starts_at     │        ends_at      │ id │       starts_at     │        ends_at</span>
+<span>─────────────────────┼─────────────────────┼────┼─────────────────────┼────────────────────</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ A  │ 2021-10-01 11:10:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ B  │ 2021-10-01 11:20:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ C  │ 2021-10-01 11:20:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ E  │ 2021-10-01 11:15:00 │ 2021-10-01 12:00:00</span>
+</pre></div>
+
+
+<p>The first attempt found an overlap with 4 out of 5 scenarios. It did not detect the overlap for scenario <code>D</code>, where the new meetings starts before and ends after an existing meeting. To handle this scenario as well, you need to make the condition a bit longer:</p>
+<div><pre><span></span><span>WITH</span> <span>new_meetings</span> <span>AS</span> <span>(</span><span>/* ... */</span><span>)</span>
+<span>SELECT</span>
+    <span>*</span>
+<span>FROM</span>
+    <span>meetings</span><span>,</span> <span>new_meetings</span>
+<span>WHERE</span>
+    <span>new_meetings</span><span>.</span><span>starts_at</span> <span>BETWEEN</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>meetings</span><span>.</span><span>ends_at</span>
+    <span>OR</span> <span>new_meetings</span><span>.</span><span>ends_at</span> <span>BETWEEN</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>meetings</span><span>.</span><span>ends_at</span>
+<span>    <span>OR</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>BETWEEN</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>new_meetings</span><span>.</span><span>ends_at</span>
+</span><span>    <span>OR</span> <span>meetings</span><span>.</span><span>ends_at</span> <span>BETWEEN</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>new_meetings</span><span>.</span><span>ends_at</span><span>;</span>
+</span>
+
+<span>       starts_at     │        ends_at      │ id │       starts_at     │        ends_at</span>
+<span>─────────────────────┼─────────────────────┼────┼─────────────────────┼────────────────────</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ A  │ 2021-10-01 11:10:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ B  │ 2021-10-01 11:20:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ C  │ 2021-10-01 11:20:00 │ 2021-10-01 11:55:00</span>
+<span><span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ D  │ 2021-10-01 11:10:00 │ 2021-10-01 12:05:00</span>
+</span><span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ E  │ 2021-10-01 11:15:00 │ 2021-10-01 12:00:00</span>
+</pre></div>
+
+
+<p>The query now detects an overlap in all 5 scenarios, but, consider these additional scenarios:</p>
+<ul>
+<li><strong>[F]</strong> New meeting is scheduled immediately after an existing meetings</li>
+</ul>
+<div><pre><span></span>                            |--------NEW MEETING--------|
+|*****EXISTING MEETING******|
+</pre></div>
+
+
+<ul>
+<li><strong>[G]</strong> New meeting is scheduled to end immediately when an existing meeting starts</li>
+</ul>
+<div><pre><span></span>|--------NEW MEETING--------|
+                            |*****EXISTING MEETING******|
+</pre></div>
+
+
+<p>Back-to-back meetings are very common, and they should not be detected as an overlap. Adding the two scenarios to the test, and trying the query:</p>
+<div><pre><span></span><span>WITH</span> <span>new_meetings</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span>
+        <span>id</span><span>,</span>
+        <span>starts_at</span><span>::</span><span>timestamptz</span> <span>as</span> <span>starts_at</span><span>,</span>
+        <span>ends_at</span><span>::</span><span>timestamptz</span> <span>as</span> <span>ends_at</span>
+    <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;A&#39;</span><span>,</span> <span>&#39;2021-10-01 11:10 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:55 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;B&#39;</span><span>,</span> <span>&#39;2021-10-01 11:20 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:05 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;C&#39;</span><span>,</span> <span>&#39;2021-10-01 11:20 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:55 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;D&#39;</span><span>,</span> <span>&#39;2021-10-01 11:10 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:05 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;E&#39;</span><span>,</span> <span>&#39;2021-10-01 11:15 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:00 UTC&#39;</span><span>),</span>
+<span>        <span>(</span><span>&#39;F&#39;</span><span>,</span> <span>&#39;2021-10-01 12:00 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:10 UTC&#39;</span><span>),</span>
+</span><span>        <span>(</span><span>&#39;G&#39;</span><span>,</span> <span>&#39;2021-10-01 11:00 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:15 UTC&#39;</span><span>)</span>
+</span>    <span>)</span> <span>as</span> <span>t</span><span>(</span>
+        <span>id</span><span>,</span>   <span>starts_at</span><span>,</span>               <span>ends_at</span>
+    <span>)</span>
+<span>)</span>
+<span>SELECT</span>
+    <span>*</span>
+<span>FROM</span>
+    <span>meetings</span><span>,</span> <span>new_meetings</span>
+<span>WHERE</span>
+    <span>new_meetings</span><span>.</span><span>starts_at</span> <span>BETWEEN</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>meetings</span><span>.</span><span>ends_at</span>
+    <span>OR</span> <span>new_meetings</span><span>.</span><span>ends_at</span> <span>BETWEEN</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>meetings</span><span>.</span><span>ends_at</span>
+    <span>OR</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>BETWEEN</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>new_meetings</span><span>.</span><span>ends_at</span>
+    <span>OR</span> <span>meetings</span><span>.</span><span>ends_at</span> <span>BETWEEN</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>and</span> <span>new_meetings</span><span>.</span><span>ends_at</span><span>;</span>
+
+<span>       starts_at     │        ends_at      │ id │       starts_at     │        ends_at</span>
+<span>─────────────────────┼─────────────────────┼────┼─────────────────────┼────────────────────</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ A  │ 2021-10-01 11:10:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ B  │ 2021-10-01 11:20:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ C  │ 2021-10-01 11:20:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ D  │ 2021-10-01 11:10:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ E  │ 2021-10-01 11:15:00 │ 2021-10-01 12:00:00</span>
+<span><span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ F  │ 2021-10-01 12:00:00 │ 2021-10-01 12:10:00</span>
+</span><span><span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ G  │ 2021-10-01 11:00:00 │ 2021-10-01 11:15:00</span>
+</span></pre></div>
+
+
+<p>The two back-to-back meetings, scenarios <code>F</code> and <code>G</code>, are incorrectly classified as overlaps. This is caused because <a href="https://hakibenita.com/sql-dos-and-donts#use-between-only-for-inclusive-ranges">the operator <code>BETWEEN</code> in inclusive</a>. To implement this condition without using <code>BETWEEN</code> you would have to do something like this:</p>
+<div><pre><span></span><span>WITH</span> <span>new_meetings</span> <span>AS</span> <span>(</span><span>/* ... */</span><span>)</span>
+<span>SELECT</span>
+    <span>*</span>
+<span>FROM</span>
+    <span>meetings</span><span>,</span> <span>new_meetings</span>
+<span>WHERE</span>
+    <span>(</span><span>new_meetings</span><span>.</span><span>starts_at</span> <span>&gt;</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>AND</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>&lt;</span> <span>meetings</span><span>.</span><span>ends_at</span><span>)</span>
+    <span>OR</span>
+    <span>(</span><span>new_meetings</span><span>.</span><span>ends_at</span> <span>&gt;</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>AND</span> <span>new_meetings</span><span>.</span><span>ends_at</span> <span>&lt;</span> <span>meetings</span><span>.</span><span>ends_at</span><span>)</span>
+    <span>OR</span>
+    <span>(</span><span>meetings</span><span>.</span><span>starts_at</span> <span>&gt;</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>AND</span> <span>meetings</span><span>.</span><span>starts_at</span> <span>&lt;</span> <span>new_meetings</span><span>.</span><span>ends_at</span><span>)</span>
+    <span>OR</span>
+    <span>(</span><span>meetings</span><span>.</span><span>ends_at</span> <span>&gt;</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>AND</span> <span>meetings</span><span>.</span><span>ends_at</span> <span>&lt;</span> <span>new_meetings</span><span>.</span><span>ends_at</span><span>)</span>
+    <span>OR</span>
+    <span>(</span><span>meetings</span><span>.</span><span>starts_at</span> <span>=</span> <span>new_meetings</span><span>.</span><span>starts_at</span> <span>AND</span> <span>meetings</span><span>.</span><span>ends_at</span> <span>=</span> <span>new_meetings</span><span>.</span><span>ends_at</span><span>);</span>
+
+<span>       starts_at     │        ends_at      │ id │       starts_at     │        ends_at</span>
+<span>─────────────────────┼─────────────────────┼────┼─────────────────────┼────────────────────</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ A  │ 2021-10-01 11:10:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ B  │ 2021-10-01 11:20:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ C  │ 2021-10-01 11:20:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ D  │ 2021-10-01 11:10:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ E  │ 2021-10-01 11:15:00 │ 2021-10-01 12:00:00</span>
+</pre></div>
+
+
+<p>The query correctly identifies scenarios <code>A</code> - <code>E</code> as overlaps, and does not identify the back-to-back scenarios <code>F</code> and <code>G</code> as overlaps. This is what you wanted. However, this condition is pretty crazy! It can easily get out of control.</p>
+<p>This is where the following operator in PostgreSQL proves itself as extremely valuable:</p>
+<div><pre><span></span><span>WITH</span> <span>new_meetings</span> <span>AS</span> <span>(</span>
+    <span>SELECT</span>
+        <span>id</span><span>,</span>
+        <span>starts_at</span><span>::</span><span>timestamptz</span> <span>as</span> <span>starts_at</span><span>,</span>
+        <span>ends_at</span><span>::</span><span>timestamptz</span> <span>as</span> <span>ends_at</span>
+    <span>FROM</span> <span>(</span><span>VALUES</span>
+        <span>(</span><span>&#39;A&#39;</span><span>,</span> <span>&#39;2021-10-01 11:10 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:55 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;B&#39;</span><span>,</span> <span>&#39;2021-10-01 11:20 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:05 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;C&#39;</span><span>,</span> <span>&#39;2021-10-01 11:20 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:55 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;D&#39;</span><span>,</span> <span>&#39;2021-10-01 11:10 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:05 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;E&#39;</span><span>,</span> <span>&#39;2021-10-01 11:15 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:00 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;F&#39;</span><span>,</span> <span>&#39;2021-10-01 12:00 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 12:10 UTC&#39;</span><span>),</span>
+        <span>(</span><span>&#39;G&#39;</span><span>,</span> <span>&#39;2021-10-01 11:00 UTC&#39;</span><span>,</span> <span>&#39;2021-10-01 11:15 UTC&#39;</span><span>)</span>
+    <span>)</span> <span>as</span> <span>t</span><span>(</span>
+        <span>id</span><span>,</span>   <span>starts_at</span><span>,</span>               <span>ends_at</span>
+    <span>)</span>
+<span>)</span>
+<span>SELECT</span>
+    <span>*</span>
+<span>FROM</span>
+    <span>meetings</span><span>,</span> <span>new_meetings</span>
+<span>WHERE</span>
+<span>    <span>(</span><span>new_meetings</span><span>.</span><span>starts_at</span><span>,</span> <span>new_meetings</span><span>.</span><span>ends_at</span><span>)</span>
+</span><span>        <span>OVERLAPS</span> <span>(</span><span>meetings</span><span>.</span><span>starts_at</span><span>,</span> <span>meetings</span><span>.</span><span>ends_at</span><span>);</span>
+</span>
+<span>       starts_at     │        ends_at      │ id │       starts_at     │        ends_at</span>
+<span>─────────────────────┼─────────────────────┼────┼─────────────────────┼────────────────────</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ A  │ 2021-10-01 11:10:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ B  │ 2021-10-01 11:20:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ C  │ 2021-10-01 11:20:00 │ 2021-10-01 11:55:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ D  │ 2021-10-01 11:10:00 │ 2021-10-01 12:05:00</span>
+<span> 2021-10-01 11:15:00 │ 2021-10-01 12:00:00 │ E  │ 2021-10-01 11:15:00 │ 2021-10-01 12:00:00</span>
+</pre></div>
+
+
+<p>This is it! Using the <a href="https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TABLE" rel="noopener"><code>OVERLAPS</code> operator</a> you can replace those 5 complicated conditions, and keep the query short and simple to read and understand.</p>
+<hr/>
+<p><em>UPDATES</em></p>
+<ul>
+<li>
+<p>2021-11-09: A <a href="https://www.reddit.com/r/programming/comments/qpj4cy/comment/hjwwqgi/?utm_source=share&amp;utm_medium=web2x&amp;context=3" rel="noopener">commenter on Reddit</a> spotted a mistake in the name of the psql parameter in the &#34;Autocomplete Reserved Words in Uppercase&#34; section. Fixed <code>COMP_KEYWORD_UPPER</code> to <code>COMP_KEYWORD_CASE</code>.</p>
+</li>
+<li>
+<p>2021-11-09: The example for <code>pg_sleep</code> was sleeping for 4 hours (14400 seconds) and not 4 minutes as was previously mentioned in the article. The example was changed to better illustrate the benefit of using an interval with <code>pg_sleep_for</code>.</p>
+</li>
+</ul>
+    </article></div>

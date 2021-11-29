@@ -1,0 +1,123 @@
+---
+url: https://bugs.python.org/issue26260
+title: 'Issue 26260: utf8 decoding inconsistency between P2 and P3'
+archived_at: 2021-11-30T00:41:58.136092+08:00
+---
+<div id="readability-page-1" class="page"><div id="content-body">
+<p>
+ 
+ 
+ Issue26260
+ 
+</p>
+ 
+ 
+
+
+
+
+
+<div>
+
+
+
+<p>Created on <strong>2016-02-01 16:40</strong> by <strong>jinz</strong>, last changed <strong>2016-02-01 17:02</strong> by <strong>vstinner</strong>. This issue is now <strong>closed</strong>.</p>
+
+
+
+
+
+
+
+
+
+<table>
+ <tbody><tr><th colspan="4">Messages (3)</th></tr>
+ 
+  <tr>
+    <th>
+     <a href="#msg259329" id="msg259329">msg259329</a> - <a href="https://bugs.python.org/msg259329">(view)</a></th>
+   <th>Author: Jim Jin (jinz)</th>
+   <th>Date: 2016-02-01 16:40</th>
+  </tr>
+  <tr>
+   <td colspan="4">
+    
+    <pre>PAYLOAD1 = b&#39;\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5&#39;
+   PAYLOAD2 = b&#39;\xed\xa0\x80&#39;  
+   PAYLOAD3 = b&#39;\x65\x64\x69\x74\x65\x64&#39;
+   PAYLOAD = PAYLOAD1 + PAYLOAD2 + PAYLOAD3
+
+   PAYLOAD.decode(&#39;utf8&#39;)  passes in P2.7.* and fails in P3.4
+
+   Thank you for reading.</pre>
+   </td>
+  </tr>
+ 
+ 
+  <tr>
+    <th>
+     <a href="#msg259330" id="msg259330">msg259330</a> - <a href="https://bugs.python.org/msg259330">(view)</a></th>
+   <th>Author: STINNER Victor (vstinner) <span title="Contributor form received">*</span> <img src="https://bugs.python.org/@@file/committer.png" title="Python committer" alt="(Python committer)"/></th>
+   <th>Date: 2016-02-01 16:54</th>
+  </tr>
+  <tr>
+   <td colspan="4">
+    
+    <pre>&gt; PAYLOAD.decode(&#39;utf8&#39;)  passes in P2.7.* and fails in P3.4
+
+Well, Python 2 decoder didn&#39;t respect the Unicode standard. Please see:
+<a href="http://unicodebook.readthedocs.org/issues.html#non-strict-utf-8-decoder-overlong-byte-sequences-and-surrogates">http://unicodebook.readthedocs.org/issues.html#non-strict-utf-8-decoder-overlong-byte-sequences-and-surrogates</a>
+
+Python 3 is now stricted. You can still decode surrogate characters if you need them *for a good reason* using:
+
+&gt;&gt;&gt; b&#39;\xed\xa0\x80&#39;.decode(&#39;utf-8&#39;, &#39;surrogatepass&#39;)
+&#39;\ud800&#39;
+
+By they way, there is also:
+
+&gt;&gt;&gt; b&#39;\xed\xa0\x80&#39;.decode(&#39;utf-8&#39;, &#39;surrogateescape&#39;)
+&#39;\udced\udca0\udc80&#39;
+
+which is very different but may also help.
+
+I suggest to close the issue as NOT A BUG.</pre>
+   </td>
+  </tr>
+ 
+ 
+  <tr>
+    <th>
+     <a href="#msg259331" id="msg259331">msg259331</a> - <a href="https://bugs.python.org/msg259331">(view)</a></th>
+   <th>Author: Jim Jin (jinz)</th>
+   <th>Date: 2016-02-01 16:57</th>
+  </tr>
+  <tr>
+   <td colspan="4">
+    
+    <pre>Thank you very much for your help!</pre>
+   </td>
+  </tr>
+ 
+</tbody></table>
+
+<table><tbody><tr><th colspan="4">
+History
+</th></tr><tr>
+<th>Date</th>
+<th>User</th>
+<th>Action</th>
+<th>Args</th>
+</tr>
+<tr><td>2016-02-01 17:02:21</td><td>vstinner</td><td>set</td><td>status: open -&gt; closed<br/>resolution: not a bug</td></tr>
+<tr><td>2016-02-01 16:57:38</td><td>jinz</td><td>set</td><td>messages:
+  + <a rel="nofollow" href="https://bugs.python.org/msg259331">msg259331</a></td></tr>
+<tr><td>2016-02-01 16:54:25</td><td>vstinner</td><td>set</td><td>messages:
+  + <a rel="nofollow" href="https://bugs.python.org/msg259330">msg259330</a></td></tr>
+<tr><td>2016-02-01 16:40:22</td><td>jinz</td><td>create</td><td></td></tr>
+</tbody></table>
+
+</div>
+
+
+</div></div>
