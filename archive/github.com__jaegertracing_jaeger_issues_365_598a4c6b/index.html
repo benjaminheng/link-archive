@@ -1,0 +1,302 @@
+---
+url: https://github.com/jaegertracing/jaeger/issues/365
+title: 'Adaptive Sampling · Issue #365 · jaegertracing/jaeger'
+archived_at: 2021-12-13T16:09:25.619557+08:00
+---
+<div id="readability-page-1" class="page"><div disabled="" sortable="">
+          <blockquote>
+<p dir="auto">Sampling rates are defined on a per-service basis. If a service has two endpoints with vastly different throughputs</p>
+</blockquote>
+<p dir="auto">I was thinking that with a small generalization, one could extend the adapting sampling idea to something between head-based and tail-based sampling that also detects outliers and has other benefits of tail-based sampling while requiring fewer computational resources.</p>
+<p dir="auto">As part of the adapting sampling, sampling information is communicated from the collector to the agent.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://camo.githubusercontent.com/8e9ad455ed1e142cf1b7196fec9fab757da2eb08f95eb619737480d5acd70679/68747470733a2f2f7777772e6a616567657274726163696e672e696f2f696d672f6172636869746563747572652d76312e706e67"><img src="https://camo.githubusercontent.com/8e9ad455ed1e142cf1b7196fec9fab757da2eb08f95eb619737480d5acd70679/68747470733a2f2f7777772e6a616567657274726163696e672e696f2f696d672f6172636869746563747572652d76312e706e67" alt="" data-canonical-src="https://www.jaegertracing.io/img/architecture-v1.png"/></a></p>
+<p dir="auto">The format of the communicated data has, I guess, format similar to the <a href="https://www.jaegertracing.io/docs/1.8/sampling/#collector-sampling-configuration" rel="nofollow">Collector Sampling Configuration</a>. In the documentation there&#39;s this example:</p>
+<div data-snippet-clipboard-copy-content="{
+  &#34;service_strategies&#34;: [
+    {
+      &#34;service&#34;: &#34;foo&#34;,
+      &#34;type&#34;: &#34;probabilistic&#34;,
+      &#34;param&#34;: 0.8,
+      &#34;operation_strategies&#34;: [
+        {
+          &#34;operation&#34;: &#34;op1&#34;,
+          &#34;type&#34;: &#34;probabilistic&#34;,
+          &#34;param&#34;: 0.2
+        },
+        {
+          &#34;operation&#34;: &#34;op2&#34;,
+          &#34;type&#34;: &#34;probabilistic&#34;,
+          &#34;param&#34;: 0.4
+        }
+      ]
+    },
+    {
+      &#34;service&#34;: &#34;bar&#34;,
+      &#34;type&#34;: &#34;ratelimiting&#34;,
+      &#34;param&#34;: 5
+    }
+  ],
+  &#34;default_strategy&#34;: {
+    &#34;type&#34;: &#34;probabilistic&#34;,
+    &#34;param&#34;: 0.5
+  }
+}
+"><pre><code>{
+  &#34;service_strategies&#34;: [
+    {
+      &#34;service&#34;: &#34;foo&#34;,
+      &#34;type&#34;: &#34;probabilistic&#34;,
+      &#34;param&#34;: 0.8,
+      &#34;operation_strategies&#34;: [
+        {
+          &#34;operation&#34;: &#34;op1&#34;,
+          &#34;type&#34;: &#34;probabilistic&#34;,
+          &#34;param&#34;: 0.2
+        },
+        {
+          &#34;operation&#34;: &#34;op2&#34;,
+          &#34;type&#34;: &#34;probabilistic&#34;,
+          &#34;param&#34;: 0.4
+        }
+      ]
+    },
+    {
+      &#34;service&#34;: &#34;bar&#34;,
+      &#34;type&#34;: &#34;ratelimiting&#34;,
+      &#34;param&#34;: 5
+    }
+  ],
+  &#34;default_strategy&#34;: {
+    &#34;type&#34;: &#34;probabilistic&#34;,
+    &#34;param&#34;: 0.5
+  }
+}
+</code></pre></div>
+<p dir="auto">We can change it slightly to this:</p>
+<div data-snippet-clipboard-copy-content="{
+  &#34;sampling-rules&#34;: [
+    {&#34;name&#34;: &#34;foo_op_1&#34;,
+     &#34;condition&#34;: {&#34;and&#34; : [
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;foo&#34;]},
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.operationName&#34;}, &#34;op1&#34;]}]
+     },
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;probabilistic&#34;,
+       &#34;param&#34;: 0.2
+     }
+    },
+    {&#34;name&#34;: &#34;foo_op_2&#34;,
+     &#34;condition&#34;: {&#34;and&#34; : [
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;foo&#34;]},
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.operationName&#34;}, &#34;op2&#34;]}]
+     },
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;probabilistic&#34;,
+       &#34;param&#34;: 0.4
+     }
+    },
+    {&#34;name&#34;: &#34;bar&#34;,
+     &#34;condition&#34;: {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;bar&#34;]},
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;ratelimiting&#34;,
+       &#34;param&#34;: 5
+     }
+    },
+    {&#34;name&#34;: &#34;default&#34;,
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;probabilistic&#34;,
+       &#34;param&#34;: 0.5
+     }
+    } 
+  ],
+  &#34;tables&#34;: ...
+}
+"><pre><code>{
+  &#34;sampling-rules&#34;: [
+    {&#34;name&#34;: &#34;foo_op_1&#34;,
+     &#34;condition&#34;: {&#34;and&#34; : [
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;foo&#34;]},
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.operationName&#34;}, &#34;op1&#34;]}]
+     },
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;probabilistic&#34;,
+       &#34;param&#34;: 0.2
+     }
+    },
+    {&#34;name&#34;: &#34;foo_op_2&#34;,
+     &#34;condition&#34;: {&#34;and&#34; : [
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;foo&#34;]},
+       {&#34;==&#34;: [{&#34;var&#34; : &#34;span.operationName&#34;}, &#34;op2&#34;]}]
+     },
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;probabilistic&#34;,
+       &#34;param&#34;: 0.4
+     }
+    },
+    {&#34;name&#34;: &#34;bar&#34;,
+     &#34;condition&#34;: {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;bar&#34;]},
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;ratelimiting&#34;,
+       &#34;param&#34;: 5
+     }
+    },
+    {&#34;name&#34;: &#34;default&#34;,
+     &#34;strategy&#34;: {
+       &#34;type&#34;: &#34;probabilistic&#34;,
+       &#34;param&#34;: 0.5
+     }
+    } 
+  ],
+  &#34;tables&#34;: ...
+}
+</code></pre></div>
+<p dir="auto">What do we see here?</p>
+<ol dir="auto">
+<li>There&#39;s a name to every rule that helps with debugging.</li>
+<li>There&#39;s a condition to each rule. I use <a href="http://jsonlogic.com/operations.html" rel="nofollow">JsonLogic</a>.</li>
+<li>If multiple rules match, the first one wins i.e. order within <code>sampling-rules</code> matters.</li>
+<li>There&#39;s a &#34;tables&#34; field that we will get to in a bit</li>
+</ol>
+<p dir="auto">This small extension enables the client and the agent to do powerful cherry-picking of what to sample.</p>
+<p dir="auto">The rules defined above are evaluated at any point in time a Span changes. More specifically, Spans in Jaeger, can be represented as JSONs that adhere to <a href="https://github.com/jaegertracing/jaeger/blob/master/model/json/model.go">this model</a>. Examples can be found in <a href="https://github.com/jaegertracing/jaeger/blob/master/plugin/storage/integration/fixtures/traces/example_trace.json">example_trace.json</a>:</p>
+<div data-snippet-clipboard-copy-content="    {
+      &#34;traceId&#34;: &#34;AAAAAAAAAAAAAAAAAAAAEQ==&#34;,
+      &#34;spanId&#34;: &#34;AAAAAAAAAAM=&#34;,
+      &#34;operationName&#34;: &#34;example-operation-1&#34;,
+      &#34;references&#34;: [],
+      &#34;startTime&#34;: &#34;2017-01-26T16:46:31.639875Z&#34;,
+      &#34;duration&#34;: &#34;100000ns&#34;,
+      &#34;tags&#34;: [],
+      &#34;process&#34;: {
+        &#34;serviceName&#34;: &#34;example-service-1&#34;,
+        &#34;tags&#34;: []
+      },
+      &#34;logs&#34;: [
+        {
+          &#34;timestamp&#34;: &#34;2017-01-26T16:46:31.639875Z&#34;,
+          &#34;fields&#34;: []
+        },
+        {
+          &#34;timestamp&#34;: &#34;2017-01-26T16:46:31.639875Z&#34;,
+          &#34;fields&#34;: []
+        }
+      ]
+    }
+"><pre><code>    {
+      &#34;traceId&#34;: &#34;AAAAAAAAAAAAAAAAAAAAEQ==&#34;,
+      &#34;spanId&#34;: &#34;AAAAAAAAAAM=&#34;,
+      &#34;operationName&#34;: &#34;example-operation-1&#34;,
+      &#34;references&#34;: [],
+      &#34;startTime&#34;: &#34;2017-01-26T16:46:31.639875Z&#34;,
+      &#34;duration&#34;: &#34;100000ns&#34;,
+      &#34;tags&#34;: [],
+      &#34;process&#34;: {
+        &#34;serviceName&#34;: &#34;example-service-1&#34;,
+        &#34;tags&#34;: []
+      },
+      &#34;logs&#34;: [
+        {
+          &#34;timestamp&#34;: &#34;2017-01-26T16:46:31.639875Z&#34;,
+          &#34;fields&#34;: []
+        },
+        {
+          &#34;timestamp&#34;: &#34;2017-01-26T16:46:31.639875Z&#34;,
+          &#34;fields&#34;: []
+        }
+      ]
+    }
+</code></pre></div>
+<p dir="auto">Pieces of information are collected at different points in time. e.g. the <code>duration</code> isn&#39;t known till the end of the Span, while <code>operationName</code> is known at the beginning. At any point there&#39;s a change the rules are re-evaluated and they can yield a &#34;sample&#34; decision. Examples of when a Span model might be updated are:</p>
+<ul dir="auto">
+<li>start</li>
+<li>finish</li>
+<li>When new tags and logs are added, including when error conditions are detected</li>
+<li>carrier injection (spawning children, at which point, depending on the RPC mechanism, a Span might be able to get additional tags like target/child serviceName, operationName, host etc. - since they&#39;re likely known e.g. when I do an http request, I know the target endpoint).</li>
+<li>RPC timeout or</li>
+<li>RPC call return , at which point a Span might get to know if the child decided to sample itself and/or if there were any errors downstream.</li>
+</ul>
+<p dir="auto">The above might seem as high CPU overhead, but I can imagine many optimizations that return quickly if there are no rules that match a Span change. JIT compilation of the rules might also be a way to accelerate further. The high performance of Chrome, DOM and V8 indicate that we might be able to have fast implementations.</p>
+<p dir="auto">Here are some basic examples. To evaluate them, I wrap the example Span presented above to a <code>{&#34;span&#34;: ... }</code> and use the JsonLogic prompt one can find <a href="http://jsonlogic.com/operations.html" rel="nofollow">here</a>.</p>
+<p dir="auto">The following condition evaluates to <code>true</code> for the example Span:</p>
+<div data-snippet-clipboard-copy-content="{&#34;and&#34; : [
+  {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;example-service-1&#34;]},
+  {&#34;==&#34;: [{&#34;var&#34; : &#34;span.operationName&#34;}, &#34;example-operation-1&#34;]}]
+}
+"><pre><code>{&#34;and&#34; : [
+  {&#34;==&#34;: [{&#34;var&#34; : &#34;span.process.serviceName&#34; }, &#34;example-service-1&#34;]},
+  {&#34;==&#34;: [{&#34;var&#34; : &#34;span.operationName&#34;}, &#34;example-operation-1&#34;]}]
+}
+</code></pre></div>
+<p dir="auto">There are two default &#34;force sample&#34; rules in Jaeger. Can we implement them using this framework? Yes:</p>
+<div data-snippet-clipboard-copy-content="{&#34;some&#34; : [ {&#34;var&#34; : &#34;span.tags&#34; },
+            {&#34;==&#34;: [{&#34;var&#34;:&#34;key&#34;}, &#34;jaeger-debug-id&#34;]} ]}
+"><pre><code>{&#34;some&#34; : [ {&#34;var&#34; : &#34;span.tags&#34; },
+            {&#34;==&#34;: [{&#34;var&#34;:&#34;key&#34;}, &#34;jaeger-debug-id&#34;]} ]}
+</code></pre></div>
+<p dir="auto">and</p>
+<div data-snippet-clipboard-copy-content="{&#34;some&#34; : [ {&#34;var&#34; : &#34;span.tags&#34; },
+            {&#34;and&#34;: [{&#34;==&#34;: [{&#34;var&#34;:&#34;key&#34;}, &#34;SAMPLING_PRIORITY&#34;]},
+                     {&#34;&gt;&#34;: [{&#34;var&#34;:&#34;value&#34;}, 0]}]} ]} 
+"><pre><code>{&#34;some&#34; : [ {&#34;var&#34; : &#34;span.tags&#34; },
+            {&#34;and&#34;: [{&#34;==&#34;: [{&#34;var&#34;:&#34;key&#34;}, &#34;SAMPLING_PRIORITY&#34;]},
+                     {&#34;&gt;&#34;: [{&#34;var&#34;:&#34;value&#34;}, 0]}]} ]} 
+</code></pre></div>
+<p dir="auto">In those two cases the <code>strategy</code> of the rule could return <code>const: 1</code> which will force sampling.</p>
+<p dir="auto">There are two safety conditions we would like to guarantee:</p>
+<ol dir="auto">
+<li>No matter how bad the configuration, the sampler shouldn’t slow down the collection process</li>
+<li>No matter how bad the configuration, the sampler shouldn’t overwhelm the infrastructure</li>
+</ol>
+<p dir="auto">As a result, proper engineering should be put in place. The language of JsonLogic isn&#39;t turning complete but still, there could be problems if the Spans have tags with long string values, long arrays or the configuration has rules that are overly long. Rules can be auto-generated, e.g. by some real-time trend analysis system, so it&#39;s wise to put some controls in the agent/client that reject configurations that might be slow. On the second point, above, if the rules end-up sampling everything while our infrastructure can handle just 1:100 sampling, we wouldn&#39;t like to overwhelm infra. As a result, we might need some form of cascading rules or global mechanism that limits total throughput.</p>
+<p dir="auto">Can we use this form of adaptive sampling to implement rules that sample outliers in terms of duration? Yes. Here&#39;s such a rule:</p>
+<div data-snippet-clipboard-copy-content="{&#34;&gt;&#34;: [
+  {&#34;var&#34;: &#34;span.duration&#34;},
+  {&#34;var&#34;: [{&#34;cat&#34;: [&#34;tables.d_percentiles&#34;,
+                 &#34;.&#34;, {&#34;var&#34; : &#34;span.process.serviceName&#34; },
+                 &#34;.&#34;, {&#34;var&#34; : &#34;span.operationName&#34; }
+                 ]}, 10000000]}]}
+"><pre><code>{&#34;&gt;&#34;: [
+  {&#34;var&#34;: &#34;span.duration&#34;},
+  {&#34;var&#34;: [{&#34;cat&#34;: [&#34;tables.d_percentiles&#34;,
+                 &#34;.&#34;, {&#34;var&#34; : &#34;span.process.serviceName&#34; },
+                 &#34;.&#34;, {&#34;var&#34; : &#34;span.operationName&#34; }
+                 ]}, 10000000]}]}
+</code></pre></div>
+<p dir="auto">We can test it with a (simplified) example span:</p>
+<div data-snippet-clipboard-copy-content="{
+  &#34;span&#34;:     {
+      &#34;operationName&#34;: &#34;example-operation-1&#34;,
+      &#34;duration&#34;: 100000,
+      &#34;process&#34;: {
+        &#34;serviceName&#34;: &#34;example-service-1&#34;
+      }
+    },
+    &#34;tables&#34;: {
+        &#34;d_percentiles&#34;: {
+            &#34;example-service-1&#34;: {
+                &#34;example-operation-1&#34;: 50000
+            }
+        }
+    }
+}
+"><pre><code>{
+  &#34;span&#34;:     {
+      &#34;operationName&#34;: &#34;example-operation-1&#34;,
+      &#34;duration&#34;: 100000,
+      &#34;process&#34;: {
+        &#34;serviceName&#34;: &#34;example-service-1&#34;
+      }
+    },
+    &#34;tables&#34;: {
+        &#34;d_percentiles&#34;: {
+            &#34;example-service-1&#34;: {
+                &#34;example-operation-1&#34;: 50000
+            }
+        }
+    }
+}
+</code></pre></div>
+<p dir="auto">Note that we now need a <code>tables.d_percentiles</code> dict that can be declared in the configuration. This dict can be dynamically calculated by an &#34;adaptive sampling calculator&#34;. It defines a per end-point expected maximum duration, beyond which sampling will be forced (e.g. by a <code>const: 1</code> strategy). We might want to tag this traffic not just as <code>sampled</code> but also as <code>force sampled</code> so that we ignore it while we calculate percentiles etc. Uniform Sampling can still be used for percentiles and other such statistics, while this extra type of traffic might be used to ensure we don&#39;t miss important outliers.</p>
+<p dir="auto">Since we now define and use a Span model, it would be good to also formalize a few more attributes it could have and be potentially useful. For example, we can have &#34;span.parent.operationName&#34;,  &#34; span.parent.parent.process.seviceName&#34; of a Span (parent might need to be an array - but let&#39;s skip this for now). Those don&#39;t need to be supported for any middleware or configuration, but if a middleware supports passing downstream some tags or Span attributes (e.g. through baggage) in-band, it&#39;s nice to know where to find them. With this extension, one can write rules that sample at a given operation and parent operation. As mentioned before, it might be possible to do this also, when you make the request, on the caller, instead of on the child-span, but <code>parent</code> provides another way to do this.</p>
+<p dir="auto">As a natural extension on the above, we can define an attribute <code>span.child</code>. <code>child</code> might also be an array and have arbitrary attributes but let&#39;s skip this for now. An important attribute might be <code>span.child.sampled</code>. This will be <code>true</code> if a child decided to sample itself and <code>false</code> otherwise. This makes sense, because under the extensions we described above, a Span can decide to sample itself at several different points in time (instead of just the beginning) if it detects interesting conditions. Many types of RPC middleware are able to return information upstream e.g. HTTP response headers. This means that a Span might be updated with an up-to-date value for <code>span.child.sampled</code> when a response from a sampled child span is detected. This could be triggered by an error condition on the child, in which case if the current span also decides to sample and propagate upstream, we can have the &#34;call stack&#34; and also sample any subsequent Spans. Those traces might have unusual shape because of missing information and highly likely shouldn&#39;t be used for aggregate analytics but they can still be used for alerting and debugging.</p>
+      </div></div>

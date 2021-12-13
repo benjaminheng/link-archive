@@ -1,0 +1,51 @@
+---
+url: https://github.com/golang/vscode-go/issues/45
+title: 'debug: automatically Infer Path Mapping for Remote Debugging · Issue #45 ·
+  golang/vscode-go'
+archived_at: 2021-12-13T16:09:03.901814+08:00
+---
+<div id="readability-page-1" class="page"><div disabled="" sortable="">
+          
+<h2 dir="auto">Existing Implementation</h2>
+<p dir="auto">Currently, we are using 2 attributes in the launch configuration to configure path mapping: <code>cwd</code> and <code>remotePath</code>.</p>
+<p dir="auto"><code>cwd</code> - Workspace relative or absolute path to the working directory of the program being debugged. Default is the current workspace.<br/>
+<code>remotePath</code> - Absolute path to the file being debugged on the remote machine in case of remote debugging.</p>
+<p dir="auto">Let’s say the local path is <code>C:\Users\quoct\Github\project\hello-world</code> and the remote path is <code>/app/project/hello-world</code>.</p>
+<h3 dir="auto">Processing and Storing the local and remote path</h3>
+<p dir="auto">Using the path in <code>cwd</code> and <code>remotePath</code>, we detect the local path separator (LPS) and remote path separator (RPS) respectively.</p>
+<p dir="auto">With these separators, we attempt to find the longest common suffix between the 2 paths. For the example above, that would be <code>project/hello-world</code>.</p>
+<p dir="auto">We truncate the longest common suffix from the local and remote path and store them internally. For the example above, that would be <code>C:\Users\quoct\Github</code> and <code>/app</code>. If there are no common suffixes, we just trim the last path separator of the remote path. Let’s call these processed local root (PLR) and processed remote root (PRR) respectively.</p>
+<h3 dir="auto">Setting a breakpoint</h3>
+<p dir="auto">This happens when the user sets a breakpoint in a file, for example: <code>C:\Users\quoct\Github\project\hello-world\testing.go</code>.</p>
+<p dir="auto">We use the remote path separator in the file name. So it will become <code>C:/Users/quoct/Github/project/hello-world/testing.go</code>. We then substitute the PLR (<code>C:\Users\quoct\Github</code>) with the PRR (<code>/app</code>). So now the breakpoint file will become <code>/app/project/hello-world/testing.go</code>. We call Delve to set a breakpoint in this file.</p>
+<h3 dir="auto">Breakpoint hit</h3>
+<p dir="auto">This happens if a breakpoint is hit on the remote Delve instance. In this case, Delve will send us back the name of the file that contains the breakpoint and we will have to map this file to a file on the local machine. Let’s say the name of the file is <code>/app/project/hello-world/testing.go</code>.</p>
+<p dir="auto">If the path to convert starts with the PRR (<code>/app</code>), we then substitute the PRR with the PLR (<code>C:\Users\quoct\Github</code>) in the path. So it will become <code>C:\Users\quoct\Github\project\hello-world\testing.go</code>. There seems to be a BUG here where we are not taking into account different path separators for remote and local roots.</p>
+<p dir="auto">If it doesn’t start with the PRR, then we assume that it can be mapped to a file in the <code>GOROOT</code> directory. We do this by assuming that the remote file’s name starts with <code>/app</code> (which is another BUG?).</p>
+
+<p dir="auto">A lot of times users don’t know that they have to provide path mapping for the breakpoints to hit. Even if they do, they don’t provide the correct path mappings. So what happens is that the debugger appears to be running but no breakpoints are hit. This can cause a lot of confusion to the users.<br/>
+Users currently <a href="https://github.com/microsoft/vscode-go/issues/3177" data-hovercard-type="issue" data-hovercard-url="/microsoft/vscode-go/issues/3177/hovercard">cannot set breakpoints for packages in <code>GOPATH</code></a>. There is a proposal to add another field to map this. Even the experience for setting breakpoints for files in <code>GOROOT</code> is not great as we are blindly assuming that the <code>GOROOT</code> starts with <code>/src</code>.<br/>
+The current implementation expects the paths to be absolute but they can be relative. There are PRs out there trying to address this by <a href="https://github.com/microsoft/vscode-go/pull/2963" data-hovercard-type="pull_request" data-hovercard-url="/microsoft/vscode-go/pull/2963/hovercard">introducing more fields</a></p>
+
+<p dir="auto">Instead of trying to add multiple fields to address the relative path mapping and <code>GOPATH</code> problems, we can fix these problems and reduce the user’s friction points by attempting to automatically infer the path mapping for the user.</p>
+<p dir="auto">Delve has an <a href="https://godoc.org/github.com/go-delve/delve/service/rpc2#ListSourcesOut" rel="nofollow">API</a> to list all the files used by the program. So we can simply get the list of files on the remote machine and map it to the files on the local machine. These include files in the <code>GOROOT</code> and <code>GOPATH</code> on the remote machine as well so we can try to map them to the files in the local machine <code>GOROOT</code> and <code>GOPATH</code>.</p>
+<h2 dir="auto">Mapping local path to remote path</h2>
+<p dir="auto">Since we get all the remote sources, we can retrieve all the remote source files that share the same file name with the local file. We can then do a suffix match to get the best matching remote path.<br/>
+Mapping remote path to local path<br/>
+This is more complicated because there are multiple places where we can try to find a match on the local machine.</p>
+<p dir="auto">However, we can use the <a href="https://godoc.org/github.com/go-delve/delve/service/rpc2#ListPackagesBuildInfoOut" rel="nofollow"><code>ListPackagesBuildInfo</code></a> to help us retrieve all the different Go packages used. Each package item returned comes with a Directory Path and an Import Path. Using Directory Path, we can determine if the remote path is in a particular package or not:</p>
+<ul dir="auto">
+<li>
+<p dir="auto">If the remote path is in a package, we can try to find whether the package exists on the local machine. We will be searching for it in 3 places:</p>
+<ul dir="auto">
+<li>The current user’s workspace folder.</li>
+<li>The current user’s <code>GOPATH</code>.</li>
+<li>The current user’s <code>GOMOD</code> folder (<code>%GOMOD%/pkg/mod</code>) if the package name contains <code>pkg/mod</code>.</li>
+</ul>
+</li>
+<li>
+<p dir="auto">If the remote path is not in any package, then we retrieve the name of the remote path and search for files with that name in the current workspace folder. We find the best matching one using a suffix match.</p>
+</li>
+</ul>
+<p dir="auto"><a data-hovercard-type="user" data-hovercard-url="/users/polinasok/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/polinasok">@polinasok</a> <a data-hovercard-type="user" data-hovercard-url="/users/hyangah/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/hyangah">@hyangah</a> <a data-hovercard-type="user" data-hovercard-url="/users/stamblerre/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/stamblerre">@stamblerre</a></p>
+      </div></div>

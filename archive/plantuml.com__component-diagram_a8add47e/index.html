@@ -1,0 +1,335 @@
+---
+url: https://plantuml.com/component-diagram
+title: Component Diagram syntax and features
+archived_at: 2021-12-13T16:09:52.981828+08:00
+---
+<div id="readability-page-1" class="page"><div> Let&#39;s have few examples. <a name="05bbb43b3d923283"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Components</h2> Components must be bracketed.  You can also use the <code>component</code> keyword to define a component. And you can define an alias, using the <code>as</code> keyword. This alias will be used later, when defining relations. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img width="20" height="20" id="img9628335da9f36c4cc1d0caca45727936" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;9628335da9f36c4cc1d0caca45727936&#39;)"/></td><td><div onclick="javascript:ljs(&#39;9628335da9f36c4cc1d0caca45727936&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre9628335da9f36c4cc1d0caca45727936">@startuml
+
+[First component]
+[Another component] as Comp2
+component Comp3
+component [Last\ncomponent] as Comp4
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="361" height="193" src="https://plantuml.com/imgw/img-9628335da9f36c4cc1d0caca45727936.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Interfaces</h2> Interface can be defined using the <code>()</code> symbol (because this looks like a circle).  You can also use the <code>interface</code> keyword to define an interface. And you can define an alias, using the <code>as</code> keyword. This alias will be used latter, when defining relations.  We will see latter that interface definition is optional. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img84d986ffc1cdba60d55c722a50e16ddd" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;84d986ffc1cdba60d55c722a50e16ddd&#39;)"/></td><td><div onclick="javascript:ljs(&#39;84d986ffc1cdba60d55c722a50e16ddd&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre84d986ffc1cdba60d55c722a50e16ddd">@startuml
+
+() &#34;First Interface&#34;
+() &#34;Another interface&#34; as Interf2
+interface Interf3
+interface &#34;Last\ninterface&#34; as Interf4
+
+[component]
+footer //Adding &#34;component&#34; to force diagram to be a **component diagram**//
+@enduml
+</pre></code></p><p><img loading="lazy" width="348" height="226" src="https://plantuml.com/imgw/img-84d986ffc1cdba60d55c722a50e16ddd.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Basic example</h2> Links between elements are made using combinations of dotted line (<code>..</code>), straight line (<code>--</code>), and arrows (<code>--&gt;</code>) symbols. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgf5812b2e9bbe754eaf59d45f0ba9eabf" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;f5812b2e9bbe754eaf59d45f0ba9eabf&#39;)"/></td><td><div onclick="javascript:ljs(&#39;f5812b2e9bbe754eaf59d45f0ba9eabf&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pref5812b2e9bbe754eaf59d45f0ba9eabf">@startuml
+
+DataAccess - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="246" height="202" src="https://plantuml.com/imgw/img-f5812b2e9bbe754eaf59d45f0ba9eabf.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Using notes</h2> You can use the <code>note left of</code> , <code>note right of</code> , <code>note top of</code> , <code>note bottom of</code> keywords to define notes related to a single object. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img20eb70d18d345c139be0de5476f3b733" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;20eb70d18d345c139be0de5476f3b733&#39;)"/></td><td><div onclick="javascript:ljs(&#39;20eb70d18d345c139be0de5476f3b733&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre20eb70d18d345c139be0de5476f3b733">@startuml
+[Component] as C
+
+note top of C: A top note
+
+note bottom of C
+  A bottom note can also
+  be on several lines
+end note
+
+note left of C
+  A left note can also
+  be on several lines
+end note
+
+note right of C: A right note
+@enduml
+</pre></code></p><p><img loading="lazy" width="416" height="248" src="https://plantuml.com/imgw/img-20eb70d18d345c139be0de5476f3b733.webp"/></p></div></td></tr></tbody></table></p> A note can be also defined alone with the <code>note</code> keywords, then linked to other objects using the <code>..</code> symbol or whatever arrow symbol (<code>-</code>, <code>--</code>, ...). <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img6b3c13d46ffffb1adf5aa86f677c3177" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;6b3c13d46ffffb1adf5aa86f677c3177&#39;)"/></td><td><div onclick="javascript:ljs(&#39;6b3c13d46ffffb1adf5aa86f677c3177&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre6b3c13d46ffffb1adf5aa86f677c3177">@startuml
+[Component] as C
+
+note as N
+  A floating note can also
+  be on several lines
+end note
+
+C .. N
+@enduml
+</pre></code></p><p><img loading="lazy" width="169" height="163" src="https://plantuml.com/imgw/img-6b3c13d46ffffb1adf5aa86f677c3177.webp"/></p></div></td></tr></tbody></table></p> Another note example: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img5316866e8b293f112d6d20403a17d389" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;5316866e8b293f112d6d20403a17d389&#39;)"/></td><td><div onclick="javascript:ljs(&#39;5316866e8b293f112d6d20403a17d389&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre5316866e8b293f112d6d20403a17d389">@startuml
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+note left of HTTP : Web Service only
+
+note right of [First Component]
+  A note can also
+  be on several lines
+end note
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="414" height="185" src="https://plantuml.com/imgw/img-5316866e8b293f112d6d20403a17d389.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Grouping Components</h2> You can use several keywords to group components and interfaces together: <ul><li><code>package</code></li><li><code>node</code></li><li><code>folder</code></li><li><code>frame</code></li><li><code>cloud</code></li><li><code>database</code></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img47f9e42bb071df4de5fe92eb3a6535ec" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;47f9e42bb071df4de5fe92eb3a6535ec&#39;)"/></td><td><div onclick="javascript:ljs(&#39;47f9e42bb071df4de5fe92eb3a6535ec&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre47f9e42bb071df4de5fe92eb3a6535ec">@startuml
+
+package &#34;Some Group&#34; {
+  HTTP - [First Component]
+  [Another Component]
+}
+
+node &#34;Other Groups&#34; {
+  FTP - [Second Component]
+  [First Component] --&gt; FTP
+}
+
+cloud {
+  [Example 1]
+}
+
+
+database &#34;MySql&#34; {
+  folder &#34;This is my folder&#34; {
+    [Folder 3]
+  }
+  frame &#34;Foo&#34; {
+    [Frame 4]
+  }
+}
+
+
+[Another Component] --&gt; [Example 1]
+[Example 1] --&gt; [Folder 3]
+[Folder 3] --&gt; [Frame 4]
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="487" height="572" src="https://plantuml.com/imgw/img-47f9e42bb071df4de5fe92eb3a6535ec.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Changing arrows direction</h2> By default, links between classes have two dashes <code>--</code> and are vertically oriented. It is possible to use horizontal link by putting a single dash (or dot) like this: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img0990af12194b04bb5844aba6d107c1c1" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;0990af12194b04bb5844aba6d107c1c1&#39;)"/></td><td><div onclick="javascript:ljs(&#39;0990af12194b04bb5844aba6d107c1c1&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre0990af12194b04bb5844aba6d107c1c1">@startuml
+[Component] --&gt; Interface1
+[Component] -&gt; Interface2
+@enduml
+</pre></code></p><p><img loading="lazy" width="202" height="184" src="https://plantuml.com/imgw/img-0990af12194b04bb5844aba6d107c1c1.webp"/></p></div></td></tr></tbody></table></p> You can also change directions by reversing the link: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge8494263717d6473a9b2632082c86068" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e8494263717d6473a9b2632082c86068&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e8494263717d6473a9b2632082c86068&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree8494263717d6473a9b2632082c86068">@startuml
+Interface1 &lt;-- [Component]
+Interface2 &lt;- [Component]
+@enduml
+</pre></code></p><p><img loading="lazy" width="208" height="167" src="https://plantuml.com/imgw/img-e8494263717d6473a9b2632082c86068.webp"/></p></div></td></tr></tbody></table></p> It is also possible to change arrow direction by adding <code>left</code>, <code>right</code>, <code>up</code> or <code>down</code> keywords inside the arrow: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img00126f189ac4c5c26e52ac460900d84d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;00126f189ac4c5c26e52ac460900d84d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;00126f189ac4c5c26e52ac460900d84d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre00126f189ac4c5c26e52ac460900d84d">@startuml
+[Component] -left-&gt; left
+[Component] -right-&gt; right
+[Component] -up-&gt; up
+[Component] -down-&gt; down
+@enduml
+</pre></code></p><p><img loading="lazy" width="238" height="281" src="https://plantuml.com/imgw/img-00126f189ac4c5c26e52ac460900d84d.webp"/></p></div></td></tr></tbody></table></p> You can shorten the arrow by using only the first character of the direction (for example, <code>-d-</code> instead of <code>-down-</code>) or the two first characters (<code>-do-</code>).  Please note that you should not abuse this functionality : <em>Graphviz</em> gives usually good results without tweaking.  And with the <a href="https://plantuml.com/use-case-diagram#d551e48d272b2b07"><code>left to right direction</code></a> parameter: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img713cfed8c3ecbf63f6722a7441fdb9d5" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;713cfed8c3ecbf63f6722a7441fdb9d5&#39;)"/></td><td><div onclick="javascript:ljs(&#39;713cfed8c3ecbf63f6722a7441fdb9d5&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre713cfed8c3ecbf63f6722a7441fdb9d5">@startuml
+left to right direction
+[Component] -left-&gt; left
+[Component] -right-&gt; right
+[Component] -up-&gt; up
+[Component] -down-&gt; down
+@enduml
+</pre></code></p><p><img loading="lazy" width="323" height="189" src="https://plantuml.com/imgw/img-713cfed8c3ecbf63f6722a7441fdb9d5.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Use UML2 notation</h2> By default <em>(from v1.2020.13-14)</em>, UML2 notation is used. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img8d58694282754ca754084b6206801842" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;8d58694282754ca754084b6206801842&#39;)"/></td><td><div onclick="javascript:ljs(&#39;8d58694282754ca754084b6206801842&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre8d58694282754ca754084b6206801842">@startuml
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="248" height="202" src="https://plantuml.com/imgw/img-8d58694282754ca754084b6206801842.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Use UML1 notation</h2> The <code>skinparam componentStyle uml1</code> command is used to switch to UML1 notation. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img1ca2c6a217244639ad8e1c54d700fefd" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;1ca2c6a217244639ad8e1c54d700fefd&#39;)"/></td><td><div onclick="javascript:ljs(&#39;1ca2c6a217244639ad8e1c54d700fefd&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre1ca2c6a217244639ad8e1c54d700fefd">@startuml
+skinparam componentStyle uml1
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="228" height="192" src="https://plantuml.com/imgw/img-1ca2c6a217244639ad8e1c54d700fefd.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Use rectangle notation (remove UML notation)</h2> The <code>skinparam componentStyle rectangle</code> command is used to switch to rectangle notation <em>(without any UML notation)</em>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img59b613cbed067155dbbd4009017f9fe7" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;59b613cbed067155dbbd4009017f9fe7&#39;)"/></td><td><div onclick="javascript:ljs(&#39;59b613cbed067155dbbd4009017f9fe7&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre59b613cbed067155dbbd4009017f9fe7">@startuml
+skinparam componentStyle rectangle
+
+interface &#34;Data Access&#34; as DA
+
+DA - [First Component]
+[First Component] ..&gt; HTTP : use
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="226" height="192" src="https://plantuml.com/imgw/img-59b613cbed067155dbbd4009017f9fe7.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Long description</h2> It is possible to put description on several lines using square brackets. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga2ddb939070937034de10ba5fa00588d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a2ddb939070937034de10ba5fa00588d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a2ddb939070937034de10ba5fa00588d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea2ddb939070937034de10ba5fa00588d">@startuml
+component comp1 [
+This component
+has a long comment
+on several lines
+]
+@enduml
+</pre></code></p><p><img loading="lazy" width="187" height="102" src="https://plantuml.com/imgw/img-a2ddb939070937034de10ba5fa00588d.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Individual colors</h2> You can specify a color after component definition. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img809ad6f2b477c2a72fdda06d2fb65247" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;809ad6f2b477c2a72fdda06d2fb65247&#39;)"/></td><td><div onclick="javascript:ljs(&#39;809ad6f2b477c2a72fdda06d2fb65247&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre809ad6f2b477c2a72fdda06d2fb65247">@startuml
+component  [Web Server] #Yellow
+@enduml
+</pre></code></p><p><img loading="lazy" width="135" height="67" src="https://plantuml.com/imgw/img-809ad6f2b477c2a72fdda06d2fb65247.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Using Sprite in Stereotype</h2> You can use sprites within stereotype components. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img21cb31a615da25fd974b71fbdf74c5fe" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;21cb31a615da25fd974b71fbdf74c5fe&#39;)"/></td><td><div onclick="javascript:ljs(&#39;21cb31a615da25fd974b71fbdf74c5fe&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre21cb31a615da25fd974b71fbdf74c5fe">@startuml
+sprite $businessProcess [16x16/16] {
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFF0FFFFF
+FFFFFFFFFF00FFFF
+FF00000000000FFF
+FF000000000000FF
+FF00000000000FFF
+FFFFFFFFFF00FFFF
+FFFFFFFFFF0FFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+FFFFFFFFFFFFFFFF
+}
+
+
+rectangle &#34; End to End\nbusiness process&#34; &lt;&lt;$businessProcess&gt;&gt; {
+ rectangle &#34;inner process 1&#34; &lt;&lt;$businessProcess&gt;&gt; as src
+ rectangle &#34;inner process 2&#34; &lt;&lt;$businessProcess&gt;&gt; as tgt
+ src -&gt; tgt
+}
+@enduml
+</pre></code></p><p><img loading="lazy" width="321" height="158" src="https://plantuml.com/imgw/img-21cb31a615da25fd974b71fbdf74c5fe.webp"/></p></div></td></tr></tbody></table></p><a name="7aa53dbdfc2137bf"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Skinparam</h2> You can use the <a href="https://plantuml.com/skinparam">skinparam</a> command to change colors and fonts for the drawing.  You can use this command : <ul><li>In the diagram definition, like any other commands;</li><li>In an <a href="https://plantuml.com/preprocessing">included file</a>;</li><li>In a configuration file, provided in the <a href="https://plantuml.com/command-line">command line</a> or the <a href="https://plantuml.com/ant-task">Ant task</a>.</li></ul> You can define specific color and fonts for stereotyped components and interfaces. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga38a508111a184a1108f00514d95667c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a38a508111a184a1108f00514d95667c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a38a508111a184a1108f00514d95667c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea38a508111a184a1108f00514d95667c">@startuml
+
+skinparam interface {
+  backgroundColor RosyBrown
+  borderColor orange
+}
+
+skinparam component {
+  FontSize 13
+  BackgroundColor&lt;&lt;Apache&gt;&gt; Pink
+  BorderColor&lt;&lt;Apache&gt;&gt; #FF6655
+  FontName Courier
+  BorderColor black
+  BackgroundColor gold
+  ArrowFontName Impact
+  ArrowColor #FF6655
+  ArrowFontColor #777777
+}
+
+() &#34;Data Access&#34; as DA
+Component &#34;Web Server&#34; as WS &lt;&lt; Apache &gt;&gt;
+
+DA - [First Component]
+[First Component] ..&gt; () HTTP : use
+HTTP - WS
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="346" height="208" src="https://plantuml.com/imgw/img-a38a508111a184a1108f00514d95667c.webp"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgab9c6d8bf4c91888999279291d4ddb71" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;ab9c6d8bf4c91888999279291d4ddb71&#39;)"/></td><td><div onclick="javascript:ljs(&#39;ab9c6d8bf4c91888999279291d4ddb71&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preab9c6d8bf4c91888999279291d4ddb71">@startuml
+[AA] &lt;&lt;static lib&gt;&gt;
+[BB] &lt;&lt;shared lib&gt;&gt;
+[CC] &lt;&lt;static lib&gt;&gt;
+
+node node1
+node node2 &lt;&lt;shared node&gt;&gt;
+database Production
+
+skinparam component {
+    backgroundColor&lt;&lt;static lib&gt;&gt; DarkKhaki
+    backgroundColor&lt;&lt;shared lib&gt;&gt; Green
+}
+
+skinparam node {
+borderColor Green
+backgroundColor Yellow
+backgroundColor&lt;&lt;shared node&gt;&gt; Magenta
+}
+skinparam databaseBackgroundColor Aqua
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="423" height="203" src="https://plantuml.com/imgw/img-ab9c6d8bf4c91888999279291d4ddb71.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Specific SkinParameter</h2><h3>componentStyle </h3><ul><li>By default (or with <code>skinparam componentStyle uml2</code>), you have an icon for component</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img8b8e7794e7f4f92e8a7f5004dc871a8a" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;8b8e7794e7f4f92e8a7f5004dc871a8a&#39;)"/></td><td><div onclick="javascript:ljs(&#39;8b8e7794e7f4f92e8a7f5004dc871a8a&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre8b8e7794e7f4f92e8a7f5004dc871a8a">@startuml
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+component A {
+   component &#34;A.1&#34; {
+}
+   component A.44 {
+      [A4.1]
+}
+   component &#34;A.2&#34;
+   [A.3]
+   component A.5 [
+A.5] 
+   component A.6 [
+]
+}
+[a]-&gt;[b]
+@enduml
+</pre></code></p><p><img loading="lazy" width="584" height="272" src="https://plantuml.com/imgw/img-8b8e7794e7f4f92e8a7f5004dc871a8a.webp"/></p></div></td></tr></tbody></table></p><ul><li>If you want to suppress it, and to have only the rectangle, you can use <code>skinparam componentStyle rectangle</code></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img36b3eefc88da7438dbf29756d7f13914" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;36b3eefc88da7438dbf29756d7f13914&#39;)"/></td><td><div onclick="javascript:ljs(&#39;36b3eefc88da7438dbf29756d7f13914&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre36b3eefc88da7438dbf29756d7f13914">@startuml
+skinparam BackgroundColor transparent
+skinparam componentStyle rectangle
+component A {
+   component &#34;A.1&#34; {
+}
+   component A.44 {
+      [A4.1]
+}
+   component &#34;A.2&#34;
+   [A.3]
+   component A.5 [
+A.5] 
+   component A.6 [
+]
+}
+[a]-&gt;[b]
+@enduml
+</pre></code></p><p><img loading="lazy" width="462" height="250" src="https://plantuml.com/imgw/img-36b3eefc88da7438dbf29756d7f13914.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/10798">10798</a>]</em><a name="0a05899a20325958"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Hide or Remove unlinked component</h2> By default, all components are displayed: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img1c5bd7c65468dfa3cbf0360a789b472c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;1c5bd7c65468dfa3cbf0360a789b472c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;1c5bd7c65468dfa3cbf0360a789b472c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre1c5bd7c65468dfa3cbf0360a789b472c">@startuml
+component C1
+component C2
+component C3
+C1 -- C2
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="175" src="https://plantuml.com/imgw/img-1c5bd7c65468dfa3cbf0360a789b472c.webp"/></p></div></td></tr></tbody></table></p> But you can: <ul><li><code>hide @unlinked</code> components:</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img9dc7c320081fcf3f854ee4bf1a167dc1" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;9dc7c320081fcf3f854ee4bf1a167dc1&#39;)"/></td><td><div onclick="javascript:ljs(&#39;9dc7c320081fcf3f854ee4bf1a167dc1&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre9dc7c320081fcf3f854ee4bf1a167dc1">@startuml
+component C1
+component C2
+component C3
+C1 -- C2
+
+hide @unlinked
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="175" src="https://plantuml.com/imgw/img-9dc7c320081fcf3f854ee4bf1a167dc1.webp"/></p></div></td></tr></tbody></table></p><ul><li>or <code>remove @unlinked</code> components:</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgc7cba00d8cc0aba01b86db594767a081" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;c7cba00d8cc0aba01b86db594767a081&#39;)"/></td><td><div onclick="javascript:ljs(&#39;c7cba00d8cc0aba01b86db594767a081&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prec7cba00d8cc0aba01b86db594767a081">@startuml
+component C1
+component C2
+component C3
+C1 -- C2
+
+remove @unlinked
+@enduml
+</pre></code></p><p><img loading="lazy" width="78" height="175" src="https://plantuml.com/imgw/img-c7cba00d8cc0aba01b86db594767a081.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/11052">QA-11052</a>]</em><a name="e966f55ffa507384"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Hide, Remove or Restore tagged component or wildcard</h2> You can put <code>$tags</code> (using <code>$</code>) on components, then remove, hide or restore components either individually or by tags.  By default, all components are displayed: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgfcccd3554ab9b34f56a2a93332cff138" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;fcccd3554ab9b34f56a2a93332cff138&#39;)"/></td><td><div onclick="javascript:ljs(&#39;fcccd3554ab9b34f56a2a93332cff138&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prefcccd3554ab9b34f56a2a93332cff138">@startuml
+component C1 $tag13
+component C2
+component C3 $tag13
+C1 -- C2
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="175" src="https://plantuml.com/imgw/img-fcccd3554ab9b34f56a2a93332cff138.webp"/></p></div></td></tr></tbody></table></p> But you can: <ul><li><code>hide $tag13</code> components:</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge2fccf38dcef282dd27574945ca6485c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e2fccf38dcef282dd27574945ca6485c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e2fccf38dcef282dd27574945ca6485c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree2fccf38dcef282dd27574945ca6485c">@startuml
+component C1 $tag13
+component C2
+component C3 $tag13
+C1 -- C2
+
+hide $tag13
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="175" src="https://plantuml.com/imgw/img-e2fccf38dcef282dd27574945ca6485c.webp"/></p></div></td></tr></tbody></table></p><ul><li>or <code>remove $tag13</code> components:</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img0bc64245d89c692b411163c8148fad0f" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;0bc64245d89c692b411163c8148fad0f&#39;)"/></td><td><div onclick="javascript:ljs(&#39;0bc64245d89c692b411163c8148fad0f&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre0bc64245d89c692b411163c8148fad0f">@startuml
+component C1 $tag13
+component C2
+component C3 $tag13
+C1 -- C2
+
+remove $tag13
+@enduml
+</pre></code></p><p><img loading="lazy" width="78" height="67" src="https://plantuml.com/imgw/img-0bc64245d89c692b411163c8148fad0f.webp"/></p></div></td></tr></tbody></table></p><ul><li>or <code>remove $tag13 and restore $tag1</code> components:</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img26901fcf5060f4697d22d4f7c2a88f7a" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;26901fcf5060f4697d22d4f7c2a88f7a&#39;)"/></td><td><div onclick="javascript:ljs(&#39;26901fcf5060f4697d22d4f7c2a88f7a&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre26901fcf5060f4697d22d4f7c2a88f7a">@startuml
+component C1 $tag13 $tag1
+component C2
+component C3 $tag13
+C1 -- C2
+
+remove $tag13
+restore $tag1
+@enduml
+</pre></code></p><p><img loading="lazy" width="78" height="175" src="https://plantuml.com/imgw/img-26901fcf5060f4697d22d4f7c2a88f7a.webp"/></p></div></td></tr></tbody></table></p><ul><li>or <code>remove * and restore $tag1</code> components:</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img1fa349fe1367060ebd9fe53023a80ec8" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;1fa349fe1367060ebd9fe53023a80ec8&#39;)"/></td><td><div onclick="javascript:ljs(&#39;1fa349fe1367060ebd9fe53023a80ec8&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre1fa349fe1367060ebd9fe53023a80ec8">@startuml
+component C1 $tag13 $tag1
+component C2
+component C3 $tag13
+C1 -- C2
+
+remove *
+restore $tag1
+@enduml
+</pre></code></p><p><img loading="lazy" width="78" height="67" src="https://plantuml.com/imgw/img-1fa349fe1367060ebd9fe53023a80ec8.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/7337">QA-7337</a> and <a href="https://forum.plantuml.net/11052">QA-11052</a>]</em></div></div>

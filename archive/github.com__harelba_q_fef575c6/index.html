@@ -1,0 +1,97 @@
+---
+url: https://github.com/harelba/q
+title: 'GitHub - harelba/q: q - Run SQL directly on CSV or TSV files'
+archived_at: 2021-12-13T16:09:52.625835+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text"><p dir="auto"><a href="https://github.com/harelba/q/actions?query=branch%3Amaster"><img src="https://github.com/harelba/q/workflows/BuildAndPackage/badge.svg?branch=master" alt="Build and Package"/></a></p>
+
+<p dir="auto">q&#39;s purpose is to bring SQL expressive power to the Linux command line and to provide easy access to text as actual data.</p>
+<p dir="auto">q allows the following:</p>
+<ul dir="auto">
+<li>Performing SQL-like statements directly on tabular text data, auto-caching the data in order to accelerate additional querying on the same file.</li>
+<li>Performing SQL statements directly on multi-file sqlite3 databases, without having to merge them or load them into memory</li>
+</ul>
+<p dir="auto">The following table shows the impact of using caching:</p>
+<table>
+<thead>
+<tr>
+<th>Rows</th>
+<th>Columns</th>
+<th>File Size</th>
+<th>Query time without caching</th>
+<th>Query time with caching</th>
+<th>Speed Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5,000,000</td>
+<td>100</td>
+<td>4.8GB</td>
+<td>4 minutes, 47 seconds</td>
+<td>1.92 seconds</td>
+<td>x149</td>
+</tr>
+<tr>
+<td>1,000,000</td>
+<td>100</td>
+<td>983MB</td>
+<td>50.9 seconds</td>
+<td>0.461 seconds</td>
+<td>x110</td>
+</tr>
+<tr>
+<td>1,000,000</td>
+<td>50</td>
+<td>477MB</td>
+<td>27.1 seconds</td>
+<td>0.272 seconds</td>
+<td>x99</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>100</td>
+<td>99MB</td>
+<td>5.2 seconds</td>
+<td>0.141 seconds</td>
+<td>x36</td>
+</tr>
+<tr>
+<td>100,000</td>
+<td>50</td>
+<td>48MB</td>
+<td>2.7 seconds</td>
+<td>0.105 seconds</td>
+<td>x25</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">Notice that for the current version, caching is <strong>not enabled</strong> by default, since the caches take disk space. Use <code>-C readwrite</code> or <code>-C read</code> to enable it for a query, or add <code>caching_mode</code> to <code>.qrc</code> to set a new default.</p>
+<p dir="auto">q&#39;s web site is <a href="http://harelba.github.io/q/" rel="nofollow">http://harelba.github.io/q/</a> or <a href="https://q.textasdata.wiki" rel="nofollow">https://q.textasdata.wiki</a> It contains everything you need to download and use q immediately.</p>
+<h2 dir="auto">Usage Examples</h2>
+<p dir="auto">q treats ordinary files as database tables, and supports all SQL constructs, such as <code>WHERE</code>, <code>GROUP BY</code>, <code>JOIN</code>s, etc. It supports automatic column name and type detection, and provides full support for multiple character encodings.</p>
+<p dir="auto">Here are some example commands to get the idea:</p>
+<div data-snippet-clipboard-copy-content="$ q &#34;SELECT COUNT(*) FROM ./clicks_file.csv WHERE c3 &gt; 32.3&#34;
+
+$ ps -ef | q -H &#34;SELECT UID, COUNT(*) cnt FROM - GROUP BY UID ORDER BY cnt DESC LIMIT 3&#34;
+
+$ q &#34;select count(*) from some_db.sqlite3:::albums a left join another_db.sqlite3:::tracks t on (a.album_id = t.album_id)&#34;"><pre>$ q <span><span>&#34;</span>SELECT COUNT(*) FROM ./clicks_file.csv WHERE c3 &gt; 32.3<span>&#34;</span></span>
+
+$ ps -ef <span>|</span> q -H <span><span>&#34;</span>SELECT UID, COUNT(*) cnt FROM - GROUP BY UID ORDER BY cnt DESC LIMIT 3<span>&#34;</span></span>
+
+$ q <span><span>&#34;</span>select count(*) from some_db.sqlite3:::albums a left join another_db.sqlite3:::tracks t on (a.album_id = t.album_id)<span>&#34;</span></span></pre></div>
+<p dir="auto">Detailed examples are in <a href="http://harelba.github.io/q/#examples" rel="nofollow">here</a></p>
+<h2 dir="auto">Installation.</h2>
+<p dir="auto"><strong>New Major Version <code>3.1.6</code> is out with a lot of significant additions.</strong></p>
+<p dir="auto">Instructions for all OSs are <a href="http://harelba.github.io/q/#installation" rel="nofollow">here</a>.</p>
+<p dir="auto">The previous version <code>2.0.19</code> Can still be downloaded from <a href="https://github.com/harelba/q/releases/tag/2.0.19">here</a></p>
+<h2 dir="auto">Contact</h2>
+<p dir="auto">Any feedback/suggestions/complaints regarding this tool would be much appreciated. Contributions are most welcome as well, of course.</p>
+<p dir="auto">Linkedin: <a href="https://www.linkedin.com/in/harelba/" rel="nofollow">Harel Ben Attia</a></p>
+<p dir="auto">Twitter <a href="https://twitter.com/harelba" rel="nofollow">@harelba</a></p>
+<p dir="auto">Email <a href="mailto:harelba@gmail.com">harelba@gmail.com</a></p>
+<p dir="auto">q on twitter: <a href="https://twitter.com/hashtag/qtextasdata?src=hashtag_click" rel="nofollow">#qtextasdata</a></p>
+<p dir="auto">Patreon: <a href="https://www.patreon.com/harelba" rel="nofollow">harelba</a> - All the money received is donated to the <a href="https://www.gov.il/he/departments/bureaus/molsa-almab-ramla" rel="nofollow">Center for the Prevention and Treatment of Domestic Violence</a> in my hometown - Ramla, Israel.</p>
+</article>
+        </div></div>

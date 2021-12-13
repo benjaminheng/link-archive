@@ -1,0 +1,218 @@
+---
+url: https://plantuml.com/json
+title: Display JSON DataEdit in DokuwikiEdit in AsciidocEdit in Markdown
+archived_at: 2021-12-13T16:09:52.800014+08:00
+---
+<div id="readability-page-1" class="page"><div width="100%"><tbody><tr width="100%"><td><a href="https://en.wikipedia.org/wiki/JSON">JSON</a> format is widely used in software.  You can use PlantUML to visualize your data.  To activate this feature, the diagram must: <ul><li>begin with <code>@startjson</code> keyword</li><li>end with <code>@endjson</code> keyword. </li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img width="20" height="20" id="imgd02230467563610769ab91f929728a94" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d02230467563610769ab91f929728a94&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d02230467563610769ab91f929728a94&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred02230467563610769ab91f929728a94">@startjson
+{
+   &#34;fruit&#34;:&#34;Apple&#34;,
+   &#34;size&#34;:&#34;Large&#34;,
+   &#34;color&#34;:&#34;Red&#34;
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="114" height="85" src="https://plantuml.com/imgw/img-d02230467563610769ab91f929728a94.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Complex example</h2> You can use complex JSON structure. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgfefce4e265b24f1ffb18a1189ea999f3" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;fefce4e265b24f1ffb18a1189ea999f3&#39;)"/></td><td><div onclick="javascript:ljs(&#39;fefce4e265b24f1ffb18a1189ea999f3&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prefefce4e265b24f1ffb18a1189ea999f3">@startjson
+{
+  &#34;firstName&#34;: &#34;John&#34;,
+  &#34;lastName&#34;: &#34;Smith&#34;,
+  &#34;isAlive&#34;: true,
+  &#34;age&#34;: 27,
+  &#34;address&#34;: {
+    &#34;streetAddress&#34;: &#34;21 2nd Street&#34;,
+    &#34;city&#34;: &#34;New York&#34;,
+    &#34;state&#34;: &#34;NY&#34;,
+    &#34;postalCode&#34;: &#34;10021-3100&#34;
+  },
+  &#34;phoneNumbers&#34;: [
+    {
+      &#34;type&#34;: &#34;home&#34;,
+      &#34;number&#34;: &#34;212 555-1234&#34;
+    },
+    {
+      &#34;type&#34;: &#34;office&#34;,
+      &#34;number&#34;: &#34;646 555-4567&#34;
+    }
+  ],
+  &#34;children&#34;: [],
+  &#34;spouse&#34;: null
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="633" height="201" src="https://plantuml.com/imgw/img-fefce4e265b24f1ffb18a1189ea999f3.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Highlight parts</h2><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img18067cfb1e65854ab677c4ed425e8677" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;18067cfb1e65854ab677c4ed425e8677&#39;)"/></td><td><div onclick="javascript:ljs(&#39;18067cfb1e65854ab677c4ed425e8677&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre18067cfb1e65854ab677c4ed425e8677">@startjson
+#highlight &#34;lastName&#34;
+#highlight &#34;address&#34; / &#34;city&#34;
+#highlight &#34;phoneNumbers&#34; / &#34;0&#34; / &#34;number&#34;
+{
+  &#34;firstName&#34;: &#34;John&#34;,
+  &#34;lastName&#34;: &#34;Smith&#34;,
+  &#34;isAlive&#34;: true,
+  &#34;age&#34;: 28,
+  &#34;address&#34;: {
+    &#34;streetAddress&#34;: &#34;21 2nd Street&#34;,
+    &#34;city&#34;: &#34;New York&#34;,
+    &#34;state&#34;: &#34;NY&#34;,
+    &#34;postalCode&#34;: &#34;10021-3100&#34;
+  },
+  &#34;phoneNumbers&#34;: [
+    {
+      &#34;type&#34;: &#34;home&#34;,
+      &#34;number&#34;: &#34;212 555-1234&#34;
+    },
+    {
+      &#34;type&#34;: &#34;office&#34;,
+      &#34;number&#34;: &#34;646 555-4567&#34;
+    }
+  ],
+  &#34;children&#34;: [],
+  &#34;spouse&#34;: null
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="633" height="201" src="https://plantuml.com/imgw/img-18067cfb1e65854ab677c4ed425e8677.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>JSON basic element</h2><h3>Synthesis of all JSON basic element</h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img1b2ac91ee0b7a5a3ea4044052274dcf6" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;1b2ac91ee0b7a5a3ea4044052274dcf6&#39;)"/></td><td><div onclick="javascript:ljs(&#39;1b2ac91ee0b7a5a3ea4044052274dcf6&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre1b2ac91ee0b7a5a3ea4044052274dcf6">@startjson
+{
+&#34;null&#34;: null,
+&#34;true&#34;: true,
+&#34;false&#34;: false,
+&#34;JSON_Number&#34;: [-1, -1.1, &#34;&lt;color:green&gt;TBC&#34;],
+&#34;JSON_String&#34;: &#34;a\nb\rc\td &lt;color:green&gt;TBC...&#34;,
+&#34;JSON_Object&#34;: {
+  &#34;{}&#34;: {},
+  &#34;k_int&#34;: 123,
+  &#34;k_str&#34;: &#34;abc&#34;,
+  &#34;k_obj&#34;: {&#34;k&#34;: &#34;v&#34;}
+},
+&#34;JSON_Array&#34; : [
+  [],
+  [true, false],
+  [-1, 1],
+  [&#34;a&#34;, &#34;b&#34;, &#34;c&#34;],
+  [&#34;mix&#34;, null, true, 1, {&#34;k&#34;: &#34;v&#34;}]
+]
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="510" height="530" src="https://plantuml.com/imgw/img-1b2ac91ee0b7a5a3ea4044052274dcf6.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>JSON array or table</h2><h3>Array type</h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img7b19d5df3a5210f188693b6d72f771be" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;7b19d5df3a5210f188693b6d72f771be&#39;)"/></td><td><div onclick="javascript:ljs(&#39;7b19d5df3a5210f188693b6d72f771be&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre7b19d5df3a5210f188693b6d72f771be">@startjson
+{
+&#34;Numeric&#34;: [1, 2, 3],
+&#34;String &#34;: [&#34;v1a&#34;, &#34;v2b&#34;, &#34;v3c&#34;],
+&#34;Boolean&#34;: [true, false, true]
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="204" height="251" src="https://plantuml.com/imgw/img-7b19d5df3a5210f188693b6d72f771be.png"/></p></div></td></tr></tbody></table></p><h3>Minimal array or table</h3><h4>Number array</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img3b718799f775865ec2a7bb89682de732" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;3b718799f775865ec2a7bb89682de732&#39;)"/></td><td><div onclick="javascript:ljs(&#39;3b718799f775865ec2a7bb89682de732&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre3b718799f775865ec2a7bb89682de732">@startjson
+[1, 2, 3]
+@endjson
+</pre></code></p><p><img loading="lazy" width="39" height="85" src="https://plantuml.com/imgw/img-3b718799f775865ec2a7bb89682de732.png"/></p></div></td></tr></tbody></table></p><h4>String array</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgd09fd1f6d8828f7443e7449d79a770ff" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d09fd1f6d8828f7443e7449d79a770ff&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d09fd1f6d8828f7443e7449d79a770ff&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred09fd1f6d8828f7443e7449d79a770ff">@startjson
+[&#34;1a&#34;, &#34;2b&#34;, &#34;3c&#34;]
+@endjson
+</pre></code></p><p><img loading="lazy" width="47" height="85" src="https://plantuml.com/imgw/img-d09fd1f6d8828f7443e7449d79a770ff.png"/></p></div></td></tr></tbody></table></p><h4>Boolean array</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgec04a0a99e876f5edd913997fbe930cf" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;ec04a0a99e876f5edd913997fbe930cf&#39;)"/></td><td><div onclick="javascript:ljs(&#39;ec04a0a99e876f5edd913997fbe930cf&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preec04a0a99e876f5edd913997fbe930cf">@startjson
+[true, false, true]
+@endjson
+</pre></code></p><p><img loading="lazy" width="77" height="85" src="https://plantuml.com/imgw/img-ec04a0a99e876f5edd913997fbe930cf.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>JSON numbers</h2><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga5efb6f34ce75cc9fe05c9addfb4d61f" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a5efb6f34ce75cc9fe05c9addfb4d61f&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a5efb6f34ce75cc9fe05c9addfb4d61f&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea5efb6f34ce75cc9fe05c9addfb4d61f">@startjson
+{
+&#34;DecimalNumber&#34;: [-1, 0, 1],
+&#34;DecimalNumber . Digits&#34;: [-1.1, 0.1, 1.1],
+&#34;DecimalNumber ExponentPart&#34;: [1E5]
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="334" height="209" src="https://plantuml.com/imgw/img-a5efb6f34ce75cc9fe05c9addfb4d61f.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>JSON strings</h2><h3>JSON Unicode</h3> On JSON you can use Unicode directly or by using escaped form like <code>\uXXXX</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgda75182ce56dbc34bbd472214ef3311c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;da75182ce56dbc34bbd472214ef3311c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;da75182ce56dbc34bbd472214ef3311c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preda75182ce56dbc34bbd472214ef3311c">@startjson
+{
+  &#34;&lt;color:blue&gt;&lt;b&gt;code&#34;: &#34;&lt;color:blue&gt;&lt;b&gt;value&#34;,
+  &#34;a\\u005Cb&#34;:           &#34;a\u005Cb&#34;,
+  &#34;\\uD83D\\uDE10&#34;:      &#34;\uD83D\uDE10&#34;,
+  &#34;😐&#34;:                  &#34;😐&#34;
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="177" height="107" src="https://plantuml.com/imgw/img-da75182ce56dbc34bbd472214ef3311c.png"/></p></div></td></tr></tbody></table></p><h3>JSON two-character escape sequence</h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img9cc61a279decce629b60449326014ebb" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;9cc61a279decce629b60449326014ebb&#39;)"/></td><td><div onclick="javascript:ljs(&#39;9cc61a279decce629b60449326014ebb&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre9cc61a279decce629b60449326014ebb">@startjson
+{
+ &#34;**legend**: character name&#34;:               [&#34;**two-character escape sequence**&#34;, &#34;example (between &#39;a&#39; and &#39;b&#39;)&#34;],
+ &#34;quotation mark character (U+0022)&#34;:        [&#34;\\\&#34;&#34;, &#34;a\&#34;b&#34;],
+ &#34;reverse solidus character (U+005C)&#34;:       [&#34;\\\\&#34;, &#34;a\\b&#34;],
+ &#34;solidus character (U+002F)&#34;:               [&#34;\\\/&#34;, &#34;a\/b&#34;],
+ &#34;backspace character (U+0008)&#34;:             [&#34;\\b&#34;, &#34;a\bb&#34;],
+ &#34;form feed character (U+000C)&#34;:             [&#34;\\f&#34;, &#34;a\fb&#34;],
+ &#34;line feed character (U+000A)&#34;:             [&#34;\\n&#34;, &#34;a\nb&#34;],
+ &#34;carriage return character (U+000D)&#34;:       [&#34;\\r&#34;, &#34;a\rb&#34;],
+ &#34;character tabulation character (U+0009)&#34;:  [&#34;\\t&#34;, &#34;a\tb&#34;]
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="602" height="588" src="https://plantuml.com/imgw/img-9cc61a279decce629b60449326014ebb.png"/></p></div></td></tr></tbody></table></p><p>FIXME</p> FIXME or not 😉, on the same item as <code>\n</code> management in PlantUML 😉 <em>See <a href="https://forum.plantuml.net/13066">Report Bug on QA-13066</a></em><p>FIXME</p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgf56667da735a972a44d4d430f2f618f1" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;f56667da735a972a44d4d430f2f618f1&#39;)"/></td><td><div onclick="javascript:ljs(&#39;f56667da735a972a44d4d430f2f618f1&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pref56667da735a972a44d4d430f2f618f1">@startjson
+[
+&#34;\\\\&#34;,
+&#34;\\n&#34;,
+&#34;\\r&#34;,
+&#34;\\t&#34;
+]
+@endjson
+</pre></code></p><p><img loading="lazy" width="63" height="142" src="https://plantuml.com/imgw/img-f56667da735a972a44d4d430f2f618f1.png"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Minimal JSON examples</h2><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgb1bbd0d0b54799c6d3c37de11bc73493" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;b1bbd0d0b54799c6d3c37de11bc73493&#39;)"/></td><td><div onclick="javascript:ljs(&#39;b1bbd0d0b54799c6d3c37de11bc73493&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preb1bbd0d0b54799c6d3c37de11bc73493">@startjson
+&#34;Hello world!&#34;
+@endjson
+</pre></code></p><p><img loading="lazy" width="104" height="42" src="https://plantuml.com/imgw/img-b1bbd0d0b54799c6d3c37de11bc73493.png"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img00e8253a74af038a2b1e4abb77243f3a" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;00e8253a74af038a2b1e4abb77243f3a&#39;)"/></td><td><div onclick="javascript:ljs(&#39;00e8253a74af038a2b1e4abb77243f3a&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre00e8253a74af038a2b1e4abb77243f3a">@startjson
+42
+@endjson
+</pre></code></p><p><img loading="lazy" width="47" height="42" src="https://plantuml.com/imgw/img-00e8253a74af038a2b1e4abb77243f3a.png"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img21ac2545b4fb43b532d0e726980a134c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;21ac2545b4fb43b532d0e726980a134c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;21ac2545b4fb43b532d0e726980a134c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre21ac2545b4fb43b532d0e726980a134c">@startjson
+true
+@endjson
+</pre></code></p><p><img loading="lazy" width="72" height="42" src="https://plantuml.com/imgw/img-21ac2545b4fb43b532d0e726980a134c.png"/></p></div></td></tr></tbody></table></p><em>(Examples come from <a href="https://tools.ietf.org/html/std90#page-13">STD 90 - Examples</a>)</em><a name="ad48b04942bf8c78"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Empty table or list</h2><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img53ce9c229ee4b03334350d94299c6f6c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;53ce9c229ee4b03334350d94299c6f6c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;53ce9c229ee4b03334350d94299c6f6c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre53ce9c229ee4b03334350d94299c6f6c">@startjson
+{
+  &#34;empty_tab&#34;: [],
+  &#34;empty_list&#34;: {}
+}
+@endjson
+</pre></code></p><p><img loading="lazy" width="191" height="69" src="https://plantuml.com/imgw/img-53ce9c229ee4b03334350d94299c6f6c.png"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/14397">QA-14397</a>]</em><a name="bb2ede32ce6accb8"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Using (global) style</h2><h3>Without style <em>(by default)</em></h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgd678e1641e72810f2592575f468350e7" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d678e1641e72810f2592575f468350e7&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d678e1641e72810f2592575f468350e7&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred678e1641e72810f2592575f468350e7">@startjson
+#highlight &#34;1&#34; / &#34;hr&#34;
+[
+  {
+    &#34;name&#34;: &#34;Mark McGwire&#34;,
+    &#34;hr&#34;:   65,
+    &#34;avg&#34;:  0.278
+  },
+  {
+    &#34;name&#34;: &#34;Sammy Sosa&#34;,
+    &#34;hr&#34;:   63,
+    &#34;avg&#34;:  0.288
+  }
+]
+@endjson
+</pre></code></p><p><img loading="lazy" width="229" height="168" src="https://plantuml.com/imgw/img-d678e1641e72810f2592575f468350e7.png"/></p></div></td></tr></tbody></table></p><h3>With style</h3> You can use <a href="https://plantuml.com/style-evolution">style</a> to change rendering of elements. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgd2933b1ac5cdfe572343da1ae3d61659" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d2933b1ac5cdfe572343da1ae3d61659&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d2933b1ac5cdfe572343da1ae3d61659&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred2933b1ac5cdfe572343da1ae3d61659">@startjson
+&lt;style&gt;
+jsonDiagram {
+  node {
+    BackGroundColor Khaki
+    LineColor lightblue
+    FontName Helvetica
+    FontColor red
+    FontSize 18
+    FontStyle bold
+    RoundCorner 0
+    LineThickness 2
+    LineStyle 10;5
+    separator {
+      LineThickness 0.5
+      LineColor black
+      LineStyle 1;5
+    }
+  }
+  arrow {
+    BackGroundColor lightblue
+    LineColor green
+    LineThickness 2
+    LineStyle 2;5
+  }
+  highlight {
+    BackGroundColor red
+    FontColor white
+    FontStyle italic
+  }
+}
+&lt;/style&gt;
+#highlight &#34;1&#34; / &#34;hr&#34;
+[
+  {
+    &#34;name&#34;: &#34;Mark McGwire&#34;,
+    &#34;hr&#34;:   65,
+    &#34;avg&#34;:  0.278
+  },
+  {
+    &#34;name&#34;: &#34;Sammy Sosa&#34;,
+    &#34;hr&#34;:   63,
+    &#34;avg&#34;:  0.288
+  }
+]
+@endjson
+</pre></code></p><p><img loading="lazy" width="276" height="198" src="https://plantuml.com/imgw/img-d2933b1ac5cdfe572343da1ae3d61659.png"/></p></div></td></tr></tbody></table></p><em>[Adapted from <a href="https://forum.plantuml.net/13123">QA-13123</a> and <a href="https://forum.plantuml.net/13288/">QA-13288</a>]</em></td><td id="toctd"><div id="toc"><ul><li><a href="#9b905dab753004a4">Complex example</a></li><li><a href="#1b6b8d6c715c3de9">Highlight parts</a></li><li><a href="#9115e9f65aae7e9b">JSON basic element</a></li><li><a href="#63f1e241ceb6fdac">JSON array or table</a></li><li><a href="#c41fecdfa808fd99">JSON numbers</a></li><li><a href="#75ae50593375d93e">JSON strings</a></li><li><a href="#e160bb058913090e">Minimal JSON examples</a></li><li><a href="#ad48b04942bf8c78">Empty table or list</a></li><li><a href="#bb2ede32ce6accb8">Using (global) style</a></li></ul></div></td></tr></tbody></div></div>

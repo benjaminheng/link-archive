@@ -1,0 +1,896 @@
+---
+url: https://plantuml.com/sequence-diagram
+title: Sequence Diagram syntax and features
+archived_at: 2021-12-13T16:09:52.911277+08:00
+---
+<div id="readability-page-1" class="page"><div><a name="5e05164bff244555"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Basic examples</h2> The sequence <code>-&gt;</code> is used to draw a message between two participants. Participants do not have to be explicitly declared.  To have a dotted arrow, you use <code>--&gt;</code> It is also possible to use <code>&lt;-</code> and <code>&lt;--</code>. That does not change the drawing, but may improve readability. Note that this is only true for sequence diagrams, rules are different for the other diagrams. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img width="20" height="20" id="imgb951cfac0a99bad63771c295318fdbca" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;b951cfac0a99bad63771c295318fdbca&#39;)"/></td><td><div onclick="javascript:ljs(&#39;b951cfac0a99bad63771c295318fdbca&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preb951cfac0a99bad63771c295318fdbca">@startuml
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+
+Alice -&gt; Bob: Another authentication Request
+Alice &lt;-- Bob: Another authentication Response
+@enduml
+</pre></code></p><p><img loading="lazy" width="275" height="226" src="https://plantuml.com/imgw/img-b951cfac0a99bad63771c295318fdbca.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Declaring participant</h2> If the keyword <code>participant</code> is used to declare a participant, more control on that participant is possible.  The order of declaration will be the (default) <strong>order of display</strong>.  Using these other keywords to declare participants will <strong>change the shape</strong> of the participant representation: <ul><li><code>actor</code></li><li><code>boundary</code></li><li><code>control</code></li><li><code>entity</code></li><li><code>database</code></li><li><code>collections</code></li><li><code>queue</code></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga3b1305cc80fe73cdcb9a4d3125da747" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a3b1305cc80fe73cdcb9a4d3125da747&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a3b1305cc80fe73cdcb9a4d3125da747&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea3b1305cc80fe73cdcb9a4d3125da747">@startuml
+participant Participant as Foo
+actor       Actor       as Foo1
+boundary    Boundary    as Foo2
+control     Control     as Foo3
+entity      Entity      as Foo4
+database    Database    as Foo5
+collections Collections as Foo6
+queue       Queue       as Foo7
+Foo -&gt; Foo1 : To actor 
+Foo -&gt; Foo2 : To boundary
+Foo -&gt; Foo3 : To control
+Foo -&gt; Foo4 : To entity
+Foo -&gt; Foo5 : To database
+Foo -&gt; Foo6 : To collections
+Foo -&gt; Foo7: To queue
+@enduml
+</pre></code></p><p><img loading="lazy" width="586" height="404" src="https://plantuml.com/imgw/img-a3b1305cc80fe73cdcb9a4d3125da747.webp"/></p></div></td></tr></tbody></table></p> Rename a participant using the <code>as</code> keyword.  You can also change the background <a href="https://plantuml.com/color">color</a> of actor or participant. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img20b8ba35b671fbfc1c429d16e1d8bfc9" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;20b8ba35b671fbfc1c429d16e1d8bfc9&#39;)"/></td><td><div onclick="javascript:ljs(&#39;20b8ba35b671fbfc1c429d16e1d8bfc9&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre20b8ba35b671fbfc1c429d16e1d8bfc9">@startuml
+actor Bob #red
+&#39; The only difference between actor
+&#39;and participant is the drawing
+participant Alice
+participant &#34;I have a really\nlong name&#34; as L #99FF99
+/&#39; You can also declare:
+   participant L as &#34;I have a really\nlong name&#34;  #99FF99
+  &#39;/
+
+Alice-&gt;Bob: Authentication Request
+Bob-&gt;Alice: Authentication Response
+Bob-&gt;L: Log transaction
+@enduml
+</pre></code></p><p><img loading="lazy" width="338" height="283" src="https://plantuml.com/imgw/img-20b8ba35b671fbfc1c429d16e1d8bfc9.webp"/></p></div></td></tr></tbody></table></p> You can use the <code>order</code> keyword to customize the display order of participants. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img7a12ef9d805bcaa47006f7ccb247b9fe" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;7a12ef9d805bcaa47006f7ccb247b9fe&#39;)"/></td><td><div onclick="javascript:ljs(&#39;7a12ef9d805bcaa47006f7ccb247b9fe&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre7a12ef9d805bcaa47006f7ccb247b9fe">@startuml
+participant Last order 30
+participant Middle order 20
+participant First order 10
+@enduml
+</pre></code></p><p><img loading="lazy" width="184" height="105" src="https://plantuml.com/imgw/img-7a12ef9d805bcaa47006f7ccb247b9fe.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Use non-letters in participants</h2> You can use quotes to define participants. And you can use the <code>as</code> keyword to give an alias to those participants. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img2be3bd467548ca8998a55289cbc93191" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;2be3bd467548ca8998a55289cbc93191&#39;)"/></td><td><div onclick="javascript:ljs(&#39;2be3bd467548ca8998a55289cbc93191&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre2be3bd467548ca8998a55289cbc93191">@startuml
+Alice -&gt; &#34;Bob()&#34; : Hello
+&#34;Bob()&#34; -&gt; &#34;This is very\nlong&#34; as Long
+&#39; You can also declare:
+&#39; &#34;Bob()&#34; -&gt; Long as &#34;This is very\nlong&#34;
+Long --&gt; &#34;Bob()&#34; : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="225" height="215" src="https://plantuml.com/imgw/img-2be3bd467548ca8998a55289cbc93191.webp"/></p></div></td></tr></tbody></table></p><a name="f5050860884ddf31"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Message to Self</h2> A participant can send a message to itself.  It is also possible to have multi-line using <code>\n</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge3089355787cacdd1a17b3db4f4c7d45" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e3089355787cacdd1a17b3db4f4c7d45&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e3089355787cacdd1a17b3db4f4c7d45&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree3089355787cacdd1a17b3db4f4c7d45">@startuml
+Alice -&gt; Alice: This is a signal to self.\nIt also demonstrates\nmultiline \ntext
+@enduml
+</pre></code></p><p><img loading="lazy" width="172" height="197" src="https://plantuml.com/imgw/img-e3089355787cacdd1a17b3db4f4c7d45.webp"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img4d4f314c55c2c2fbb7e36506c803eb9d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;4d4f314c55c2c2fbb7e36506c803eb9d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;4d4f314c55c2c2fbb7e36506c803eb9d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre4d4f314c55c2c2fbb7e36506c803eb9d">@startuml
+Alice &lt;- Alice: This is a signal to self.\nIt also demonstrates\nmultiline \ntext
+@enduml
+</pre></code></p><p><img loading="lazy" width="177" height="197" src="https://plantuml.com/imgw/img-4d4f314c55c2c2fbb7e36506c803eb9d.webp"/></p></div></td></tr></tbody></table></p><p><em>[Ref. <a href="https://forum.plantuml.net/1361">QA-1361</a>]</em><a name="bf6bee6d96403148"></a></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Text alignment</h2> Text alignment on arrows can be set to <code>left</code>, <code>right</code> or <code>center</code> using <code>skinparam sequenceMessageAlign</code>.  You can also use <code>direction</code> or <code>reverseDirection</code> to align text depending on arrow direction. Further details and examples of this are available on the <a href="https://plantuml.com/skinparam">skinparam</a> page. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgd90da4a8b9547fb55cf1e32821f73d79" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d90da4a8b9547fb55cf1e32821f73d79&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d90da4a8b9547fb55cf1e32821f73d79&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred90da4a8b9547fb55cf1e32821f73d79">@startuml
+skinparam sequenceMessageAlign right
+Bob -&gt; Alice : Request
+Alice -&gt; Bob : Response
+@enduml
+</pre></code></p><p><img loading="lazy" width="141" height="165" src="https://plantuml.com/imgw/img-d90da4a8b9547fb55cf1e32821f73d79.webp"/></p></div></td></tr></tbody></table></p><h3>Text of response message below the arrow</h3> You can put the text of the response message below the arrow, with the <code>skinparam responseMessageBelowArrow true</code> command. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img3b12793e3058ef8effb54549dc101aee" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;3b12793e3058ef8effb54549dc101aee&#39;)"/></td><td><div onclick="javascript:ljs(&#39;3b12793e3058ef8effb54549dc101aee&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre3b12793e3058ef8effb54549dc101aee">@startuml
+skinparam responseMessageBelowArrow true
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="165" src="https://plantuml.com/imgw/img-3b12793e3058ef8effb54549dc101aee.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Change arrow style</h2> You can change arrow style by several ways: <ul><li>add a final <code>x</code> to denote a lost message</li><li>use <code>\</code> or <code>/</code> instead of <code>&lt;</code> or <code>&gt;</code> to have only the bottom or top part of the arrow</li><li>repeat the arrow head (for example, <code>&gt;&gt;</code> or <code>//</code>) head to have a thin drawing</li><li>use <code>--</code> instead of <code>-</code> to have a dotted arrow</li><li>add a final &#34;o&#34; at arrow head</li><li>use bidirectional arrow <code>&lt;-&gt;</code></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgc90ca1c710ae0a0780ad67018b297762" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;c90ca1c710ae0a0780ad67018b297762&#39;)"/></td><td><div onclick="javascript:ljs(&#39;c90ca1c710ae0a0780ad67018b297762&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prec90ca1c710ae0a0780ad67018b297762">@startuml
+Bob -&gt;x Alice
+Bob -&gt; Alice
+Bob -&gt;&gt; Alice
+Bob -\ Alice
+Bob \\- Alice
+Bob //-- Alice
+
+Bob -&gt;o Alice
+Bob o\\-- Alice
+
+Bob &lt;-&gt; Alice
+Bob &lt;-&gt;o Alice
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="245" src="https://plantuml.com/imgw/img-c90ca1c710ae0a0780ad67018b297762.webp"/></p></div></td></tr></tbody></table></p><a name="0b2e57c3d4eafdda"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Change arrow color</h2> You can change the color of individual arrows using the following notation: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img607498b77659bdcd57fa23bec60d0cd6" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;607498b77659bdcd57fa23bec60d0cd6&#39;)"/></td><td><div onclick="javascript:ljs(&#39;607498b77659bdcd57fa23bec60d0cd6&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre607498b77659bdcd57fa23bec60d0cd6">@startuml
+Bob -[#red]&gt; Alice : hello
+Alice -[#0000FF]-&gt;Bob : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="165" src="https://plantuml.com/imgw/img-607498b77659bdcd57fa23bec60d0cd6.webp"/></p></div></td></tr></tbody></table></p><a name="ce3f7eb577ad5f4d"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Message sequence numbering</h2> The keyword <code>autonumber</code> is used to automatically add an incrementing number to messages. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgfeb83eb3e4a25aefd87315fe2e2543bf" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;feb83eb3e4a25aefd87315fe2e2543bf&#39;)"/></td><td><div onclick="javascript:ljs(&#39;feb83eb3e4a25aefd87315fe2e2543bf&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prefeb83eb3e4a25aefd87315fe2e2543bf">@startuml
+autonumber
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+@enduml
+</pre></code></p><p><img loading="lazy" width="239" height="165" src="https://plantuml.com/imgw/img-feb83eb3e4a25aefd87315fe2e2543bf.webp"/></p></div></td></tr></tbody></table></p> You can specify a startnumber with <code>autonumber &lt;start&gt;</code> , and also an increment with <code>autonumber &lt;start&gt; &lt;increment&gt;</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img201af982ce766038c6b1abf481dcef33" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;201af982ce766038c6b1abf481dcef33&#39;)"/></td><td><div onclick="javascript:ljs(&#39;201af982ce766038c6b1abf481dcef33&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre201af982ce766038c6b1abf481dcef33">@startuml
+autonumber
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+
+autonumber 15
+Bob -&gt; Alice : Another authentication Request
+Bob &lt;- Alice : Another authentication Response
+
+autonumber 40 10
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="315" height="287" src="https://plantuml.com/imgw/img-201af982ce766038c6b1abf481dcef33.webp"/></p></div></td></tr></tbody></table></p> You can specify a format for your number by using between double-quote.  The formatting is done with the Java class <code>DecimalFormat</code> (<code>0</code> means digit, <code>#</code> means digit and zero if absent).  You can use some html tag in the format. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img0b2c5c37d55901356e33fed95270f31f" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;0b2c5c37d55901356e33fed95270f31f&#39;)"/></td><td><div onclick="javascript:ljs(&#39;0b2c5c37d55901356e33fed95270f31f&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre0b2c5c37d55901356e33fed95270f31f">@startuml
+autonumber &#34;&lt;b&gt;[000]&#34;
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+
+autonumber 15 &#34;&lt;b&gt;(&lt;u&gt;##&lt;/u&gt;)&#34;
+Bob -&gt; Alice : Another authentication Request
+Bob &lt;- Alice : Another authentication Response
+
+autonumber 40 10 &#34;&lt;font color=red&gt;&lt;b&gt;Message 0  &#34;
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="382" height="287" src="https://plantuml.com/imgw/img-0b2c5c37d55901356e33fed95270f31f.webp"/></p></div></td></tr></tbody></table></p> You can also use <code>autonumber stop</code> and <code>autonumber resume &lt;increment&gt; &lt;format&gt;</code> to respectively pause and resume automatic numbering. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgef8d459e5280068547c8d29c7beeeb00" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;ef8d459e5280068547c8d29c7beeeb00&#39;)"/></td><td><div onclick="javascript:ljs(&#39;ef8d459e5280068547c8d29c7beeeb00&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preef8d459e5280068547c8d29c7beeeb00">@startuml
+autonumber 10 10 &#34;&lt;b&gt;[000]&#34;
+Bob -&gt; Alice : Authentication Request
+Bob &lt;- Alice : Authentication Response
+
+autonumber stop
+Bob -&gt; Alice : dummy
+
+autonumber resume &#34;&lt;font color=red&gt;&lt;b&gt;Message 0  &#34;
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+
+autonumber stop
+Bob -&gt; Alice : dummy
+
+autonumber resume 1 &#34;&lt;font color=blue&gt;&lt;b&gt;Message 0  &#34;
+Bob -&gt; Alice : Yet another authentication Request
+Bob &lt;- Alice : Yet another authentication Response
+@enduml
+</pre></code></p><p><img loading="lazy" width="382" height="348" src="https://plantuml.com/imgw/img-ef8d459e5280068547c8d29c7beeeb00.webp"/></p></div></td></tr></tbody></table></p> Your startnumber can also be a 2 or 3 digit sequence using a field delimiter such as <code>.</code>, <code>;</code>, <code>,</code>, <code>:</code> or a mix of these. For example: <code>1.1.1</code> or <code>1.1:1</code>.  Automatically the last digit will increment.  To increment the first digit, use: <code>autonumber inc A</code>. To increment the second digit, use: <code>autonumber inc B</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgd2cb99492525ce6e0f2b0245ae7a8032" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d2cb99492525ce6e0f2b0245ae7a8032&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d2cb99492525ce6e0f2b0245ae7a8032&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred2cb99492525ce6e0f2b0245ae7a8032">@startuml
+autonumber 1.1.1
+Alice -&gt; Bob: Authentication request
+Bob --&gt; Alice: Response
+
+autonumber inc A
+&#39;Now we have 2.1.1
+Alice -&gt; Bob: Another authentication request
+Bob --&gt; Alice: Response
+
+autonumber inc B
+&#39;Now we have 2.2.1
+Alice -&gt; Bob: Another authentication request
+Bob --&gt; Alice: Response
+
+autonumber inc A
+&#39;Now we have 3.1.1
+Alice -&gt; Bob: Another authentication request
+autonumber inc B
+&#39;Now we have 3.2.1
+Bob --&gt; Alice: Response
+@enduml
+</pre></code></p><p><img loading="lazy" width="293" height="348" src="https://plantuml.com/imgw/img-d2cb99492525ce6e0f2b0245ae7a8032.webp"/></p></div></td></tr></tbody></table></p> You can also use the value of <code>autonumber</code> with the <code>%autonumber%</code> variable: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img6c9d3e80428ee74d52aab363ed05eb81" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;6c9d3e80428ee74d52aab363ed05eb81&#39;)"/></td><td><div onclick="javascript:ljs(&#39;6c9d3e80428ee74d52aab363ed05eb81&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre6c9d3e80428ee74d52aab363ed05eb81">@startuml
+autonumber 10
+Alice -&gt; Bob
+note right
+  the &lt;U+0025&gt;autonumber&lt;U+0025&gt; works everywhere.
+  Here, its value is ** %autonumber% **
+end note
+Bob --&gt; Alice: //This is the response %autonumber%//
+@enduml
+</pre></code></p><p><img loading="lazy" width="463" height="192" src="https://plantuml.com/imgw/img-6c9d3e80428ee74d52aab363ed05eb81.webp"/></p></div></td></tr></tbody></table></p><p><em>[Ref. <a href="https://forum.plantuml.net/7119/create-links-after-creating-a-diagram?show=7137#a7137">QA-7119</a>]</em><a name="77852febc7dde952"></a></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Page Title, Header and Footer</h2> The <code>title</code> keyword is used to add a title to the page.  Pages can display headers and footers using <code>header</code> and <code>footer</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img6260677ecc96cc25a3ecf62443d9fd3d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;6260677ecc96cc25a3ecf62443d9fd3d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;6260677ecc96cc25a3ecf62443d9fd3d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre6260677ecc96cc25a3ecf62443d9fd3d">@startuml
+
+header Page Header
+footer Page %page% of %lastpage%
+
+title Example Title
+
+Alice -&gt; Bob : message 1
+Alice -&gt; Bob : message 2
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="149" height="232" src="https://plantuml.com/imgw/img-6260677ecc96cc25a3ecf62443d9fd3d.webp"/></p></div></td></tr></tbody></table></p><a name="45d7d5b32d17a0f9"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Splitting diagrams</h2> The <code>newpage</code> keyword is used to split a diagram into several images.  You can put a title for the new page just after the <code>newpage</code> keyword. This title overrides the previously specified title if any.  This is very handy with <em>Word</em> to print long diagram on several pages.  (Note: this really does work. Only the first page is shown below, but it is a display artifact.) <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img5f359caedd41650c0390ff7e2ccf5687" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;5f359caedd41650c0390ff7e2ccf5687&#39;)"/></td><td><div onclick="javascript:ljs(&#39;5f359caedd41650c0390ff7e2ccf5687&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre5f359caedd41650c0390ff7e2ccf5687">@startuml
+
+Alice -&gt; Bob : message 1
+Alice -&gt; Bob : message 2
+
+newpage
+
+Alice -&gt; Bob : message 3
+Alice -&gt; Bob : message 4
+
+newpage A title for the\nlast page
+
+Alice -&gt; Bob : message 5
+Alice -&gt; Bob : message 6
+@enduml
+</pre></code></p><p><img loading="lazy" width="149" height="166" src="https://plantuml.com/imgw/img-5f359caedd41650c0390ff7e2ccf5687.webp"/></p></div></td></tr></tbody></table></p><a name="425ba4350c02142c"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Grouping message</h2> It is possible to group messages together using the following keywords: <ul><li><code>alt/else</code></li><li><code>opt</code></li><li><code>loop</code></li><li><code>par</code></li><li><code>break</code></li><li><code>critical</code></li><li><code>group</code>, followed by a text to be displayed</li></ul> It is possible to add a text that will be displayed into the header (for <code>group</code>, see next paragraph <em>&#39;Secondary group label&#39;</em>).  The <code>end</code> keyword is used to close the group.  Note that it is possible to nest groups. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgfa2ee4eb40d57b6becb03e7ba5d83f79" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;fa2ee4eb40d57b6becb03e7ba5d83f79&#39;)"/></td><td><div onclick="javascript:ljs(&#39;fa2ee4eb40d57b6becb03e7ba5d83f79&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prefa2ee4eb40d57b6becb03e7ba5d83f79">@startuml
+Alice -&gt; Bob: Authentication Request
+
+alt successful case
+
+    Bob -&gt; Alice: Authentication Accepted
+
+else some kind of failure
+
+    Bob -&gt; Alice: Authentication Failure
+    group My own label
+    Alice -&gt; Log : Log attack start
+        loop 1000 times
+            Alice -&gt; Bob: DNS Attack
+        end
+    Alice -&gt; Log : Log attack end
+    end
+
+else Another type of failure
+
+   Bob -&gt; Alice: Please repeat
+
+end
+@enduml
+</pre></code></p><p><img loading="lazy" width="336" height="446" src="https://plantuml.com/imgw/img-fa2ee4eb40d57b6becb03e7ba5d83f79.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Secondary group label</h2> For <code>group</code>, it is possible to add, between<code>[</code> and <code>]</code>, a secondary text or label that will be displayed into the header. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge63f1e8c72814175ed170f5ec4aab006" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e63f1e8c72814175ed170f5ec4aab006&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e63f1e8c72814175ed170f5ec4aab006&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree63f1e8c72814175ed170f5ec4aab006">@startuml
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Failure
+group My own label [My own label 2]
+    Alice -&gt; Log : Log attack start
+    loop 1000 times
+        Alice -&gt; Bob: DNS Attack
+    end
+    Alice -&gt; Log : Log attack end
+end
+@enduml
+</pre></code></p><p><img loading="lazy" width="309" height="321" src="https://plantuml.com/imgw/img-e63f1e8c72814175ed170f5ec4aab006.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/2503">QA-2503</a>]</em><a name="012d3e8694a98cc1"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Notes on messages</h2> It is possible to put notes on message using the <code>note left</code> or <code>note right</code> keywords <em>just after the message</em>.  You can have a multi-line note using the <code>end note</code> keywords. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge715f2bda180feb0a65e9bb7d642a4f2" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e715f2bda180feb0a65e9bb7d642a4f2&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e715f2bda180feb0a65e9bb7d642a4f2&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree715f2bda180feb0a65e9bb7d642a4f2">@startuml
+Alice-&gt;Bob : hello
+note left: this is a first note
+
+Bob-&gt;Alice : ok
+note right: this is another note
+
+Bob-&gt;Bob : I am thinking
+note left
+a note
+can also be defined
+on several lines
+end note
+@enduml
+</pre></code></p><p><img loading="lazy" width="333" height="258" src="https://plantuml.com/imgw/img-e715f2bda180feb0a65e9bb7d642a4f2.webp"/></p></div></td></tr></tbody></table></p><a name="f8c59a77112b60e7"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Some other notes</h2> It is also possible to place notes relative to participant with <code>note left of</code> , <code>note right of</code> or <code>note over</code> keywords.  It is possible to highlight a note by changing its background <a href="https://plantuml.com/color">color</a>.  You can also have a multi-line note using the <code>end note</code> keywords. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img64c3047537ce86574c29656627acc80f" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;64c3047537ce86574c29656627acc80f&#39;)"/></td><td><div onclick="javascript:ljs(&#39;64c3047537ce86574c29656627acc80f&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre64c3047537ce86574c29656627acc80f">@startuml
+participant Alice
+participant Bob
+note left of Alice #aqua
+This is displayed
+left of Alice.
+end note
+
+note right of Alice: This is displayed right of Alice.
+
+note over Alice: This is displayed over Alice.
+
+note over Alice, Bob #FFAAAA: This is displayed\n over Bob and Alice.
+
+note over Bob, Alice
+This is yet another
+example of
+a long note.
+end note
+@enduml
+</pre></code></p><p><img loading="lazy" width="341" height="372" src="https://plantuml.com/imgw/img-64c3047537ce86574c29656627acc80f.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Changing notes shape [hnote, rnote]</h2> You can use <code>hnote</code> and <code>rnote</code> keywords to change note shapes : <ul><li><code>hnote</code> for hexagonal note;</li><li><code>rnote</code> for rectangle note.</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgff6e682ab679e3edfb15f5850a9de361" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;ff6e682ab679e3edfb15f5850a9de361&#39;)"/></td><td><div onclick="javascript:ljs(&#39;ff6e682ab679e3edfb15f5850a9de361&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preff6e682ab679e3edfb15f5850a9de361">@startuml
+caller -&gt; server : conReq
+hnote over caller : idle
+caller &lt;- server : conConf
+rnote over server
+ &#34;r&#34; as rectangle
+ &#34;h&#34; as hexagon
+endrnote
+rnote over server
+ this is
+ on several
+ lines
+endrnote
+hnote over caller
+ this is
+ on several
+ lines
+endhnote
+@enduml
+</pre></code></p><p><img loading="lazy" width="167" height="385" src="https://plantuml.com/imgw/img-ff6e682ab679e3edfb15f5850a9de361.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/1765/is-it-possible-to-have-different-shapes-for-notes?show=1806#c1806">QA-1765</a>]</em><a name="39755e6414c00844"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Note over all participants [across]</h2> You can directly make a note over all participants, with the syntax: <ul><li><code>note across: note_description</code></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img9419a60d69046e68129ee7ce21a833c5" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;9419a60d69046e68129ee7ce21a833c5&#39;)"/></td><td><div onclick="javascript:ljs(&#39;9419a60d69046e68129ee7ce21a833c5&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre9419a60d69046e68129ee7ce21a833c5">@startuml
+Alice-&gt;Bob:m1
+Bob-&gt;Charlie:m2
+note over Alice, Charlie: Old method for note over all part. with:\n &#34;&#34;note over //FirstPart, LastPart//&#34;&#34;.
+note across: New method with:\n&#34;&#34;note across&#34;&#34;
+Bob-&gt;Alice
+hnote across:Note across all part.
+@enduml
+</pre></code></p><p><img loading="lazy" width="272" height="328" src="https://plantuml.com/imgw/img-9419a60d69046e68129ee7ce21a833c5.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/9738">QA-9738</a>]</em><a name="7514641e1b91c8ee"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Several notes aligned at the same level [/]</h2> You can make several notes aligned at the same level, with the syntax <code>/</code>: <ul><li>without <code>/</code><em>(by default, the notes are not aligned)</em></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img0b8eafad717ed1d329eda1827464269b" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;0b8eafad717ed1d329eda1827464269b&#39;)"/></td><td><div onclick="javascript:ljs(&#39;0b8eafad717ed1d329eda1827464269b&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre0b8eafad717ed1d329eda1827464269b">@startuml
+note over Alice : initial state of Alice
+note over Bob : initial state of Bob
+Bob -&gt; Alice : hello
+@enduml
+</pre></code></p><p><img loading="lazy" width="194" height="216" src="https://plantuml.com/imgw/img-0b8eafad717ed1d329eda1827464269b.webp"/></p></div></td></tr></tbody></table></p><ul><li>with <code>/</code><em>(the notes are aligned)</em></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img7d65cf1282c4b3e7525848212ad7979e" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;7d65cf1282c4b3e7525848212ad7979e&#39;)"/></td><td><div onclick="javascript:ljs(&#39;7d65cf1282c4b3e7525848212ad7979e&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre7d65cf1282c4b3e7525848212ad7979e">@startuml
+note over Alice : initial state of Alice
+/ note over Bob : initial state of Bob
+Bob -&gt; Alice : hello
+@enduml
+</pre></code></p><p><img loading="lazy" width="281" height="175" src="https://plantuml.com/imgw/img-7d65cf1282c4b3e7525848212ad7979e.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/354">QA-354</a>]</em><a name="28881bae78acd047"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Creole and HTML</h2><a href="https://plantuml.com/creole">It is also possible to use creole formatting:</a><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img9282a66ff5bb63b812ca9c4a6b14560c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;9282a66ff5bb63b812ca9c4a6b14560c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;9282a66ff5bb63b812ca9c4a6b14560c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre9282a66ff5bb63b812ca9c4a6b14560c">@startuml
+participant Alice
+participant &#34;The **Famous** Bob&#34; as Bob
+
+Alice -&gt; Bob : hello --there--
+... Some ~~long delay~~ ...
+Bob -&gt; Alice : ok
+note left
+  This is **bold**
+  This is //italics//
+  This is &#34;&#34;monospaced&#34;&#34;
+  This is --stroked--
+  This is __underlined__
+  This is ~~waved~~
+end note
+
+Alice -&gt; Bob : A //well formatted// message
+note right of Alice
+ This is &lt;back:cadetblue&gt;&lt;size:18&gt;displayed&lt;/size&gt;&lt;/back&gt;
+ __left of__ Alice.
+end note
+note left of Bob
+ &lt;u:red&gt;This&lt;/u&gt; is &lt;color #118888&gt;displayed&lt;/color&gt;
+ **&lt;color purple&gt;left of&lt;/color&gt; &lt;s:red&gt;Alice&lt;/strike&gt; Bob**.
+end note
+note over Alice, Bob
+ &lt;w:#FF33FF&gt;This is hosted&lt;/w&gt; by &lt;img sourceforge.jpg&gt;
+end note
+@enduml
+</pre></code></p><p><img loading="lazy" width="405" height="505" src="https://plantuml.com/imgw/img-9282a66ff5bb63b812ca9c4a6b14560c.webp"/></p></div></td></tr></tbody></table></p><a name="d4b2df53a72661cc"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Divider or separator</h2> If you want, you can split a diagram using <code>==</code> separator to divide your diagram into logical steps. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img3827fdd291eda52fa1d8bf8b5e0e184f" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;3827fdd291eda52fa1d8bf8b5e0e184f&#39;)"/></td><td><div onclick="javascript:ljs(&#39;3827fdd291eda52fa1d8bf8b5e0e184f&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre3827fdd291eda52fa1d8bf8b5e0e184f">@startuml
+
+== Initialization ==
+
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+
+== Repetition ==
+
+Alice -&gt; Bob: Another authentication Request
+Alice &lt;-- Bob: another authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="275" height="315" src="https://plantuml.com/imgw/img-3827fdd291eda52fa1d8bf8b5e0e184f.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Reference</h2> You can use reference in a diagram, using the keyword <code>ref over</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgaa3c4cf8e92fedf7f4732911626fb99b" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;aa3c4cf8e92fedf7f4732911626fb99b&#39;)"/></td><td><div onclick="javascript:ljs(&#39;aa3c4cf8e92fedf7f4732911626fb99b&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preaa3c4cf8e92fedf7f4732911626fb99b">@startuml
+participant Alice
+actor Bob
+
+ref over Alice, Bob : init
+
+Alice -&gt; Bob : hello
+
+ref over Bob
+  This can be on
+  several lines
+end ref
+@enduml
+</pre></code></p><p><img loading="lazy" width="158" height="334" src="https://plantuml.com/imgw/img-aa3c4cf8e92fedf7f4732911626fb99b.webp"/></p></div></td></tr></tbody></table></p><a name="8f497c1a3d15af9e"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Delay</h2> You can use <code>...</code> to indicate a delay in the diagram. And it is also possible to put a message with this delay. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img292964681d879fe909566c4f2c35e129" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;292964681d879fe909566c4f2c35e129&#39;)"/></td><td><div onclick="javascript:ljs(&#39;292964681d879fe909566c4f2c35e129&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre292964681d879fe909566c4f2c35e129">@startuml
+
+Alice -&gt; Bob: Authentication Request
+...
+Bob --&gt; Alice: Authentication Response
+...5 minutes later...
+Bob --&gt; Alice: Good Bye !
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="228" height="266" src="https://plantuml.com/imgw/img-292964681d879fe909566c4f2c35e129.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Text wrapping</h2> To break long messages, you can manually add <code>\n</code> in your text.  Another option is to use <code>maxMessageSize</code> setting: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img2f357c619df0d0b56fd81ada2877d7c8" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;2f357c619df0d0b56fd81ada2877d7c8&#39;)"/></td><td><div onclick="javascript:ljs(&#39;2f357c619df0d0b56fd81ada2877d7c8&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre2f357c619df0d0b56fd81ada2877d7c8">@startuml
+skinparam maxMessageSize 50
+participant a
+participant b
+a -&gt; b :this\nis\nmanually\ndone
+a -&gt; b :this is a very long message on several words
+@enduml
+</pre></code></p><p><img loading="lazy" width="117" height="313" src="https://plantuml.com/imgw/img-2f357c619df0d0b56fd81ada2877d7c8.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Space</h2> You can use <code>|||</code> to indicate some spacing in the diagram.  It is also possible to specify a number of pixel to be used. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgae050a04fd097a4934a8fe8055609f4e" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;ae050a04fd097a4934a8fe8055609f4e&#39;)"/></td><td><div onclick="javascript:ljs(&#39;ae050a04fd097a4934a8fe8055609f4e&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preae050a04fd097a4934a8fe8055609f4e">@startuml
+
+Alice -&gt; Bob: message 1
+Bob --&gt; Alice: ok
+|||
+Alice -&gt; Bob: message 2
+Bob --&gt; Alice: ok
+||45||
+Alice -&gt; Bob: message 3
+Bob --&gt; Alice: ok
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="147" height="357" src="https://plantuml.com/imgw/img-ae050a04fd097a4934a8fe8055609f4e.webp"/></p></div></td></tr></tbody></table></p><a name="5cc0040514e70f7b"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Lifeline Activation and Destruction</h2> The <code>activate</code> and <code>deactivate</code> are used to denote participant activation.  Once a participant is activated, its lifeline appears.  The <code>activate</code> and <code>deactivate</code> apply on the previous message.  The <code>destroy</code> denote the end of the lifeline of a participant. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgad00f3d500cf1da5387f5cc2a593eefe" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;ad00f3d500cf1da5387f5cc2a593eefe&#39;)"/></td><td><div onclick="javascript:ljs(&#39;ad00f3d500cf1da5387f5cc2a593eefe&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pread00f3d500cf1da5387f5cc2a593eefe">@startuml
+participant User
+
+User -&gt; A: DoWork
+activate A
+
+A -&gt; B: &lt;&lt; createRequest &gt;&gt;
+activate B
+
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+
+B --&gt; A: RequestCreated
+deactivate B
+
+A -&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="370" height="287" src="https://plantuml.com/imgw/img-ad00f3d500cf1da5387f5cc2a593eefe.webp"/></p></div></td></tr></tbody></table></p> Nested lifeline can be used, and it is possible to add a <a href="https://plantuml.com/color">color</a> on the lifeline. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img7a2eb2f2886077ad71da63549e10b8b3" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;7a2eb2f2886077ad71da63549e10b8b3&#39;)"/></td><td><div onclick="javascript:ljs(&#39;7a2eb2f2886077ad71da63549e10b8b3&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre7a2eb2f2886077ad71da63549e10b8b3">@startuml
+participant User
+
+User -&gt; A: DoWork
+activate A #FFBBBB
+
+A -&gt; A: Internal call
+activate A #DarkSalmon
+
+A -&gt; B: &lt;&lt; createRequest &gt;&gt;
+activate B
+
+B --&gt; A: RequestCreated
+deactivate B
+deactivate A
+A -&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="280" height="269" src="https://plantuml.com/imgw/img-7a2eb2f2886077ad71da63549e10b8b3.webp"/></p></div></td></tr></tbody></table></p> Autoactivation is possible and works with the return keywords: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img1b507586d6e76be1d264cd4f53b2e2f5" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;1b507586d6e76be1d264cd4f53b2e2f5&#39;)"/></td><td><div onclick="javascript:ljs(&#39;1b507586d6e76be1d264cd4f53b2e2f5&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre1b507586d6e76be1d264cd4f53b2e2f5">@startuml
+autoactivate on
+alice -&gt; bob : hello
+bob -&gt; bob : self call
+bill -&gt; bob #005500 : hello from thread 2
+bob -&gt; george ** : create
+return done in thread 2
+return rc
+bob -&gt; george !! : delete
+return success
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="347" height="390" src="https://plantuml.com/imgw/img-1b507586d6e76be1d264cd4f53b2e2f5.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Return</h2> Command <code>return</code> generates a return message with optional text label.  The return point is that which caused the most recent life-line activation.  The syntax is <code>return label</code> where <code>label</code> if provided is any string acceptable for conventional messages. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgbf9b62f63bb869708917064af9dce5b8" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;bf9b62f63bb869708917064af9dce5b8&#39;)"/></td><td><div onclick="javascript:ljs(&#39;bf9b62f63bb869708917064af9dce5b8&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prebf9b62f63bb869708917064af9dce5b8">@startuml
+Bob -&gt; Alice : hello
+activate Alice
+Alice -&gt; Alice : some action
+return bye
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="209" src="https://plantuml.com/imgw/img-bf9b62f63bb869708917064af9dce5b8.webp"/></p></div></td></tr></tbody></table></p><a name="b2c1d43bde93c643"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Participant creation</h2> You can use the <code>create</code> keyword just before the first reception of a message to emphasize the fact that this message is actually <em>creating</em> this new object. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img82be63ba73578a2bc6650b9fe53a4a18" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;82be63ba73578a2bc6650b9fe53a4a18&#39;)"/></td><td><div onclick="javascript:ljs(&#39;82be63ba73578a2bc6650b9fe53a4a18&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre82be63ba73578a2bc6650b9fe53a4a18">@startuml
+Bob -&gt; Alice : hello
+
+create Other
+Alice -&gt; Other : new
+
+create control String
+Alice -&gt; String
+note right : You can also put notes!
+
+Alice --&gt; Bob : ok
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="404" height="299" src="https://plantuml.com/imgw/img-82be63ba73578a2bc6650b9fe53a4a18.webp"/></p></div></td></tr></tbody></table></p><a name="35480215b426d170"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Shortcut syntax for activation, deactivation, creation</h2> Immediately after specifying the target participant, the following syntax can be used: <ul><li><code>++</code> Activate the target (optionally a <a href="https://plantuml.com/color">color</a> may follow this)</li><li><code>--</code> Deactivate the source</li><li><code>**</code> Create an instance of the target</li><li><code>!!</code> Destroy an instance of the target</li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img5abadcd3b79024e6e5b93af8e92ee492" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;5abadcd3b79024e6e5b93af8e92ee492&#39;)"/></td><td><div onclick="javascript:ljs(&#39;5abadcd3b79024e6e5b93af8e92ee492&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre5abadcd3b79024e6e5b93af8e92ee492">@startuml
+alice -&gt; bob ++ : hello
+bob -&gt; bob ++ : self call
+bob -&gt; bib ++  #005500 : hello
+bob -&gt; george ** : create
+return done
+return rc
+bob -&gt; george !! : delete
+return success
+@enduml
+</pre></code></p><p><img loading="lazy" width="275" height="390" src="https://plantuml.com/imgw/img-5abadcd3b79024e6e5b93af8e92ee492.webp"/></p></div></td></tr></tbody></table></p> Then you can mix activation and deactivation, on same line: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img279e9323ccf93968dd3f628a935b81b2" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;279e9323ccf93968dd3f628a935b81b2&#39;)"/></td><td><div onclick="javascript:ljs(&#39;279e9323ccf93968dd3f628a935b81b2&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre279e9323ccf93968dd3f628a935b81b2">@startuml
+alice   -&gt;  bob     ++   : hello1
+bob     -&gt;  charlie --++ : hello2
+charlie --&gt; alice   --   : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="188" height="196" src="https://plantuml.com/imgw/img-279e9323ccf93968dd3f628a935b81b2.webp"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgde89cfc366f4ea8a2e83cf3571847aaa" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;de89cfc366f4ea8a2e83cf3571847aaa&#39;)"/></td><td><div onclick="javascript:ljs(&#39;de89cfc366f4ea8a2e83cf3571847aaa&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prede89cfc366f4ea8a2e83cf3571847aaa">@startuml
+@startuml
+alice -&gt; bob   --++ #gold: hello
+bob   -&gt; alice --++ #gold: you too
+alice -&gt; bob   --: step1
+alice -&gt; bob   : step2
+@enduml
+@enduml
+</pre></code></p><p><img loading="lazy" width="130" height="226" src="https://plantuml.com/imgw/img-de89cfc366f4ea8a2e83cf3571847aaa.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/4834/activation-shorthand-for-sequence-diagrams?show=13054#c13054">QA-4834</a>, <a href="https://forum.plantuml.net/9573">QA-9573</a> and <a href="https://forum.plantuml.net/13234">QA-13234</a>]</em><a name="05984b1743e67542"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Incoming and outgoing messages</h2> You can use incoming or outgoing arrows if you want to focus on a part of the diagram.  Use square brackets to denote the left &#34;<code>[</code>&#34; or the right &#34;<code>]</code>&#34; side of the diagram. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img591777c86768c0637fd4b2b82d13e071" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;591777c86768c0637fd4b2b82d13e071&#39;)"/></td><td><div onclick="javascript:ljs(&#39;591777c86768c0637fd4b2b82d13e071&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre591777c86768c0637fd4b2b82d13e071">@startuml
+[-&gt; A: DoWork
+
+activate A
+
+A -&gt; A: Internal call
+activate A
+
+A -&gt;] : &lt;&lt; createRequest &gt;&gt;
+
+A&lt;--] : RequestCreated
+deactivate A
+[&lt;- A: Done
+deactivate A
+@enduml
+</pre></code></p><p><img loading="lazy" width="234" height="269" src="https://plantuml.com/imgw/img-591777c86768c0637fd4b2b82d13e071.webp"/></p></div></td></tr></tbody></table></p> You can also have the following syntax: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img45ce4a63287f10dad19aa9ac1a7e0d5b" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;45ce4a63287f10dad19aa9ac1a7e0d5b&#39;)"/></td><td><div onclick="javascript:ljs(&#39;45ce4a63287f10dad19aa9ac1a7e0d5b&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre45ce4a63287f10dad19aa9ac1a7e0d5b">@startuml
+participant Alice
+participant Bob #lightblue
+Alice -&gt; Bob
+Bob -&gt; Carol
+...
+[-&gt; Bob
+[o-&gt; Bob
+[o-&gt;o Bob
+[x-&gt; Bob
+...
+[&lt;- Bob
+[x&lt;- Bob
+...
+Bob -&gt;]
+Bob -&gt;o]
+Bob o-&gt;o]
+Bob -&gt;x]
+...
+Bob &lt;-]
+Bob x&lt;-]
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="178" height="413" src="https://plantuml.com/imgw/img-45ce4a63287f10dad19aa9ac1a7e0d5b.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Short arrows for incoming and outgoing messages</h2> You can have <strong>short</strong> arrows with using <code>?</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img794d9ff0ae63bb5fb4fed2622335ea9b" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;794d9ff0ae63bb5fb4fed2622335ea9b&#39;)"/></td><td><div onclick="javascript:ljs(&#39;794d9ff0ae63bb5fb4fed2622335ea9b&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre794d9ff0ae63bb5fb4fed2622335ea9b">@startuml
+?-&gt; Alice    : &#34;&#34;?-&gt;&#34;&#34;\n**short** to actor1
+[-&gt; Alice    : &#34;&#34;[-&gt;&#34;&#34;\n**from start** to actor1
+[-&gt; Bob      : &#34;&#34;[-&gt;&#34;&#34;\n**from start** to actor2
+?-&gt; Bob      : &#34;&#34;?-&gt;&#34;&#34;\n**short** to actor2
+Alice -&gt;]    : &#34;&#34;-&gt;]&#34;&#34;\nfrom actor1 **to end**
+Alice -&gt;?    : &#34;&#34;-&gt;?&#34;&#34;\n**short** from actor1
+Alice -&gt; Bob : &#34;&#34;-&gt;&#34;&#34; \nfrom actor1 to actor2
+@enduml
+</pre></code></p><p><img loading="lazy" width="313" height="436" src="https://plantuml.com/imgw/img-794d9ff0ae63bb5fb4fed2622335ea9b.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/310">QA-310</a>]</em><a name="77c3940b98127fb8"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Anchors and Duration</h2> With <code>teoz</code> it is possible to add anchors to the diagram and use the anchors to specify duration time. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img3b5d135ed743db5657e9cf8f0cae18d2" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;3b5d135ed743db5657e9cf8f0cae18d2&#39;)"/></td><td><div onclick="javascript:ljs(&#39;3b5d135ed743db5657e9cf8f0cae18d2&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre3b5d135ed743db5657e9cf8f0cae18d2">@startuml
+!pragma teoz true
+
+{start} Alice -&gt; Bob : start doing things during duration
+Bob -&gt; Max : something
+Max -&gt; Bob : something else
+{end} Bob -&gt; Alice : finish
+
+{start} &lt;-&gt; {end} : some time
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="384" height="225" src="https://plantuml.com/imgw/img-3b5d135ed743db5657e9cf8f0cae18d2.webp"/></p></div></td></tr></tbody></table></p> You can use the <code>-P</code><a href="https://plantuml.com/command-line">command-line</a> option to specify the pragma: <pre><code>java -jar plantuml.jar -Pteoz=true
+</code></pre><p><em>[Ref. <a href="https://github.com/plantuml/plantuml/issues/582">issue-582</a>]</em><a name="94190c2f242a5df2"></a></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Stereotypes and Spots</h2> It is possible to add stereotypes to participants using <code>&lt;&lt;</code> and <code>&gt;&gt;</code>.  In the stereotype, you can add a spotted character in a colored circle using the syntax <code>(X,color)</code>. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga2f73e7ee92aeeeeccceb351506c602c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a2f73e7ee92aeeeeccceb351506c602c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a2f73e7ee92aeeeeccceb351506c602c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea2f73e7ee92aeeeeccceb351506c602c">@startuml
+
+participant &#34;Famous Bob&#34; as Bob &lt;&lt; Generated &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) Testable &gt;&gt;
+
+Bob-&gt;Alice: First message
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="243" height="170" src="https://plantuml.com/imgw/img-a2f73e7ee92aeeeeccceb351506c602c.webp"/></p></div></td></tr></tbody></table></p> By default, the <em>guillemet</em> character is used to display the stereotype. You can change this behavious using the skinparam <code>guillemet</code>: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge2dda85915163c547cf6c239653fac5c" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e2dda85915163c547cf6c239653fac5c&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e2dda85915163c547cf6c239653fac5c&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree2dda85915163c547cf6c239653fac5c">@startuml
+
+skinparam guillemet false
+participant &#34;Famous Bob&#34; as Bob &lt;&lt; Generated &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) Testable &gt;&gt;
+
+Bob-&gt;Alice: First message
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="291" height="170" src="https://plantuml.com/imgw/img-e2dda85915163c547cf6c239653fac5c.webp"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgeb8ce3b2430975f3b0ca73a9e904fe2b" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;eb8ce3b2430975f3b0ca73a9e904fe2b&#39;)"/></td><td><div onclick="javascript:ljs(&#39;eb8ce3b2430975f3b0ca73a9e904fe2b&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preeb8ce3b2430975f3b0ca73a9e904fe2b">@startuml
+
+participant Bob &lt;&lt; (C,#ADD1B2) &gt;&gt;
+participant Alice &lt;&lt; (C,#ADD1B2) &gt;&gt;
+
+Bob-&gt;Alice: First message
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="194" height="144" src="https://plantuml.com/imgw/img-eb8ce3b2430975f3b0ca73a9e904fe2b.webp"/></p></div></td></tr></tbody></table></p><a name="a21f56b1869e89e5"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>More information on titles</h2> You can use <a href="https://plantuml.com/creole">creole formatting</a> in the title. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga0d5be18ec79ca09c22f79af8ea1f20e" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a0d5be18ec79ca09c22f79af8ea1f20e&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a0d5be18ec79ca09c22f79af8ea1f20e&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea0d5be18ec79ca09c22f79af8ea1f20e">@startuml
+
+title __Simple__ **communication** example
+
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="289" height="202" src="https://plantuml.com/imgw/img-a0d5be18ec79ca09c22f79af8ea1f20e.webp"/></p></div></td></tr></tbody></table></p><p> You can add newline using <code>\n</code> in the title description. </p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgdcb59abf31a221557afdfae89dfe7d7e" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;dcb59abf31a221557afdfae89dfe7d7e&#39;)"/></td><td><div onclick="javascript:ljs(&#39;dcb59abf31a221557afdfae89dfe7d7e&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="predcb59abf31a221557afdfae89dfe7d7e">@startuml
+
+title __Simple__ communication example\non several lines
+
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="273" height="225" src="https://plantuml.com/imgw/img-dcb59abf31a221557afdfae89dfe7d7e.webp"/></p></div></td></tr></tbody></table></p><p> You can also define title on several lines using <code>title</code> and <code>end title</code> keywords. </p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imga17a0ab7980c3d0f25f68fb02ed24fd5" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;a17a0ab7980c3d0f25f68fb02ed24fd5&#39;)"/></td><td><div onclick="javascript:ljs(&#39;a17a0ab7980c3d0f25f68fb02ed24fd5&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prea17a0ab7980c3d0f25f68fb02ed24fd5">@startuml
+
+title
+ &lt;u&gt;Simple&lt;/u&gt; communication example
+ on &lt;i&gt;several&lt;/i&gt; lines and using &lt;font color=red&gt;html&lt;/font&gt;
+ This is hosted by &lt;img:sourceforge.jpg&gt;
+end title
+
+Alice -&gt; Bob: Authentication Request
+Bob -&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="273" height="256" src="https://plantuml.com/imgw/img-a17a0ab7980c3d0f25f68fb02ed24fd5.webp"/></p></div></td></tr></tbody></table></p><a name="f52672a8f74a07df"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Participants encompass</h2> It is possible to draw a box around some participants, using <code>box</code> and <code>end box</code> commands.  You can add an optional title or a optional background color, after the <code>box</code> keyword. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img70f5669964ddb8e2a6b885e7dda625c6" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;70f5669964ddb8e2a6b885e7dda625c6&#39;)"/></td><td><div onclick="javascript:ljs(&#39;70f5669964ddb8e2a6b885e7dda625c6&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre70f5669964ddb8e2a6b885e7dda625c6">@startuml
+
+box &#34;Internal Service&#34; #LightBlue
+participant Bob
+participant Alice
+end box
+participant Other
+
+Bob -&gt; Alice : hello
+Alice -&gt; Other : hello
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="179" height="188" src="https://plantuml.com/imgw/img-70f5669964ddb8e2a6b885e7dda625c6.webp"/></p></div></td></tr></tbody></table></p><a name="21380379ba44081d"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Removing Foot Boxes</h2> You can use the <code>hide footbox</code> keywords to remove the foot boxes of the diagram. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img489a96155358179b10003f2185d76b1d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;489a96155358179b10003f2185d76b1d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;489a96155358179b10003f2185d76b1d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre489a96155358179b10003f2185d76b1d">@startuml
+
+hide footbox
+title Foot Box removed
+
+Alice -&gt; Bob: Authentication Request
+Bob --&gt; Alice: Authentication Response
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="228" height="164" src="https://plantuml.com/imgw/img-489a96155358179b10003f2185d76b1d.webp"/></p></div></td></tr></tbody></table></p><a name="7aa53dbdfc2137bf"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Skinparam</h2> You can use the <a href="https://plantuml.com/skinparam">skinparam</a> command to change colors and fonts for the drawing.  You can use this command: <ul><li>In the diagram definition, like any other commands,</li><li>In an <a href="https://plantuml.com/preprocessing">included file</a>,</li><li>In a configuration file, provided in the <a href="https://plantuml.com/command-line">command line</a> or the <a href="https://plantuml.com/ant-task">ANT task</a>.</li></ul> You can also change other rendering parameter, as seen in the following examples: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img695c2c9718eb1d428cb278af2d59ed3a" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;695c2c9718eb1d428cb278af2d59ed3a&#39;)"/></td><td><div onclick="javascript:ljs(&#39;695c2c9718eb1d428cb278af2d59ed3a&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre695c2c9718eb1d428cb278af2d59ed3a">@startuml
+skinparam sequenceArrowThickness 2
+skinparam roundcorner 20
+skinparam maxmessagesize 60
+skinparam sequenceParticipant underline
+
+actor User
+participant &#34;First Class&#34; as A
+participant &#34;Second Class&#34; as B
+participant &#34;Last Class&#34; as C
+
+User -&gt; A: DoWork
+activate A
+
+A -&gt; B: Create Request
+activate B
+
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+
+B --&gt; A: Request Created
+deactivate B
+
+A --&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="354" height="407" src="https://plantuml.com/imgw/img-695c2c9718eb1d428cb278af2d59ed3a.webp"/></p></div></td></tr></tbody></table></p><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img128d78f571f2da9ac50689143b23e59d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;128d78f571f2da9ac50689143b23e59d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;128d78f571f2da9ac50689143b23e59d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre128d78f571f2da9ac50689143b23e59d">@startuml
+skinparam backgroundColor #EEEBDC
+skinparam handwritten true
+
+skinparam sequence {
+ArrowColor DeepSkyBlue
+ActorBorderColor DeepSkyBlue
+LifeLineBorderColor blue
+LifeLineBackgroundColor #A9DCDF
+
+ParticipantBorderColor DeepSkyBlue
+ParticipantBackgroundColor DodgerBlue
+ParticipantFontName Impact
+ParticipantFontSize 17
+ParticipantFontColor #A9DCDF
+
+ActorBackgroundColor aqua
+ActorFontColor DeepSkyBlue
+ActorFontSize 17
+ActorFontName Aapex
+}
+
+actor User
+participant &#34;First Class&#34; as A
+participant &#34;Second Class&#34; as B
+participant &#34;Last Class&#34; as C
+
+User -&gt; A: DoWork
+activate A
+
+A -&gt; B: Create Request
+activate B
+
+B -&gt; C: DoWork
+activate C
+C --&gt; B: WorkDone
+destroy C
+
+B --&gt; A: Request Created
+deactivate B
+
+A --&gt; User: Done
+deactivate A
+
+@enduml
+</pre></code></p><p><img loading="lazy" width="395" height="381" src="https://plantuml.com/imgw/img-128d78f571f2da9ac50689143b23e59d.webp"/></p></div></td></tr></tbody></table></p><a name="33cee7c2521befd3"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Changing padding</h2> It is possible to tune some padding settings. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img7a12e65a775f8e8062da7545ab2cbe85" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;7a12e65a775f8e8062da7545ab2cbe85&#39;)"/></td><td><div onclick="javascript:ljs(&#39;7a12e65a775f8e8062da7545ab2cbe85&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre7a12e65a775f8e8062da7545ab2cbe85">@startuml
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+
+box &#34;Foo1&#34;
+participant Alice1
+participant Alice2
+end box
+box &#34;Foo2&#34;
+participant Bob1
+participant Bob2
+end box
+Alice1 -&gt; Bob1 : hello
+Alice1 -&gt; Out : out
+@enduml
+</pre></code></p><p><img loading="lazy" width="529" height="188" src="https://plantuml.com/imgw/img-7a12e65a775f8e8062da7545ab2cbe85.webp"/></p></div></td></tr></tbody></table></p><a name="4764f83f72ed032f"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Appendix: Examples of all arrow type</h2><h3>Normal arrow</h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgd73e1f69496a2f9d510d7ad82c64c7ea" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;d73e1f69496a2f9d510d7ad82c64c7ea&#39;)"/></td><td><div onclick="javascript:ljs(&#39;d73e1f69496a2f9d510d7ad82c64c7ea&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pred73e1f69496a2f9d510d7ad82c64c7ea">@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     b : &#34;&#34;-&gt;   &#34;&#34;
+a -&gt;&gt;    b : &#34;&#34;-&gt;&gt;  &#34;&#34;
+a -\     b : &#34;&#34;-\   &#34;&#34;
+a -\\    b : &#34;&#34;-\\\\&#34;&#34;
+a -/     b : &#34;&#34;-/   &#34;&#34;
+a -//    b : &#34;&#34;-//  &#34;&#34;
+a -&gt;x    b : &#34;&#34;-&gt;x  &#34;&#34;
+a x-&gt;    b : &#34;&#34;x-&gt;  &#34;&#34;
+a o-&gt;    b : &#34;&#34;o-&gt;  &#34;&#34;
+a -&gt;o    b : &#34;&#34;-&gt;o  &#34;&#34;
+a o-&gt;o   b : &#34;&#34;o-&gt;o &#34;&#34;
+a &lt;-&gt;    b : &#34;&#34;&lt;-&gt;  &#34;&#34;
+a o&lt;-&gt;o  b : &#34;&#34;o&lt;-&gt;o&#34;&#34;
+a x&lt;-&gt;x  b : &#34;&#34;x&lt;-&gt;x&#34;&#34;
+a -&gt;&gt;o   b : &#34;&#34;-&gt;&gt;o &#34;&#34;
+a -\o    b : &#34;&#34;-\o  &#34;&#34;
+a -\\o   b : &#34;&#34;-\\\\o&#34;&#34;
+a -/o    b : &#34;&#34;-/o  &#34;&#34;
+a -//o   b : &#34;&#34;-//o &#34;&#34;
+a x-&gt;o   b : &#34;&#34;x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img loading="lazy" width="123" height="724" src="https://plantuml.com/imgw/img-d73e1f69496a2f9d510d7ad82c64c7ea.webp"/></p></div></td></tr></tbody></table></p><h3>Itself arrow</h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgf434100dae04d95f0883bb786364d004" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;f434100dae04d95f0883bb786364d004&#39;)"/></td><td><div onclick="javascript:ljs(&#39;f434100dae04d95f0883bb786364d004&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pref434100dae04d95f0883bb786364d004">@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     a : &#34;&#34;-&gt;   &#34;&#34;
+a -&gt;&gt;    a : &#34;&#34;-&gt;&gt;  &#34;&#34;
+a -\     a : &#34;&#34;-\   &#34;&#34;
+a -\\    a : &#34;&#34;-\\\\&#34;&#34;
+a -/     a : &#34;&#34;-/   &#34;&#34;
+a -//    a : &#34;&#34;-//  &#34;&#34;
+a -&gt;x    a : &#34;&#34;-&gt;x  &#34;&#34;
+a x-&gt;    a : &#34;&#34;x-&gt;  &#34;&#34;
+a o-&gt;    a : &#34;&#34;o-&gt;  &#34;&#34;
+a -&gt;o    a : &#34;&#34;-&gt;o  &#34;&#34;
+a o-&gt;o   a : &#34;&#34;o-&gt;o &#34;&#34;
+a &lt;-&gt;    a : &#34;&#34;&lt;-&gt;  &#34;&#34;
+a o&lt;-&gt;o  a : &#34;&#34;o&lt;-&gt;o&#34;&#34;
+a x&lt;-&gt;x  a : &#34;&#34;x&lt;-&gt;x&#34;&#34;
+a -&gt;&gt;o   a : &#34;&#34;-&gt;&gt;o &#34;&#34;
+a -\o    a : &#34;&#34;-\o  &#34;&#34;
+a -\\o   a : &#34;&#34;-\\\\o&#34;&#34;
+a -/o    a : &#34;&#34;-/o  &#34;&#34;
+a -//o   a : &#34;&#34;-//o &#34;&#34;
+a x-&gt;o   a : &#34;&#34;x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="984" src="https://plantuml.com/imgw/img-f434100dae04d95f0883bb786364d004.webp"/></p></div></td></tr></tbody></table></p><h3>Incoming and outgoing messages (with &#39;[&#39;, &#39;]&#39;)</h3><h4>Incoming messages (with &#39;[&#39;)</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imge4e9eb84a8665e86214415fd84544aa9" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;e4e9eb84a8665e86214415fd84544aa9&#39;)"/></td><td><div onclick="javascript:ljs(&#39;e4e9eb84a8665e86214415fd84544aa9&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pree4e9eb84a8665e86214415fd84544aa9">@startuml
+participant Alice as a
+participant Bob   as b
+[-&gt;      b : &#34;&#34;[-&gt;   &#34;&#34;
+[-&gt;&gt;     b : &#34;&#34;[-&gt;&gt;  &#34;&#34;
+[-\      b : &#34;&#34;[-\   &#34;&#34;
+[-\\     b : &#34;&#34;[-\\\\&#34;&#34;
+[-/      b : &#34;&#34;[-/   &#34;&#34;
+[-//     b : &#34;&#34;[-//  &#34;&#34;
+[-&gt;x     b : &#34;&#34;[-&gt;x  &#34;&#34;
+[x-&gt;     b : &#34;&#34;[x-&gt;  &#34;&#34;
+[o-&gt;     b : &#34;&#34;[o-&gt;  &#34;&#34;
+[-&gt;o     b : &#34;&#34;[-&gt;o  &#34;&#34;
+[o-&gt;o    b : &#34;&#34;[o-&gt;o &#34;&#34;
+[&lt;-&gt;     b : &#34;&#34;[&lt;-&gt;  &#34;&#34;
+[o&lt;-&gt;o   b : &#34;&#34;[o&lt;-&gt;o&#34;&#34;
+[x&lt;-&gt;x   b : &#34;&#34;[x&lt;-&gt;x&#34;&#34;
+[-&gt;&gt;o    b : &#34;&#34;[-&gt;&gt;o &#34;&#34;
+[-\o     b : &#34;&#34;[-\o  &#34;&#34;
+[-\\o    b : &#34;&#34;[-\\\\o&#34;&#34;
+[-/o     b : &#34;&#34;[-/o  &#34;&#34;
+[-//o    b : &#34;&#34;[-//o &#34;&#34;
+[x-&gt;o    b : &#34;&#34;[x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="724" src="https://plantuml.com/imgw/img-e4e9eb84a8665e86214415fd84544aa9.webp"/></p></div></td></tr></tbody></table></p><h4>Outgoing messages (with &#39;]&#39;)</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img45d462759f461b11b270c167df088fa4" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;45d462759f461b11b270c167df088fa4&#39;)"/></td><td><div onclick="javascript:ljs(&#39;45d462759f461b11b270c167df088fa4&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre45d462759f461b11b270c167df088fa4">@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;]      : &#34;&#34;-&gt;]   &#34;&#34;
+a -&gt;&gt;]     : &#34;&#34;-&gt;&gt;]  &#34;&#34;
+a -\]      : &#34;&#34;-\]   &#34;&#34;
+a -\\]     : &#34;&#34;-\\\\]&#34;&#34;
+a -/]      : &#34;&#34;-/]   &#34;&#34;
+a -//]     : &#34;&#34;-//]  &#34;&#34;
+a -&gt;x]     : &#34;&#34;-&gt;x]  &#34;&#34;
+a x-&gt;]     : &#34;&#34;x-&gt;]  &#34;&#34;
+a o-&gt;]     : &#34;&#34;o-&gt;]  &#34;&#34;
+a -&gt;o]     : &#34;&#34;-&gt;o]  &#34;&#34;
+a o-&gt;o]    : &#34;&#34;o-&gt;o] &#34;&#34;
+a &lt;-&gt;]     : &#34;&#34;&lt;-&gt;]  &#34;&#34;
+a o&lt;-&gt;o]   : &#34;&#34;o&lt;-&gt;o]&#34;&#34;
+a x&lt;-&gt;x]   : &#34;&#34;x&lt;-&gt;x]&#34;&#34;
+a -&gt;&gt;o]    : &#34;&#34;-&gt;&gt;o] &#34;&#34;
+a -\o]     : &#34;&#34;-\o]  &#34;&#34;
+a -\\o]    : &#34;&#34;-\\\\o]&#34;&#34;
+a -/o]     : &#34;&#34;-/o]  &#34;&#34;
+a -//o]    : &#34;&#34;-//o] &#34;&#34;
+a x-&gt;o]    : &#34;&#34;x-&gt;o] &#34;&#34;
+@enduml
+</pre></code></p><p><img loading="lazy" width="116" height="724" src="https://plantuml.com/imgw/img-45d462759f461b11b270c167df088fa4.webp"/></p></div></td></tr></tbody></table></p><h3>Short incoming and outgoing messages (with &#39;?&#39;)</h3><h4>Short incoming (with &#39;?&#39;)</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img97946969f3981872cb646f89cd392201" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;97946969f3981872cb646f89cd392201&#39;)"/></td><td><div onclick="javascript:ljs(&#39;97946969f3981872cb646f89cd392201&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre97946969f3981872cb646f89cd392201">@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     b : //Long long label//
+?-&gt;      b : &#34;&#34;?-&gt;   &#34;&#34;
+?-&gt;&gt;     b : &#34;&#34;?-&gt;&gt;  &#34;&#34;
+?-\      b : &#34;&#34;?-\   &#34;&#34;
+?-\\     b : &#34;&#34;?-\\\\&#34;&#34;
+?-/      b : &#34;&#34;?-/   &#34;&#34;
+?-//     b : &#34;&#34;?-//  &#34;&#34;
+?-&gt;x     b : &#34;&#34;?-&gt;x  &#34;&#34;
+?x-&gt;     b : &#34;&#34;?x-&gt;  &#34;&#34;
+?o-&gt;     b : &#34;&#34;?o-&gt;  &#34;&#34;
+?-&gt;o     b : &#34;&#34;?-&gt;o  &#34;&#34;
+?o-&gt;o    b : &#34;&#34;?o-&gt;o &#34;&#34;
+?&lt;-&gt;     b : &#34;&#34;?&lt;-&gt;  &#34;&#34;
+?o&lt;-&gt;o   b : &#34;&#34;?o&lt;-&gt;o&#34;&#34;
+?x&lt;-&gt;x   b : &#34;&#34;?x&lt;-&gt;x&#34;&#34;
+?-&gt;&gt;o    b : &#34;&#34;?-&gt;&gt;o &#34;&#34;
+?-\o     b : &#34;&#34;?-\o  &#34;&#34;
+?-\\o    b : &#34;&#34;?-\\\\o &#34;&#34;
+?-/o     b : &#34;&#34;?-/o  &#34;&#34;
+?-//o    b : &#34;&#34;?-//o &#34;&#34;
+?x-&gt;o    b : &#34;&#34;?x-&gt;o &#34;&#34;
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="755" src="https://plantuml.com/imgw/img-97946969f3981872cb646f89cd392201.webp"/></p></div></td></tr></tbody></table></p><h4>Short outgoing (with &#39;?&#39;)</h4><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img7572ac3228d14289239790724b87c02d" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;7572ac3228d14289239790724b87c02d&#39;)"/></td><td><div onclick="javascript:ljs(&#39;7572ac3228d14289239790724b87c02d&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre7572ac3228d14289239790724b87c02d">@startuml
+participant Alice as a
+participant Bob   as b
+a -&gt;     b : //Long long label//
+a -&gt;?      : &#34;&#34;-&gt;?   &#34;&#34;
+a -&gt;&gt;?     : &#34;&#34;-&gt;&gt;?  &#34;&#34;
+a -\?      : &#34;&#34;-\?   &#34;&#34;
+a -\\?     : &#34;&#34;-\\\\?&#34;&#34;
+a -/?      : &#34;&#34;-/?   &#34;&#34;
+a -//?     : &#34;&#34;-//?  &#34;&#34;
+a -&gt;x?     : &#34;&#34;-&gt;x?  &#34;&#34;
+a x-&gt;?     : &#34;&#34;x-&gt;?  &#34;&#34;
+a o-&gt;?     : &#34;&#34;o-&gt;?  &#34;&#34;
+a -&gt;o?     : &#34;&#34;-&gt;o?  &#34;&#34;
+a o-&gt;o?    : &#34;&#34;o-&gt;o? &#34;&#34;
+a &lt;-&gt;?     : &#34;&#34;&lt;-&gt;?  &#34;&#34;
+a o&lt;-&gt;o?   : &#34;&#34;o&lt;-&gt;o?&#34;&#34;
+a x&lt;-&gt;x?   : &#34;&#34;x&lt;-&gt;x?&#34;&#34;
+a -&gt;&gt;o?    : &#34;&#34;-&gt;&gt;o? &#34;&#34;
+a -\o?     : &#34;&#34;-\o?  &#34;&#34;
+a -\\o?    : &#34;&#34;-\\\\o?&#34;&#34;
+a -/o?     : &#34;&#34;-/o?  &#34;&#34;
+a -//o?    : &#34;&#34;-//o? &#34;&#34;
+a x-&gt;o?    : &#34;&#34;x-&gt;o? &#34;&#34;
+@enduml
+</pre></code></p><p><img loading="lazy" width="171" height="755" src="https://plantuml.com/imgw/img-7572ac3228d14289239790724b87c02d.webp"/></p></div></td></tr></tbody></table></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Specific SkinParameter</h2><h3>By default</h3><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img5290931842a25d00ba4a937e66f34c78" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;5290931842a25d00ba4a937e66f34c78&#39;)"/></td><td><div onclick="javascript:ljs(&#39;5290931842a25d00ba4a937e66f34c78&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre5290931842a25d00ba4a937e66f34c78">@startuml
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="165" src="https://plantuml.com/imgw/img-5290931842a25d00ba4a937e66f34c78.webp"/></p></div></td></tr></tbody></table></p><h3>LifelineStrategy </h3><ul><li>nosolid <em>(by default)</em></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgb0e3adb44697e4be417fa92d195b72d6" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;b0e3adb44697e4be417fa92d195b72d6&#39;)"/></td><td><div onclick="javascript:ljs(&#39;b0e3adb44697e4be417fa92d195b72d6&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="preb0e3adb44697e4be417fa92d195b72d6">@startuml
+skinparam lifelineStrategy nosolid
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="165" src="https://plantuml.com/imgw/img-b0e3adb44697e4be417fa92d195b72d6.webp"/></p></div></td></tr></tbody></table></p><p><em>[Ref. <a href="https://forum.plantuml.net/9016/">QA-9016</a>]</em></p><ul><li>solid</li></ul> In order to have solid life line in sequence diagrams, you can use: <code>skinparam lifelineStrategy solid</code><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="imgbbf71de1975d52868d320908cf3b3a98" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;bbf71de1975d52868d320908cf3b3a98&#39;)"/></td><td><div onclick="javascript:ljs(&#39;bbf71de1975d52868d320908cf3b3a98&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="prebbf71de1975d52868d320908cf3b3a98">@startuml
+skinparam lifelineStrategy solid
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="165" src="https://plantuml.com/imgw/img-bbf71de1975d52868d320908cf3b3a98.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/2794">QA-2794</a>]</em><h3>style strictuml</h3> To be conform to strict UML (<em>for arrow style: emits triangle rather than sharp arrowheads</em>), you can use: <ul><li><code>skinparam style strictuml</code></li></ul><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img6294d925bf5b71dd5f4d2e1a74a9a7bd" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;6294d925bf5b71dd5f4d2e1a74a9a7bd&#39;)"/></td><td><div onclick="javascript:ljs(&#39;6294d925bf5b71dd5f4d2e1a74a9a7bd&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre6294d925bf5b71dd5f4d2e1a74a9a7bd">@startuml
+skinparam style strictuml
+Bob -&gt; Alice : hello
+Alice -&gt; Bob : ok
+@enduml
+</pre></code></p><p><img loading="lazy" width="103" height="124" src="https://plantuml.com/imgw/img-6294d925bf5b71dd5f4d2e1a74a9a7bd.webp"/></p></div></td></tr></tbody></table></p><p><em>[Ref. <a href="https://forum.plantuml.net/1047">QA-1047</a>]</em><a name="fc006eba0d9dcacc"></a></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Hide unlinked participant </h2> By default, all participants are displayed. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img72000240910f992ef8671abef13b1663" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;72000240910f992ef8671abef13b1663&#39;)"/></td><td><div onclick="javascript:ljs(&#39;72000240910f992ef8671abef13b1663&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre72000240910f992ef8671abef13b1663">@startuml
+participant Alice
+participant Bob
+participant Carol
+
+Alice -&gt; Bob : hello
+@enduml
+</pre></code></p><p><img loading="lazy" width="177" height="135" src="https://plantuml.com/imgw/img-72000240910f992ef8671abef13b1663.webp"/></p></div></td></tr></tbody></table></p> But you can <code>hide unlinked</code> participant. <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img05f56c897d9863178cab6fcec657fc88" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;05f56c897d9863178cab6fcec657fc88&#39;)"/></td><td><div onclick="javascript:ljs(&#39;05f56c897d9863178cab6fcec657fc88&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre05f56c897d9863178cab6fcec657fc88">@startuml
+hide unlinked
+participant Alice
+participant Bob
+participant Carol
+
+Alice -&gt; Bob : hello
+@enduml
+</pre></code></p><p><img loading="lazy" width="115" height="135" src="https://plantuml.com/imgw/img-05f56c897d9863178cab6fcec657fc88.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/4247">QA-4247</a>]</em><a name="b40d18fd973705df"></a><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Color a group message</h2> It is possible to <a href="https://plantuml.com/color">color</a> a group messages: <p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img2c8aa0715e43474acf9bbb02635c46e2" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;2c8aa0715e43474acf9bbb02635c46e2&#39;)"/></td><td><div onclick="javascript:ljs(&#39;2c8aa0715e43474acf9bbb02635c46e2&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre2c8aa0715e43474acf9bbb02635c46e2">@startuml
+Alice -&gt; Bob: Authentication Request
+alt#Gold #LightBlue Successful case
+    Bob -&gt; Alice: Authentication Accepted
+else #Pink Failure
+    Bob -&gt; Alice: Authentication Rejected
+end
+@enduml
+</pre></code></p><p><img loading="lazy" width="254" height="244" src="https://plantuml.com/imgw/img-2c8aa0715e43474acf9bbb02635c46e2.webp"/></p></div></td></tr></tbody></table></p><p><em>[Ref. <a href="https://forum.plantuml.net/4750">QA-4750</a> and <a href="https://forum.plantuml.net/6410">QA-6410</a>]</em><a name="5640ee4b2a998e5e"></a></p><h2><img onclick="window.scrollTo(0,0);" title="Back to top" src="https://plantuml.com/backtop3.png" width="20" height="20"/>Mainframe</h2><p><table><tbody><tr><td><p> 🎉 Copied! </p><img loading="lazy" width="20" height="20" id="img1f188b3db659984bce74029b638f0fc6" title="Copy to clipboard" src="https://plantuml.com/clip3.png" onclick="ctc(&#39;1f188b3db659984bce74029b638f0fc6&#39;)"/></td><td><div onclick="javascript:ljs(&#39;1f188b3db659984bce74029b638f0fc6&#39;)"><p><code onmouseover="az=1" onmouseout="az=0"><pre id="pre1f188b3db659984bce74029b638f0fc6">@startuml
+mainframe This is a **mainframe**
+Alice-&gt;Bob : Hello
+@enduml
+</pre></code></p><p><img loading="lazy" width="157" height="179" src="https://plantuml.com/imgw/img-1f188b3db659984bce74029b638f0fc6.webp"/></p></div></td></tr></tbody></table></p><em>[Ref. <a href="https://forum.plantuml.net/4019">QA-4019</a> and <a href="https://github.com/plantuml/plantuml/issues/148">Issue#148</a>]</em></div></div>

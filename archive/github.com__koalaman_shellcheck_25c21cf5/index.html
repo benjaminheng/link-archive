@@ -1,0 +1,540 @@
+---
+url: https://github.com/koalaman/shellcheck
+title: 'GitHub - koalaman/shellcheck: ShellCheck, a static analysis tool for shell
+  scripts'
+archived_at: 2021-12-13T16:09:44.054177+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text"><p dir="auto"><a href="https://github.com/koalaman/shellcheck/actions/workflows/build.yml"><img src="https://github.com/koalaman/shellcheck/actions/workflows/build.yml/badge.svg" alt="Build Status"/></a></p>
+
+<p dir="auto">ShellCheck is a GPLv3 tool that gives warnings and suggestions for bash/sh shell scripts:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/koalaman/shellcheck/blob/master/doc/terminal.png"><img src="https://github.com/koalaman/shellcheck/raw/master/doc/terminal.png" alt="Screenshot of a terminal showing problematic shell script lines highlighted"/></a></p>
+<p dir="auto">The goals of ShellCheck are</p>
+<ul dir="auto">
+<li>
+<p dir="auto">To point out and clarify typical beginner&#39;s syntax issues that cause a shell
+to give cryptic error messages.</p>
+</li>
+<li>
+<p dir="auto">To point out and clarify typical intermediate level semantic problems that
+cause a shell to behave strangely and counter-intuitively.</p>
+</li>
+<li>
+<p dir="auto">To point out subtle caveats, corner cases and pitfalls that may cause an
+advanced user&#39;s otherwise working script to fail under future circumstances.</p>
+</li>
+</ul>
+<p dir="auto">See <a href="https://github.com/koalaman/shellcheck/blob/master/README.md#user-content-gallery-of-bad-code">the gallery of bad code</a> for examples of what ShellCheck can help you identify!</p>
+<h2 dir="auto">Table of Contents</h2>
+<ul dir="auto">
+<li><a href="#how-to-use">How to use</a>
+<ul dir="auto">
+<li><a href="#on-the-web">On the web</a></li>
+<li><a href="#from-your-terminal">From your terminal</a></li>
+<li><a href="#in-your-editor">In your editor</a></li>
+<li><a href="#in-your-build-or-test-suites">In your build or test suites</a></li>
+</ul>
+</li>
+<li><a href="#installing">Installing</a></li>
+<li><a href="#compiling-from-source">Compiling from source</a>
+<ul dir="auto">
+<li><a href="#installing-cabal">Installing Cabal</a></li>
+<li><a href="#compiling-shellcheck">Compiling ShellCheck</a></li>
+<li><a href="#running-tests">Running tests</a></li>
+</ul>
+</li>
+<li><a href="#gallery-of-bad-code">Gallery of bad code</a>
+<ul dir="auto">
+<li><a href="#quoting">Quoting</a></li>
+<li><a href="#conditionals">Conditionals</a></li>
+<li><a href="#frequently-misused-commands">Frequently misused commands</a></li>
+<li><a href="#common-beginners-mistakes">Common beginner&#39;s mistakes</a></li>
+<li><a href="#style">Style</a></li>
+<li><a href="#data-and-typing-errors">Data and typing errors</a></li>
+<li><a href="#robustness">Robustness</a></li>
+<li><a href="#portability">Portability</a></li>
+<li><a href="#miscellaneous">Miscellaneous</a></li>
+</ul>
+</li>
+<li><a href="#testimonials">Testimonials</a></li>
+<li><a href="#ignoring-issues">Ignoring issues</a></li>
+<li><a href="#reporting-bugs">Reporting bugs</a></li>
+<li><a href="#contributing">Contributing</a></li>
+<li><a href="#copyright">Copyright</a></li>
+<li><a href="#other-resources">Other Resources</a></li>
+</ul>
+<h2 dir="auto">How to use</h2>
+<p dir="auto">There are a number of ways to use ShellCheck!</p>
+<h3 dir="auto">On the web</h3>
+<p dir="auto">Paste a shell script on <a href="https://www.shellcheck.net" rel="nofollow">https://www.shellcheck.net</a> for instant feedback.</p>
+<p dir="auto"><a href="https://www.shellcheck.net" rel="nofollow">ShellCheck.net</a> is always synchronized to the latest git commit, and is the easiest way to give ShellCheck a go. Tell your friends!</p>
+<h3 dir="auto">From your terminal</h3>
+<p dir="auto">Run <code>shellcheck yourscript</code> in your terminal for instant output, as seen above.</p>
+<h3 dir="auto">In your editor</h3>
+<p dir="auto">You can see ShellCheck suggestions directly in a variety of editors.</p>
+<ul dir="auto">
+<li>Vim, through <a href="https://github.com/w0rp/ale">ALE</a>, <a href="https://github.com/neomake/neomake">Neomake</a>, or <a href="https://github.com/scrooloose/syntastic">Syntastic</a>:</li>
+</ul>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/koalaman/shellcheck/blob/master/doc/vim-syntastic.png"><img src="https://github.com/koalaman/shellcheck/raw/master/doc/vim-syntastic.png" alt="Screenshot of Vim showing inlined shellcheck feedback"/></a>.</p>
+<ul dir="auto">
+<li>Emacs, through <a href="https://github.com/flycheck/flycheck">Flycheck</a> or <a href="https://github.com/federicotdn/flymake-shellcheck">Flymake</a>:</li>
+</ul>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/koalaman/shellcheck/blob/master/doc/emacs-flycheck.png"><img src="https://github.com/koalaman/shellcheck/raw/master/doc/emacs-flycheck.png" alt="Screenshot of emacs showing inlined shellcheck feedback"/></a>.</p>
+<ul dir="auto">
+<li>
+<p dir="auto">Sublime, through <a href="https://github.com/SublimeLinter/SublimeLinter-shellcheck">SublimeLinter</a>.</p>
+</li>
+<li>
+<p dir="auto">Atom, through <a href="https://github.com/AtomLinter/linter-shellcheck">Linter</a>.</p>
+</li>
+<li>
+<p dir="auto">VSCode, through <a href="https://github.com/timonwong/vscode-shellcheck">vscode-shellcheck</a>.</p>
+</li>
+<li>
+<p dir="auto">Most other editors, through <a href="https://github.com/koalaman/shellcheck/blob/master/shellcheck.1.md#user-content-formats">GCC error compatibility</a>.</p>
+</li>
+</ul>
+<h3 dir="auto">In your build or test suites</h3>
+<p dir="auto">While ShellCheck is mostly intended for interactive use, it can easily be added to builds or test suites.
+It makes canonical use of exit codes, so you can just add a <code>shellcheck</code> command as part of the process.</p>
+<p dir="auto">For example, in a Makefile:</p>
+<div data-snippet-clipboard-copy-content="check-scripts:
+    # Fail if any of these files have warnings
+    shellcheck myscripts/*.sh
+"><pre><span>check-scripts</span>:
+    <span><span>#</span> Fail if any of these files have warnings</span>
+    shellcheck myscripts/*.sh</pre></div>
+<p dir="auto">or in a Travis CI <code>.travis.yml</code> file:</p>
+<div data-snippet-clipboard-copy-content="script:
+  # Fail if any of these files have warnings
+  - shellcheck myscripts/*.sh
+"><pre><span>script</span>:
+  <span><span>#</span> Fail if any of these files have warnings</span>
+  - <span>shellcheck myscripts/*.sh</span></pre></div>
+<p dir="auto">Services and platforms that have ShellCheck pre-installed and ready to use:</p>
+<ul dir="auto">
+<li><a href="https://travis-ci.org/" rel="nofollow">Travis CI</a></li>
+<li><a href="https://www.codacy.com/" rel="nofollow">Codacy</a></li>
+<li><a href="https://codeclimate.com/" rel="nofollow">Code Climate</a></li>
+<li><a href="https://www.codefactor.io/" rel="nofollow">Code Factor</a></li>
+<li><a href="https://circleci.com" rel="nofollow">CircleCI</a> via the <a href="https://circleci.com/orbs/registry/orb/circleci/shellcheck" rel="nofollow">ShellCheck Orb</a></li>
+<li><a href="https://github.com/features/actions">Github</a> (only Linux)</li>
+</ul>
+<p dir="auto">Most other services, including <a href="https://about.gitlab.com/" rel="nofollow">GitLab</a>, let you install
+ShellCheck yourself, either through the system&#39;s package manager (see <a href="#installing">Installing</a>),
+or by downloading and unpacking a <a href="#installing-a-pre-compiled-binary">binary release</a>.</p>
+<p dir="auto">It&#39;s a good idea to manually install a specific ShellCheck version regardless. This avoids
+any surprise build breaks when a new version with new warnings is published.</p>
+<p dir="auto">For customized filtering or reporting, ShellCheck can output simple JSON, CheckStyle compatible XML,
+GCC compatible warnings as well as human readable text (with or without ANSI colors). See the
+<a href="https://github.com/koalaman/shellcheck/wiki/Integration">Integration</a> wiki page for more documentation.</p>
+<h2 dir="auto">Installing</h2>
+<p dir="auto">The easiest way to install ShellCheck locally is through your package manager.</p>
+<p dir="auto">On systems with Cabal (installs to <code>~/.cabal/bin</code>):</p>
+<div data-snippet-clipboard-copy-content="cabal update
+cabal install ShellCheck
+"><pre><code>cabal update
+cabal install ShellCheck
+</code></pre></div>
+<p dir="auto">On systems with Stack (installs to <code>~/.local/bin</code>):</p>
+<div data-snippet-clipboard-copy-content="stack update
+stack install ShellCheck
+"><pre><code>stack update
+stack install ShellCheck
+</code></pre></div>
+<p dir="auto">On Debian based distros:</p>
+<div data-snippet-clipboard-copy-content="sudo apt install shellcheck
+"><pre><code>sudo apt install shellcheck
+</code></pre></div>
+<p dir="auto">On Arch Linux based distros:</p>
+
+<p dir="auto">or get the dependency free <a href="https://aur.archlinux.org/packages/shellcheck-bin/" rel="nofollow">shellcheck-bin</a> from the AUR.</p>
+<p dir="auto">On Gentoo based distros:</p>
+
+<p dir="auto">On EPEL based distros:</p>
+<div data-snippet-clipboard-copy-content="sudo yum -y install epel-release
+sudo yum install ShellCheck
+"><pre><code>sudo yum -y install epel-release
+sudo yum install ShellCheck
+</code></pre></div>
+<p dir="auto">On Fedora based distros:</p>
+
+<p dir="auto">On FreeBSD:</p>
+<div data-snippet-clipboard-copy-content="pkg install hs-ShellCheck
+"><pre><code>pkg install hs-ShellCheck
+</code></pre></div>
+<p dir="auto">On macOS (OS X) with Homebrew:</p>
+
+<p dir="auto">Or with MacPorts:</p>
+<div data-snippet-clipboard-copy-content="sudo port install shellcheck
+"><pre><code>sudo port install shellcheck
+</code></pre></div>
+<p dir="auto">On OpenBSD:</p>
+
+<p dir="auto">On openSUSE</p>
+
+<p dir="auto">Or use OneClickInstall - <a href="https://software.opensuse.org/package/ShellCheck" rel="nofollow">https://software.opensuse.org/package/ShellCheck</a></p>
+<p dir="auto">On Solus:</p>
+
+<p dir="auto">On Windows (via <a href="https://chocolatey.org/packages/shellcheck" rel="nofollow">chocolatey</a>):</p>
+<div data-snippet-clipboard-copy-content="C:\&gt; choco install shellcheck
+"><pre>C:\<span>&gt;</span> choco install shellcheck</pre></div>
+<p dir="auto">Or Windows (via <a href="http://scoop.sh" rel="nofollow">scoop</a>):</p>
+<div data-snippet-clipboard-copy-content="C:\&gt; scoop install shellcheck
+"><pre>C:\<span>&gt;</span> scoop install shellcheck</pre></div>
+<p dir="auto">From <a href="https://anaconda.org/conda-forge/shellcheck" rel="nofollow">conda-forge</a>:</p>
+<div data-snippet-clipboard-copy-content="conda install -c conda-forge shellcheck
+"><pre><code>conda install -c conda-forge shellcheck
+</code></pre></div>
+<p dir="auto">From Snap Store:</p>
+<div data-snippet-clipboard-copy-content="snap install --channel=edge shellcheck
+"><pre><code>snap install --channel=edge shellcheck
+</code></pre></div>
+<p dir="auto">From Docker Hub:</p>
+<div data-snippet-clipboard-copy-content="docker run --rm -v &#34;$PWD:/mnt&#34; koalaman/shellcheck:stable myscript
+# Or :v0.4.7 for that version, or :latest for daily builds
+"><pre>docker run --rm -v <span><span>&#34;</span><span>$PWD</span>:/mnt<span>&#34;</span></span> koalaman/shellcheck:stable myscript
+<span><span>#</span> Or :v0.4.7 for that version, or :latest for daily builds</span></pre></div>
+<p dir="auto">or use <code>koalaman/shellcheck-alpine</code> if you want a larger Alpine Linux based image to extend. It works exactly like a regular Alpine image, but has shellcheck preinstalled.</p>
+<p dir="auto">Using the <a href="https://nixos.org/nix" rel="nofollow">nix package manager</a>:</p>
+<div data-snippet-clipboard-copy-content="nix-env -iA nixpkgs.shellcheck
+"><pre>nix-env -iA nixpkgs.shellcheck</pre></div>
+<p dir="auto">Alternatively, you can download pre-compiled binaries for the latest release here:</p>
+<ul dir="auto">
+<li><a href="https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz">Linux, x86_64</a> (statically linked)</li>
+<li><a href="https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.armv6hf.tar.xz">Linux, armv6hf</a>, i.e. Raspberry Pi (statically linked)</li>
+<li><a href="https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.aarch64.tar.xz">Linux, aarch64</a> aka ARM64 (statically linked)</li>
+<li><a href="https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.darwin.x86_64.tar.xz">macOS, x86_64</a></li>
+<li><a href="https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.zip">Windows, x86</a></li>
+</ul>
+<p dir="auto">or see the <a href="https://github.com/koalaman/shellcheck/releases">GitHub Releases</a> for other releases
+(including the <a href="https://github.com/koalaman/shellcheck/releases/tag/latest">latest</a> meta-release for daily git builds).</p>
+<p dir="auto">Distro packages already come with a <code>man</code> page. If you are building from source, it can be installed with:</p>
+<div data-snippet-clipboard-copy-content="pandoc -s -f markdown-smart -t man shellcheck.1.md -o shellcheck.1
+sudo mv shellcheck.1 /usr/share/man/man1
+"><pre><span>pandoc -s -f markdown-smart -t man shellcheck.1.md -o shellcheck.1</span>
+<span>sudo mv shellcheck.1 /usr/share/man/man1</span></pre></div>
+<h3 dir="auto">pre-commit</h3>
+<p dir="auto">To run ShellCheck via <a href="https://pre-commit.com/" rel="nofollow">pre-commit</a>, add the hook to your <code>.pre-commit-config.yaml</code>:</p>
+<div data-snippet-clipboard-copy-content="repos:
+-   repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.7.2
+    hooks:
+    -   id: shellcheck
+#       args: [&#34;--severity=warning&#34;]  # Optionally only show errors and warnings
+"><pre><code>repos:
+-   repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.7.2
+    hooks:
+    -   id: shellcheck
+#       args: [&#34;--severity=warning&#34;]  # Optionally only show errors and warnings
+</code></pre></div>
+<h3 dir="auto">Travis CI</h3>
+<p dir="auto">Travis CI has now integrated ShellCheck by default, so you don&#39;t need to manually install it.</p>
+<p dir="auto">If you still want to do so in order to upgrade at your leisure or ensure you&#39;re
+using the latest release, follow the steps below to install a binary version.</p>
+<h3 dir="auto">Installing a pre-compiled binary</h3>
+<p dir="auto">The pre-compiled binaries come in <code>tar.xz</code> files. To decompress them, make sure
+<code>xz</code> is installed.
+On Debian/Ubuntu/Mint, you can <code>apt install xz-utils</code>.
+On Redhat/Fedora/CentOS, <code>yum -y install xz</code>.</p>
+<p dir="auto">A simple installer may do something like:</p>
+<div data-snippet-clipboard-copy-content="scversion=&#34;stable&#34; # or &#34;v0.4.7&#34;, or &#34;latest&#34;
+wget -qO- &#34;https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz&#34; | tar -xJv
+cp &#34;shellcheck-${scversion}/shellcheck&#34; /usr/bin/
+shellcheck --version
+"><pre>scversion=<span><span>&#34;</span>stable<span>&#34;</span></span> <span><span>#</span> or &#34;v0.4.7&#34;, or &#34;latest&#34;</span>
+wget -qO- <span><span>&#34;</span>https://github.com/koalaman/shellcheck/releases/download/<span>${scversion?}</span>/shellcheck-<span>${scversion?}</span>.linux.x86_64.tar.xz<span>&#34;</span></span> <span>|</span> tar -xJv
+cp <span><span>&#34;</span>shellcheck-<span>${scversion}</span>/shellcheck<span>&#34;</span></span> /usr/bin/
+shellcheck --version</pre></div>
+<h2 dir="auto">Compiling from source</h2>
+<p dir="auto">This section describes how to build ShellCheck from a source directory. ShellCheck is written in Haskell and requires 2GB of RAM to compile.</p>
+<h3 dir="auto">Installing Cabal</h3>
+<p dir="auto">ShellCheck is built and packaged using Cabal. Install the package <code>cabal-install</code> from your system&#39;s package manager (with e.g. <code>apt-get</code>, <code>brew</code>, <code>emerge</code>, <code>yum</code>, or <code>zypper</code>).</p>
+<p dir="auto">On macOS (OS X), you can do a fast install of Cabal using brew, which takes a couple of minutes instead of more than 30 minutes if you try to compile it from source.</p>
+<div data-snippet-clipboard-copy-content="$ brew install cabal-install
+"><pre><code>$ brew install cabal-install
+</code></pre></div>
+<p dir="auto">On MacPorts, the package is instead called <code>hs-cabal-install</code>, while native Windows users should install the latest version of the Haskell platform from <a href="https://www.haskell.org/platform/" rel="nofollow">https://www.haskell.org/platform/</a></p>
+<p dir="auto">Verify that <code>cabal</code> is installed and update its dependency list with</p>
+
+<h3 dir="auto">Compiling ShellCheck</h3>
+<p dir="auto"><code>git clone</code> this repository, and <code>cd</code> to the ShellCheck source directory to build/install:</p>
+
+<p dir="auto">Or if you intend to run the tests:</p>
+<div data-snippet-clipboard-copy-content="$ cabal install --enable-tests
+"><pre><code>$ cabal install --enable-tests
+</code></pre></div>
+<p dir="auto">This will compile ShellCheck and install it to your <code>~/.cabal/bin</code> directory.</p>
+<p dir="auto">Add this directory to your <code>PATH</code> (for bash, add this to your <code>~/.bashrc</code>):</p>
+<div data-snippet-clipboard-copy-content="export PATH=&#34;$HOME/.cabal/bin:$PATH&#34;
+"><pre><span>export</span> PATH=<span><span>&#34;</span><span>$HOME</span>/.cabal/bin:<span>$PATH</span><span>&#34;</span></span></pre></div>
+<p dir="auto">Log out and in again, and verify that your PATH is set up correctly:</p>
+<div data-snippet-clipboard-copy-content="$ which shellcheck
+~/.cabal/bin/shellcheck
+"><pre>$ which shellcheck
+<span>~</span>/.cabal/bin/shellcheck</pre></div>
+<p dir="auto">On native Windows, the <code>PATH</code> should already be set up, but the system
+may use a legacy codepage. In <code>cmd.exe</code>, <code>powershell.exe</code> and Powershell ISE,
+make sure to use a TrueType font, not a Raster font, and set the active
+codepage to UTF-8 (65001) with <code>chcp</code>:</p>
+
+<p dir="auto">In Powershell ISE, you may need to additionally update the output encoding:</p>
+<div data-snippet-clipboard-copy-content="[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+"><pre>[<span>Console</span>]::OutputEncoding <span>=</span> [<span>System.Text.Encoding</span>]::UTF8</pre></div>
+<h3 dir="auto">Running tests</h3>
+<p dir="auto">To run the unit test suite:</p>
+
+<h2 dir="auto">Gallery of bad code</h2>
+<p dir="auto">So what kind of things does ShellCheck look for? Here is an incomplete list of detected issues.</p>
+<h3 dir="auto">Quoting</h3>
+<p dir="auto">ShellCheck can recognize several types of incorrect quoting:</p>
+<div data-snippet-clipboard-copy-content="echo $1                           # Unquoted variables
+find . -name *.ogg                # Unquoted find/grep patterns
+rm &#34;~/my file.txt&#34;                # Quoted tilde expansion
+v=&#39;--verbose=&#34;true&#34;&#39;; cmd $v      # Literal quotes in variables
+for f in &#34;*.ogg&#34;                  # Incorrectly quoted &#39;for&#39; loops
+touch $@                          # Unquoted $@
+echo &#39;Don&#39;t forget to restart!&#39;   # Singlequote closed by apostrophe
+echo &#39;Don\&#39;t try this at home&#39;    # Attempting to escape &#39; in &#39;&#39;
+echo &#39;Path is $PATH&#39;              # Variables in single quotes
+trap &#34;echo Took ${SECONDS}s&#34; 0    # Prematurely expanded trap
+unset var[i]                      # Array index treated as glob
+"><pre><span>echo</span> <span>$1</span>                           <span><span>#</span> Unquoted variables</span>
+find <span>.</span> -name <span>*</span>.ogg                <span><span>#</span> Unquoted find/grep patterns</span>
+rm <span><span>&#34;</span>~/my file.txt<span>&#34;</span></span>                <span><span>#</span> Quoted tilde expansion</span>
+v=<span><span>&#39;</span>--verbose=&#34;true&#34;<span>&#39;</span></span><span>;</span> cmd <span>$v</span>      <span><span>#</span> Literal quotes in variables</span>
+<span>for</span> <span>f</span> <span>in</span> <span><span>&#34;</span>*.ogg<span>&#34;</span></span>                  <span><span>#</span> Incorrectly quoted &#39;for&#39; loops</span>
+touch <span>$@</span>                          <span><span>#</span> Unquoted $@</span>
+<span>echo</span> <span><span>&#39;</span>Don<span>&#39;</span></span>t forget to restart<span>!</span><span><span>&#39;</span>   # Singlequote closed by apostrophe</span>
+<span>echo <span>&#39;</span></span>Don<span>\&#39;</span>t try this at home<span><span>&#39;</span>    # Attempting to escape <span>&#39;</span></span> <span>in</span> <span><span>&#39;</span><span>&#39;</span></span>
+<span>echo</span> <span><span>&#39;</span>Path is $PATH<span>&#39;</span></span>              <span><span>#</span> Variables in single quotes</span>
+<span>trap</span> <span><span>&#34;</span>echo Took <span>${SECONDS}</span>s<span>&#34;</span></span> 0    <span><span>#</span> Prematurely expanded trap</span>
+<span>unset</span> var[i]                      <span><span>#</span> Array index treated as glob</span></pre></div>
+<h3 dir="auto">Conditionals</h3>
+<p dir="auto">ShellCheck can recognize many types of incorrect test statements.</p>
+<div data-snippet-clipboard-copy-content="[[ n != 0 ]]                      # Constant test expressions
+[[ -e *.mpg ]]                    # Existence checks of globs
+[[ $foo==0 ]]                     # Always true due to missing spaces
+[[ -n &#34;$foo &#34; ]]                  # Always true due to literals
+[[ $foo =~ &#34;fo+&#34; ]]               # Quoted regex in =~
+[ foo =~ re ]                     # Unsupported [ ] operators
+[ $1 -eq &#34;shellcheck&#34; ]           # Numerical comparison of strings
+[ $n &amp;&amp; $m ]                      # &amp;&amp; in [ .. ]
+[ grep -q foo file ]              # Command without $(..)
+[[ &#34;$$file&#34; == *.jpg ]]           # Comparisons that can&#39;t succeed
+(( 1 -lt 2 ))                     # Using test operators in ((..))
+[ x ] &amp; [ y ] | [ z ]             # Accidental backgrounding and piping
+"><pre>[[ n <span>!=</span> 0 ]]                      <span><span>#</span> Constant test expressions</span>
+[[ <span>-e</span> <span>*</span>.mpg ]]                    <span><span>#</span> Existence checks of globs</span>
+[[ <span>$foo</span><span>==</span>0 ]]                     <span><span>#</span> Always true due to missing spaces</span>
+[[ <span>-n</span> <span><span>&#34;</span><span>$foo</span> <span>&#34;</span></span> ]]                  <span><span>#</span> Always true due to literals</span>
+[[ <span>$foo</span> <span>=~</span> <span><span>&#34;</span>fo+<span>&#34;</span></span> ]]               <span><span>#</span> Quoted regex in =~</span>
+[ foo <span>=~</span> re ]                     <span><span>#</span> Unsupported [ ] operators</span>
+[ <span>$1</span> <span>-eq</span> <span><span>&#34;</span>shellcheck<span>&#34;</span></span> ]           <span><span>#</span> Numerical comparison of strings</span>
+[ <span>$n</span> <span>&amp;&amp;</span> <span>$m</span> ]                      <span><span>#</span> &amp;&amp; in [ .. ]</span>
+[ grep -q foo file ]              <span><span>#</span> Command without $(..)</span>
+[[ <span><span>&#34;</span><span>$$</span>file<span>&#34;</span></span> <span>==</span> <span>*</span>.jpg ]]           <span><span>#</span> Comparisons that can&#39;t succeed</span>
+<span><span>((</span> <span>1</span> <span>-</span>lt <span>2</span> <span>))</span></span>                     <span><span>#</span> Using test operators in ((..))</span>
+[ x ] <span>&amp;</span> [ y ] <span>|</span> [ z ]             <span><span>#</span> Accidental backgrounding and piping</span></pre></div>
+<h3 dir="auto">Frequently misused commands</h3>
+<p dir="auto">ShellCheck can recognize instances where commands are used incorrectly:</p>
+<div data-snippet-clipboard-copy-content="grep &#39;*foo*&#39; file                 # Globs in regex contexts
+find . -exec foo {} &amp;&amp; bar {} \;  # Prematurely terminated find -exec
+sudo echo &#39;Var=42&#39; &gt; /etc/profile # Redirecting sudo
+time --format=%s sleep 10         # Passing time(1) flags to time builtin
+while read h; do ssh &#34;$h&#34; uptime  # Commands eating while loop input
+alias archive=&#39;mv $1 /backup&#39;     # Defining aliases with arguments
+tr -cd &#39;[a-zA-Z0-9]&#39;              # [] around ranges in tr
+exec foo; echo &#34;Done!&#34;            # Misused &#39;exec&#39;
+find -name \*.bak -o -name \*~ -delete  # Implicit precedence in find
+# find . -exec foo &gt; bar \;       # Redirections in find
+f() { whoami; }; sudo f           # External use of internal functions
+"><pre>grep <span><span>&#39;</span>*foo*<span>&#39;</span></span> file                 <span><span>#</span> Globs in regex contexts</span>
+find <span>.</span> -exec foo {} <span>&amp;&amp;</span> bar {} <span>\;</span>  <span><span>#</span> Prematurely terminated find -exec</span>
+sudo <span>echo</span> <span><span>&#39;</span>Var=42<span>&#39;</span></span> <span>&gt;</span> /etc/profile <span><span>#</span> Redirecting sudo</span>
+<span>time</span> --format=%s sleep 10         <span><span>#</span> Passing time(1) flags to time builtin</span>
+<span>while</span> <span>read</span> h<span>;</span> <span>do</span> ssh <span><span>&#34;</span><span>$h</span><span>&#34;</span></span> uptime  <span><span>#</span> Commands eating while loop input</span>
+<span>alias</span> archive=<span><span>&#39;</span>mv $1 /backup<span>&#39;</span></span>     <span><span>#</span> Defining aliases with arguments</span>
+tr -cd <span><span>&#39;</span>[a-zA-Z0-9]<span>&#39;</span></span>              <span><span>#</span> [] around ranges in tr</span>
+<span>exec</span> foo<span>;</span> <span>echo</span> <span><span>&#34;</span>Done!<span>&#34;</span></span>            <span><span>#</span> Misused &#39;exec&#39;</span>
+find -name <span>\*</span>.bak -o -name <span>\*</span>~ -delete  <span><span>#</span> Implicit precedence in find</span>
+<span><span>#</span> find . -exec foo &gt; bar \;       # Redirections in find</span>
+<span>f</span>() { whoami<span>;</span> }; sudo f           <span><span>#</span> External use of internal functions</span></pre></div>
+<h3 dir="auto">Common beginner&#39;s mistakes</h3>
+<p dir="auto">ShellCheck recognizes many common beginner&#39;s syntax errors:</p>
+<div data-snippet-clipboard-copy-content="var = 42                          # Spaces around = in assignments
+$foo=42                           # $ in assignments
+for $var in *; do ...             # $ in for loop variables
+var$n=&#34;Hello&#34;                     # Wrong indirect assignment
+echo ${var$n}                     # Wrong indirect reference
+var=(1, 2, 3)                     # Comma separated arrays
+array=( [index] = value )         # Incorrect index initialization
+echo $var[14]                     # Missing {} in array references
+echo &#34;Argument 10 is $10&#34;         # Positional parameter misreference
+if $(myfunction); then ..; fi     # Wrapping commands in $()
+else if othercondition; then ..   # Using &#39;else if&#39;
+f; f() { echo &#34;hello world; }     # Using function before definition
+[ false ]                         # &#39;false&#39; being true
+if ( -f file )                    # Using (..) instead of test
+"><pre>var = 42                          <span><span>#</span> Spaces around = in assignments</span>
+<span>$foo</span>=42                           <span><span>#</span> $ in assignments</span>
+<span>for</span> <span>$var</span> <span>in</span> <span>*</span><span>;</span> <span>do</span> ...             <span><span>#</span> $ in for loop variables</span>
+var<span>$n</span>=<span><span>&#34;</span>Hello<span>&#34;</span></span>                     <span><span>#</span> Wrong indirect assignment</span>
+<span>echo</span> <span>${var<span>$n</span>}</span>                     <span><span>#</span> Wrong indirect reference</span>
+var=(1, 2, 3)                     <span><span>#</span> Comma separated arrays</span>
+array=( [index] = value )         <span><span>#</span> Incorrect index initialization</span>
+<span>echo</span> <span>$var</span>[14]                     <span><span>#</span> Missing {} in array references</span>
+<span>echo</span> <span><span>&#34;</span>Argument 10 is <span>$1</span>0<span>&#34;</span></span>         <span><span>#</span> Positional parameter misreference</span>
+<span>if</span> <span><span>$(</span>myfunction<span>)</span></span><span>;</span> <span>then</span> ..<span>;</span> <span>fi</span>     <span><span>#</span> Wrapping commands in $()</span>
+<span>else</span> <span>if</span> othercondition<span>;</span> <span>then</span> ..   <span><span>#</span> Using &#39;else if&#39;</span>
+f<span>;</span> <span>f</span>() { <span>echo</span> <span><span>&#34;</span>hello world; }     # Using function before definition</span>
+<span>[ false ]                         # &#39;false&#39; being true</span>
+<span>if ( -f file )                    # Using (..) instead of test</span></pre></div>
+<h3 dir="auto">Style</h3>
+<p dir="auto">ShellCheck can make suggestions to improve style:</p>
+<div data-snippet-clipboard-copy-content="[[ -z $(find /tmp | grep mpg) ]]  # Use grep -q instead
+a &gt;&gt; log; b &gt;&gt; log; c &gt;&gt; log      # Use a redirection block instead
+echo &#34;The time is `date`&#34;         # Use $() instead
+cd dir; process *; cd ..;         # Use subshells instead
+echo $[1+2]                       # Use standard $((..)) instead of old $[]
+echo $(($RANDOM % 6))             # Don&#39;t use $ on variables in $((..))
+echo &#34;$(date)&#34;                    # Useless use of echo
+cat file | grep foo               # Useless use of cat
+"><pre>[[ <span>-z</span> <span><span>$(</span>find /tmp <span>|</span> grep mpg<span>)</span></span> ]]  <span><span>#</span> Use grep -q instead</span>
+a <span>&gt;&gt;</span> log<span>;</span> b <span>&gt;&gt;</span> log<span>;</span> c <span>&gt;&gt;</span> log      <span><span>#</span> Use a redirection block instead</span>
+<span>echo</span> <span><span>&#34;</span>The time is <span><span>`</span>date<span>`</span></span><span>&#34;</span></span>         <span><span>#</span> Use $() instead</span>
+<span>cd</span> dir<span>;</span> process <span>*</span><span>;</span> <span>cd</span> ..<span>;</span>         <span><span>#</span> Use subshells instead</span>
+<span>echo</span> $[1+2]                       <span><span>#</span> Use standard $((..)) instead of old $[]</span>
+<span>echo</span> <span><span>$((</span><span>$RANDOM</span> <span>%</span> <span>6</span><span>))</span></span>             <span><span>#</span> Don&#39;t use $ on variables in $((..))</span>
+<span>echo</span> <span><span>&#34;</span><span><span>$(</span>date<span>)</span></span><span>&#34;</span></span>                    <span><span>#</span> Useless use of echo</span>
+cat file <span>|</span> grep foo               <span><span>#</span> Useless use of cat</span></pre></div>
+<h3 dir="auto">Data and typing errors</h3>
+<p dir="auto">ShellCheck can recognize issues related to data and typing:</p>
+<div data-snippet-clipboard-copy-content="args=&#34;$@&#34;                         # Assigning arrays to strings
+files=(foo bar); echo &#34;$files&#34;    # Referencing arrays as strings
+declare -A arr=(foo bar)          # Associative arrays without index
+printf &#34;%s\n&#34; &#34;Arguments: $@.&#34;    # Concatenating strings and arrays
+[[ $# &gt; 2 ]]                      # Comparing numbers as strings
+var=World; echo &#34;Hello &#34; var      # Unused lowercase variables
+echo &#34;Hello $name&#34;                # Unassigned lowercase variables
+cmd | read bar; echo $bar         # Assignments in subshells
+cat foo | cp bar                  # Piping to commands that don&#39;t read
+printf &#39;%s: %s\n&#39; foo             # Mismatches in printf argument count
+eval &#34;${array[@]}&#34;                # Lost word boundaries in array eval
+for i in &#34;${x[@]}&#34;; do ${x[$i]}   # Using array value as key
+"><pre>args=<span><span>&#34;</span><span>$@</span><span>&#34;</span></span>                         <span><span>#</span> Assigning arrays to strings</span>
+files=(foo bar)<span>;</span> <span>echo</span> <span><span>&#34;</span><span>$files</span><span>&#34;</span></span>    <span><span>#</span> Referencing arrays as strings</span>
+<span>declare</span> -A arr=(foo bar)          <span><span>#</span> Associative arrays without index</span>
+<span>printf</span> <span><span>&#34;</span>%s\n<span>&#34;</span></span> <span><span>&#34;</span>Arguments: <span>$@</span>.<span>&#34;</span></span>    <span><span>#</span> Concatenating strings and arrays</span>
+[[ <span>$#</span> <span>&gt;</span> 2 ]]                      <span><span>#</span> Comparing numbers as strings</span>
+var=World<span>;</span> <span>echo</span> <span><span>&#34;</span>Hello <span>&#34;</span></span> var      <span><span>#</span> Unused lowercase variables</span>
+<span>echo</span> <span><span>&#34;</span>Hello <span>$name</span><span>&#34;</span></span>                <span><span>#</span> Unassigned lowercase variables</span>
+cmd <span>|</span> <span>read</span> bar<span>;</span> <span>echo</span> <span>$bar</span>         <span><span>#</span> Assignments in subshells</span>
+cat foo <span>|</span> cp bar                  <span><span>#</span> Piping to commands that don&#39;t read</span>
+<span>printf</span> <span><span>&#39;</span>%s: %s\n<span>&#39;</span></span> foo             <span><span>#</span> Mismatches in printf argument count</span>
+<span>eval</span> <span><span>&#34;</span><span>${array[@]}</span><span>&#34;</span></span>                <span><span>#</span> Lost word boundaries in array eval</span>
+<span>for</span> <span>i</span> <span>in</span> <span><span>&#34;</span><span>${x[@]}</span><span>&#34;</span></span><span>;</span> <span>do</span> <span>${x[$i]}</span>   <span><span>#</span> Using array value as key</span></pre></div>
+<h3 dir="auto">Robustness</h3>
+<p dir="auto">ShellCheck can make suggestions for improving the robustness of a script:</p>
+<div data-snippet-clipboard-copy-content="rm -rf &#34;$STEAMROOT/&#34;*            # Catastrophic rm
+touch ./-l; ls *                 # Globs that could become options
+find . -exec sh -c &#39;a &amp;&amp; b {}&#39; \; # Find -exec shell injection
+printf &#34;Hello $name&#34;             # Variables in printf format
+for f in $(ls *.txt); do         # Iterating over ls output
+export MYVAR=$(cmd)              # Masked exit codes
+case $version in 2.*) :;; 2.6.*) # Shadowed case branches
+"><pre>rm -rf <span><span>&#34;</span><span>$STEAMROOT</span>/<span>&#34;</span></span><span>*</span>            <span><span>#</span> Catastrophic rm</span>
+touch ./-l<span>;</span> ls <span>*</span>                 <span><span>#</span> Globs that could become options</span>
+find <span>.</span> -exec sh -c <span><span>&#39;</span>a &amp;&amp; b {}<span>&#39;</span></span> <span>\;</span> <span><span>#</span> Find -exec shell injection</span>
+<span>printf</span> <span><span>&#34;</span>Hello <span>$name</span><span>&#34;</span></span>             <span><span>#</span> Variables in printf format</span>
+<span>for</span> <span>f</span> <span>in</span> <span><span>$(</span>ls <span>*</span>.txt<span>)</span></span><span>;</span> <span>do</span>         <span><span>#</span> Iterating over ls output</span>
+<span>export</span> MYVAR=<span><span>$(</span>cmd<span>)</span></span>              <span><span>#</span> Masked exit codes</span>
+<span>case</span> <span>$version</span> <span>in</span> 2.<span>*</span>) <span>:</span>;; 2.6.<span>*</span>) <span><span>#</span> Shadowed case branches</span></pre></div>
+<h3 dir="auto">Portability</h3>
+<p dir="auto">ShellCheck will warn when using features not supported by the shebang. For example, if you set the shebang to <code>#!/bin/sh</code>, ShellCheck will warn about portability issues similar to <code>checkbashisms</code>:</p>
+<div data-snippet-clipboard-copy-content="echo {1..$n}                     # Works in ksh, but not bash/dash/sh
+echo {1..10}                     # Works in ksh and bash, but not dash/sh
+echo -n 42                       # Works in ksh, bash and dash, undefined in sh
+expr match str regex             # Unportable alias for `expr str : regex`
+trap &#39;exit 42&#39; sigint            # Unportable signal spec
+cmd &amp;&gt; file                      # Unportable redirection operator
+read foo &lt; /dev/tcp/host/22      # Unportable intercepted files
+foo-bar() { ..; }                # Undefined/unsupported function name
+[ $UID = 0 ]                     # Variable undefined in dash/sh
+local var=value                  # local is undefined in sh
+time sleep 1 | sleep 5           # Undefined uses of &#39;time&#39;
+"><pre><span>echo</span> {1..<span>$n</span>}                     <span><span>#</span> Works in ksh, but not bash/dash/sh</span>
+<span>echo</span> {1..10}                     <span><span>#</span> Works in ksh and bash, but not dash/sh</span>
+<span>echo</span> -n 42                       <span><span>#</span> Works in ksh, bash and dash, undefined in sh</span>
+expr match str regex             <span><span>#</span> Unportable alias for `expr str : regex`</span>
+<span>trap</span> <span><span>&#39;</span>exit 42<span>&#39;</span></span> sigint            <span><span>#</span> Unportable signal spec</span>
+cmd <span>&amp;</span><span>&gt;</span> file                      <span><span>#</span> Unportable redirection operator</span>
+<span>read</span> foo <span>&lt;</span> /dev/tcp/host/22      <span><span>#</span> Unportable intercepted files</span>
+<span>foo-bar</span>() { ..<span>;</span> }                <span><span>#</span> Undefined/unsupported function name</span>
+[ <span>$UID</span> <span>=</span> 0 ]                     <span><span>#</span> Variable undefined in dash/sh</span>
+<span>local</span> var=value                  <span><span>#</span> local is undefined in sh</span>
+<span>time</span> sleep 1 <span>|</span> sleep 5           <span><span>#</span> Undefined uses of &#39;time&#39;</span></pre></div>
+<h3 dir="auto">Miscellaneous</h3>
+<p dir="auto">ShellCheck recognizes a menagerie of other issues:</p>
+<div data-snippet-clipboard-copy-content="PS1=&#39;\e[0;32m\$\e[0m &#39;            # PS1 colors not in \[..\]
+PATH=&#34;$PATH:~/bin&#34;                # Literal tilde in $PATH
+rm “file”                         # Unicode quotes
+echo &#34;Hello world&#34;                # Carriage return / DOS line endings
+echo hello \                      # Trailing spaces after \
+var=42 echo $var                  # Expansion of inlined environment
+!# bin/bash -x -e                 # Common shebang errors
+echo $((n/180*100))               # Unnecessary loss of precision
+ls *[:digit:].txt                 # Bad character class globs
+sed &#39;s/foo/bar/&#39; file &gt; file      # Redirecting to input
+var2=$var2                        # Variable assigned to itself
+[ x$var = xval ]                  # Antiquated x-comparisons
+ls() { ls -l &#34;$@&#34;; }              # Infinitely recursive wrapper
+alias ls=&#39;ls -l&#39;; ls foo          # Alias used before it takes effect
+for x; do for x; do               # Nested loop uses same variable
+while getopts &#34;a&#34; f; do case $f in &#34;b&#34;) # Unhandled getopts flags
+"><pre>PS1=<span><span>&#39;</span>\e[0;32m\$\e[0m <span>&#39;</span></span>            <span><span>#</span> PS1 colors not in \[..\]</span>
+PATH=<span><span>&#34;</span><span>$PATH</span>:~/bin<span>&#34;</span></span>                <span><span>#</span> Literal tilde in $PATH</span>
+rm “file”                         <span><span>#</span> Unicode quotes</span>
+<span>echo</span> <span><span>&#34;</span>Hello world<span>&#34;</span></span>                <span><span>#</span> Carriage return / DOS line endings</span>
+<span>echo</span> hello <span>\ </span>                     <span><span>#</span> Trailing spaces after \</span>
+var=42 <span>echo</span> <span>$var</span>                  <span><span>#</span> Expansion of inlined environment</span>
+<span>!</span><span><span>#</span> bin/bash -x -e                 # Common shebang errors</span>
+<span>echo</span> <span><span>$((</span>n<span>/</span><span>180</span><span>*</span><span>100</span><span>))</span></span>               <span><span>#</span> Unnecessary loss of precision</span>
+ls <span>*</span>[:digit:].txt                 <span><span>#</span> Bad character class globs</span>
+sed <span><span>&#39;</span>s/foo/bar/<span>&#39;</span></span> file <span>&gt;</span> file      <span><span>#</span> Redirecting to input</span>
+var2=<span>$var2</span>                        <span><span>#</span> Variable assigned to itself</span>
+[ x<span>$var</span> <span>=</span> xval ]                  <span><span>#</span> Antiquated x-comparisons</span>
+<span>ls</span>() { ls -l <span><span>&#34;</span><span>$@</span><span>&#34;</span></span><span>;</span> }              <span><span>#</span> Infinitely recursive wrapper</span>
+<span>alias</span> ls=<span><span>&#39;</span>ls -l<span>&#39;</span></span><span>;</span> ls foo          <span><span>#</span> Alias used before it takes effect</span>
+<span>for</span> x<span>;</span> <span>do</span> <span>for</span> x<span>;</span> <span>do</span>               <span><span>#</span> Nested loop uses same variable</span>
+<span>while</span> <span>getopts</span> <span><span>&#34;</span>a<span>&#34;</span></span> f<span>;</span> <span>do</span> <span>case</span> <span>$f</span> <span>in</span> <span><span>&#34;</span>b<span>&#34;</span></span>) <span><span>#</span> Unhandled getopts flags</span></pre></div>
+<h2 dir="auto">Testimonials</h2>
+<blockquote>
+<p dir="auto">At first you&#39;re like &#34;shellcheck is awesome&#34; but then you&#39;re like &#34;wtf are we still using bash&#34;</p>
+</blockquote>
+<p dir="auto">Alexander Tarasikov,
+<a href="https://twitter.com/astarasikov/status/568825996532707330" rel="nofollow">via Twitter</a></p>
+<h2 dir="auto">Ignoring issues</h2>
+<p dir="auto">Issues can be ignored via environmental variable, command line, individually or globally within a file:</p>
+<p dir="auto"><a href="https://github.com/koalaman/shellcheck/wiki/Ignore">https://github.com/koalaman/shellcheck/wiki/Ignore</a></p>
+<h2 dir="auto">Reporting bugs</h2>
+<p dir="auto">Please use the GitHub issue tracker for any bugs or feature suggestions:</p>
+<p dir="auto"><a href="https://github.com/koalaman/shellcheck/issues">https://github.com/koalaman/shellcheck/issues</a></p>
+<h2 dir="auto">Contributing</h2>
+<p dir="auto">Please submit patches to code or documentation as GitHub pull requests! Check
+out the <a href="https://github.com/koalaman/shellcheck/wiki/DevGuide">DevGuide</a> on the
+ShellCheck Wiki.</p>
+<p dir="auto">Contributions must be licensed under the GNU GPLv3.
+The contributor retains the copyright.</p>
+<h2 dir="auto">Copyright</h2>
+<p dir="auto">ShellCheck is licensed under the GNU General Public License, v3. A copy of this license is included in the file <a href="https://github.com/koalaman/shellcheck/blob/master/LICENSE">LICENSE</a>.</p>
+<p dir="auto">Copyright 2012-2019, <a href="https://github.com/koalaman/">Vidar &#39;koala_man&#39; Holen</a> and contributors.</p>
+<p dir="auto">Happy ShellChecking!</p>
+<h2 dir="auto">Other Resources</h2>
+<ul dir="auto">
+<li>The wiki has <a href="https://github.com/koalaman/shellcheck/wiki/Checks">long form descriptions</a> for each warning, e.g. <a href="https://github.com/koalaman/shellcheck/wiki/SC2221">SC2221</a>.</li>
+<li>ShellCheck does not attempt to enforce any kind of formatting or indenting style, so also check out <a href="https://github.com/mvdan/sh">shfmt</a>!</li>
+</ul>
+</article>
+        </div></div>

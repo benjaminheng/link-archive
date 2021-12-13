@@ -1,0 +1,69 @@
+---
+url: https://fle.github.io/git-tip-keep-your-branch-clean-with-fixup-and-autosquash.html
+title: 'GIT tip : Keep your branch clean with fixup and autosquash'
+archived_at: 2021-12-13T16:10:06.017919+08:00
+---
+<div id="readability-page-1" class="page"><div role="main">
+	<article>
+		
+		
+		
+		
+		<p>Who is not tired of committing a &#34;Remove pdb&#34; or a &#34;Fix a typo&#34; few minutes or hours after committing a clean feature ? A few time ago, I discovered two useful options in GIT that work together : <tt>git commit <span>--fixup</span></tt> and <tt>git rebase <span>--autosquash</span></tt>. With these, you can easily merge little fixes with the original feature and keep your branch clean.</p>
+<p>Preferably, you won&#39;t use it in a stable or master branch, because rebase rewrites history and can create a big mess, mainly if project counts several developers. It rather can be convenient to clean a development branch before merging it in master.</p>
+<div id="fixup-autosquash">
+<h2>--fixup &amp; --autosquash</h2>
+<ul>
+<li><tt>git commit <span>--fixup</span> &lt;commit&gt;</tt> automatically marks your commit as a fix of a previous commit</li>
+<li><tt>git rebase <span>-i</span> <span>--autosquash</span></tt> automatically organize merging of these fixup commits and associated normal commits</li>
+</ul>
+</div>
+<div id="example">
+<h2>Example</h2>
+<p>Take a git repos with a branch <cite>dev</cite>. You intend to commit features A and B:</p>
+<div><pre><span></span><span>$</span> <span>(</span>dev<span>)</span> git add featureA
+<span>$</span> <span>(</span>dev<span>)</span> git commit -m <span>&#34;Feature A is done&#34;</span>
+<span>[dev fb2f677] Feature A is done</span>
+<span>$</span> <span>(</span>dev<span>)</span> git add featureB
+<span>$</span> <span>(</span>dev<span>)</span> git commit -m <span>&#34;Feature B is done&#34;</span>
+<span>[dev 733e2ff] Feature B is done</span>
+</pre></div>
+<p>Your work is in progress and you find minor mistakes in Feature A : it&#39;s time to use <tt><span>--fixup</span></tt> option !</p>
+<div><pre><span></span><span>$</span> <span>(</span>dev<span>)</span> git add featureA                <span># you&#39;ve removed a pdb : shameful commit</span>
+<span>$</span> <span>(</span>dev<span>)</span> git commit --fixup fb2f677
+<span>[dev c5069d5] fixup! Feature A is done</span>
+</pre></div>
+<p>Here, you see that GIT automatically retrieved featureA commit message prefixed by fixup!.</p>
+<p>All work is done, let&#39;s see the log:</p>
+<div><pre><span></span><span>$</span> <span>(</span>dev<span>)</span> git log --oneline
+<span>c5069d5 fixup! Feature A is done</span>
+<span>733e2ff Feature B is done</span>
+<span>fb2f677 Feature A is done</span>
+<span>ac5db87 Previous commit</span>
+</pre></div>
+<p>Now, you want to clean your branch before merging it : it&#39;s time to use <tt><span>--autosquash</span></tt> option !</p>
+<div><pre><span></span><span>$</span> <span>(</span>dev<span>)</span> git rebase -i --autosquash ac5db87
+<span>pick fb2f677 Feature A is done</span>
+<span>fixup c5069d5 fixup! Feature A is done</span>
+<span>fixup c9e138f fixup! Feature A is done</span>
+<span>pick 733e2ff Feature B is done</span>
+</pre></div>
+<p>This command has opened your editor with lines above. Just save &amp; quit and ... :</p>
+<div><pre><span></span><span>$</span> <span>(</span>dev<span>)</span> git log --oneline
+<span>ff4de2a Feature B is done</span>
+<span>5478cee Feature A is done</span>
+<span>ac5db87 Previous commit</span>
+</pre></div>
+<p>Your shameful commit has been merged properly with the original feature. It&#39;s just a shorcut for something you could do otherwise but I find it very convenient :).</p>
+<p>That&#39;s all folks !</p>
+<p>EDIT : <tt>git rebase i <span>&lt;after-this-commit&gt;</span></tt> must be launched with as argument <cite>the last commit you want to retain as-is</cite>, not the first one you want to change.</p>
+<p>Thanks <a href="http://twitter.com/regilero">regilero</a> &amp; <a href="http://twitter.com/SebCorbin">SebCorbin</a> for reviewing!</p>
+</div>
+	
+
+	</article>
+
+
+	
+
+		  </div></div>

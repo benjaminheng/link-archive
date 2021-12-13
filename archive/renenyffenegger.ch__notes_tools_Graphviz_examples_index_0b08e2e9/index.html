@@ -1,0 +1,449 @@
+---
+url: https://renenyffenegger.ch/notes/tools/Graphviz/examples/index
+title: Graphviz (dot) examples
+archived_at: 2021-12-13T16:09:55.699973+08:00
+---
+<div id="readability-page-1" class="page">
+<p>Search notes: </p>
+
+
+<p>
+Some examples on how to use <a href="https://renenyffenegger.ch/notes/tools/Graphviz/index">Graphviz</a>. </p>
+<div>
+<h2>Dotted edges etc</h2>
+<p>
+  This example uses a <a href="https://renenyffenegger.ch/notes/tools/Graphviz/elems/edge/index">edge&#39;s</a> attribute <code>style</code> to draw a dotted edge. </p>
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/dotted-edge.png"/> </p>
+
+<pre>digraph D {
+
+  A [shape=diamond]
+  B [shape=box]
+  C [shape=circle]
+
+  A -&gt; B [style=dashed, color=grey]
+  A -&gt; C [color=&#34;black:invis:black&#34;]
+  A -&gt; D [penwidth=5, arrowhead=none]
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Shape: record vs. plaintext</h2>
+
+
+<p>
+  The vertical bar (<code>|</code>) starts a new row or column. </p>
+
+<p>
+  The curly braces <code>{ ... }</code> change (flip) the direction of <code>|</code>. </p>
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/shape-record-vs-plaintext.png"/> </p>
+
+<pre>digraph D {
+
+    node [fontname=&#34;Arial&#34;];
+
+    node_A [shape=record    label=&#34;shape=record|{above|middle|below}|right&#34;];
+    node_B [shape=plaintext label=&#34;shape=plaintext|{curly|braces and|bars without}|effect&#34;];
+
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Multiple edges</h2>
+<p>
+  Normally, a dependency (an <a href="https://renenyffenegger.ch/notes/tools/Graphviz/elems/edge/index">edge</a>) is declared with an arrow: <code>Node1 -&gt; Node2</code>. Multiple <a href="https://renenyffenegger.ch/notes/tools/Graphviz/elems/node/index">nodes</a> can be listed in curly braces, thus declaring multple edges in one go. </p>
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/multiple-edges.png"/> </p>
+
+<pre>digraph D {
+
+  A -&gt; {B, C, D} -&gt; {F}
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Left, mid and right aligned text</h2>
+<p><code>\l</code> makes the <i>preceeding</i> (!) text left aligned, <code>\n</code> makes it centered and <code>\r</code> makes it right aligned. </p>
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/left-mid-right-aligned-text.png"/> </p>
+
+<pre>digraph L {
+
+  node [shape=record fontname=Arial];
+
+  a  [label=&#34;one\ltwo three\lfour five six seven\l&#34;]
+  b  [label=&#34;one\ntwo three\nfour five six seven&#34;]
+  c  [label=&#34;one\rtwo three\rfour five six seven\r&#34;]
+
+  a -&gt; b -&gt; c
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Giving the graph a title</h2>
+
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/label.png"/> </p>
+
+<pre>digraph D {
+
+  label = &#34;The foo, the bar and the baz&#34;;
+  labelloc = &#34;t&#34;; // place the label at the top (b seems to be default)
+
+  node [shape=plaintext]
+
+  FOO -&gt; {BAR, BAZ};
+
+
+}
+</pre>
+
+</div>
+<div>
+<h2>HTML like labels</h2>
+<p>
+  If the text of <a href="https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/index"><code>label</code></a> is enclosed in <code>&lt;…&gt;</code> rather than in <code>&#34;…&#34;</code>, the text is treated as <a href="https://renenyffenegger.ch/notes/development/web/HTML/index">HTML</a> and rendered as   <a href="https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index">HTML like label</a>. </p>
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/label-html-like.png"/> </p>
+
+<pre>digraph D {
+
+  label = &lt;The &lt;font color=&#39;red&#39;&gt;&lt;b&gt;foo&lt;/b&gt;&lt;/font&gt;,&lt;br/&gt; the &lt;font point-size=&#39;20&#39;&gt;bar&lt;/font&gt; and&lt;br/&gt; the &lt;i&gt;baz&lt;/i&gt;&gt;;
+  labelloc = &#34;t&#34;; // place the label at the top (b seems to be default)
+
+  node [shape=plaintext]
+
+  FOO -&gt; {BAR, BAZ};
+
+}
+</pre>
+
+</div>
+<div>
+<h2>rank</h2>
+<p><code>{ rank=same node_1 node_2 … }</code> specifies that the specified nodes have the same rank, that is, that their distance from the top or left   border is equal. </p>
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/rank.png"/> </p>
+
+<pre>digraph R {
+
+  node [shape=record];
+
+  { rank=same rA sA tA }
+  { rank=same uB vB wB }
+
+
+   rA -&gt; sA;
+   sA -&gt; vB;
+   t  -&gt; rA;
+   uB -&gt; vB;
+   wB -&gt; u;
+   wB -&gt; tA;
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Subgraph (clusters)</h2>
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/subgraph.png"/> </p>
+
+<pre>digraph Q {
+
+  node [shape=record];
+
+
+  nd_1   [label = &#34;Node 1&#34;];
+  nd_2   [label = &#34;Node 2&#34;];
+  nd_3_a [label = &#34;Above Right Node 3&#34;];
+  nd_3_l [label = &#34;Left of Node 3&#34;];
+  nd_3   [label = &#34;Node 3&#34;];
+  nd_3_r [label = &#34;Right of Node 3&#34;];
+  nd_4   [label = &#34;Node 4&#34;];
+
+
+  nd_3_a -&gt; nd_3_r;
+  nd_1 -&gt; nd_2 -&gt; nd_3 -&gt; nd_4;
+
+  subgraph cluster_R {
+
+    {rank=same nd_3_l nd_3 nd_3_r}
+
+    nd_3_l -&gt; nd_3 -&gt; nd_3_r [color=grey arrowhead=none];
+
+  }
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Nested clusters</h2>
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/nested-clusters.png"/> </p>
+
+<pre>digraph D {
+
+  subgraph cluster_p {
+    label = &#34;Parent&#34;;
+
+    subgraph cluster_c1 {
+      label = &#34;Child one&#34;;
+      a;
+
+      subgraph cluster_gc_1 {
+        label = &#34;Grand-Child one&#34;;
+         b;
+      }
+      subgraph cluster_gc_2 {
+        label = &#34;Grand-Child two&#34;;
+          c;
+          d;
+      }
+
+    }
+
+    subgraph cluster_c2 {
+      label = &#34;Child two&#34;;
+      e;
+    }
+  }
+} 
+</pre>
+
+</div>
+<div>
+<h2>HTML table</h2>
+<p>
+  HTML tables are produced if the value of the <a href="https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/index"><code>label</code> attribute</a> is enclosed in <code>&lt;…&gt;</code> rather than <code>&#34;…&#34;</code>:   <img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/html-table.png"/> </p>
+
+<pre>digraph H {
+
+  aHtmlTable [
+   shape=plaintext
+   color=blue      // The color of the border of the table
+   label=&lt;
+
+     &lt;table border=&#39;1&#39; cellborder=&#39;0&#39;&gt;
+       &lt;tr&gt;&lt;td&gt;col 1&lt;/td&gt;&lt;td&gt;foo&lt;/td&gt;&lt;/tr&gt;
+       &lt;tr&gt;&lt;td&gt;COL 2&lt;/td&gt;&lt;td&gt;bar&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;
+
+  &gt;];
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Nested HTML table</h2>
+<p>
+  HTML tables can be nested   <img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/html-table-nested.png"/> </p>
+
+<pre>digraph {
+
+  tbl [
+
+    shape=plaintext
+    label=&lt;
+
+      &lt;table border=&#39;0&#39; cellborder=&#39;1&#39; color=&#39;blue&#39; cellspacing=&#39;0&#39;&gt;
+        &lt;tr&gt;&lt;td&gt;foo&lt;/td&gt;&lt;td&gt;bar&lt;/td&gt;&lt;td&gt;baz&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt;&lt;td cellpadding=&#39;4&#39;&gt;
+          &lt;table color=&#39;orange&#39; cellspacing=&#39;0&#39;&gt;
+            &lt;tr&gt;&lt;td&gt;one  &lt;/td&gt;&lt;td&gt;two  &lt;/td&gt;&lt;td&gt;three&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;four &lt;/td&gt;&lt;td&gt;five &lt;/td&gt;&lt;td&gt;six  &lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;seven&lt;/td&gt;&lt;td&gt;eight&lt;/td&gt;&lt;td&gt;nine &lt;/td&gt;&lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt;
+        &lt;td colspan=&#39;2&#39; rowspan=&#39;2&#39;&gt;
+          &lt;table color=&#39;pink&#39; border=&#39;0&#39; cellborder=&#39;1&#39; cellpadding=&#39;10&#39; cellspacing=&#39;0&#39;&gt;
+            &lt;tr&gt;&lt;td&gt;eins&lt;/td&gt;&lt;td&gt;zwei&lt;/td&gt;&lt;td rowspan=&#39;2&#39;&gt;drei&lt;br/&gt;sechs&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt;&lt;td&gt;vier&lt;/td&gt;&lt;td&gt;fünf&lt;/td&gt;                             &lt;/tr&gt;
+          &lt;/table&gt;
+        &lt;/td&gt; 
+        &lt;/tr&gt;
+
+        &lt;tr&gt;&lt;td&gt;abc&lt;/td&gt;&lt;/tr&gt;
+
+      &lt;/table&gt;
+
+    &gt;];
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Colors</h2>
+
+
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/colors.png"/> </p>
+
+<pre>digraph D {
+
+  node [shape=plaintext]
+
+  some_node [
+   label=&lt;
+     &lt;table border=&#34;0&#34; cellborder=&#34;1&#34; cellspacing=&#34;0&#34;&gt;
+       &lt;tr&gt;&lt;td bgcolor=&#34;yellow&#34;&gt;Foo&lt;/td&gt;&lt;/tr&gt;
+       &lt;tr&gt;&lt;td bgcolor=&#34;lightblue&#34;&gt;&lt;font color=&#34;#0000ff&#34;&gt;Bar&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+       &lt;tr&gt;&lt;td bgcolor=&#34;#f0e3ff&#34;&gt;&lt;font color=&#34;#ff1020&#34;&gt;Baz&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;&gt;
+  ];
+ 
+
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Rounded box</h2>
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/rounded-box.png"/> </p>
+
+<pre>digraph H {
+
+  aHtmlTable [
+   shape=plaintext
+   label=&lt;
+
+     &lt;table border=&#39;1&#39; cellborder=&#39;0&#39; style=&#39;rounded&#39;&gt;
+       &lt;tr&gt;&lt;td&gt;col 1&lt;/td&gt;&lt;td&gt;foo&lt;/td&gt;&lt;/tr&gt;
+       &lt;tr&gt;&lt;td&gt;COL 2&lt;/td&gt;&lt;td&gt;bar&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;
+
+  &gt;];
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Ports</h2>
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/ports.png"/> </p>
+
+<pre>digraph H {
+
+  parent [
+   shape=plaintext
+   label=&lt;
+     &lt;table border=&#39;1&#39; cellborder=&#39;1&#39;&gt;
+       &lt;tr&gt;&lt;td colspan=&#34;3&#34;&gt;The foo, the bar and the baz&lt;/td&gt;&lt;/tr&gt;
+       &lt;tr&gt;&lt;td port=&#39;port_one&#39;&gt;First port&lt;/td&gt;&lt;td port=&#39;port_two&#39;&gt;Second port&lt;/td&gt;&lt;td port=&#39;port_three&#39;&gt;Third port&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;
+  &gt;];
+
+  child_one [
+   shape=plaintext
+   label=&lt;
+     &lt;table border=&#39;1&#39; cellborder=&#39;0&#39;&gt;
+       &lt;tr&gt;&lt;td&gt;1&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;
+  &gt;];
+
+  child_two [
+   shape=plaintext
+   label=&lt;
+     &lt;table border=&#39;1&#39; cellborder=&#39;0&#39;&gt;
+       &lt;tr&gt;&lt;td&gt;2&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;
+  &gt;];
+
+  child_three [
+   shape=plaintext
+   label=&lt;
+     &lt;table border=&#39;1&#39; cellborder=&#39;0&#39;&gt;
+       &lt;tr&gt;&lt;td&gt;3&lt;/td&gt;&lt;/tr&gt;
+     &lt;/table&gt;
+  &gt;];
+
+  parent:port_one   -&gt; child_one;
+  parent:port_two   -&gt; child_two;
+  parent:port_three -&gt; child_three;
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Project Dependencies</h2>
+<p><img src="https://renenyffenegger.ch/notes/tools/Graphviz/examples/ProjectDependencies.png"/> </p>
+
+<pre>digraph D {
+
+  node [shape=plaintext fontname=&#34;Sans serif&#34; fontsize=&#34;8&#34;];
+
+  task_menu [ label=&lt;
+   &lt;table border=&#34;1&#34; cellborder=&#34;0&#34; cellspacing=&#34;1&#34;&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;b&gt;Task 1&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;Choose Menu&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;font color=&#34;darkgreen&#34;&gt;done&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+   &lt;/table&gt;&gt;];
+
+  task_ingredients [ label=&lt;
+   &lt;table border=&#34;1&#34; cellborder=&#34;0&#34; cellspacing=&#34;1&#34;&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;b&gt;Task 2&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;Buy ingredients&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;font color=&#34;darkgreen&#34;&gt;done&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+   &lt;/table&gt;&gt;];
+
+  task_invitation [ label=&lt;
+   &lt;table border=&#34;1&#34; cellborder=&#34;0&#34; cellspacing=&#34;1&#34;&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;b&gt;Task 4&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;Send invitation&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;font color=&#34;darkgreen&#34;&gt;done&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+   &lt;/table&gt;&gt;];
+
+  task_cook [ label=&lt;
+   &lt;table border=&#34;1&#34; cellborder=&#34;0&#34; cellspacing=&#34;1&#34;&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;b&gt;Task 5&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;Cook&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;font color=&#34;red&#34;&gt;todo&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+   &lt;/table&gt;&gt;];
+
+  task_table[ label=&lt;
+   &lt;table border=&#34;1&#34; cellborder=&#34;0&#34; cellspacing=&#34;1&#34;&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;b&gt;Task 3&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;Lay table&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;font color=&#34;red&#34;&gt;todo&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+   &lt;/table&gt;&gt;];
+
+  task_eat[ label=&lt;
+   &lt;table border=&#34;1&#34; cellborder=&#34;0&#34; cellspacing=&#34;1&#34;&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;b&gt;Task 6&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;Eat&lt;/td&gt;&lt;/tr&gt;
+     &lt;tr&gt;&lt;td align=&#34;left&#34;&gt;&lt;font color=&#34;red&#34;&gt;todo&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;
+   &lt;/table&gt;&gt;];
+
+
+  task_menu        -&gt; task_ingredients;
+  task_ingredients -&gt; task_cook;
+  task_invitation  -&gt; task_cook;
+  task_table       -&gt; task_eat;
+  task_cook        -&gt; task_eat;
+
+}
+</pre>
+
+</div>
+<div>
+<h2>Thanks</h2>
+<p>
+  Thanks to <a href="https://github.com/devcurmudgeon">Paul Sheerwood</a> and Gregor Gaskell for fixing a couple of typos. </p>
+</div>
+
+
+
+
+</div>

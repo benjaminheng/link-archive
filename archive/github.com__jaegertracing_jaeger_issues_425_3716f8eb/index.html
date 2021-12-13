@@ -1,0 +1,27 @@
+---
+url: https://github.com/jaegertracing/jaeger/issues/425
+title: 'Discuss post-trace (tail-based) sampling · Issue #425 · jaegertracing/jaeger'
+archived_at: 2021-12-13T16:09:24.24852+08:00
+---
+<div id="readability-page-1" class="page"><div disabled="" sortable="">
+          <p dir="auto">Booking this as a placeholder for discussions about implementing tail-based sampling. Copying from our original roadmap document:</p>
+<p dir="auto">Instead of blindly sampling a random % of all traces, we want to sample traces that are <em>interesting</em>, which can mean high latency, unexpected error codes, equal representation of different latency buckets, etc.</p>
+<p dir="auto">The proposed approach is to configure client libraries to emit <em>all</em> spans over UDP to the local jaeger-agent running on the host, irrespective of any sampling. The local jaeger-agents will store all spans in-memory and submit minimal statistics about the spans to the central jaeger-collectors, using consistent hashing, so that statistics about any given trace is assembled from multiple hosts on a single jaeger-collector. Once the trace is completed, the collector will decide if that trace is “interesting”, and if so it will pull the rest of the trace details (complete spans, with tags, events, and micro-logs) from the participating jaeger-agents and forward it to the storage. If the trace is deemed not interesting, the collector will inform jaeger-agents that the data can be discarded.</p>
+<p dir="auto">This approach will require higher resource usage. However, the mitigating factors are:</p>
+<ul dir="auto">
+<li>Span reporting is done over UDP via loopback interface to the agent on the same host.
+<ul dir="auto">
+<li>A possible further optimization, at the expense of client library complexity, is to keep the spans in memory of the business process, and only submit statistics to the agent. This will significantly reduce the overhead of serializing spans to Thrift or protobuf.</li>
+<li>[by <a data-hovercard-type="user" data-hovercard-url="/users/kwojcik/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/kwojcik">@kwojcik</a>] Another option that might be over-the-top is to use a shared memory segment to avoid going through the kernel all together (may not work with containers).</li>
+</ul>
+</li>
+<li>The spans are stored in memory for the duration of the trace, so the memory usage on the host will go up. However, the TTL of this caching is very short, on average equal to the average latency of the top level request. A hard upper bound, e.g. 5-10 seconds, can be placed on the cache and spans exceeding that time can be automatically flushed to the agent/collector, since they are most likely to be a part of “interesting” trace (we expect 5 sec response time is not the norm).</li>
+<li>All spans, not just pre-sampled, need to be reported to the central collectors in order to make the “interesting trace” determination. To reduce the volume of traffic, only minimal required statistics about the span will be reported in the first pass. A certain amount of decision making can actually be placed onto jaeger-agent, who may keep stats on the latency buckets by service + endpoint, and force the sampling of the whole trace.
+<ul dir="auto">
+<li>This can be reduced even further if the logic for deciding what &#34;interesting&#34; traces are can be done at the span level and pushed down to the agents</li>
+</ul>
+</li>
+</ul>
+<h2 dir="auto">Update 2020-02-05</h2>
+<p dir="auto">We&#39;re currently working on a prototype of &#34;aggregating collectors&#34; that will support tail-based sampling. Note that OpenTelemetry Collector already implements a simple version of tail-based sampling, however it only works in a single-node mode, whereas the work we&#39;re doing allows to shard traces across multiple aggregators, which allows to scale to higher levels of traffic. <a data-hovercard-type="user" data-hovercard-url="/users/vprithvi/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/vprithvi">@vprithvi</a> is giving regular updates from this work in the Jaeger Project status calls.</p>
+      </div></div>

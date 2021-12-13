@@ -1,0 +1,115 @@
+---
+url: https://thoughtbot.com/blog/improving-the-command-line-postgres-experience
+title: Improving the Command-Line Postgres Experience
+archived_at: 2021-12-13T16:10:04.652281+08:00
+---
+<div id="readability-page-1" class="page"><div>
+<p>Understanding the <a href="http://www.postgresql.org/docs/9.3/static/app-psql.html"><code>~/.psqlrc</code></a> configuration file, its options, and
+reading others’ <code>~/.psqlrc</code> files makes working with command-line Postgres more
+enjoyable.</p>
+<h2 id="changing-the-prompt">
+  <a href="#changing-the-prompt">
+    Changing the prompt
+  </a>
+</h2>
+
+<p>By default, the prompt is a little blah:</p>
+<div><pre><code>$ psql my_database
+my_database=#
+</code></pre></div>
+<p>Let’s jazz it up.</p>
+
+<p>There are <a href="http://www.postgresql.org/docs/9.3/static/app-psql.html#APP-PSQL-PROMPTING">a lot of options</a> for changing the prompt. You can add
+colors, domain names, the name of the current database, and more.</p>
+<div><pre><code>\set PROMPT1 &#39;%[%033[1m%]%M %n@%/%R%[%033[0m%]%# &#39;
+</code></pre></div>
+<ul>
+<li>The <code>%[..%]</code> sets the default prompt color to a bold black.</li>
+<li><code>%M</code> is “The full host name (with domain name) of the database server, or
+[local] if the connection is over a Unix domain socket”.</li>
+<li><code>%n</code> is the database user name.</li>
+<li><code>%/</code> is the database name.</li>
+<li><code>%R</code> is “normally <code>=</code>, but <code>^</code> if in <a href="http://www.postgresql.org/docs/9.3/static/app-psql.html#R1-APP-PSQL-3">single-line mode</a>,
+and <code>!</code> if the session is disconnected from the database”. It’s nice to see
+when you’re disconnected.</li>
+<li>The final <code>%[...%]</code> resets the color to non-bold black.</li>
+<li><code>%#</code> is <code>#</code> if you’re a superuser, otherwise <code>&gt;</code>.</li>
+</ul>
+
+<p>Here’s how it looks on a local database:</p>
+
+<p><img src="https://images.thoughtbot.com/psql_prompt.png" alt="psql prompt"/></p>
+<h2 id="changing-the-prompt-again">
+  <a href="#changing-the-prompt-again">
+    Changing the prompt, again
+  </a>
+</h2>
+
+<p>Being the smart cookie you are, you’ve probably inferred that a setting called
+<code>PROMPT1</code> implies that there’s a <code>PROMPT2</code>. And you’re right! You go, Glen Coco.
+<code>PROMPT2</code> for you:</p>
+<div><pre><code>\set PROMPT2 &#39;[more] %R &gt; &#39;
+</code></pre></div>
+<p><code>PROMPT2</code> is used when <code>psql</code> is waiting for more input, like when you type
+<code>SELECT * FROM</code> then hit enter - you haven’t typed a semicolon, so <code>psql</code>
+patiently displays <code>PROMPT2</code> and waits.</p>
+
+<p>Here’s the rundown:</p>
+
+<ul>
+<li><code>[more]</code> is the literal string <code>[more]</code>.</li>
+<li><code>%R</code> in <code>PROMPT2</code> has a different meaning than in <code>PROMPT1</code> - “in prompt 2 the
+sequence is replaced by <code>-</code>, <code>\*</code>, a single quote, a double quote, or a dollar
+sign, depending on whether <code>psql</code> expects more input because the command wasn’t
+terminated yet, because you are inside a <code>/\* ... \*/</code> comment, or because you
+are inside a quoted or dollar-escaped string.”</li>
+</ul>
+
+<p>Here’s a contrived example:</p>
+<div><pre><code>[local] gabe@my_database=# SELECT
+[more] - &gt; &#39;
+[more] &#39; &gt; name
+[more] &#39; &gt; &#39;
+[more] - &gt; FROM users;
+</code></pre></div>
+<p>Nice.</p>
+<h2 id="there39s-more-to-life-than-prompts">
+  <a href="#there39s-more-to-life-than-prompts">
+    There’s more to life than prompts
+  </a>
+</h2>
+
+<p>Now your prompt is spiffed up, but your <code>~/.psqlrc</code> can bring still more joy to
+your life. Here are some options I set, with comments:</p>
+<div><pre><code>-- By default, NULL displays as an empty space. Is it actually an empty
+-- string, or is it null? This makes that distinction visible.
+\pset null &#39;[NULL]&#39;
+-- Use table format (with headers across the top) by default, but switch to
+-- expanded table format when there&#39;s a lot of data, which makes it much
+-- easier to read.
+\x auto
+-- Verbose error reports.
+\set VERBOSITY verbose
+-- Use a separate history file per-database.
+\set HISTFILE ~/.psql_history- :DBNAME
+-- If a command is run more than once in a row, only store it once in the
+-- history.
+\set HISTCONTROL ignoredups
+-- Autocomplete keywords (like SELECT) in upper-case, even if you started
+-- typing them in lower case.
+\set COMP_KEYWORD_CASE upper
+</code></pre></div><h2 id="what39s-next">
+  <a href="#what39s-next">
+    What’s next
+  </a>
+</h2>
+
+<p>If you found this useful, I recommend:</p>
+
+<ul>
+<li>The <a href="http://www.postgresql.org/docs/9.3/static/app-psql.html">official <code>~/.psqlrc</code> documentation</a></li>
+<li>Craig Kerstiens’ talk, <a href="http://craigkerstiens.com/2013/02/13/How-I-Work-With-Postgres/">How I Work with Postgres</a></li>
+<li>Harold Giménez’s <a href="https://github.com/hgmnz/dotfiles/blob/master/psqlrc"><code>~/.psqlrc</code></a></li>
+</ul>
+
+</div></div>
