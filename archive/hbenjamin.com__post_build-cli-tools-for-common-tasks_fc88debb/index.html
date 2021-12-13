@@ -1,0 +1,58 @@
+---
+url: https://hbenjamin.com/post/build-cli-tools-for-common-tasks/
+title: Build CLI tools for common tasks
+archived_at: 2021-12-13T16:00:25.299905+08:00
+---
+<div id="readability-page-1" class="page"><div>
+  
+
+  
+
+  <p>I frequently build command-line (CLI) tools to perform common tasks. These tools not only help me to do my job more effectively, but also have other compounding effects on productivity.</p>
+<p>Here’s an example. I find myself often needing to fetch information about particular entities during my day-to-day work. Sometimes it’s to investigate an issue, or simply to test some feature I’m developing. Simple fetches are often the first thing I write tooling for:</p>
+<pre><code>$ listingclient get &lt;ID&gt;
+{&#34;title&#34;: &#34;Macbook Pro&#34;, &#34;description&#34;: &#34;&#34;, &#34;price&#34;: 1200.00, ...}
+</code></pre>
+<ul>
+<li><strong>Minimized effort for repeated tasks</strong> - By implementing your common tasks as commands, you make them easily repeatable with minimal effort. It’s easier than <code>curl</code>ing an API, or querying a database, or interacting with a web interface.</li>
+<li><strong>Consistency</strong> - CLI tools provide consistency as well. I know many engineers who would have a Postman instance filled with queries that they would edit on an ad-hoc basis everytime they need to perform some task.</li>
+<li><strong>Productivity multiplier for your team</strong> - Chances are if you find yourself needing to perform a task often, your teammates will have that same need as well. Why not build something once, and share it amongst your team? As your and your team’s needs evolve, features can be incrementally added. Eventually you end up with set of feature-rich tooling, battle-tested over years of use.</li>
+<li><strong>Your tools can act as a public interface for other teams to use</strong> - The tooling owned by your team can be shared with other teams, effectively providing them with an interface into your team’s services. For example, my team owns the Listing entity at Carousell. Other teams can simply use our client to get listing information, without having to worry about which internal API they should call or what its API contract is.</li>
+</ul>
+<h2 id="how-about-a-web-interface"><a href="#how-about-a-web-interface" arialabel="Anchor"></a>How about a web interface?</h2>
+<p>At Carousell we have an internal web platform. However it’s not built in a way that makes it easy for backend engineers to contribute to, which means its feature set is often lagging behind what the engineers need. The platform often only exposes high-level information, since the primary user demographic are non-tech folks. Unless you’re fortunate enough to work somewhere that has a robust internal platform you can easily contribute to, it’s far easier to spin up some CLI tooling.</p>
+<p>In addition, here are some reasons why I generally prefer working with CLI tools:</p>
+<ul>
+<li><strong>Integrates with terminal-based workflows</strong> - For engineers who work exclusively in the terminal, CLI tooling integrates more effectively. When I need to use one of my commands, I just open a tmux split, run that command, then close the split once I’m done. It’s much more efficient than tabbing into a browser and clicking around some UI.</li>
+<li><strong>IDE integration</strong> - For example, we have few JSON configs that have rather complex schemas. Whenever I need to make a change to one of them, I want reassurance that the change I’m making is valid. To aid this I have some simple programs that validates these configs, which I can then invoke from my editor (vim makes this a trivial operation).</li>
+<li><strong>Easier to consume</strong> - The programs I write generally output in JSON. I’ll typically either use <a href="https://stedolan.github.io/jq/">jq</a> or <a href="https://github.com/tomnomnom/gron">gron</a>+grep to filter through output. It’s a lot easier to consume output in this manner compared to a web page.</li>
+<li><strong>Scriptability</strong> - The programs you write can be composed together into some larger script. It’s always nice when you realize that the task you’re working on can be easily done by chaining a few of the commands you’ve already written, instead of having to write something bespoke.</li>
+</ul>
+<h2 id="tips"><a href="#tips" arialabel="Anchor"></a>Tips</h2>
+<p><a href="https://clig.dev/">This is a good reference for CLI guidelines</a>.</p>
+<p>Here are some of my personal ones:</p>
+<ul>
+<li><strong>Follow the <a href="https://en.wikipedia.org/wiki/Unix_philosophy">Unix philosophy</a></strong> - Have your commands do one thing and one thing only. Let your users compose commands together if they need to perform a sequence of steps with your tool.</li>
+<li><strong>Output in unindented JSON</strong> - If someone wants colorized or indented output, they can pipe it through <code>jq</code>.</li>
+<li><strong>Use a subcommand structure</strong> - Subcommands help you group related commands together, as well as make it easier for you to extend your program with more features. A common framework for Go is <a href="https://github.com/spf13/cobra">spf13/cobra</a>, but the <a href="https://gobyexample.com/command-line-subcommands">standard library works fine as well</a>. A good real-world example of subcommands using the stdlib is <a href="https://github.com/golang-migrate/migrate/blob/a53e6fc425743533d66df19fcd275344cfeea6d5/internal/cli/main.go">golang-migrate/migrate</a>.</li>
+<li><strong>Return a zero exit code on success, non-zero on failure</strong> - Scripts use exit codes to determine if your program is successful, so you should return these correctly.</li>
+</ul>
+<h2 id="examples"><a href="#examples" arialabel="Anchor"></a>Examples</h2>
+<p>My most common use-case is to get information about various entities.</p>
+<div><pre><code data-lang="bash">listingclient get &lt;ID&gt;
+categoryclient get &lt;ID&gt;
+</code></pre></div><p>We also have commands that implement CRUD operations. Here’s a set of commands (tweaked for brevity) we have for performing bulk jobs.</p>
+<div><pre><code data-lang="bash">listingclient bulkjob get --limit <span>5</span>               // get the <span>5</span> most recent <span>jobs</span>
+listingclient bulkjob create &lt;...args&gt;            // create a new job
+listingclient bulkjob <span>[</span>pause<span>|</span>unpause<span>|</span>cancel<span>]</span> &lt;ID&gt; // manage the job state
+</code></pre></div><p>As mentioned before, I subscribe to the <a href="https://en.wikipedia.org/wiki/Unix_philosophy">Unix philosophy</a> of building tools that do one thing and do it well. I like to build in such a way that workflows can be composed on top of the commands. For instance, if I wanted to monitor the progress of a particular job, I could simply do the following.</p>
+<div><pre><code data-lang="bash">watch <span>&#39;listingclient bulkjob get &lt;ID&gt; | jq&#39;</span>
+</code></pre></div><p>Here’s another example of composing a workflow. Let’s say I have some entity that I’d like to edit. I could very easily compose a script that (1) gets the entity, (2) opens it in an editor for editing, and (3) updates the entity.</p>
+<div><pre><code data-lang="bash"><span>#!/bin/bash
+</span><span></span><span>ID</span><span>=</span><span>$i</span>
+fooclient foo get <span>$ID</span> <span>|</span> jq <span>&#39;.&#39;</span> &gt; /tmp/foo_<span>$ID</span>.json
+vim /tmp/foo_<span>$ID</span>.json
+fooclient foo update --file /tmp/foo_<span>$ID</span>.json --id <span>$ID</span>
+</code></pre></div><p>Hopefully this post has given you some inspiration!</p>
+
+</div></div>

@@ -1,0 +1,80 @@
+---
+url: https://chrisarcand.com/vims-new-cdo-command/
+title: Chris Arcand
+archived_at: 2021-12-13T16:00:39.229107+08:00
+---
+<div id="readability-page-1" class="page"><div>
+        <article>
+  
+
+  
+
+  <section>
+    <p><strong>TLDR: The new <code>:cdo</code> in vim allows you to execute whatever command you wish on your quickfix entries.</strong></p>
+
+<p><img src="https://chrisarcand.com/images/posts/cdo_demo.gif" alt="A demo of substitution with :cdo"/></p>
+
+<p><a href="https://github.com/vim/vim/commit/aa23b379421aa214e6543b06c974594a25799b09">A few months ago with 7.4.858, Vim gained a new command: <code>:cdo</code>.</a> If you
+use the quickfix window you might guess from the <code>:c&lt;suffix&gt;</code> and other
+similar-looking commands like <code>:bufdo</code> and <code>:windo</code> that it allows you to run
+any command you wish on the entries in your quickfix list.</p>
+
+<p>…so?</p>
+
+<p>This is awesome! A <em>lot</em> of people use the quickfix window for things like the
+edit-compile-edit cycle (what quickfix was originally designed for), text
+searching with <a href="https://github.com/mileszs/ack.vim">ack.vim</a>, or super quick TDD with <a href="https://github.com/tpope/vim-dispatch">tpope’s vim-dispatch</a>.
+There are uncountable things you can do with this.</p>
+
+<p>For example, one thing I’ve always felt Vim lacked over modern/GUI text editors
+was a simple, native way to perform project-wide find-and-replace operations.
+Sure, there are <em>thousands</em> of ways to do such a thing. In Vim itself, this
+would involve weird bastardizations of things involving <code>:bufdo</code>, <code>:windo</code>,
+<code>:tabdo</code> (and their <code>:next</code> commands)  to extra commands and plugins that
+implement <code>:QFDo</code>. Piping around different magical spells of <code>grep</code>, <code>ack</code>
+and/or <code>sed</code> is the usual way to do it on the command line.</p>
+
+<p>But I wouldn’t remember any command line solution for more than a week
+(admittedly, I probably should have just created some sort of alias), and
+certainly didn’t feel like any Vim solution was anything more than a hack.
+Yesterday marked yet another day that I looked up yet another way to accomplish
+this. It has easily been #1 on my short list of things that vim doesn’t provide
+some better way to accomplish over more modern text editors (IMO, naturally).</p>
+
+<p><em>Most</em> vimmers I know use <a href="https://github.com/mileszs/ack.vim">ack.vim</a>/<a href="https://github.com/rking/ag.vim">ag.vim</a>; combined with the new
+<code>:cdo</code> command, an intuitive and near-native project-wide find-and-replace
+solution is now available. To replace all instances of <code>foo</code> with <code>bar</code>:</p>
+
+<div><pre><code>:Ack foo
+:cdo s/foo/bar/g | update
+</code></pre></div>
+
+<p>That’s it. You’re done.</p>
+
+<p>In fact, <code>:cdo</code> isn’t the only command that was added around this functionality:</p>
+
+<ul>
+  <li><code>:cdo[!] {cmd}</code>   - Execute {cmd} in each valid entry in the quickfix list.</li>
+  <li><code>:cfdo[!] {cmd}</code>  - Execute {cmd} in each file in the quickfix list.</li>
+  <li><code>:ld[o][!] {cmd}</code> - Execute {cmd} in each valid entry in the location list for the current window.</li>
+  <li><code>:lfdo[!] {cmd}</code>  - Execute {cmd} in each file in the location list for the current window.</li>
+</ul>
+
+<p>Intuitive and simple, no <a href="https://github.com/DouglasRoyds/vimrc/blob/master/plugin/qfdo.vim">extra plugins or scripts.</a></p>
+
+
+  </section>
+
+  
+
+  <a href="https://chrisarcand.com/#blog">&lt;- Back</a>
+  
+</article>
+
+
+
+
+
+
+
+      </div></div>

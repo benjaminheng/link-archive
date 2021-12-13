@@ -1,0 +1,571 @@
+---
+url: https://github.com/junegunn/fzf.vim
+title: 'GitHub - junegunn/fzf.vim: fzf vim'
+archived_at: 2021-12-13T16:00:26.114241+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text">
+<p dir="auto">Things you can do with <a href="https://github.com/junegunn/fzf">fzf</a> and Vim.</p>
+<h2 dir="auto">Rationale</h2>
+<p dir="auto"><a href="https://github.com/junegunn/fzf">fzf</a> in itself is not a Vim plugin, and the official repository only
+provides the <a href="https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzfrun">basic wrapper function</a> for Vim and it&#39;s up to the users to
+write their own Vim commands with it. However, I&#39;ve learned that many users of
+fzf are not familiar with Vimscript and are looking for the &#34;default&#34;
+implementation of the features they can find in the alternative Vim plugins.</p>
+<p dir="auto">This repository is a bundle of fzf-based commands and mappings extracted from
+my <a href="https://github.com/junegunn/dotfiles/blob/master/vimrc">.vimrc</a> to address such needs. They are <em>not</em> designed to be
+flexible or configurable, and there&#39;s no guarantee of backward-compatibility.</p>
+<h2 dir="auto">Why you should use fzf on Vim</h2>
+<p dir="auto">Because you can and you love fzf.</p>
+<p dir="auto">fzf runs asynchronously and can be orders of magnitude faster than similar Vim
+plugins. However, the benefit may not be noticeable if the size of the input
+is small, which is the case for many of the commands provided here.
+Nevertheless I wrote them anyway since it&#39;s really easy to implement custom
+selector with fzf.</p>
+<h2 dir="auto">Installation</h2>
+<p dir="auto">fzf.vim depends on the basic Vim plugin of <a href="https://github.com/junegunn/fzf">the main fzf
+repository</a>, which means you need to <strong>set up both &#34;fzf&#34; and
+&#34;fzf.vim&#34; on Vim</strong>. To learn more about fzf/Vim integration, see
+<a href="https://github.com/junegunn/fzf/blob/master/README-VIM.md">README-VIM</a>.</p>
+<h3 dir="auto">Using <a href="https://github.com/junegunn/vim-plug">vim-plug</a></h3>
+<div data-snippet-clipboard-copy-content="Plug &#39;junegunn/fzf&#39;, { &#39;do&#39;: { -&gt; fzf#install() } }
+Plug &#39;junegunn/fzf.vim&#39;
+"><pre>Plug <span><span>&#39;</span>junegunn/fzf<span>&#39;</span></span>, { <span><span>&#39;</span>do<span>&#39;</span></span>: { <span>-</span>&gt; <span>fzf#install</span>() } }
+Plug <span><span>&#39;</span>junegunn/fzf.vim<span>&#39;</span></span></pre></div>
+<p dir="auto"><code>fzf#install()</code> makes sure that you have the latest binary, but it&#39;s optional,
+so you can omit it if you use a plugin manager that doesn&#39;t support hooks.</p>
+<h3 dir="auto">Dependencies</h3>
+<ul dir="auto">
+<li><a href="https://github.com/junegunn/fzf">fzf</a> 0.23.0 or above</li>
+<li>For syntax-highlighted preview, install <a href="https://github.com/sharkdp/bat">bat</a></li>
+<li>If <a href="https://github.com/dandavison/delta">delta</a> is available, <code>GF?</code>,
+<code>Commits</code> and <code>BCommits</code> will use it to format <code>git diff</code> output.</li>
+<li><code>Ag</code> requires <a href="https://github.com/ggreer/the_silver_searcher">The Silver Searcher (ag)</a></li>
+<li><code>Rg</code> requires <a href="https://github.com/BurntSushi/ripgrep">ripgrep (rg)</a></li>
+<li><code>Tags</code> and <code>Helptags</code> require Perl</li>
+</ul>
+<h2 dir="auto">Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>:Files [PATH]</code></td>
+<td>Files (runs <code>$FZF_DEFAULT_COMMAND</code> if defined)</td>
+</tr>
+<tr>
+<td><code>:GFiles [OPTS]</code></td>
+<td>Git files (<code>git ls-files</code>)</td>
+</tr>
+<tr>
+<td><code>:GFiles?</code></td>
+<td>Git files (<code>git status</code>)</td>
+</tr>
+<tr>
+<td><code>:Buffers</code></td>
+<td>Open buffers</td>
+</tr>
+<tr>
+<td><code>:Colors</code></td>
+<td>Color schemes</td>
+</tr>
+<tr>
+<td><code>:Ag [PATTERN]</code></td>
+<td><a href="https://github.com/ggreer/the_silver_searcher">ag</a> search result (<code>ALT-A</code> to select all, <code>ALT-D</code> to deselect all)</td>
+</tr>
+<tr>
+<td><code>:Rg [PATTERN]</code></td>
+<td><a href="https://github.com/BurntSushi/ripgrep">rg</a> search result (<code>ALT-A</code> to select all, <code>ALT-D</code> to deselect all)</td>
+</tr>
+<tr>
+<td><code>:Lines [QUERY]</code></td>
+<td>Lines in loaded buffers</td>
+</tr>
+<tr>
+<td><code>:BLines [QUERY]</code></td>
+<td>Lines in the current buffer</td>
+</tr>
+<tr>
+<td><code>:Tags [QUERY]</code></td>
+<td>Tags in the project (<code>ctags -R</code>)</td>
+</tr>
+<tr>
+<td><code>:BTags [QUERY]</code></td>
+<td>Tags in the current buffer</td>
+</tr>
+<tr>
+<td><code>:Marks</code></td>
+<td>Marks</td>
+</tr>
+<tr>
+<td><code>:Windows</code></td>
+<td>Windows</td>
+</tr>
+<tr>
+<td><code>:Locate PATTERN</code></td>
+<td><code>locate</code> command output</td>
+</tr>
+<tr>
+<td><code>:History</code></td>
+<td><code>v:oldfiles</code> and open buffers</td>
+</tr>
+<tr>
+<td><code>:History:</code></td>
+<td>Command history</td>
+</tr>
+<tr>
+<td><code>:History/</code></td>
+<td>Search history</td>
+</tr>
+<tr>
+<td><code>:Snippets</code></td>
+<td>Snippets (<a href="https://github.com/SirVer/ultisnips">UltiSnips</a>)</td>
+</tr>
+<tr>
+<td><code>:Commits</code></td>
+<td>Git commits (requires <a href="https://github.com/tpope/vim-fugitive">fugitive.vim</a>)</td>
+</tr>
+<tr>
+<td><code>:BCommits</code></td>
+<td>Git commits for the current buffer; visual-select lines to track changes in the range</td>
+</tr>
+<tr>
+<td><code>:Commands</code></td>
+<td>Commands</td>
+</tr>
+<tr>
+<td><code>:Maps</code></td>
+<td>Normal mode mappings</td>
+</tr>
+<tr>
+<td><code>:Helptags</code></td>
+<td>Help tags <sup id="user-content-a1"><a href="#helptags">1</a></sup></td>
+</tr>
+<tr>
+<td><code>:Filetypes</code></td>
+<td>File types</td>
+</tr>
+</tbody>
+</table>
+<ul dir="auto">
+<li>Most commands support <code>CTRL-T</code> / <code>CTRL-X</code> / <code>CTRL-V</code> key
+bindings to open in a new tab, a new split, or in a new vertical split</li>
+<li>Bang-versions of the commands (e.g. <code>Ag!</code>) will open fzf in fullscreen</li>
+<li>You can set <code>g:fzf_command_prefix</code> to give the same prefix to the commands
+<ul dir="auto">
+<li>e.g. <code>let g:fzf_command_prefix = &#39;Fzf&#39;</code> and you have <code>FzfFiles</code>, etc.</li>
+</ul>
+</li>
+</ul>
+<p dir="auto">(<a name="user-content-helptags">1</a>: <code>Helptags</code> will shadow the command of the same name
+from <a href="https://github.com/tpope/vim-pathogen">pathogen</a>. But its functionality is still available via <code>call pathogen#helptags()</code>. <a href="#a1"><g-emoji alias="leftwards_arrow_with_hook" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/21a9.png">↩</g-emoji></a>)</p>
+<h2 dir="auto">Customization</h2>
+<h3 dir="auto">Global options</h3>
+<p dir="auto">Every command in fzf.vim internally calls <code>fzf#wrap</code> function of the main
+repository which supports a set of global option variables. So please read
+through <a href="https://github.com/junegunn/fzf/blob/master/README-VIM.md">README-VIM</a> to learn more about them.</p>
+<h4 dir="auto">Preview window</h4>
+<p dir="auto">Some commands will show the preview window on the right. You can customize the
+behavior with <code>g:fzf_preview_window</code>. Here are some examples:</p>
+<div data-snippet-clipboard-copy-content="&#34; This is the default option:
+&#34;   - Preview window on the right with 50% width
+&#34;   - CTRL-/ will toggle preview window.
+&#34; - Note that this array is passed as arguments to fzf#vim#with_preview function.
+&#34; - To learn more about preview window options, see `--preview-window` section of `man fzf`.
+let g:fzf_preview_window = [&#39;right:50%&#39;, &#39;ctrl-/&#39;]
+
+&#34; Preview window on the upper side of the window with 40% height,
+&#34; hidden by default, ctrl-/ to toggle
+let g:fzf_preview_window = [&#39;up:40%:hidden&#39;, &#39;ctrl-/&#39;]
+
+&#34; Empty value to disable preview window altogether
+let g:fzf_preview_window = []
+"><pre><span><span>&#34;</span> This is the default option:</span>
+<span><span>&#34;</span>   - Preview window on the right with 50% width</span>
+<span><span>&#34;</span>   - CTRL-/ will toggle preview window.</span>
+<span><span>&#34;</span> - Note that this array is passed as arguments to fzf#vim#with_preview function.</span>
+<span><span>&#34;</span> - To learn more about preview window options, see `--preview-window` section of `man fzf`.</span>
+<span>let</span> <span><span>g:</span>fzf_preview_window</span> <span>=</span> [<span><span>&#39;</span>right:50%<span>&#39;</span></span>, <span><span>&#39;</span>ctrl-/<span>&#39;</span></span>]
+
+<span><span>&#34;</span> Preview window on the upper side of the window with 40% height,</span>
+<span><span>&#34;</span> hidden by default, ctrl-/ to toggle</span>
+<span>let</span> <span><span>g:</span>fzf_preview_window</span> <span>=</span> [<span><span>&#39;</span>up:40%:hidden<span>&#39;</span></span>, <span><span>&#39;</span>ctrl-/<span>&#39;</span></span>]
+
+<span><span>&#34;</span> Empty value to disable preview window altogether</span>
+<span>let</span> <span><span>g:</span>fzf_preview_window</span> <span>=</span> []</pre></div>
+<h3 dir="auto">Command-local options</h3>
+<p dir="auto">A few commands in fzf.vim can be customized with global option variables shown
+below.</p>
+<div data-snippet-clipboard-copy-content="&#34; [Buffers] Jump to the existing window if possible
+let g:fzf_buffers_jump = 1
+
+&#34; [[B]Commits] Customize the options used by &#39;git log&#39;:
+let g:fzf_commits_log_options = &#39;--graph --color=always --format=&#34;%C(auto)%h%d %s %C(black)%C(bold)%cr&#34;&#39;
+
+&#34; [Tags] Command to generate tags file
+let g:fzf_tags_command = &#39;ctags -R&#39;
+
+&#34; [Commands] --expect expression for directly executing the command
+let g:fzf_commands_expect = &#39;alt-enter,ctrl-x&#39;
+"><pre><span><span>&#34;</span> [Buffers] Jump to the existing window if possible</span>
+<span>let</span> <span><span>g:</span>fzf_buffers_jump</span> <span>=</span> <span>1</span>
+
+<span><span>&#34;</span> [[B]Commits] Customize the options used by &#39;git log&#39;:</span>
+<span>let</span> <span><span>g:</span>fzf_commits_log_options</span> <span>=</span> <span><span>&#39;</span>--graph --color=always --format=&#34;%C(auto)%h%d %s %C(black)%C(bold)%cr&#34;<span>&#39;</span></span>
+
+<span><span>&#34;</span> [Tags] Command to generate tags file</span>
+<span>let</span> <span><span>g:</span>fzf_tags_command</span> <span>=</span> <span><span>&#39;</span>ctags -R<span>&#39;</span></span>
+
+<span><span>&#34;</span> [Commands] --expect expression for directly executing the command</span>
+<span>let</span> <span><span>g:</span>fzf_commands_expect</span> <span>=</span> <span><span>&#39;</span>alt-enter,ctrl-x<span>&#39;</span></span></pre></div>
+<h3 dir="auto">Advanced customization</h3>
+<h4 dir="auto">Vim functions</h4>
+<p dir="auto">Each command in fzf.vim is backed by a Vim function. You can override
+a command or define a variation of it by calling its corresponding function.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Vim function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Files</code></td>
+<td><code>fzf#vim#files(dir, [spec dict], [fullscreen bool])</code></td>
+</tr>
+<tr>
+<td><code>GFiles</code></td>
+<td><code>fzf#vim#gitfiles(git_options, [spec dict], [fullscreen bool])</code></td>
+</tr>
+<tr>
+<td><code>GFiles?</code></td>
+<td><code>fzf#vim#gitfiles(&#39;?&#39;, [spec dict], [fullscreen bool])</code></td>
+</tr>
+<tr>
+<td><code>Buffers</code></td>
+<td><code>fzf#vim#buffers([spec dict], [fullscreen bool])</code></td>
+</tr>
+<tr>
+<td><code>Colors</code></td>
+<td><code>fzf#vim#colors([spec dict], [fullscreen bool])</code></td>
+</tr>
+<tr>
+<td><code>Rg</code></td>
+<td><code>fzf#vim#grep(command, [has_column bool], [spec dict], [fullscreen bool])</code></td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto">(We can see that the last two optional arguments of each function are
+identical. They are directly passed to <code>fzf#wrap</code> function. If you haven&#39;t
+read <a href="https://github.com/junegunn/fzf/blob/master/README-VIM.md">README-VIM</a> already, please read it before proceeding.)</p>
+<h4 dir="auto">Example: Customizing <code>Files</code> command</h4>
+<p dir="auto">This is the default definition of <code>Files</code> command:</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=? -complete=dir Files call fzf#vim#files(&lt;q-args&gt;, &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=? -<span>complete</span>=<span>dir</span> Files <span>call</span> <span>fzf#vim#files</span>(<span>&lt;q-args&gt;</span>, <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<p dir="auto">Let&#39;s say you want to a variation of it called <code>ProjectFiles</code> that only
+searches inside <code>~/projects</code> directory. Then you can do it like this:</p>
+<div data-snippet-clipboard-copy-content="command! -bang ProjectFiles call fzf#vim#files(&#39;~/projects&#39;, &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> ProjectFiles <span>call</span> <span>fzf#vim#files</span>(<span><span>&#39;</span>~/projects<span>&#39;</span></span>, <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<p dir="auto">Or, if you want to override the command with different fzf options, just pass
+a custom spec to the function.</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(&lt;q-args&gt;, {&#39;options&#39;: [&#39;--layout=reverse&#39;, &#39;--info=inline&#39;]}, &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=? -<span>complete</span>=<span>dir</span> Files
+    <span>\ </span><span>call</span> <span>fzf#vim#files</span>(<span>&lt;q-args&gt;</span>, {<span><span>&#39;</span>options<span>&#39;</span></span>: [<span><span>&#39;</span>--layout=reverse<span>&#39;</span></span>, <span><span>&#39;</span>--info=inline<span>&#39;</span></span>]}, <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<p dir="auto">Want a preview window?</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(&lt;q-args&gt;, {&#39;options&#39;: [&#39;--layout=reverse&#39;, &#39;--info=inline&#39;, &#39;--preview&#39;, &#39;cat {}&#39;]}, &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=? -<span>complete</span>=<span>dir</span> Files
+    <span>\ </span><span>call</span> <span>fzf#vim#files</span>(<span>&lt;q-args&gt;</span>, {<span><span>&#39;</span>options<span>&#39;</span></span>: [<span><span>&#39;</span>--layout=reverse<span>&#39;</span></span>, <span><span>&#39;</span>--info=inline<span>&#39;</span></span>, <span><span>&#39;</span>--preview<span>&#39;</span></span>, <span><span>&#39;</span>cat {}<span>&#39;</span></span>]}, <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<p dir="auto">It kind of works, but you probably want a nicer previewer program than <code>cat</code>.
+fzf.vim ships <a href="https://github.com/junegunn/fzf.vim/blob/master/bin/preview.sh">a versatile preview script</a> you can readily
+use. It internally executes <a href="https://github.com/sharkdp/bat">bat</a> for syntax
+highlighting, so make sure to install it.</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(&lt;q-args&gt;, {&#39;options&#39;: [&#39;--layout=reverse&#39;, &#39;--info=inline&#39;, &#39;--preview&#39;, &#39;~/.vim/plugged/fzf.vim/bin/preview.sh {}&#39;]}, &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=? -<span>complete</span>=<span>dir</span> Files
+    <span>\ </span><span>call</span> <span>fzf#vim#files</span>(<span>&lt;q-args&gt;</span>, {<span><span>&#39;</span>options<span>&#39;</span></span>: [<span><span>&#39;</span>--layout=reverse<span>&#39;</span></span>, <span><span>&#39;</span>--info=inline<span>&#39;</span></span>, <span><span>&#39;</span>--preview<span>&#39;</span></span>, <span><span>&#39;</span>~/.vim/plugged/fzf.vim/bin/preview.sh {}<span>&#39;</span></span>]}, <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<p dir="auto">However, it&#39;s not ideal to hard-code the path to the script which can be
+different in different circumstances. So in order to make it easier to set up
+the previewer, fzf.vim provides <code>fzf#vim#with_preview</code> helper function.
+Similarly to <code>fzf#wrap</code>, it takes a spec dictionary and returns a copy of it
+with additional preview options.</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(&lt;q-args&gt;, fzf#vim#with_preview({&#39;options&#39;: [&#39;--layout=reverse&#39;, &#39;--info=inline&#39;]}), &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=? -<span>complete</span>=<span>dir</span> Files
+    <span>\ </span><span>call</span> <span>fzf#vim#files</span>(<span>&lt;q-args&gt;</span>, <span>fzf#vim#with_preview</span>({<span><span>&#39;</span>options<span>&#39;</span></span>: [<span><span>&#39;</span>--layout=reverse<span>&#39;</span></span>, <span><span>&#39;</span>--info=inline<span>&#39;</span></span>]}), <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<p dir="auto">You can just omit the spec argument if you only want the previewer.</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=? -complete=dir Files
+    \ call fzf#vim#files(&lt;q-args&gt;, fzf#vim#with_preview(), &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=? -<span>complete</span>=<span>dir</span> Files
+    <span>\ </span><span>call</span> <span>fzf#vim#files</span>(<span>&lt;q-args&gt;</span>, <span>fzf#vim#with_preview</span>(), <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<h4 dir="auto">Example: <code>git grep</code> wrapper</h4>
+<p dir="auto">The following example implements <code>GGrep</code> command that works similarly to
+predefined <code>Ag</code> or <code>Rg</code> using <code>fzf#vim#grep</code>.</p>
+<ul dir="auto">
+<li>The second argument to <code>fzf#vim#grep</code> is 0 (false), because <code>git grep</code> does
+not print column numbers.</li>
+<li>We set the base directory to git root by setting <code>dir</code> attribute in spec
+dictionary.</li>
+<li><a href="https://github.com/junegunn/fzf.vim/blob/master/bin/preview.sh">The preview script</a> supports <code>grep</code> format
+(<code>FILE_PATH:LINE_NO:...</code>), so we can just wrap the spec with
+<code>fzf#vim#with_preview</code> as before to enable previewer.</li>
+</ul>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   &#39;git grep --line-number -- &#39;.shellescape(&lt;q-args&gt;), 0,
+  \   fzf#vim#with_preview({&#39;dir&#39;: systemlist(&#39;git rev-parse --show-toplevel&#39;)[0]}), &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=<span>*</span> GGrep
+  <span>\ </span><span>call</span> <span>fzf#vim#grep</span>(
+  <span>\ </span>  <span><span>&#39;</span>git grep --line-number -- <span>&#39;</span></span>.<span>shellescape</span>(<span>&lt;q-args&gt;</span>), <span>0</span>,
+  <span>\ </span>  <span>fzf#vim#with_preview</span>({<span><span>&#39;</span>dir<span>&#39;</span></span>: <span>systemlist</span>(<span><span>&#39;</span>git rev-parse --show-toplevel<span>&#39;</span></span>)[<span>0</span>]}), <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<h4 dir="auto">Example: <code>Rg</code> command with preview window</h4>
+<p dir="auto">You can see the definition of <code>Rg</code> command with <code>:command Rg</code>. With the
+information, you can redefine it with the preview window enabled. In this
+case, we&#39;re only interested in setting up the preview window, so we will omit
+the spec argument to <code>fzf#vim#preview</code>.</p>
+<div data-snippet-clipboard-copy-content="command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   &#39;rg --column --line-number --no-heading --color=always --smart-case -- &#39;.shellescape(&lt;q-args&gt;), 1,
+  \   fzf#vim#with_preview(), &lt;bang&gt;0)
+"><pre><span>command</span><span>!</span> <span>-</span><span>bang</span> -<span>nargs</span>=<span>*</span> Rg
+  <span>\ </span><span>call</span> <span>fzf#vim#grep</span>(
+  <span>\ </span>  <span><span>&#39;</span>rg --column --line-number --no-heading --color=always --smart-case -- <span>&#39;</span></span>.<span>shellescape</span>(<span>&lt;q-args&gt;</span>), <span>1</span>,
+  <span>\ </span>  <span>fzf#vim#with_preview</span>(), <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<h4 dir="auto">Example: Advanced ripgrep integration</h4>
+<p dir="auto">In the default implementation of <code>Rg</code>, ripgrep process starts only once with
+the initial query (e.g. <code>:Rg foo</code>) and fzf filters the output of the process.</p>
+<p dir="auto">This is okay in most cases because fzf is quite performant even with millions
+of lines, but we can make fzf completely delegate its search responsibliity to
+ripgrep process by making it restart ripgrep whenever the query string is
+updated. In this scenario, fzf becomes a simple selector interface rather than
+a &#34;fuzzy finder&#34;.</p>
+<ul dir="auto">
+<li>We will name the new command all-uppercase <code>RG</code> so we can still access the
+default version.</li>
+<li><code>--bind &#39;change:reload:rg ... {q}&#39;</code> will make fzf restart ripgrep process
+whenever the query string, denoted by <code>{q}</code>, is changed.</li>
+<li>With <code>--phony</code> option, fzf will no longer perform search. The query string
+you type on fzf prompt is only used for restarting ripgrep process.</li>
+<li>Also note that we enabled previewer with <code>fzf#vim#with_preview</code>.</li>
+</ul>
+<div data-snippet-clipboard-copy-content="function! RipgrepFzf(query, fullscreen)
+  let command_fmt = &#39;rg --column --line-number --no-heading --color=always --smart-case -- %s || true&#39;
+  let initial_command = printf(command_fmt, shellescape(a:query))
+  let reload_command = printf(command_fmt, &#39;{q}&#39;)
+  let spec = {&#39;options&#39;: [&#39;--phony&#39;, &#39;--query&#39;, a:query, &#39;--bind&#39;, &#39;change:reload:&#39;.reload_command]}
+  call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
+endfunction
+
+command! -nargs=* -bang RG call RipgrepFzf(&lt;q-args&gt;, &lt;bang&gt;0)
+"><pre><span>function</span><span>!</span> <span>RipgrepFzf</span>(query, fullscreen)
+  <span>let</span> command_fmt <span>=</span> <span><span>&#39;</span>rg --column --line-number --no-heading --color=always --smart-case -- %s || true<span>&#39;</span></span>
+  <span>let</span> initial_command <span>=</span> <span>printf</span>(command_fmt, <span>shellescape</span>(<span><span>a:</span>query</span>))
+  <span>let</span> reload_command <span>=</span> <span>printf</span>(command_fmt, <span><span>&#39;</span>{q}<span>&#39;</span></span>)
+  <span>let</span> spec <span>=</span> {<span><span>&#39;</span>options<span>&#39;</span></span>: [<span><span>&#39;</span>--phony<span>&#39;</span></span>, <span><span>&#39;</span>--query<span>&#39;</span></span>, <span><span>a:</span>query</span>, <span><span>&#39;</span>--bind<span>&#39;</span></span>, <span><span>&#39;</span>change:reload:<span>&#39;</span></span>.reload_command]}
+  <span>call</span> <span>fzf#vim#grep</span>(initial_command, <span>1</span>, <span>fzf#vim#with_preview</span>(spec), <span><span>a:</span>fullscreen</span>)
+<span>endfunction</span>
+
+<span>command</span><span>!</span> -<span>nargs</span>=<span>*</span> <span>-</span><span>bang</span> RG <span>call</span> <span>RipgrepFzf</span>(<span>&lt;q-args&gt;</span>, <span>&lt;bang&gt;</span><span>0</span>)</pre></div>
+<h2 dir="auto">Mappings</h2>
+<table>
+<thead>
+<tr>
+<th>Mapping</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;plug&gt;(fzf-maps-n)</code></td>
+<td>Normal mode mappings</td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-maps-i)</code></td>
+<td>Insert mode mappings</td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-maps-x)</code></td>
+<td>Visual mode mappings</td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-maps-o)</code></td>
+<td>Operator-pending mappings</td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-complete-word)</code></td>
+<td><code>cat /usr/share/dict/words</code></td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-complete-path)</code></td>
+<td>Path completion using <code>find</code> (file + dir)</td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-complete-file)</code></td>
+<td>File completion using <code>find</code></td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-complete-line)</code></td>
+<td>Line completion (all open buffers)</td>
+</tr>
+<tr>
+<td><code>&lt;plug&gt;(fzf-complete-buffer-line)</code></td>
+<td>Line completion (current buffer only)</td>
+</tr>
+</tbody>
+</table>
+<div data-snippet-clipboard-copy-content="&#34; Mapping selecting mappings
+nmap &lt;leader&gt;&lt;tab&gt; &lt;plug&gt;(fzf-maps-n)
+xmap &lt;leader&gt;&lt;tab&gt; &lt;plug&gt;(fzf-maps-x)
+omap &lt;leader&gt;&lt;tab&gt; &lt;plug&gt;(fzf-maps-o)
+
+&#34; Insert mode completion
+imap &lt;c-x&gt;&lt;c-k&gt; &lt;plug&gt;(fzf-complete-word)
+imap &lt;c-x&gt;&lt;c-f&gt; &lt;plug&gt;(fzf-complete-path)
+imap &lt;c-x&gt;&lt;c-l&gt; &lt;plug&gt;(fzf-complete-line)
+"><pre><span><span>&#34;</span> Mapping selecting mappings</span>
+<span>nmap</span> <span>&lt;leader&gt;&lt;tab&gt;</span> <span>&lt;plug&gt;</span>(fzf<span>-</span>maps<span>-</span><span>n</span>)
+<span>xmap</span> <span>&lt;leader&gt;&lt;tab&gt;</span> <span>&lt;plug&gt;</span>(fzf<span>-</span>maps<span>-</span><span>x</span>)
+<span>omap</span> <span>&lt;leader&gt;&lt;tab&gt;</span> <span>&lt;plug&gt;</span>(fzf<span>-</span>maps<span>-</span><span>o</span>)
+
+<span><span>&#34;</span> Insert mode completion</span>
+<span>imap</span> <span>&lt;c-x&gt;&lt;c-k&gt;</span> <span>&lt;plug&gt;</span>(fzf<span>-</span><span>complete</span><span>-</span>word)
+<span>imap</span> <span>&lt;c-x&gt;&lt;c-f&gt;</span> <span>&lt;plug&gt;</span>(fzf<span>-</span><span>complete</span><span>-</span><span>path</span>)
+<span>imap</span> <span>&lt;c-x&gt;&lt;c-l&gt;</span> <span>&lt;plug&gt;</span>(fzf<span>-</span><span>complete</span><span>-</span><span>line</span>)</pre></div>
+<h2 dir="auto">Completion functions</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fzf#vim#complete#path(command, [spec])</code></td>
+<td>Path completion</td>
+</tr>
+<tr>
+<td><code>fzf#vim#complete#word([spec])</code></td>
+<td>Word completion</td>
+</tr>
+<tr>
+<td><code>fzf#vim#complete#line([spec])</code></td>
+<td>Line completion (all open buffers)</td>
+</tr>
+<tr>
+<td><code>fzf#vim#complete#buffer_line([spec])</code></td>
+<td>Line completion (current buffer only)</td>
+</tr>
+</tbody>
+</table>
+<div data-snippet-clipboard-copy-content="&#34; Path completion with custom source command
+inoremap &lt;expr&gt; &lt;c-x&gt;&lt;c-f&gt; fzf#vim#complete#path(&#39;fd&#39;)
+inoremap &lt;expr&gt; &lt;c-x&gt;&lt;c-f&gt; fzf#vim#complete#path(&#39;rg --files&#39;)
+
+&#34; Word completion with custom spec with popup layout option
+inoremap &lt;expr&gt; &lt;c-x&gt;&lt;c-k&gt; fzf#vim#complete#word({&#39;window&#39;: { &#39;width&#39;: 0.2, &#39;height&#39;: 0.9, &#39;xoffset&#39;: 1 }})
+"><pre><span><span>&#34;</span> Path completion with custom source command</span>
+<span>inoremap</span> <span>&lt;expr&gt;</span> <span>&lt;c-x&gt;&lt;c-f&gt;</span> <span>fzf#vim#complete#path</span>(<span><span>&#39;</span>fd<span>&#39;</span></span>)
+<span>inoremap</span> <span>&lt;expr&gt;</span> <span>&lt;c-x&gt;&lt;c-f&gt;</span> <span>fzf#vim#complete#path</span>(<span><span>&#39;</span>rg --files<span>&#39;</span></span>)
+
+<span><span>&#34;</span> Word completion with custom spec with popup layout option</span>
+<span>inoremap</span> <span>&lt;expr&gt;</span> <span>&lt;c-x&gt;&lt;c-k&gt;</span> <span>fzf#vim#complete#word</span>({<span><span>&#39;</span>window<span>&#39;</span></span>: { <span><span>&#39;</span>width<span>&#39;</span></span>: <span>0.2</span>, <span><span>&#39;</span>height<span>&#39;</span></span>: <span>0.9</span>, <span><span>&#39;</span>xoffset<span>&#39;</span></span>: <span>1</span> }})</pre></div>
+<h2 dir="auto">Custom completion</h2>
+<p dir="auto"><code>fzf#vim#complete</code> is a helper function for creating custom fuzzy completion
+using fzf. If the first parameter is a command string or a Vim list, it will
+be used as the source.</p>
+<div data-snippet-clipboard-copy-content="&#34; Replace the default dictionary completion with fzf-based fuzzy completion
+inoremap &lt;expr&gt; &lt;c-x&gt;&lt;c-k&gt; fzf#vim#complete(&#39;cat /usr/share/dict/words&#39;)
+"><pre><span><span>&#34;</span> Replace the default dictionary completion with fzf-based fuzzy completion</span>
+<span>inoremap</span> <span>&lt;expr&gt;</span> <span>&lt;c-x&gt;&lt;c-k&gt;</span> <span>fzf#vim#complete</span>(<span><span>&#39;</span>cat /usr/share/dict/words<span>&#39;</span></span>)</pre></div>
+<p dir="auto">For advanced uses, you can pass an options dictionary to the function. The set
+of options is pretty much identical to that for <code>fzf#run</code> only with the
+following exceptions:</p>
+<ul dir="auto">
+<li><code>reducer</code> (funcref)
+<ul dir="auto">
+<li>Reducer transforms the output lines of fzf into a single string value</li>
+</ul>
+</li>
+<li><code>prefix</code> (string or funcref; default: <code>\k*$</code>)
+<ul dir="auto">
+<li>Regular expression pattern to extract the completion prefix</li>
+<li>Or a function to extract completion prefix</li>
+</ul>
+</li>
+<li>Both <code>source</code> and <code>options</code> can be given as funcrefs that take the
+completion prefix as the argument and return the final value</li>
+<li><code>sink</code> or <code>sink*</code> are ignored</li>
+</ul>
+<div data-snippet-clipboard-copy-content="&#34; Global line completion (not just open buffers. ripgrep required.)
+inoremap &lt;expr&gt; &lt;c-x&gt;&lt;c-l&gt; fzf#vim#complete(fzf#wrap({
+  \ &#39;prefix&#39;: &#39;^.*$&#39;,
+  \ &#39;source&#39;: &#39;rg -n ^ --color always&#39;,
+  \ &#39;options&#39;: &#39;--ansi --delimiter : --nth 3..&#39;,
+  \ &#39;reducer&#39;: { lines -&gt; join(split(lines[0], &#39;:\zs&#39;)[2:], &#39;&#39;) }}))
+"><pre><span><span>&#34;</span> Global line completion (not just open buffers. ripgrep required.)</span>
+<span>inoremap</span> <span>&lt;expr&gt;</span> <span>&lt;c-x&gt;&lt;c-l&gt;</span> <span>fzf#vim#complete</span>(<span>fzf#wrap</span>({
+  <span>\ </span><span><span>&#39;</span>prefix<span>&#39;</span></span>: <span><span>&#39;</span>^.*$<span>&#39;</span></span>,
+  <span>\ </span><span><span>&#39;</span>source<span>&#39;</span></span>: <span><span>&#39;</span>rg -n ^ --color always<span>&#39;</span></span>,
+  <span>\ </span><span><span>&#39;</span>options<span>&#39;</span></span>: <span><span>&#39;</span>--ansi --delimiter : --nth 3..<span>&#39;</span></span>,
+  <span>\ </span><span><span>&#39;</span>reducer<span>&#39;</span></span>: { <span>lines</span> <span>-</span>&gt; <span>join</span>(<span>split</span>(<span>lines</span>[<span>0</span>], <span><span>&#39;</span>:\zs<span>&#39;</span></span>)[<span>2</span>:], <span><span>&#39;</span><span>&#39;</span></span>) }}))</pre></div>
+<h3 dir="auto">Reducer example</h3>
+<div data-snippet-clipboard-copy-content="function! s:make_sentence(lines)
+  return substitute(join(a:lines), &#39;^.&#39;, &#39;\=toupper(submatch(0))&#39;, &#39;&#39;).&#39;.&#39;
+endfunction
+
+inoremap &lt;expr&gt; &lt;c-x&gt;&lt;c-s&gt; fzf#vim#complete({
+  \ &#39;source&#39;:  &#39;cat /usr/share/dict/words&#39;,
+  \ &#39;reducer&#39;: function(&#39;&lt;sid&gt;make_sentence&#39;),
+  \ &#39;options&#39;: &#39;--multi --reverse --margin 15%,0&#39;,
+  \ &#39;left&#39;:    20})
+"><pre><span>function</span><span>!</span> <span><span>s:</span>make_sentence</span>(<span>lines</span>)
+  <span>return</span> <span>substitute</span>(<span>join</span>(<span><span>a:</span>lines</span>), <span><span>&#39;</span>^.<span>&#39;</span></span>, <span><span>&#39;</span>\=toupper(submatch(0))<span>&#39;</span></span>, <span><span>&#39;</span><span>&#39;</span></span>).<span><span>&#39;</span>.<span>&#39;</span></span>
+<span>endfunction</span>
+
+<span>inoremap</span> <span>&lt;expr&gt;</span> <span>&lt;c-x&gt;&lt;c-s&gt;</span> <span>fzf#vim#complete</span>({
+  <span>\ </span><span><span>&#39;</span>source<span>&#39;</span></span>:  <span><span>&#39;</span>cat /usr/share/dict/words<span>&#39;</span></span>,
+  <span>\ </span><span><span>&#39;</span>reducer<span>&#39;</span></span>: <span>function</span>(<span><span>&#39;</span>&lt;sid&gt;make_sentence<span>&#39;</span></span>),
+  <span>\ </span><span><span>&#39;</span>options<span>&#39;</span></span>: <span><span>&#39;</span>--multi --reverse --margin 15%,0<span>&#39;</span></span>,
+  <span>\ </span><span><span>&#39;</span>left<span>&#39;</span></span>:    <span>20</span>})</pre></div>
+<h2 dir="auto">Status line of terminal buffer</h2>
+<p dir="auto">When fzf starts in a terminal buffer (see <a href="https://github.com/junegunn/fzf/blob/master/README-VIM.md#fzf-inside-terminal-buffer">fzf/README-VIM.md</a>), you
+may want to customize the statusline of the containing buffer.</p>
+<h3 dir="auto">Hide statusline</h3>
+<div data-snippet-clipboard-copy-content="autocmd! FileType fzf set laststatus=0 noshowmode noruler
+  \| autocmd BufLeave &lt;buffer&gt; set laststatus=2 showmode ruler
+"><pre><span>autocmd</span><span>!</span> <span>FileType</span> fzf <span>set</span> <span>laststatus</span><span>=</span><span>0</span> <span>noshowmode</span> <span>noruler</span>
+  <span>\|</span> <span>autocmd</span> <span>BufLeave</span> <span>&lt;buffer&gt;</span> <span>set</span> <span>laststatus</span><span>=</span><span>2</span> <span>showmode</span> <span>ruler</span></pre></div>
+<h3 dir="auto">Custom statusline</h3>
+<div data-snippet-clipboard-copy-content="function! s:fzf_statusline()
+  &#34; Override statusline as you like
+  highlight fzf1 ctermfg=161 ctermbg=251
+  highlight fzf2 ctermfg=23 ctermbg=251
+  highlight fzf3 ctermfg=237 ctermbg=251
+  setlocal statusline=%#fzf1#\ &gt;\ %#fzf2#fz%#fzf3#f
+endfunction
+
+autocmd! User FzfStatusLine call &lt;SID&gt;fzf_statusline()
+"><pre><span>function</span><span>!</span> <span><span>s:</span>fzf_statusline</span>()
+<span>  <span>&#34;</span> Override statusline as you like</span>
+  <span>highlight</span> fzf1 ctermfg<span>=</span><span>161</span> ctermbg<span>=</span><span>251</span>
+  <span>highlight</span> fzf2 ctermfg<span>=</span><span>23</span> ctermbg<span>=</span><span>251</span>
+  <span>highlight</span> fzf3 ctermfg<span>=</span><span>237</span> ctermbg<span>=</span><span>251</span>
+  <span>setlocal</span> <span>statusline</span><span>=</span><span>%</span>#fzf1#<span>\ </span>&gt;<span>\ </span><span>%</span>#fzf2#fz<span>%</span>#fzf3#<span>f</span>
+<span>endfunction</span>
+
+<span>autocmd</span><span>!</span> <span>User</span> FzfStatusLine <span>call</span> <span>&lt;SID&gt;</span><span>fzf_statusline</span>()</pre></div>
+<h2 dir="auto">License</h2>
+<p dir="auto">MIT</p>
+</article>
+        </div></div>
