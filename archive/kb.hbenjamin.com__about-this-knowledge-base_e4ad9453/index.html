@@ -1,0 +1,183 @@
+---
+url: https://kb.hbenjamin.com/about-this-knowledge-base/
+title: About this knowledge base | Knowledge Base
+archived_at: 2022-01-04T17:03:09.343018+08:00
+---
+<div id="readability-page-1" class="page"><div id="right">
+        
+<main>
+    <div>
+        
+        <div>
+    <p>Table of contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#design-philosophy">Design philosophy</a></li>
+    <li><a href="#note-taking-philosophy">Note taking philosophy</a></li>
+    <li><a href="#archiving-links">Archiving links</a></li>
+    <li><a href="#cli-tooling">CLI tooling</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#search">Search</a>
+      <ul>
+        <li><a href="#hugo-template-to-generate-the-search-index">Hugo template to generate the search index</a></li>
+        <li><a href="#html-snippet-for-the-search-box">HTML snippet for the search box</a></li>
+        <li><a href="#js-implementation">JS implementation</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+</div>
+
+        <p>Hello, this is my knowledge base! However it might be more accurately described
+as a <a href="https://nesslabs.com/digital-garden-set-up">digital garden</a>. This site
+isn’t just a collection of links or code snippets, but also where I record my
+thoughts and ideas.</p>
+<p>Unlike blog posts, each page here is evergreen – constantly changing and being
+updated. This gives me some additional freedom in what I publish. The site is
+also intentionally public! I hope you, dear reader, find some of my posts
+useful.</p>
+<p>The source of my knowledge base is also publicly available at
+<a href="https://github.com/benjaminheng/knowledge-base">github.com/benjaminheng/knowledge-base</a>.</p>
+<h2 id="design-philosophy"><a href="#design-philosophy" arialabel="Anchor"></a>Design philosophy</h2>
+<p>This site has a somewhat brutalist design. I’m not interested in an overly
+stylized design. Link stylings are left to the browser’s default. Most my
+styles are typography related. I did however make a concession to add a sidebar for
+ease of navigation.</p>
+<p>I try to minimize unnecessary network calls. This means no images, unless
+they’re part of a post. I also only use system fonts, to avoid having to fetch
+external fonts.</p>
+<p>I don’t support dark mode. I figure people who prefer dark mode will have
+opinions on what makes a good dark mode. I know I feel this way. I don’t like
+how many sites implement dark mode – often they have too low contrast.
+Therefore for people who prefer dark mode, use your browser’s <a href="https://support.mozilla.org/en-US/kb/firefox-reader-view-clutter-free-web-pages">reader
+mode</a>
+or addons like <a href="https://addons.mozilla.org/en-US/firefox/addon/darkreader/">Dark Reader</a>. You’ll get
+a more consistent dark mode tailored to your preference, rather than relying on
+site owners to implement dark mode in usable manner.</p>
+<h2 id="note-taking-philosophy"><a href="#note-taking-philosophy" arialabel="Anchor"></a>Note taking philosophy</h2>
+<p>Notes are stored on the filesystem as a flat list. Search is the preferred
+method for navigation. However since I also publish my knowledge base on the
+web, I loosely categorize notes into a single category. The categorization
+makes the web browsing experience a little easier. At the time of writing I
+have categories for Tech, Fitness, and Games. Notes are categorized using a
+frontmatter param, rather than directories on the filesystem.</p>
+<p>I don’t use many backlinks. I know lots of people swear by them, but personally
+I don’t find them particularly useful. I prefer having a <a href="https://kb.hbenjamin.com/postgres/">single post about a
+topic</a>, with headings to break up the content, rather than
+multiple small notes all backlinked together. Between my editor’s file, text,
+and tag search capabilities, I have no trouble jumping to a specific place in a
+specific note.  Furthermore, knowledge bases that make liberal use of backlinks
+don’t end up being very browseable when published on the web. Ultimately I want
+to share my knowledge, and I think it’s easier for readers when the knowledge
+base doesn’t have each topic splintered across dozens of interlinked notes.</p>
+<h2 id="archiving-links"><a href="#archiving-links" arialabel="Anchor"></a>Archiving links</h2>
+<p>My knowledge base has a lot of links. In order to preserve their content, I
+regularly archive them into this repository:
+<a href="https://github.com/benjaminheng/link-archive">github.com/benjaminheng/link-archive</a>.
+The script I use can be found at:
+<a href="https://github.com/benjaminheng/archiver">github.com/benjaminheng/archiver</a>.</p>
+<p>What this script does is:</p>
+<ol>
+<li>Walk through markdown files in the knowledge base</li>
+<li>Extract URLs</li>
+<li>Run the URLs through a <a href="https://github.com/mozilla/readability">readability preprocessor</a></li>
+<li>Output into a HTML file</li>
+</ol>
+<p>This happens on a best-effort basis, since not all URLs can be parsed by the
+readability library. Only text content is archived, while images remain as
+external links within the archive. A known limitation is that images and videos
+may become dead links in the future. I’m fine with this, since most content I
+link to are textual.</p>
+
+<p>My development environment is tmux + vim, so naturally I spend most of my time
+in a terminal. It comes as no surprise then that I normally view pages in my
+knowledge base from vim.</p>
+<p>As for the entry point into a page, I wrote a program called
+<a href="https://github.com/benjaminheng/kb">kb</a>. <code>kb</code> opens a
+<a href="https://github.com/junegunn/fzf">fzf</a> window containing the posts in my
+knowledge base. Using fuzzy search, I can very quickly jump to a specific post.</p>
+<p>I’ve written about <a href="https://hbenjamin.com/post/build-cli-tools-for-common-tasks/">CLI
+tools</a> on my
+blog, and <code>kb</code> is one example of the sort of tools I write for making my life
+easier.</p>
+<h2 id="deployment"><a href="#deployment" arialabel="Anchor"></a>Deployment</h2>
+<p>The knowledge base is built using <a href="https://gohugo.io/">Hugo</a>. It’s version
+controlled using Git and hosted on GitHub. I deploy it on
+<a href="https://www.netlify.com/">Netlify</a>. Netlify also handles automatic deployment
+whenever I push to master. I use <a href="https://www.netlifycms.org/">Netlify CMS</a> to
+provide a web interface for editing posts, though 95% of the time I’m using my
+<code>kb</code> tool + vim to do so instead.</p>
+<h2 id="search"><a href="#search" arialabel="Anchor"></a>Search</h2>
+<p>The search feature is undocumented, since it’s mostly for myself. It can be
+accessed either with <code>CTRL+K</code> or <code>,f</code>. I added <code>,f</code> since that’s my vim
+shortcut for <code>:Files</code> (by <a href="https://github.com/junegunn/fzf.vim">fzf.vim</a>). In
+fact the search feature is modelled after how it behaves in vim. I usually
+access my knowledge base in vim, but on occassions where I do so in a browser,
+I’m able to quickly jump to a post in much the same way.</p>
+<p>The search currently consists of a simple substring match, though I’d like to
+implement a rudimentary fuzzy search algorithm in the future.</p>
+<p>The search is not documented because it’s not meant for discovery. Discovery is
+better done by scrolling through the sidebar. The search is more so users like
+me, who already know which post they want to view, can quickly jump to it.</p>
+<h3 id="hugo-template-to-generate-the-search-index"><a href="#hugo-template-to-generate-the-search-index" arialabel="Anchor"></a>Hugo template to generate the search index</h3>
+<p><a href="https://github.com/benjaminheng/knowledge-base/blob/368b77174b9b9dc18d2f9623f25803b5e98b92eb/layouts/partials/search-index">source</a></p>
+<p>The template code to generate the search index is very similar to how I
+generate the sidebar. First I group pages by their category and generate JSON
+objects for them, then I generate the JSON objects for pages without a
+category.</p>
+<div><pre><code data-lang="go-text-template"><span>{{</span><span> </span>$index<span> </span><span>:=</span><span> </span>slice<span> </span><span>}}</span>
+
+<span>{{</span><span> </span><span>range</span><span> </span><span>.Site.Pages.GroupByParam</span><span> </span><span>&#34;category&#34;</span><span> </span><span>}}</span>
+  <span>{{</span><span> </span><span>range</span><span> </span><span>.Pages</span><span> </span><span>}}</span>
+    <span>{{</span><span> </span>$title<span> </span><span>:=</span><span> </span><span>(</span><span>.Title</span><span> </span><span>|</span><span> </span>plainify<span>)</span><span> </span><span>}}</span>
+    <span>{{</span><span> </span>$rawText<span> </span><span>:=</span><span> </span>$title<span> </span><span>}}</span>
+
+    <span>{{</span><span> </span><span>if</span><span> </span>isset<span> </span><span>.Params</span><span> </span><span>&#34;category&#34;</span><span> </span><span>}}</span>
+        <span>{{</span><span> </span>$rawText<span> </span><span>=</span><span> </span><span>print</span><span> </span><span>(</span><span>.Params.category</span><span> </span><span>|</span><span> </span>title<span>)</span><span> </span><span>&#34; &gt; &#34;</span><span> </span>$title<span> </span><span>}}</span>
+    <span>{{</span><span> </span><span>end</span><span> </span><span>}}</span>
+
+    <span>{{</span><span> </span>$entry<span> </span><span>:=</span><span> </span>dict<span> </span><span>&#34;permalink&#34;</span><span> </span><span>.RelPermalink</span><span> </span><span>&#34;title&#34;</span><span> </span>$title<span> </span><span>&#34;raw_text&#34;</span><span> </span>$rawText<span> </span><span>}}</span>
+    <span>{{</span><span> </span>$index<span> </span><span>=</span><span> </span>$index<span> </span><span>|</span><span> </span>append<span> </span>$entry<span> </span><span>}}</span>
+  <span>{{</span><span> </span><span>end</span><span> </span><span>}}</span>
+<span>{{</span><span> </span><span>end</span><span> </span><span>}}</span>
+
+<span>{{</span><span> </span><span>range</span><span> </span><span>(</span>where<span> </span><span>.Site.Pages</span><span> </span><span>&#34;Params.category&#34;</span><span> </span><span>&#34;==&#34;</span><span> </span><span>nil</span><span>)</span><span> </span><span>}}</span>
+    <span>{{</span><span> </span><span>if</span><span> </span><span>not</span><span> </span><span>(</span><span>eq</span><span> </span><span>.File.LogicalName</span><span> </span><span>&#34;_index.md&#34;</span><span>)</span><span> </span><span>}}</span>
+        <span>{{</span><span> </span>$title<span> </span><span>:=</span><span> </span><span>(</span><span>.Title</span><span> </span><span>|</span><span> </span>plainify<span>)</span><span> </span><span>}}</span>
+        <span>{{</span><span> </span>$entry<span> </span><span>:=</span><span> </span>dict<span> </span><span>&#34;permalink&#34;</span><span> </span><span>.RelPermalink</span><span> </span><span>&#34;title&#34;</span><span> </span>$title<span> </span><span>&#34;raw_text&#34;</span><span> </span>$title<span>}}</span>
+        <span>{{</span><span> </span>$index<span> </span><span>=</span><span> </span>$index<span> </span><span>|</span><span> </span>append<span> </span>$entry<span> </span><span>}}</span>
+    <span>{{</span><span> </span><span>end</span><span> </span><span>}}</span>
+<span>{{</span><span> </span><span>end</span><span> </span><span>}}</span>
+
+<span>{{</span><span> </span>$index<span> </span><span>|</span><span> </span>jsonify<span> </span><span>}}</span>
+<span>{{</span><span> </span>return<span> </span>$index<span> </span><span>}}</span>
+</code></pre></div><p>The search index is an array of objects:</p>
+<div><pre><code data-lang="json"><span>[</span>
+    <span>{</span><span>&#34;title&#34;</span><span>:</span> <span>&#34;Postgres&#34;</span><span>,</span> <span>&#34;permalink&#34;</span><span>:</span> <span>&#34;/postgres/&#34;</span><span>,</span> <span>&#34;raw_text&#34;</span><span>:</span> <span>&#34;Tech &gt; Postgres&#34;</span><span>},</span>
+    <span>{</span><span>&#34;title&#34;</span><span>:</span> <span>&#34;Scylla&#34;</span><span>,</span> <span>&#34;permalink&#34;</span><span>:</span> <span>&#34;/scylla/&#34;</span><span>,</span> <span>&#34;raw_text&#34;</span><span>:</span> <span>&#34;Tech &gt; Scylla&#34;</span><span>},</span>
+    <span>{</span><span>&#34;title&#34;</span><span>:</span> <span>&#34;Recipes&#34;</span><span>,</span> <span>&#34;permalink&#34;</span><span>:</span> <span>&#34;/recipes/&#34;</span><span>,</span> <span>&#34;raw_text&#34;</span><span>:</span> <span>&#34;Recipes&#34;</span><span>},</span>
+<span>]</span>
+</code></pre></div><h3 id="html-snippet-for-the-search-box"><a href="#html-snippet-for-the-search-box" arialabel="Anchor"></a>HTML snippet for the search box</h3>
+<p><a href="https://github.com/benjaminheng/knowledge-base/blob/368b77174b9b9dc18d2f9623f25803b5e98b92eb/layouts/partials/search.html">source</a></p>
+<div><pre><code data-lang="html"><span>&lt;</span><span>form</span> <span>id</span><span>=</span><span>&#34;search-form&#34;</span> <span>class</span><span>=</span><span>&#34;search-form&#34;</span> <span>role</span><span>=</span><span>&#34;search&#34;</span> <span>style</span><span>=</span><span>&#34;display:none;&#34;</span> <span>tabindex</span><span>=</span><span>&#34;0&#34;</span><span>&gt;</span>
+  <span>&lt;</span><span>div</span> <span>id</span><span>=</span><span>&#34;search-results&#34;</span><span>&gt;</span>
+  <span>&lt;/</span><span>div</span><span>&gt;</span>
+  <span>&lt;</span><span>label</span> <span>for</span><span>=</span><span>&#34;search-input&#34;</span><span>&gt;&lt;/</span><span>label</span><span>&gt;</span>
+  <span>&lt;</span><span>input</span> <span>type</span><span>=</span><span>&#34;search&#34;</span> <span>id</span><span>=</span><span>&#34;search-input&#34;</span> <span>class</span><span>=</span><span>&#34;search-input&#34;</span> <span>placeholder</span><span>=</span><span>&#34;search&#34;</span> <span>autocomplete</span><span>=</span><span>&#34;off&#34;</span><span>&gt;</span>
+<span>&lt;/</span><span>form</span><span>&gt;</span>
+<span>&lt;</span><span>script</span><span>&gt;</span>
+  <span>window</span><span>.</span>searchIndex <span>=</span> <span>{{</span> partial <span>&#34;search-index&#34;</span> <span>.</span> <span>}};</span>
+<span>&lt;/</span><span>script</span><span>&gt;</span>
+<span>&lt;</span><span>script</span> <span>src</span><span>=</span><span>&#34;{{ &#34;</span><span>/</span><span>js</span><span>/</span><span>search</span><span>.</span><span>js</span><span>&#34;</span> <span>|</span> <span>relURL</span> <span>}}&#34;</span><span>&gt;&lt;/</span><span>script</span><span>&gt;</span>
+</code></pre></div><h3 id="js-implementation"><a href="#js-implementation" arialabel="Anchor"></a>JS implementation</h3>
+<p><a href="https://github.com/benjaminheng/knowledge-base/blob/368b77174b9b9dc18d2f9623f25803b5e98b92eb/static/js/search.js">source</a></p>
+<p>I don’t use any search libraries like Lunr.js or Fuse.js, since those will be
+overkill for a simple file filter. After all, I’m only searching against post
+titles, not their contents.</p>
+<p>I’m happy with how my up/down keyboard navigation turned out. I had to take
+care of a few edge cases, but the end result is quite pleasing.</p>
+
+    </div>
+</main>
+
+      </div></div>
