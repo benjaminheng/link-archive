@@ -1,0 +1,624 @@
+---
+url: https://www.interdb.jp/pg/pgsql01.html
+title: Chapter 1 Database Cluster, Databases, and Tables
+archived_at: 2022-01-29T17:14:23.446558+08:00
+---
+<div id="readability-page-1" class="page"><div>
+ <div>
+
+
+
+
+
+<p>
+This chapter and the next chapter summarize the basic knowledge of PostgreSQL to help to read the subsequent chapters. In this chapter, following topics are described: 
+</p>
+
+<ul>
+<li>The logical structure of a database cluster</li>
+<li>The physical structure of a database cluster </li>
+<li>The internal layout of a heap table file </li>
+<li>The methods of writing and reading data to a table </li>
+</ul>
+
+<p>
+If you are already familiar with them, you may skip over this chapter.
+</p>
+
+
+
+
+  </div>
+<p><h2><a id="_1.1." name="_1.1."></a>1.1. Logical Structure of Database Cluster </h2></p>
+ <div>
+
+
+
+<p>
+A <b>database cluster</b> is a collection of <i>databases</i> managed by a PostgreSQL server.
+If you hear this definition now for the first time, you might be wondering about it,
+but the term ‘database cluster’ in PostgreSQL does <b>not</b> mean ‘a group of database servers’.
+A PostgreSQL server runs on a single host and manages a single database cluster.
+</p>
+
+<p>
+Figure 1.1 shows the logical structure of a database cluster.
+A <i>database</i> is a collection of <i>database objects</i>. In the relational database theory, a <i>database object</i> is a data structure used either to store or to reference data. A (heap) <i>table</i> is a typical example of it, and there are many more like an index, a sequence, a view, a function and so on. In PostgreSQL, databases themselves are also database objects and are logically separated from each other.
+All other database objects (e.g., tables, indexes, etc) belong to their respective databases.
+</p>
+
+
+
+
+
+
+<p><b>Fig. 1.1. Logical structure of a database cluster.</b></p><div>
+<figure>
+<img alt="Fig. 1.1. Logical structure of a database cluster." data-src="./img/fig-1-01.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<p>
+All the database objects in PostgreSQL are internally managed by respective <b>object identifiers (OIDs)</b>, which are unsigned 4-byte integers. The relations between database objects and the respective OIDs are stored in appropriate <a href="http://www.postgresql.org/docs/current/static/catalogs.html" target="_blank" rel="noopener noreferrer">system catalogs</a>, depending on the type of objects. 
+For example, OIDs of databases and heap tables are stored in <i>pg_database</i> and <i>pg_class</i> respectively, so you can find out the OIDs you want to know by issuing the queries such as the following: 
+</p>
+
+<pre>sampledb=# SELECT datname, oid FROM pg_database WHERE datname = &#39;sampledb&#39;;
+ datname  |  oid  
+----------+-------
+ sampledb | 16384
+(1 row)
+
+sampledb=# SELECT relname, oid FROM pg_class WHERE relname = &#39;sampletbl&#39;;
+  relname  |  oid  
+-----------+-------
+ sampletbl | 18740 
+(1 row)
+</pre>
+
+
+
+  </div>
+<p><h2><a id="_1.2." name="_1.2."></a>1.2. Physical Structure of Database Cluster</h2></p>
+ <div>
+
+
+
+<p>
+A <i>database cluster</i> basically is one directory referred to as <b>base directory</b>, and it contains some subdirectories and lots of files. 
+If you execute the <a href="http://www.postgresql.org/docs/current/static/app-initdb.html" target="_blank" rel="noopener noreferrer">initdb</a> utility to initialize a new database cluster, a base directory will be created under the specified directory. 
+Though it is not compulsory, the path of the base directory is usually set to the environment variable <i>PGDATA</i>.
+</p>
+
+<p>
+Figure 1.2 shows an example of database cluster in PostgreSQL.
+A database is a subdirectory under the <i>base</i> subdirectory, and each of the tables and indexes is (at least) one file stored under the subdirectory of the database to which it belongs.
+Also there are several subdirectories containing particular data, and configuration files. 
+
+While PostgreSQL supports <i>tablespaces</i>, the meaning of the term is different from other RDBMS. A tablespace in PostgreSQL is one directory that contains some data outside of the base directory. 
+</p>
+
+
+
+
+
+
+
+<p><b>Fig. 1.2. An example of database cluster.</b></p><div>
+
+<figure>
+<img alt="Fig. 1.2. An example of database cluster." data-src="./img/fig-1-02.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<p>
+In the following subsections, the layout of a database cluster, databases, files associated with tables and indexes, and the tablespace in PostgreSQL are described.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_1.2.1." name="_1.2.1."></a>1.2.1. Layout of a Database Cluster</h3></p>
+ <div>
+
+
+
+<p>
+The layout of database cluster has been described in the <a href="http://www.postgresql.org/docs/current/static/storage-file-layout.html" target="_blank" rel="noopener noreferrer">official document</a>. Main files and subdirectories in a part of the document have been listed in Table 1.1:
+</p>
+
+<p><b>table 1.1: Layout of files and subdirectories under the base directory (From the official document)</b></p><table>
+
+<tbody><tr>
+<th>files</th>
+<th>description</th>
+</tr><tr>
+<td>PG_VERSION</td>
+<td>A file containing the major version number of PostgreSQL</td>
+</tr><tr>
+<td>pg_hba.conf</td>
+<td>A file to control PosgreSQL&#39;s client authentication</td>
+</tr><tr>
+<td>pg_ident.conf</td>
+<td>A file to control PostgreSQL&#39;s user name mapping</td>
+</tr><tr>
+<td>postgresql.conf</td>
+<td>A file to set configuration parameters</td>
+</tr><tr>
+<td>postgresql.auto.conf</td>
+<td>A file used for storing configuration parameters that are set in ALTER SYSTEM (version 9.4 or later)</td>
+</tr><tr>
+<td>postmaster.opts</td>
+<td>A file recording the command line options the server was last started with</td>
+
+</tr><tr>
+<th>subdirectories</th>
+<th>description</th>
+</tr><tr>
+<td>base/</td>
+<td>Subdirectory containing per-database subdirectories.</td>
+</tr><tr>
+<td>global/</td>
+<td>Subdirectory containing cluster-wide tables, such as pg_database and pg_control.</td>
+</tr><tr>
+<td>pg_commit_ts/</td>
+<td>Subdirectory containing transaction commit timestamp data. Version 9.5 or later.</td>
+</tr><tr>
+<td>pg_clog/ (Version 9.6 or earlier)</td>
+<td>Subdirectory containing transaction commit state data. It is renamed to <i>pg_xact</i> in Version 10. CLOG will be described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.4.">Section 5.4</a>.</td>
+</tr><tr>
+<td>pg_dynshmem/</td>
+<td>Subdirectory containing files used by the dynamic shared memory subsystem. Version 9.4 or later.</td>
+</tr><tr>
+<td>pg_logical/</td>
+<td>Subdirectory containing status data for logical decoding. Version 9.4 or later.</td>
+</tr><tr>
+<td>pg_multixact/</td>
+<td>Subdirectory containing multitransaction status data (used for shared row locks)</td>
+</tr><tr>
+<td>pg_notify/</td>
+<td>Subdirectory containing LISTEN/NOTIFY status data</td>
+</tr><tr>
+<td>pg_repslot/</td>
+<td>Subdirectory containing <a href="http://www.postgresql.org/docs/current/static/warm-standby.html#STREAMING-REPLICATION-SLOTS" target="_blank" rel="noopener noreferrer">replication slot</a>  data. Version 9.4 or later.</td>
+</tr><tr>
+<td>pg_serial/</td>
+<td>Subdirectory containing information about committed serializable transactions (version 9.1 or later)</td>
+</tr><tr>
+<td>pg_snapshots/</td>
+<td>Subdirectory containing exported snapshots (version 9.2 or later).
+The PostgreSQL&#39;s function pg_export_snapshot creates a snapshot information file in this subdirectory.
+</td>
+
+</tr><tr>
+<td>pg_stat/</td>
+<td>Subdirectory containing permanent files for the statistics subsystem.</td>
+
+</tr><tr>
+<td>pg_stat_tmp/</td>
+<td>Subdirectory containing temporary files for the statistics subsystem.</td>
+
+
+</tr><tr>
+<td>pg_subtrans/</td>
+<td>Subdirectory containing subtransaction status data</td>
+</tr><tr>
+<td>pg_tblspc/</td>
+<td>Subdirectory containing symbolic links to tablespaces</td>
+</tr><tr>
+<td>pg_twophase/</td>
+<td>Subdirectory containing state files for prepared transactions</td>
+</tr><tr>
+<td>pg_wal/ (Version 10 or later)</td>
+<td>Subdirectory containing WAL (Write Ahead Logging) segment files. It is renamed from <i>pg_xlog</i> in Version 10.</td>
+</tr><tr>
+<td>pg_xact/ (Version 10 or later)</td>
+<td>Subdirectory containing transaction commit state data. It is renamed from <i>pg_clog</i> in Version 10.
+CLOG will be described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.4.">Section 5.4</a>.</td>
+</tr><tr>
+<td>pg_xlog/ (Version 9.6 or earlier)</td>
+<td>Subdirectory containing WAL (Write Ahead Logging) segment files. It is renamed to <i>pg_wal</i> in Version 10.</td>
+</tr>
+</tbody></table>
+
+
+
+
+
+
+  </div>
+<p><h3><a id="_1.2.2." name="_1.2.2."></a>1.2.2. Layout of Databases</h3></p>
+ <div>
+
+
+<p>
+A database is a subdirectory under the <i>base</i> subdirectory; and the database directory names are identical to the respective OIDs. 
+For example, when the OID of the database <i>sampledb</i> is 16384, its subdirectory name is 16384.
+</p>
+
+<pre>$ cd $PGDATA
+$ ls -ld base/16384
+drwx------  213 postgres postgres  7242  8 26 16:33 16384
+</pre>
+
+
+
+
+
+  </div>
+<p><h3><a id="_1.2.3." name="_1.2.3."></a>1.2.3. Layout of Files Associated with Tables and Indexes</h3></p>
+ <div>
+
+
+
+<p>
+Each table or index whose size is less than 1GB is a single file stored under the database directory it belongs to. Tables and indexes as database objects are internally managed by individual OIDs, while those data files are managed by the variable, <i>relfilenode</i>. The relfilenode values of tables and indexes basically but <b>not</b> always match the respective OIDs, the details are described below. 
+</p>
+
+<p>
+Let&#39;s show the OID and relfilenode of the table <i>sampletbl</i>:
+</p>
+
+<pre>sampledb=# SELECT relname, oid, relfilenode FROM pg_class WHERE relname = &#39;sampletbl&#39;;
+  relname  |  oid  | relfilenode
+-----------+-------+-------------
+ sampletbl | 18740 |       18740 
+(1 row)
+</pre>
+
+<p>
+From the result above, you can see that both oid and relfilenode values are equal. You can also see that the data file path of the table <i>sampletbl</i> is <i>&#39;base/16384/18740&#39;</i>. 
+</p>
+
+
+<pre>$ cd $PGDATA
+$ ls -la base/16384/18740
+-rw------- 1 postgres postgres 8192 Apr 21 10:21 base/16384/18740
+</pre>
+
+<p>
+The relfilenode values of tables and indexes are changed by issuing some commands (e.g., TRUNCATE, REINDEX, CLUSTER). For example, if we truncate the table <i>sampletbl</i>, PostgreSQL assigns a new relfilenode (18812) to the table, removes the old data file (18740), and creates a new one (18812). 
+</p>
+
+<pre>sampledb=# TRUNCATE sampletbl;
+TRUNCATE TABLE
+
+sampledb=# SELECT relname, oid, relfilenode FROM pg_class WHERE relname = &#39;sampletbl&#39;;
+  relname  |  oid  | relfilenode
+-----------+-------+-------------
+ sampletbl | 18740 |       18812 
+(1 row)
+</pre>
+
+<br/>
+<div>
+<p>
+In version 9.0 or later, the built-in function <i>pg_relation_filepath</i> is useful as this function returns the file path name of the relation with the specified OID or name.
+</p>
+
+<pre>sampledb=# SELECT pg_relation_filepath(&#39;sampletbl&#39;);
+ pg_relation_filepath 
+----------------------
+ base/16384/18812
+(1 row)
+</pre>
+  </div>
+
+
+
+<p>
+When the file size of tables and indexes exceeds 1GB, PostgreSQL creates a new file named like relfilenode.1 and uses it. If the new file has been filled up, next new file named like relfilenode.2 will be created, and so on. 
+</p>
+
+<pre>$ cd $PGDATA
+$ ls -la -h base/16384/19427*
+-rw------- 1 postgres postgres 1.0G  Apr  21 11:16 data/base/16384/19427
+-rw------- 1 postgres postgres  45M  Apr  21 11:20 data/base/16384/19427.1
+...
+</pre>
+
+<br/>
+<div><p>
+The maximum file size of tables and indexes can be changed using the configuration, option --with-segsize when building PostgreSQL. 
+</p></div>
+
+
+<p>
+Looking carefully at the database subdirectories, you will find out that each table has two associated files suffixed respectively with &#39;_fsm&#39; and &#39;_vm&#39;. Those are referred to as <b>free space map</b> and <b>visibility map</b>, storing the information of the free space capacity and the visibility on each page within the table file, respectively (see more detail in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.3.4." target="_blank" rel="noopener noreferrer">Section 5.3.4</a> and <a href="https://www.interdb.jp/pg/pgsql06.html#_6.2." target="_blank" rel="noopener noreferrer">Section 6.2</a>). Indexes only have individual free space maps and don&#39;t have visibility map. 
+</p>
+
+<p>
+A specific example is shown below: 
+</p>
+
+<pre>$ cd $PGDATA
+$ ls -la base/16384/18751*
+-rw------- 1 postgres postgres  8192 Apr 21 10:21 base/16384/18751
+-rw------- 1 postgres postgres 24576 Apr 21 10:18 base/16384/18751_fsm
+-rw------- 1 postgres postgres  8192 Apr 21 10:18 base/16384/18751_vm
+</pre>
+
+<p>
+They may also be internally referred to as the <b>forks</b> of each relation; the free space map is the first fork of the table/index data file (the fork number is 1), the visibility map the second fork of the table&#39;s data file (the fork number is 2). The fork number of the data file is 0. 
+</p>
+
+
+
+
+
+
+  </div>
+<p><h3><a id="_1.2.4." name="_1.2.4."></a>1.2.4. Tablespaces</h3></p>
+ <div>
+
+
+
+
+<p>
+A <i>tablespace</i> in PostgreSQL is an additional data area outside the base directory. This function has been implemented in version 8.0. 
+</p>
+
+<p>
+Figure 1.3 shows the internal layout of a tablespace, and the relationship with the main data area.
+</p>
+
+
+
+
+
+<p><b>Fig. 1.3. A Tablespace in the Database Cluster.</b></p>
+
+
+
+<p>
+A tablespace is created under the directory specified when you issue <a href="http://www.postgresql.org/docs/current/static/sql-createtablespace.html" target="_blank" rel="noopener noreferrer">CREATE TABLESPACE</a> statement, and under that directory, 
+the version-specific subdirectory (e.g., PG_14_202011044) will be created. 
+The naming method for version-specific one is shown below. 
+</p>
+
+<pre>PG _ &#39;Major version&#39; _ &#39;Catalogue version number&#39;
+</pre>
+
+<p>
+For example, if you create a tablespace <i>&#39;new_tblspc&#39;</i> at <i>&#39;/home/postgres/tblspc&#39;</i>, whose oid is 16386, a subdirectory such as <i>&#39;PG_14_202011044&#39;</i> would be created under the tablespace.
+</p>
+
+
+
+<pre>$ ls -l /home/postgres/tblspc/
+total 4
+drwx------ 2 postgres postgres 4096 Apr 21 10:08 PG_14_202011044
+</pre>
+
+<p>
+The tablespace directory is addressed by a symbolic link from the <i>pg_tblspc</i> subdirectory, and the link name is the same as the OID value of tablespace. 
+</p>
+
+<pre>$ ls -l $PGDATA/pg_tblspc/
+total 0
+lrwxrwxrwx 1 postgres postgres 21 Apr 21 10:08 16386 -&gt; /home/postgres/tblspc
+</pre>
+
+
+<p>
+If you create a new database (OID is 16387) under the tablespace, its directory is created under the version-specific subdirectory. 
+</p>
+
+<pre>$ ls -l /home/postgres/tblspc/PG_14_202011044/
+total 4
+drwx------ 2 postgres postgres 4096 Apr 21 10:10 16387
+</pre>
+
+<p>
+If you create a new table which belongs to the database created under the base directory, first, the new directory, whose name is the same as the existing database OID, is created under the version specific subdirectory, and then the new table file is placed under the created directory. 
+</p>
+
+<pre>sampledb=# CREATE TABLE newtbl (.....) TABLESPACE new_tblspc;
+
+sampledb=# SELECT pg_relation_filepath(&#39;newtbl&#39;);
+             pg_relation_filepath             
+---------------------------------------------
+ pg_tblspc/16386/PG_14_202011044/16384/18894
+</pre>
+
+
+
+
+
+  </div>
+<p><h2><a id="_1.3." name="_1.3."></a>1.3. Internal Layout of a Heap Table File</h2></p>
+ <div>
+
+
+
+
+
+
+
+<p>
+Inside the data file (heap table and index, as well as the free space map and visibility map), it is divided into <b>pages</b> (or <b>blocks</b>) of fixed length, the default is 8192 byte (8 KB). Those pages within each file are numbered sequentially from 0, and such numbers are called as <b>block numbers</b>. If the file has been filled up, PostgreSQL adds a new empty page to the end of the file to increase the file size. 
+</p>
+
+<p>
+Internal layout of pages depends on the data file types. In this section, the table layout is described as the information will be required in the following chapters. 
+</p>
+
+
+
+<p><b>Fig. 1.4. Page layout of a heap table file.</b></p><div>
+<figure>
+<img alt="Fig. 1.4. Page layout of a heap table file." data-src="./img/fig-1-04.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<p>
+A page within a table contains three kinds of data described as follows: 
+</p>
+
+<ol>
+<li>
+<b>heap tuple(s)</b> –
+ A heap tuple is a record data itself. They are stacked in order from the bottom of the page. The internal structure of tuple is described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.2." target="_blank" rel="noopener noreferrer">Section 5.2</a> and <a href="https://www.interdb.jp/pg/pgsql09.html" target="_blank" rel="noopener noreferrer">Chapter 9</a> as the knowledge of both Concurrency Control(CC) and WAL in PostgreSQL are required. 
+</li>
+
+<li>
+<b>line pointer(s)</b> –
+ A line pointer is 4 byte long and holds a pointer to each heap tuple. It is also called an <b>item pointer</b>.
+<br/>
+ Line pointers form a simple array, which plays the role of index to the tuples. Each index is numbered sequentially from 1, and called <b>offset number</b>. When a new tuple is added to the page, a new line pointer is also pushed onto the array to point to the new one. 
+</li>
+
+<li>
+<b>header data</b> –
+ A header data defined by the structure PageHeaderData is allocated in the beginning of the page. It is 24 byte long and contains general information about the page. The major variables of the structure are described below. 
+</li>
+ 
+
+<ul>
+<li><i>pd_lsn</i> –
+ This variable stores the LSN of XLOG record written by the last change of this page. It is an 8-byte unsigned integer, related to the WAL (Write-Ahead Logging) mechanism. The details are described in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.1.2." target="_blank" rel="noopener noreferrer">Chapter 9</a>.
+</li>
+
+
+<li><i>pd_checksum</i> – 
+ This variable stores the checksum value of this page. (Note that this variable is supported in version 9.3 or later; in earlier versions, this part had stored the timelineId of the page.) 
+</li>
+
+<li><i>pd_lower, pd_upper</i> – 
+ pd_lower points to the end of line pointers, and pd_upper to the beginning of the newest heap tuple. 
+</li>
+
+<li><i>pd_special</i> –
+ This variable is for indexes. In the page within tables, it points to the end of the page. 
+(In the page within indexes, it points to the beginning of special space which is the data area held only by indexes and contains the particular data according to the kind of index types such as B-tree, GiST, GiN, etc.) 
+</li>
+ </ul>
+</ol>
+
+<p>
+An empty space between the end of line pointers and the beginning of the newest tuple is referred to as <b>free space</b> or <b>hole</b>. 
+</p>
+
+<p>
+To identify a tuple within the table, <b>tuple identifier (TID)</b> is internally used. A TID comprises a pair of values: the <i>block number</i> of the page that contains the tuple, and the <i>offset number</i> of the line pointer that points to the tuple.  A typical example of its usage is index. See more detail in <a href="https://www.interdb.jp/pg/pgsql01.html#_1.4.2.">Section 1.4.2</a>.
+</p>
+
+<br/>
+
+<div><p>
+In the field of computer science, this type of page is called a <b>slotted page</b>,
+and the line pointers correspond to a <b>slot array</b>.
+</p></div>
+
+
+<p>
+In addition, heap tuple whose size is greater than about 2 KB (about 1/4 of 8 KB) is stored and managed using a method called <b>TOAST</b> (The Oversized-Attribute Storage Technique). Refer <a href="http://www.postgresql.org/docs/current/static/storage-toast.html" target="_blank" rel="noopener noreferrer">PostgreSQL documentation</a> for details.
+</p>
+
+
+
+
+  </div>
+<p><h2><a id="_1.4." name="_1.4."></a>1.4. The Methods of Writing and Reading Tuples</h2></p>
+ <div>
+  <p>
+In the end of this chapter, the methods of writing and reading heap tuples are described. 
+</p>
+ </div>
+<p><h3><a id="_1.4.1." name="_1.4.1."></a>1.4.1. Writing Heap Tuples</h3></p>
+ <div>
+
+
+
+<p>
+Suppose a table composed of one page which contains just one heap tuple. The pd_lower of this page points to the first line pointer, and both the line pointer and the pd_upper point to the first heap tuple. See Fig. 1.5(a). 
+</p>
+
+<p>
+When the second tuple is inserted, it is placed after the first one. The second line pointer is pushed onto the first one, and it points to the second tuple. The pd_lower changes to point to the second line pointer, and the pd_upper to the second heap tuple. See Fig. 1.5(b). Other header data within this page (e.g., pd_lsn, pg_checksum, pg_flag) are also rewritten to appropriate values; more details are described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.3." target="_blank" rel="noopener noreferrer">Section 5.3</a> and <a href="https://www.interdb.jp/pg/pgsql09.html" target="_blank" rel="noopener noreferrer">Chapter 9</a>. 
+</p>
+
+
+
+
+
+<p><b>Fig. 1.5. Writing of a heap tuple.</b></p><div>
+<figure>
+<img alt="Fig. 1.5. Writing of a heap tuple." data-src="./img/fig-1-05.png" alt=""/>
+</figure>
+  </div>
+
+
+  </div>
+<p><h3><a id="_1.4.2." name="_1.4.2."></a>1.4.2. Reading Heap Tuples</h3></p>
+ <div>
+
+
+
+
+<p>
+Two typical access methods, sequential scan and B-tree index scan, are outlined here: 
+</p>
+
+<ul>
+<li><b>Sequential scan</b> –
+ All tuples in all pages are sequentially read by scanning all line pointers in each page. See Fig. 1.6(a). 
+</li>
+
+<li><b>B-tree index scan</b>  –
+An index file contains index tuples, each of which is composed of an index key and a TID pointing to the target heap tuple. If the index tuple with the key that you are looking for has been found, PostgreSQL reads the desired heap tuple using the obtained TID value. (The description of the way to find the index tuples in B-tree index is not explained here as it is very common and the space here is limited. See the relevant materials.) 
+For example, in Fig. 1.6(b), TID value of the obtained index tuple is ‘(block = 7, Offset = 2)’.
+ It means that the target heap tuple is 2nd tuple in the 7th page within the table, so PostgreSQL can read the desired heap tuple without unnecessary scanning in the pages.
+</li>
+</ul>
+
+
+
+
+
+<p><b>Fig. 1.6. Sequential scan and index scan.</b></p><div>
+<figure>
+<img alt="Fig. 1.6. Sequential scan and index scan." data-src="./img/fig-1-06.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<br/>
+
+<div>
+<p>
+PostgreSQL also supports TID-Scan, <a href="https://wiki.postgresql.org/wiki/Bitmap_Indexes" target="_blank" rel="noopener noreferrer">Bitmap-Scan</a>, and Index-Only-Scan. 
+</p>
+
+<p>
+TID-Scan is a method that accesses a tuple directly by using TID of the desired tuple. For example, to find the 1st tuple in the 0-th page within the table, issue the following query: 
+</p>
+
+<pre>sampledb=# SELECT ctid, data FROM sampletbl WHERE ctid = &#39;(0,1)&#39;;
+ ctid  |   data    
+-------+-----------
+ (0,1) | AAAAAAAAA
+(1 row)
+</pre>
+
+<p>
+Index-Only-Scan will be described in details in <a href="https://www.interdb.jp/pg/pgsql07.html" target="_blank" rel="noopener noreferrer">Chapter 7</a>.
+</p>
+
+  </div>
+<br/>
+
+
+
+</div></div></div>

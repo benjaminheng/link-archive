@@ -1,0 +1,1555 @@
+---
+url: https://www.interdb.jp/pg/pgsql09.html
+title: Chapter 9 Write Ahead Logging — WAL
+archived_at: 2022-01-29T17:14:24.568775+08:00
+---
+<div id="readability-page-1" class="page"><div>
+ <div>
+
+
+
+
+<p><b>Transaction log</b> is an essential part of database, because all of the database management system is required not to lose any data even when a system failure occurs. It is a history log of all changes and actions in a database system so as to ensure that no data has been lost due to failures, such as a power failure, or some other server failure that causes the server crash. As the log contains sufficient information about each transaction executed already, the database server should be able to recover the database cluster by replaying changes and actions in the transaction log in case of the server crash. 
+</p>
+
+<p>
+In the field of computer science, <b>WAL</b> is an acronym of <b>Write Ahead Logging</b>, which is a protocol or a rule to write both changes and actions into a transaction log, whereas in PostgreSQL, WAL is an acronym of <b>Write Ahead Log</b>. There the term is used as synonym of transaction log, and also used to refer to an implemented mechanism related to writing action to a transaction log (WAL). 
+Though this is a little confusing, in this document the PostgreSQL definition has been adopted. 
+</p>
+
+<p>
+The WAL mechanism was first implemented in version 7.1 to mitigate the impacts of server crashes. It also made possible the implementation of the Point-in-Time Recovery (PITR) and Streaming Replication (SR), both of which are described in <a href="https://www.interdb.jp/pg/pgsql10.html">Chapter 10</a> and <a href="https://www.interdb.jp/pg/pgsql11.html">Chapter 11</a> respectively. 
+</p>
+
+<p>
+Although understanding of the WAL mechanism is essential for system integrations and administrations using PostgreSQL, the complexity of this mechanism makes it impossible to summarize its description in brief. So the complete explanation of WAL in PostgreSQL is made as follows.
+
+In the first section, the overall picture of the WAL has been provided, introducing some important concepts and keywords. In the subsequent sections, the following topics are described: 
+</p>
+
+<ul>
+<li>The logical and physical structures of the WAL (transaction log)</li>
+<li>The internal layout of WAL data</li>
+<li>Writing of WAL data</li>
+<li>WAL writer process</li>
+<li>The checkpoint processing</li>
+<li>The database recovery processing</li>
+<li>Managing WAL segment files</li>
+
+<li>Continuous archiving</li>
+</ul>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.1." name="_9.1."></a>9.1. Overview</h2></p>
+ <div>
+
+
+<p>
+Let&#39;s take a look at the overview of the WAL mechanism. To clarify the issue the WAL has been working on, the first subsection shows what happens when a crash occurs if PostgreSQL does not implement WAL. The second subsection introduces some key concepts and shows the overview of the main subjects in this chapter, the writing of WAL data and the database recovery processing. The final subsection completes the overview of the WAL, adding one more key concept. 
+</p>
+
+<p>
+In this section, to simplify the description, the table TABLE_A which contains just one page has been used.
+</p>
+
+
+
+
+
+  </div>
+<p><h3><a id="_9.1.1." name="_9.1.1."></a>9.1.1. Insertion Operations without WAL</h3></p>
+ <div>
+
+
+<p>
+As described in <a href="https://www.interdb.jp/pg/pgsql08.html" target="_blank" rel="noopener noreferrer">Chapter 8</a>,
+to provide efficient access to the relation&#39;s pages, every DBMS implements shared buffer pool.
+</p>
+
+<p>
+Assume that we insert some data tuples into TABLE_A on PostgreSQL which does not implement the WAL feature; this situation is illustrated in Fig. 9.1. 
+</p>
+
+
+<p><b>Fig. 9.1. Insertion operations without WAL.</b></p><div>
+<figure>
+<img alt="Fig. 9.1. Insertion operations without WAL." data-src="./img/fig-9-01.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(1) Issuing the first INSERT statement, 
+PostgreSQL loads the TABLE_A&#39;s page from a database cluster into the in-memory shared buffer pool, and inserts a tuple into the page.
+
+This page is not written into the database cluster immediately.
+(As mentioned in Chapter 8, a modified pages are generally called a <b>dirty page</b>.)
+</li>
+
+<li>
+(2) Issuing the second INSERT statement, 
+PostgreSQL inserts a new tuple into the page on the buffer pool. This page has not been written into the storage yet. 
+</li>
+
+<li>
+(3) If the operating system or PostgreSQL server should fail for any reasons such as a power failure, all of the inserted data would be lost. 
+</li>
+</ul>
+
+<p>
+So, database without WAL is vulnerable to the system failures. 
+</p>
+
+
+<br/>
+<div>
+  <p><i>  Historical Info</i>
+  </p>
+  <div><p>
+Before WAL was introduced (version 7.0 or earlier), PostgreSQL did synchronous writes to the disk by issuing a sync system call whenever changing a page in memory in order to ensure durability.
+Therefore, the modification commands such as INSERT and UPDATE were very poor-performance.
+</p></div>
+</div>
+<br/>
+
+
+
+
+  </div>
+<p><h3><a id="_9.1.2." name="_9.1.2."></a>9.1.2. Insertion Operations and Database Recovery</h3></p>
+ <div>
+
+<p>
+To deal with the system failures mentioned above without compromising performance, PostgreSQL supports the WAL. In this subsection, some keywords and key concepts, and then the writing of WAL data and the recovering of the database are described. 
+</p>
+
+<p>
+PostgreSQL writes all modifications as history data into a persistent storage, to prepare for failures. In PostgreSQL, the history data are known as <b>XLOG record(s)</b> or <b>WAL data</b>. 
+</p>
+
+<p>
+XLOG records are written into the in-memory <b>WAL buffer</b> by change operations such as insertion, deletion, or commit action. They are immediately written into a <b>WAL segment file</b> on the storage when a transaction commits/aborts. (To be precise, the writing of XLOG records may occur in other cases. The details will be described in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.5.">Section 9.5</a>.) <b>LSN (Log Sequence Number)</b> of XLOG record represents the location where its record is written on the transaction log. LSN of record is used as the unique id of XLOG record. 
+</p>
+
+<p>
+By the way, when we consider how database system recovers, there may be one question; what point does PostgreSQL start to recover from? The answer is <b>REDO point</b>; that is, the location to write the XLOG record at the moment when the latest <b>checkpoint</b> is started (checkpoint in PostgreSQL is described in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.7.">Section 9.7</a>). In fact, the database recovery processing is strongly linked to the <i>checkpoint processing</i> and both of these processing are inseparable. 
+</p>
+
+<br/>
+<div><p>
+The WAL and checkpoint process were implemented at the same time in version 7.1. 
+</p></div>
+
+
+<p>
+As the introduction of major keywords and concepts has just finished, from now on will be the description of the tuple insertion with WAL. See Fig. 9.2 and the following description. (Also refer to <a href="http://www.slideshare.net/suzuki_hironobu/fig-902" target="_blank" rel="noopener noreferrer">this slide</a>.)
+</p>
+
+
+
+
+<p><b>Fig. 9.2. Insertion operations with WAL.</b></p><div>
+<figure>
+<img alt="Fig. 9.2. Insertion operations with WAL." data-src="./img/fig-9-02.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<br/>
+<div>
+  <p>
+Notation
+  </p>
+  <div><p>
+‘<i>TABLE_A&#39;s LSN</i>’ shows the value of pd_lsn within the page-header of TABLE_A.
+‘<i>page&#39;s LSN</i>’ is the same manner.
+</p></div>
+</div>
+<br/>
+
+<ul>
+<li>
+(1) A checkpointer, a background process, periodically performs checkpointing. Whenever the checkpointer starts, it writes a XLOG record called <b>checkpoint record</b> to the current WAL segment.
+This record contains the location of the latest <i>REDO point</i>.
+
+</li>
+
+<li>
+(2) Issuing the first INSERT statement, 
+PostgreSQL loads the TABLE_A&#39;s page into the shared buffer pool, 
+inserts a tuple into the page, 
+creates and writes a XLOG record of this statement into the WAL buffer at the location <i>LSN_1</i>, 
+and updates the TABLE_A&#39;s LSN from <i>LSN_0</i> to <i>LSN_1</i>.
+<br/>
+In this example, this XLOG record is a pair of a header-data and the <i>tuple entire</i>.
+</li>
+
+<li>
+(3) As this transaction commits, PostgreSQL 
+ creates and writes a XLOG record of this commit action into the WAL buffer,
+ and then,  writes and flushes all XLOG records on the WAL buffer to the WAL segment file, from <i>LSN_1</i>.
+</li>
+
+
+<li>
+(4) Issuing the second INSERT statement, PostgreSQL inserts a new tuple into the page, creates and writes this tuple&#39;s XLOG record to the WAL buffer at <i>LSN_2</i>, and updates the TABLE_A&#39;s LSN from <i>LSN_1</i> to <i>LSN_2</i>. 
+</li>
+
+<li>
+(5) When this statement&#39;s transaction commits, PostgreSQL operates in the same manner as in step (3). 
+</li>
+
+<li>
+(6) Imagine when the operating system failure should occur. Even though all of data on the shared buffer pool are lost, all modifications of the page have been written into the WAL segment files as history data. 
+</li>
+</ul>
+
+<p>
+The following instructions show how to recover our database cluster back to the state immediately before the crash. There is no need to do anything special, since PostgreSQL will automatically enter into the recovery-mode by restarting. See Fig. 9.3 (and this <a href="http://www.slideshare.net/suzuki_hironobu/fig-903" target="_blank" rel="noopener noreferrer">slide</a>). PostgreSQL sequentially will read and replay XLOG records within the appropriate WAL segment files from the REDO point. 
+</p>
+
+
+
+
+<p><b>Fig. 9.3. Database recovery using WAL.</b></p><div>
+<figure>
+<img alt="Fig. 9.3. Database recovery using WAL." data-src="./img/fig-9-03.png" alt=""/>
+</figure>
+
+
+  </div>
+
+
+
+
+
+<ul>
+<li>
+(1) PostgreSQL reads the XLOG record of the first INSERT statement from the appropriate WAL segment file, loads the TABLE_A&#39;s page from the database cluster into the shared buffer pool. 
+</li>
+
+<li>
+(2) Before trying to replay the XLOG record, PostgreSQL shall compare the XLOG record&#39;s LSN with the corresponding page&#39;s LSN, the reason why doing this will be described in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.8.">Section 9.8</a>. 
+The rules of the replaying XLOG records are shown below.
+<br/>
+If the XLOG record&#39;s LSN is larger than the page&#39;s LSN, 
+the data-portion of the XLOG record is to be inserted into the page and the page&#39;s LSN is updated to the XLOG record&#39;s LSN. 
+On the other hand, 
+if the XLOG record’s LSN is smaller, 
+there is nothing to do other than to read next WAL data. 
+<br/>
+In this example, 
+the XLOG record is replayed since the XLOG record&#39;s LSN (<i>LSN_1</i>) is larger than the TABLE_A&#39;s LSN (<i>LSN_0</i>); 
+then,  TABLE_A&#39;s LSN is updated from <i>LSN_0</i> to <i>LSN_1</i>.
+</li>
+
+<li>
+(3) PostgreSQL replays the remaining XLOG record(s) in the same way. 
+</li>
+</ul>
+
+<p>
+PostgreSQL can recover itself in this way by replaying XLOG records written in WAL segment files in chronological order. Thus, PostgreSQL&#39;s XLOG records are obviously <b>REDO log</b>. 
+</p>
+
+
+<br/>
+<div><p>
+PostgreSQL does not support UNDO log. 
+</p></div>
+
+
+<p>
+Though writing XLOG records certainly costs a certain amount, it’s nothing compared to writing the entire modified pages. We are sure we can get a greater benefit, i.e., the system failure tolerance, than the amount we paid. 
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_9.1.3." name="_9.1.3."></a>9.1.3. Full-Page Writes</h3></p>
+ <div>
+
+
+<p>
+Suppose that the TABLE_A&#39;s page-data on the storage is corrupted, because the operating system has failed while the background-writer process has been writing the dirty pages. As XLOG records cannot be replayed on the corrupted page, we would need an additional feature. 
+</p>
+
+<p>
+PostgreSQL supports a feature referred to as <b>full-page writes</b> to deal with such failures. If it is enabled, PostgreSQL writes a pair of the header-data and the <i>entire page</i> as XLOG record during the first change of each page after every checkpoint; default is enabled. 
+In PostgreSQL, such a XLOG record containing the entire page is referred to as <b>backup block</b> (or <b>full-page image</b>). 
+</p>
+
+
+<p>
+Let&#39;s describe the insertion of tuples again, but with the full-page-writes enabled. See Fig. 9.4 and the following description. 
+</p>
+
+
+
+<p><b>Fig. 9.4. Full page writes.</b></p><div>
+
+<figure>
+<img alt="Fig. 9.4. Full page writes." data-src="./img/fig-9-04.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(1) The checkpointer starts a checkpoint process. 
+</li>
+
+<li>
+(2) In the insertion of the first INSERT statement, though PostgreSQL operates in the almost the same manner as in the previous subsection, this XLOG record is the <i>backup block</i> of this page (i.e. it contains the page entirety), because this is the first writing of this page after the latest checkpoint.
+</li>
+
+<li>
+(3) As this transaction commits, 
+PostgreSQL operates in the same manner as in the previous subsection. 
+</li>
+
+<li>
+(4) In the insertion of the second INSERT statement, PostgreSQL operates in the same manner as in the previous subsection
+since this XLOG record is not a backup block.
+</li>
+
+
+<li>
+(5) When this statement&#39;s transaction commits, 
+PostgreSQL operates in the same manner as in the previous subsection. 
+</li>
+
+<li>
+(6) To demonstrate the effectiveness of full-page writes, here we consider the case in which the TABLE_A&#39;s page on the storage has been corrupted due to the operating system failure occurred while the background-writer has been writing it into the HDD. 
+</li>
+</ul>
+
+<p>
+Restart the PostgreSQL server to repair the broken cluster. See Fig. 9.5 and the following description. 
+</p>
+
+
+
+
+<p><b>Fig. 9.5. Database recovery with backup block.</b></p><div>
+<figure>
+<img alt="Fig. 9.5. Database recovery with backup block." data-src="./img/fig-9-05.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(1) PostgreSQL reads the XLOG record of the first INSERT statement and loads the corrupted TABLE_A&#39;s page from the database cluster into the shared buffer pool. In this example, the XLOG record is a backup block, because the first XLOG record of each page is always its backup block according to the writing rule of full-page writes.
+</li>
+
+<li>
+(2) When a XLOG record is its backup block, another rule of replaying is applied:
+ the record&#39;s data-portion (i.e. the page itself) is to be overwritten onto the page regardless of the values of both LSNs, and the page&#39;s LSN updated to the XLOG record&#39;s LSN. 
+<br/>
+In this example, PostgreSQL overwrites the data-portion of the record to the corrupted page, and updates the TABLE_A&#39;s LSN to <i>LSN_1</i>. 
+In this way, the corrupted page is restored by its backup block. 
+</li>
+
+<li>
+(3) Since the second XLOG record is a non-backup block, PostgreSQL operates in the same manner as the instruction in the previous subsection.
+</li>
+</ul>
+
+<p>
+In this way, PostgreSQL can recover the database even if some data write errors occur due to a process or operating system down.
+
+</p>
+
+<br/>
+<div>
+  <p><i>  WAL, Backup, and Replication</i>
+  </p>
+  <div>
+<p>
+As mentioned above, WAL can prevent data loss due to process or operating system down.
+However, if the file-system or media failure has occurred, data will be lost.
+To deal with such failures, PostgreSQL provides 
+<a href="https://www.interdb.jp/pg/pgsql10.html" target="_blank" rel="noopener noreferrer">online backup</a>
+and
+<a href="https://www.interdb.jp/pg/pgsql11.html" target="_blank" rel="noopener noreferrer">replication</a> features.
+</p>
+<p>
+If online backups are taken regularly, the database can be restored from the recent backup, even if media failure occurs.
+However, note that changes made after taking the last backup cannot be restored.
+To store all changes to another storage or host in real-time, the synchronous replication feature is used.
+For more information, see chapters <a href="https://www.interdb.jp/pg/pgsql10.html" target="_blank" rel="noopener noreferrer">10</a> and <a href="https://www.interdb.jp/pg/pgsql11.html" target="_blank" rel="noopener noreferrer">11</a>, respectively.
+</p>
+  </div>
+</div>
+<br/>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.2." name="_9.2."></a>9.2. Transaction Log and WAL Segment Files</h2></p>
+ <div>
+
+
+<p>
+Logically, PostgreSQL writes XLOG records into the transaction log which is a virtual file 8-byte long (16 ExaByte). 
+</p>
+
+<p>
+Since a transaction log capacity is effectively unlimited and so can be said that 8-byte address space is vast enough, it is impossible for us to handle a file with the capacity of 8-byte length.
+So, a transaction log in PostgreSQL is divided into files of 16-Mbyte, by default, each of which known as <i>WAL segment</i>. 
+See Fig. 9.6.
+</p>
+
+<br/>
+<div>
+  <p><i>  WAL segment file size</i>
+  </p>
+  <div><p>
+In version 11 or later, the size of WAL segment file can be configured using <a href="https://www.postgresql.org/docs/11/static/app-initdb.html" target="_blank" rel="noopener noreferrer">--wal-segsize</a> option when PostgreSQL cluster is created by initdb command.
+</p></div>
+</div>
+
+
+
+
+
+
+
+<p><b>Fig. 9.6. Transaction log and WAL segment files</b></p><div>
+<figure>
+<img alt="Fig. 9.6. Transaction log and WAL segment files" data-src="./img/fig-9-06.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+The WAL segment filename is in hexadecimal 24-digit number and the naming rule is as follows: 
+</p><p>
+
+\begin{align}
+	\verb|WAL segment file name| = \verb|timelineId| + (\verb|uint32|) \frac{\verb|LSN|-1}{16\verb|M|*256}  
+		  	  + (\verb|uint32|)\left(\frac{\verb|LSN|-1}{16\verb|M|}\right) \% 256
+\end{align}
+
+</p><div>
+  <p><i>  timelineId</i>
+  </p>
+  <div><p>
+PostgreSQL&#39;s WAL contains the concept of <b>timelineId</b> (4-byte unsigned integer), which is for Point-in-Time Recovery (PITR) described in <a href="https://www.interdb.jp/pg/pgsql10.html#_10.3.1.">Chapter 10</a>. 
+However, the timelineId is fixed to 0x00000001 in this chapter because this concept is not required in the following descriptions. 
+</p></div>
+</div>
+
+
+
+<p>
+The first WAL segment file is 00000001<span color="#0000ff">0000000</span>0000000<span color="#0000ff">01</span>. If the first one has been filled up with the writing of XLOG records, the second one 00000001<span color="#0000ff">00000000</span>000000<span color="#0000ff">02</span> would be provided. Files of successor is used in ascending order in succession, after 00000001<span color="#0000ff">00000000</span>000000<span color="#0000ff">FF</span> has been filled up, next one 00000001<span color="#0000ff">00000001</span>000000<span color="#0000ff">00</span> will be provided. In this way, whenever the last 2-digit carries over, the middle 8-digit number increases one. 
+</p>
+
+<p>
+Similarly, after 00000001<span color="#0000ff">00000001</span>000000<span color="#0000ff">FF</span> has been filled up, 00000001<span color="#0000ff">00000002</span>000000<span color="#0000ff">00</span> will be provided, and so on. 
+</p>
+
+<br/>
+<div>
+  <p><i>  pg_xlogfile_name / pg_walfile_name</i>
+  </p>
+  <div>
+<p>
+Using the built-in function <i>pg_xlogfile_name</i> (version 9.6 or earlier) or <i>pg_walfile_name</i> (versoin 10 or later),
+we can find the WAL segment file name that contains the specified LSN. An example is shown below: 
+</p>
+
+<pre>testdb=# SELECT pg_xlogfile_name(&#39;1/00002D3E&#39;);  # In version 10 or later, &#34;SELECT pg_walfile_name(&#39;1/00002D3E&#39;);&#34;
+     pg_xlogfile_name     
+--------------------------
+ 000000010000000100000000
+(1 row)
+</pre>
+  </div>
+</div>
+<br/>
+
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.3." name="_9.3."></a>9.3. Internal Layout of WAL Segment</h2></p>
+ <div>
+
+
+
+<p>
+A WAL segment is a 16 MB file, by default, and it is internally divided into pages of 8192 bytes (8 KB). The first page has a header-data defined by the structure XLogLongPageHeaderData, while the headings of all other pages have the page information defined by the structure XLogPageHeaderData. Following the page header, XLOG records are written in each page from the beginning in descending order. See Fig. 9.7. 
+</p>
+
+ 
+
+ 
+
+
+
+
+<p><b>Fig. 9.7. Internal layout of a WAL segment file.</b></p><div>
+<figure>
+<img alt="Fig. 9.7. Internal layout of a WAL segment file." data-src="./img/fig-9-07.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+XLogLongPageHeaderData structure and XLogPageHeaderData structure are defined in <a href="https://github.com/postgres/postgres/blob/master/src/include/access/xlog_internal.h" target="_blank" rel="noopener noreferrer">src/include/access/xlog_internal.h</a>. The explanation of both structures is omitted because those are not required in the following descriptions. 
+</p>
+
+
+
+
+  </div>
+<p><h2><a id="_9.4." name="_9.4."></a>9.4. Internal Layout of XLOG Record</h2></p>
+ <div>
+  <p>
+An XLOG record comprises the general header portion and each associated data portion. The first subsection describes the header structure; the remaining two subsections explain the structure of data portion in version 9.4 or earlier and in version 9.5, respectively. (The data format has changed in version 9.5.) 
+</p>
+ </div>
+<p><h3><a id="_9.4.1." name="_9.4.1."></a>9.4.1. Header Portion of XLOG Record</h3></p>
+ <div>
+
+
+
+
+<p>
+All XLOG records have a general header portion defined by the structure XLogRecord. Here, the structure of 9.4 and earlier versions is shown in the following, though it is changed in version 9.5. 
+</p>
+
+<pre>typedef struct XLogRecord
+{
+   uint32          xl_tot_len;   /* total len of entire record */
+   TransactionId   xl_xid;       /* xact id */
+   uint32          xl_len;       /* total len of rmgr data */
+   uint8           xl_info;      /* flag bits, see below */
+   RmgrId          xl_rmid;      /* resource manager for this record */
+   /* 2 bytes of padding here, initialize to zero */
+   XLogRecPtr      xl_prev;      /* ptr to previous record in log */
+   pg_crc32        xl_crc;       /* CRC for this record */
+} XLogRecord;
+</pre>
+
+<p>
+Apart from two variables, most of the variables would be so obvious that no need for description. 
+</p>
+
+<p>
+Both <b>xl_rmid</b> and <b>xl_info</b> are variables related to <b>resource managers</b>, which are collections of operations associated with the WAL feature such as writing and replaying of XLOG records. The number of resource managers tends to increase with each PostgreSQL version, Version 10 contains the following them: 
+</p>
+
+
+<table>
+  <tbody><tr>
+  <th>Operation</th>	<th>Resource manager</th>
+  </tr><tr>
+  <td>Heap tuple operations</td>	<td>RM_HEAP, RM_HEAP2</td>
+  </tr><tr>
+  <td>Index operations</td>	<td>RM_BTREE, RM_HASH, RM_GIN, RM_GIST, RM_SPGIST, RM_BRIN</td>
+  </tr><tr>
+  <td>Sequence operations</td>		<td>RM_SEQ</td>
+  </tr><tr>
+  <td>Transaction operations</td>	<td>RM_XACT, RM_MULTIXACT, RM_CLOG, RM_XLOG, RM_COMMIT_TS</td>
+  </tr><tr>
+  <td>Tablespace operations</td>		<td>RM_SMGR, RM_DBASE, RM_TBLSPC, RM_RELMAP</td>
+  </tr><tr>
+  <td>replication and hot standby operations</td>		<td>RM_STANDBY, RM_REPLORIGIN, RM_GENERIC_ID, RM_LOGICALMSG_ID</td>
+</tr></tbody>
+</table>
+
+<p>
+Here are some representative examples how resource managers work in the following: 
+</p>
+
+<ul>
+<li>
+If INSERT statement is issued, the header variables <i>xl_rmid</i> and <i>xl_info</i> of its XLOG record are set to <i>&#39;RM_HEAP&#39;</i> and <i>&#39;XLOG_HEAP_INSERT&#39;</i> respectively. When recovering the database cluster, the RM_HEAP&#39;s function <i>heap_xlog_insert()</i> selected according to the <i>xl_info</i> replays this XLOG record. 
+</li>
+
+<li>
+Though it is similar for UPDATE statement, the header variable <i>xl_info</i> of the XLOG record is set to <i>&#39;XLOG_HEAP_UPDATE&#39;</i>, and the RM_HEAP&#39;s function <i>heap_xlog_update()</i> replays its record when the database recovers. 
+</li>
+
+<li>
+When a transaction commits, the header variables <i>xl_rmid</i> and <i>xl_info</i> of its XLOG record are set to <i>&#39;RM_XACT&#39;</i> and to <i>&#39;XLOG_XACT_COMMIT&#39;</i> respectively. When recovering the database cluster, the function <i>xact_redo_commit()</i> replays this record. 
+</li>
+</ul>
+
+<p>
+In version 9.5 or later, one variable (xl_len) has been removed the structure 
+XLogRecord to refine the XLOG record format, which reduced the size by a few bytes. 
+</p>
+
+ 
+
+
+<br/>
+
+<br/>
+
+
+
+
+
+
+  </div>
+<p><h3><a id="_9.4.2." name="_9.4.2."></a>9.4.2. Data Portion of XLOG Record (version 9.4 or earlier)</h3></p>
+ <div>
+
+
+
+<p>
+Data portion of XLOG record is classified into either backup block (entire page) or non-backup block (different data by operation). 
+</p>
+
+
+
+
+<p><b>Fig. 9.8. Examples of XLOG records  (version 9.4 or earlier).</b></p><div>
+<figure>
+<img alt="Fig. 9.8. Examples of XLOG records  (version 9.4 or earlier)." data-src="./img/fig-9-08.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<p>
+The internal layouts of XLOG records are described below, using some specific examples.
+</p>
+
+
+  </div>
+<p><h4><a id="_9.4.2.1." name="_9.4.2.1."></a>9.4.2.1. Backup Block</h4></p>
+ <div>
+
+
+<p>
+A backup block is shown in Fig. 9.8(a). 
+It is composed of two data structures and one data object as shown below:
+</p><ol>
+<li>the structure XLogRecord (header-portion)</li>
+<li>the structure BkpBlock</li>
+<li> the entire page apart from its free-space</li>
+</ol>
+<p>
+The BkpBlock contains the variables to identify this page in the database cluster (i.e. the <i>relfilenode</i> and the <i>fork number</i> of the relation that contains this page, and this page&#39;s <i>block number</i>), and the beginning position and the length of this page&#39;s free space. 
+</p>
+
+ 
+
+
+  </div>
+<p><h4><a id="_9.4.2.2." name="_9.4.2.2."></a>9.4.2.2. Non-Backup Block</h4></p>
+ <div>
+
+
+<p>
+In non-backup blocks, the layout of data portion differs depending on each operation. 
+Here, an INSERT statement&#39;s XLOG record is explained as a representative example. 
+See Fig. 9.8(b). 
+In this case, the XLOG record of the INSERT statement is composed of two data structures and one data object as shown below:
+
+</p><ol>
+<li>the structure XLogRecord (header-portion)</li>
+<li>the structure xl_heap_insert</li>
+<li>the inserted tuple – to be precise, a few bytes is removed from the tuple </li>
+</ol>
+<p>
+The structure xl_heap_insert, contains the variables to identify the inserted tuple in the database cluster (i.e. the <i>relfilenode</i> of the table that contains this tuple, and this tuple&#39;s <i>tid</i>), and a <i>visibility flag</i> of this tuple. 
+</p>
+
+ 
+
+<br/>
+<div>
+<p>
+The reason to remove a few bytes from inserted tuple is described in the source code comment of the structure xl_heap_header: 
+</p>
+
+<blockquote>
+We don&#39;t store the whole fixed part (HeapTupleHeaderData) of an inserted or updated tuple in WAL;
+we can save a few bytes by reconstructing the fields that are available elsewhere in the WAL record, or perhaps just plain needn&#39;t be reconstructed.
+</blockquote>
+  </div>
+
+
+<p>
+One more example to be shown here. See Fig. 9.8(c). The XLOG record of Checkpoint record is quite simple; it is composed of two data structures as shown below:
+</p><ol>
+<li>the structure XLogRecord (header-portion)</li>
+<li>the Checkpoint structure which contains its checkpoint information (see more detail in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.7.">Section 9.7</a>)</li> 
+</ol>
+
+
+
+<br/>
+
+<br/>
+
+
+
+
+
+  </div>
+<p><h3><a id="_9.4.3." name="_9.4.3."></a>9.4.3. Data Portion of XLOG Record (version 9.5 or later)</h3></p>
+ <div>
+
+
+
+<p>
+In version 9.4 or earlier, there was no common format of XLOG record, so that each resource manager had to define one’s own format. In such a case, it became increasingly difficult to maintain the source code and to implement new features related to WAL. In order to deal with this issue, a common structured format, which does not depend on resource managers, has been introduced in version 9.5. 
+</p>
+
+<p>
+Data portion of XLOG record can be divided into two parts: header and data. See Fig. 9.9.
+</p>
+
+
+
+<p><b>Fig. 9.9. Common XLOG record format.</b></p><div>
+<figure>
+<img alt="Fig. 9.9. Common XLOG record format." data-src="./img/fig-9-09.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+
+<p>
+Header part contains zero or more 
+XLogRecordBlockHeaders and zero or one 
+XLogRecordDataHeaderShort (or XLogRecordDataHeaderLong); it must contain at least either one of those.
+When its record stores full-page image (i.e. backup block), XLogRecordBlockHeader includes XLogRecordBlockImageHeader, and also includes XLogRecordBlockCompressHeader if its block is compressed. 
+</p>
+
+
+ 
+
+ 
+
+
+ 
+
+ 
+
+<p>
+Data part is composed of zero or more block data and zero or one main data, which correspond to the XLogRecordBlockHeader(s) and to the XLogRecordDataHeader respectively. 
+</p>
+
+<br/>
+<div>
+  <p><i>  WAL compression</i>
+  </p>
+  <div>
+<p>
+In version 9.5 or later, full-page images within XLOG record can be compressed using LZ compression method by setting the parameter wal_compression = enable. In that case, the structure XLogRecordBlockCompressHeader will be added.
+</p>
+<p>
+This feature has two advantages and one disadvantage. The advantages are reducing I/O cost for writing records and suppressing the consumption of WAL segment files. The disadvantage is consuming much CPU resource to compress. 
+</p>
+
+  </div>
+</div>
+
+
+
+
+
+
+<p><b>Fig. 9.10. Examples of XLOG records  (version 9.5 or later).</b></p><div>
+<figure>
+<img alt="Fig. 9.10. Examples of XLOG records  (version 9.5 or later)." data-src="./img/fig-9-10.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+Some specific examples are shown below as in the previous subsection. 
+</p>
+
+
+  </div>
+<p><h4><a id="_9.4.3.1." name="_9.4.3.1."></a>9.4.3.1. Backup Block</h4></p>
+ <div>
+
+
+
+<p>
+Backup block created by INSERT statement is shown in Fig. 9.10(a). It is composed of four data structures and one data object as shown below:
+</p><ol>
+<li>the structure XLogRecord (header-portion)</li>
+<li>the structure XLogRecordBlockHeader including one LogRecordBlockImageHeader</li>
+<li>the structure XLogRecordDataHeaderShort</li>
+<li>a backup block (block data)</li>
+<li>the structure xl_heap_insert (main data)</li>
+</ol>
+
+
+<p>
+XLogRecordBlockHeader contains the variables to identify the block in the database cluster (the <i>relfilenode</i>, the <i>fork number</i>, and the <i>block number</i>); 
+
+XLogRecordImageHeader contains the <i>length of this block</i> and <i>offset number</i>. 
+
+(These two header structures together can store same data of BkpBlock used until version 9.4.)
+</p>
+
+<p>
+XLogRecordDataHeaderShort stores the length of <i>xl_heap_insert</i> structure which is the main data of the record.
+(See <i></i> below.)
+</p>
+
+<br/>
+<div>
+<p>
+The main data of XLOG record which contains full-page image is not used except in some special cases (e.g. being in logical decoding and speculative insertions). It’s ignored when this record is replayed, which is the redundant data. It might be improved in the future. 
+</p>
+<p>
+In addition, main data of backup block records depend on statements which create those. For example, UPDATE statement appends <i>xl_heap_lock</i> or <i>xl_heap_updated</i>. 
+</p>
+  </div>
+<br/>
+
+
+  </div>
+<p><h4><a id="_9.4.3.2." name="_9.4.3.2."></a>9.4.3.2. Non-Backup Block</h4></p>
+ <div>
+
+
+<p>
+Next, non-backup block record created by INSERT statement will be described as follows (see also Fig. 9.10(b)). It is composed of four data structures and one data object as shown below:
+</p><ol>
+<li>the structure XLogRecord (header-portion)</li>
+<li>the structure XLogRecordBlockHeader</li>
+<li>the structure XLogRecordDataHeaderShort</li>
+<li>an inserted tuple (to be exact, a xl_heap_header structure and an inserted data entire)</li>
+<li>the structure xl_heap_insert (main data)</li> 
+</ol>
+
+
+<p>
+XLogRecordBlockHeader contains three values (the <i>relfilenode</i>, the <i>fork number</i>, and the <i>block number</i>) to specify the block inserted the tuple, and length of data portion of the inserted tuple. 
+
+XLogRecordDataHeaderShort contains the length of new <i>xl_heap_insert</i> structure, which is the main data of this record. 
+</p>
+
+<p>
+The new <i>xl_heap_insert</i> contains only two values: <i>offset number</i> of this tuple within the block, and a <i>visibility flags</i>; it became very simple because XLogRecordBlockHeader stores most of data contained in the old one. 
+</p>
+
+ 
+
+<p>
+As the final example, a checkpoint record is shown in the Fig. 9.10(c). 
+It is composed of three data structure as shown below:
+</p><ol>
+<li>the structure XLogRecord (header-portion)</li>
+<li>the structure XLogRecordDataHeaderShort contained of the main data length</li>
+<li>the structure CheckPoint (main data)</li>
+</ol>
+
+
+
+<br/>
+
+
+
+<p>
+Though the new format is a little complicated for us, it is well-designed for the parser of the resource managers, and also size of many types of XLOG records is usually smaller than the previous one.
+Size of main structures is shown in the Figs. 9.8 and 9.10, so there you can calculate sizes of those records and compare each other.  (The size of new checkpoint is greater than the previous one, but it contains more variables.)
+</p>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.5." name="_9.5."></a>9.5. Writing of XLOG Records</h2></p>
+ <div>
+
+
+
+<p>
+Having finished the warming-up exercises, now we are ready for understanding the writing of XLOG records. So I will explain it as precisely as possible in this section. 
+</p>
+
+<p>
+First, issue the following statement to explore the PostgreSQL internals: 
+</p>
+
+<pre>testdb=# INSERT INTO tbl VALUES (&#39;A&#39;);
+</pre>
+
+<p>
+By issuing the above statement, the internal function <i>exec_simple_query()</i> is invoked; the pseudo code of <i>exec_simple_query()</i> is shown below: 
+</p>
+
+<pre>exec_simple_query() @postgres.c
+
+(1) ExtendCLOG() @clog.c                  /* Write the state of this transaction
+                                           * &#34;IN_PROGRESS&#34; to the CLOG.
+                                           */
+(2) heap_insert()@heapam.c                /* Insert a tuple, creates a XLOG record,
+                                           * and invoke the function XLogInsert.
+                                           */
+(3)   XLogInsert() @xlog.c (9.5 or later, xloginsert.c)
+                                          /* Write the XLOG record of the inserted tuple
+                                           *  to the WAL buffer, and update page&#39;s pd_lsn.
+                                           */
+(4) finish_xact_command() @postgres.c     /* Invoke commit action.*/   
+      XLogInsert() @xlog.c  (9.5 or later, xloginsert.c)
+                                          /* Write a XLOG record of this commit action 
+                                           * to the WAL buffer.
+                                           */
+(5)   XLogWrite() @xlog.c                 /* Write and flush all XLOG records on 
+                                           * the WAL buffer to WAL segment.
+                                           */
+(6) TransactionIdCommitTree() @transam.c  /* Change the state of this transaction 
+                                           * from &#34;IN_PROGRESS&#34; to &#34;COMMITTED&#34; on the CLOG.
+                                           */
+</pre>
+
+
+<p>
+In the following paragraphs, each line of the pseudo code will be explained for understanding the writing of XLOG records; see also Figs. 9.11 and 9.12. 
+</p>
+
+<ul>
+<li>
+(1) The function <i>ExtendCLOG()</i> writes the state of this transaction <i>&#39;IN_PROGRESS&#39;</i> in the (in-memory) CLOG. 
+</li>
+<li>
+(2) The function <i>heap_insert()</i> inserts a heap tuple into the target page on the shared buffer pool, creates this page&#39;s XLOG record, and invokes the function <i>XLogInsert()</i>. 
+</li>
+<li>
+(3) The function <i>XLogInsert()</i> writes the XLOG record created by the <i>heap_insert()</i> to the WAL buffer at <i>LSN_1</i>, and then updates the modified page&#39;s pd_lsn from <i>LSN_0</i> to <i>LSN_1</i>. 
+</li>
+<li>
+(4) The function <i>finish_xact_command()</i>, which invoked to commit this transaction, creates this commit action&#39;s XLOG record, and then the function <i>XLogInsert()</i> writes this record into the WAL buffer at <i>LSN_2</i>.
+</li>
+</ul>
+
+
+
+
+
+
+<p><b>Fig. 9.11. Write-sequence of XLOG records.</b></p><div>
+<figure>
+<img alt="Fig. 9.11. Write-sequence of XLOG records." data-src="./img/fig-9-11.png" alt=""/>
+</figure>
+       <div id="small">
+<hr/><p>
+The format of these XLOG records is version 9.4.
+            </p></div>
+  </div>
+
+
+
+
+<ul>
+<li>
+(5) The function <i>XLogWrite()</i> writes and flushes all XLOG records on the WAL buffer to the WAL segment file. 
+<br/>
+If the parameter <i>wal_sync_method</i> is set to <i>&#39;open_sync&#39;</i> or <i>&#39;open_datasync&#39;</i>, the records are synchronously written because the function writes all records with the <i>open()</i> system call specified the flag <i>O_SYNC</i> or <i>O_DSYNC</i>. If the parameter is set to <i>&#39;fsync&#39;</i>, <i>&#39;fsync_writethrough&#39;</i> or <i>&#39;fdatasync&#39;</i>, the respective system call – <i>fsync()</i>, <i>fcntl() with F_FULLFSYNC option</i>, or <i>fdatasync()</i> – will be executed. In any case, all XLOG records are ensured to be written into the storage. 
+</li>
+<li>
+(6) The function <i>TransactionIdCommitTree()</i> changes the state of this transaction from <i>&#39;IN_PROGRESS&#39;</i> to <i>&#39;COMMITTED&#39;</i> on the CLOG. 
+</li>
+</ul>
+
+
+
+
+<p><b>Fig. 9.12. Write-sequence of XLOG records (continued from Fig. 9.11).</b></p><div>
+
+<figure>
+<img alt="Fig. 9.12. Write-sequence of XLOG records (continued from Fig. 9.11)." data-src="./img/fig-9-12.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+In the above example, commit action has caused the writing of XLOG records into the WAL segment, but such writing may be caused when any one of the following occurs: 
+</p>
+
+<ol>
+<li>One running transaction has committed or has aborted.</li>
+<li>The WAL buffer has been filled up with many tuples have been written. 
+(The WAL buffer size is set to the parameter <a href="https://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-WAL-BUFFERS" target="_blank">wal_buffers</a>.)
+</li>
+
+<li>A WAL writer process writes periodically. (See the next section.)</li>
+</ol>
+
+<p>
+If one of above occurs, all WAL records on the WAL buffer are written into a WAL segment file regardless of whether their transactions have been committed or not. 
+</p>
+
+<p>
+It is taken for granted that DML (Data Manipulation Language) operations write XLOG records, but so do non-DML operations. As described above, a commit action writes a XLOG record that contains the id of committed transaction. Another example may be a checkpoint action to write a XLOG record that contains general information of this checkpoint. Furthermore, SELECT statement creates XLOG records in special cases, though it does not usually create them. For example, if deletion of unnecessary tuples and defragmentation of the necessary tuples in pages occur by HOT(Heap Only Tuple) during a SELECT statement processing, the XLOG records of modified pages are written into the WAL buffer. 
+</p>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.6." name="_9.6."></a>9.6. WAL Writer Process</h2></p>
+ <div>
+
+
+
+
+<p>
+WAL writer is a background process to check the WAL buffer periodically and write all unwritten XLOG records into the WAL segments. The purpose of this process is to avoid burst of writing of XLOG records. If this process has not been enabled, the writing of XLOG records might have been bottlenecked when a large amount of data committed at one time. 
+</p>
+
+<p>
+WAL writer is working by default and cannot be disabled. Check interval is set to the configuration parameter <i>wal_writer_delay</i>, default value is 200 milliseconds. 
+</p>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.7." name="_9.7."></a>9.7. Checkpoint Processing in PostgreSQL</h2></p>
+ <div>
+
+
+
+<p>
+In PostgreSQL, the checkpointer (background) process performs checkpoints;
+its process starts when one of the following occurs:
+</p>
+
+<ol>
+<li>
+The interval time set for <i><a href="http://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-CHECKPOINT-TIMEOUT" target="_blank" rel="noopener noreferrer">checkpoint_timeout</a></i> from the previous checkpoint has been gone over (the default interval is 300 seconds (5 minutes)).
+</li>
+
+<li>
+In version 9.4 or earlier, the number of WAL segment files set for <i><a href="http://www.postgresql.org/docs/9.4/static/runtime-config-wal.html#GUC-CHECKPOINT-SEGMENTS" target="_blank" rel="noopener noreferrer">checkpoint_segments</a></i> has been consumed since the previous checkpoint (the default number is 3).
+</li>
+
+<li>
+In version 9.5 or later, the total size of the WAL segment files in the pg_xlog (in version 10 or later, pg_wal) has exceeded the value of the parameter <i>max_wal_size</i> (the default value is 1GB (64 files)).
+</li>
+
+<li>
+PostgreSQL server stops in <i>smart</i> or <i>fast</i> mode.
+</li>
+
+</ol>
+
+<p>
+Its process also does it when a superuser issues CHECKPOINT command manually. 
+</p>
+
+
+<br/>
+<div><p>
+In version 9.1 or earlier, as mentioned in <i></i> in <a href="https://www.interdb.jp/pg/pgsql08.html#_8.6." target="_blank">Section 8.6</a>,
+the background writer process did both checkpinting and dirty-page writing.
+</p></div>
+
+
+<p>
+In the following subsections, 
+the outline of checkpointing and the pg_control file, which holds the metadata of the current checkpoint, are described.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_9.7.1." name="_9.7.1."></a>9.7.1. Outline of the Checkpoint Processing</h3></p>
+ <div>
+
+
+
+<p>
+Checkpoint process has two aspects: the preparation of database recovery, and the cleaning of dirty pages on the shared buffer pool. In this subsection, its internal processing will be described with focusing on the former one. See Fig. 9.13 and the following description. 
+</p>
+
+
+
+
+<p><b>Fig. 9.13. Internal processing of PostgreSQL&#39;s checkpoint.</b></p><div>
+<figure>
+<img alt="Fig. 9.13. Internal processing of PostgreSQL&#39;s checkpoint." data-src="./img/fig-9-13.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<ul>
+<li>
+(1) After a checkpoint process starts, the REDO point is stored in memory;
+REDO point is the location to write the XLOG record at the moment when the latest checkpoint is started,
+and is the starting point of database recovery.
+</li>
+<li>
+(2) A XLOG record of this checkpoint (i.e. checkpoint record) is written to the WAL buffer. The data-portion of the record is defined by the structure CheckPoint, which contains several variables such as the REDO point stored with step (1). 
+<br/>
+In addition, the location to write checkpoint record is literally called the <i>checkpoint</i>. 
+
+
+</li>
+
+<li>
+(3) All data in shared memory (e.g. the contents of <a href="https://www.interdb.jp/pg/pgsql05.html#_5.4.3." target="_blank">the clog</a>, etc..) are flushed to the storage.
+</li>
+
+<li>
+(4) All dirty pages on the shared buffer pool are written and flushed into the storage, gradually. 
+</li>
+
+<li>
+(5) The <i>pg_control file</i> is updated. This file contains the fundamental information such as the location where the checkpoint record has written (a.k.a. checkpoint location). The details of this file later. 
+</li>
+
+</ul>
+
+<p>
+To summarize the description above from the viewpoint of the database recovery, checkpointing creates the checkpoint record which contains the REDO point, and stores the checkpoint location and more into the <i>pg_control file</i>. 
+Therefore, PostgreSQL enables to recover itself by replaying WAL data from the REDO point (obtained from the checkpoint record) provided by the pg_control file.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_9.7.2." name="_9.7.2."></a>9.7.2. pg_control File</h3></p>
+ <div>
+
+
+<p>
+As the <i>pg_control file</i> contains the fundamental information of the checkpoint, it is certainly essential for database recovery. If it is broken or unreadable, the recovery process cannot start up in order to not obtained a starting point.
+</p>
+
+<p>
+Even though <i>pg_control file</i> stores over 40 items, three items to be required in the next section are shown in the following: 
+</p>
+
+<ul>
+<li><b>State</b> – The state of database server at the time of the latest checkpointing starts. There are seven states in total: <i>&#39;start up&#39;</i> is the state that system is starting up; <i>&#39;shut down&#39;</i> is the state that system is going down normally by the shutdown command; <i>&#39;in production&#39;</i> is the state that system is running; and so on. </li>
+
+<li><b>Latest checkpoint location </b> – LSN Location of the latest checkpoint record. </li>
+
+<li><b>Prior checkpoint location </b> – LSN Location of the prior checkpoint record. 
+Note that it is deprecated in version 11; the details are described in <i></i> below.
+
+</li>
+</ul>
+
+<p>
+A pg_control file is stored in the global subdirectory under the base-directory; its contents can be shown using the <i>pg_controldata</i> utility. 
+</p>
+
+<pre>postgres&gt; pg_controldata  /usr/local/pgsql/data
+pg_control version number:            937
+Catalog version number:               201405111
+Database system identifier:           6035535450242021944
+Database cluster state:               in production
+pg_control last modified:             
+Latest checkpoint location:           0/C000F48
+Prior checkpoint location:            0/C000E70
+
+... snip ...
+</pre>
+
+
+<br/>
+<div>
+  <p><i>  Removal of prior checkpoint in PostgreSQL 11</i>
+  </p>
+  <div><p>
+PostgreSQL 11 or later will only store the  WAL segments which contain the latest checkpoint or newer; the older segment files,
+ which contains the prior checkpoint, will be not stored to reduce the disc space for saving WAL segment files under the pg_xlog(pg_wal) subdirectory.
+See <a href="http://www.postgresql-archive.org/Remove-secondary-checkpoint-tt5989050.html" target="_blank" rel="noopener noreferrer">this thread
+</a> in details.
+
+</p></div>
+</div>
+<br/>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.8." name="_9.8."></a>9.8. Database Recovery in PostgreSQL</h2></p>
+ <div>
+
+
+
+
+<p>
+PostgreSQL implements the redo log based recovery feature. Should the database server crash, PostgreSQL restore the database cluster by sequentially replaying the XLOG records in the WAL segment files from the REDO point. 
+</p>
+
+<p>
+We had already talked about the database recovery several times up to this section, so I will describe two things regarding the recovery which has not been explained yet. 
+</p>
+
+
+<p>
+The first thing is how PostgreSQL begin the recovery process. When PostgreSQL starts up, it reads the pg_control file at first. The followings are the details of the recovery processing from that point. See Fig. 9.14 and the following description. 
+</p>
+
+
+
+
+<p><b>Fig. 9.14. Details of the recovery process.</b></p><div>
+<figure>
+<img alt="Fig. 9.14. Details of the recovery process." data-src="./img/fig-9-14.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(1) PostgreSQL reads all items of the <i>pg_control file</i> when it starts. 
+If the <i>state</i> item is in <i>&#39;in production&#39;</i>, 
+PostgreSQL will go into recovery-mode because it means that the database was not stopped normally; if <i>&#39;shut down&#39;</i>, 
+it will go into normal startup-mode. 
+</li>
+<li>
+(2) PostgreSQL reads the latest checkpoint record, which location is written in the <i>pg_control file</i>, 
+from the appropriate WAL segment file, 
+and gets the REDO point from the record. 
+
+If the latest checkpoint record is invalid, 
+PostgreSQL reads the one prior to it. If both records are unreadable, it gives up recovering by itself. 
+(Note that the prior checkpoint is not stored from PostgreSQL 11.)
+</li>
+<li>
+(3) Proper resource managers read and replay XLOG records in sequence from the REDO point until they come to the last point of the latest WAL segment. When a XLOG record is replayed and if it is a backup block, 
+it will be overwritten on the corresponding table&#39;s page regardless of its LSN. 
+Otherwise, a (non-backup block&#39;s) XLOG record will be replayed only if the LSN of this record is larger than the <i>pd_lsn</i> of a corresponding page. 
+</li>
+</ul>
+
+
+
+
+
+
+
+<p>
+The second point is about the comparison of LSNs: why the non-backup block&#39;s LSN and the corresponding page&#39;s <i>pd_lsn</i> should be compared. Unlike the previous examples, it’s to be explained using a specific example emphasizing the need of comparison between both LSNs. See Figs. 9.15 and 9.16. (Note that the WAL buffer is omitted to simplify the description.) 
+</p>
+
+
+<p><b>Fig. 9.15. Insertion operations during the background writer working.</b></p><div>
+<figure>
+<img alt="Fig. 9.15. Insertion operations during the background writer working." data-src="./img/fig-9-15.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+
+<ul>
+<li>
+(1) PostgreSQL inserts a tuple into the TABLE_A, and writes a XLOG record at <i>LSN_1</i>. 
+</li>
+<li>
+(2) The background-writer process writes the TABLE_A&#39;s page into the storage. At this point, this page&#39;s <i>pd_lsn</i> is <i>LSN_1</i>.
+</li>
+<li>
+(3) PostgreSQL inserts a new tuple into the TABLE_A, and writes a XLOG record at <i>LSN_2</i>. The modified page is not written into the storage yet. 
+</li>
+</ul>
+
+<p>
+Unlike the examples in overview, the TABLE_A&#39;s page has been once written into the storage in this scenario. 
+</p>
+
+<p>
+Do shutdown with immediate-mode, and start. 
+</p>
+
+
+
+
+<p><b>Fig. 9.16. Database recovery.</b></p><div>
+<figure>
+<img alt="Fig. 9.16. Database recovery." data-src="./img/fig-9-16.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(1) PostgreSQL loads the first XLOG record and the TABLE_A&#39;s page, but does not replay it because this record&#39;s LSN is not larger than the TABLE_A&#39;s LSN (both values are <i>LSN_1</i>). In fact, it is clear at a glance that there is no need to replay it. 
+</li>
+<li>
+(2) Next, PostgreSQL replays the second XLOG record because this record&#39;s LSN (<i>LSN_2</i>) is larger than the current TABLE_A&#39;s LSN (<i>LSN_1</i>). 
+</li>
+</ul>
+
+
+
+
+
+
+<p>
+As can be seen from this example, if the replaying order of non-backup blocks is incorrect or non-backup blocks are replayed out more than once, the database cluster will no longer be consistent. In short, the redo (replay) operation of non-backup block is <b>not</b> <i>idempotent</i>. Therefore, to preserve the correct replaying order, non-backup block records should replay if and only if its LSN is greater than the corresponding page&#39;s pd_lsn. 
+</p>
+
+<p>
+On the other hand, as the redo operation of backup block is <i>idempotent</i>, backup blocks can be replayed any number of times regardless of its LSN. 
+</p>
+
+
+
+
+
+  </div>
+<p><h2><a id="_9.9." name="_9.9."></a>9.9. WAL Segment Files Management</h2></p>
+ <div>
+
+<p>
+PostgreSQL writes XLOG records to one of the WAL segment files stored in the pg_xlog subdirectory (in version 10 or later, pg_wal subdirectory), and switches for a new one if the old one has been filled up.
+The number of the WAL files will vary depending on several configuration parameters, as well as server activity. In addition, their management policy has been improved in version 9.5.
+</p>
+
+<p>
+In the following subsections, switching and managing of WAL segment files are described.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_9.9.1." name="_9.9.1."></a>9.9.1. WAL Segment Switches</h3></p>
+ <div>
+
+<p>
+WAL segment switches occur when one of the following occurs: 
+</p>
+
+<ol>
+<li>WAL segment has been filled up.</li>
+<li>The function <i><a href="http://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADMIN-BACKUP" target="_blank" rel="noopener noreferrer">pg_switch_xlog</a></i> has been issued.</li>
+<li><i><a href="http://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-ARCHIVE-MODE" target="_blank" rel="noopener noreferrer">archive_mode</a></i> is enabled and the time set to <i><a href="http://www.postgresql.org/docs/current/static/runtime-config-wal.html#GUC-ARCHIVE-TIMEOUT" target="_blank" rel="noopener noreferrer">archive_timeout</a></i> has been exceeded.</li>
+</ol>
+
+<p>
+Switched file is usually recycled (renamed and reused) for future use but it may be removed later if not necessary.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_9.9.2." name="_9.9.2."></a>9.9.2. WAL Segment Management in Version 9.5 or Later</h3></p>
+ <div>
+
+
+
+<p>
+Whenever the checkpoint starts, PostgreSQL estimates and prepares the number of WAL segment files required for the next checkpoint cycle. Such estimate is made with regards to the numbers of files consumed in previous checkpoint cycles. They are counted from the segment that contains the prior REDO point, and the value is to be between <i>min_wal_size</i> (by default, 80 MB, i.e. 5 files) and <i>max_wal_size</i> (1 GB, i.e. 64 files). If a checkpoint starts, necessary files will be held or recycled, while the unnecessary ones removed.
+</p>
+
+<p>
+A specific example is shown in Fig. 9.17. Assuming that there are six files before checkpoint starts, <i>WAL_3</i> contains the prior REDO point (in version 10 or earlier; in version 11 or later, REDO point), and PostgreSQL estimates that five files are needed. In this case, <i>WAL_1</i> will be renamed as <i>WAL_7</i> for recycling and <i>WAL_2</i> will be removed.
+</p>
+
+<br/>
+<div><p>
+The files older than the one that contains the prior REDO point can be removed, because, as is clear from the recovery mechanism described in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.8.">Section 9.8</a>, they would never be used.
+</p></div>
+
+
+
+
+<p><b>Fig. 9.17. Recycling and removing WAL segment files at a checkpoint.</b></p><div>
+<figure>
+<img alt="Fig. 9.17. Recycling and removing WAL segment files at a checkpoint." data-src="./img/fig-9-17.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+If more files are required due to a spike in WAL activity, new files will be created while the total size of WAL files is less than <i>max_wal_size</i>. For example, in Fig. 9.18, if <i>WAL_7</i> has been filled up, <i>WAL_8</i> is newly created.
+</p>
+
+
+
+<p><b>Fig. 9.18. Creating WAL segment file.</b></p><div>
+<figure>
+<img alt="Fig. 9.18. Creating WAL segment file." data-src="./img/fig-9-18.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+The number of WAL files adaptively changes depending on the server activity. If the amount of WAL data writing has constantly increased, the estimated number of the WAL segment files as well as the total size of WAL files also gradually increase. In the opposite case (i.e. the amount of WAL data writing has decreased), these decrease.
+</p>
+
+<p>
+If the total size of the WAL files exceeds <i>max_wal_size</i>, a checkpoint will be started. Figure 9.19 illustrates this situation. By checkpointing, a new REDO point will be created and the last REDO point will be the prior one; and then unnecessary old files will be recycled. In this way, PostgreSQL will always hold just the WAL segment files needed for database recovery.
+</p>
+
+
+
+<p><b>Fig. 9.19. Checkpointing and recycling WAL segment files.</b></p><div>
+<figure>
+<img alt="Fig. 9.19. Checkpointing and recycling WAL segment files." data-src="./img/fig-9-19.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<p>
+The configuration parameter <i><a href="http://www.postgresql.org/docs/current/static/runtime-config-replication.html#GUC-WAL-KEEP-SEGMENTS" target="_blank" rel="noopener noreferrer">wal_keep_segments</a></i> and the <i>
+
+<a href="http://www.postgresql.org/docs/current/static/warm-standby.html#STREAMING-REPLICATION-SLOTS" target="_blank" rel="noopener noreferrer">replication slot</a></i> feature also affect the number of WAL segment files.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_9.9.3." name="_9.9.3."></a>9.9.3. WAL Segment Management in Version 9.4 or Earlier</h3></p>
+ <div>
+
+
+<p>
+The number of WAL segment files is mainly controlled by the following three parameters: <i>checkpoint_segments</i>, <i>checkpoint_completion_target</i>, and <i>wal_keep_segments</i>.
+
+Its number is normally more than  \( \left( (2 + \verb|checkpoint_completion_target|) \times \verb|checkpoint_segments| + 1 \right) \) or \(\left( \verb|checkpoint_segments| + \verb|wal_keep_segments| + 1 \right) \) files. This number could temporarily become up to \( (3 \times \verb|checkpoint_segments| + 1) \) files depending on the server activity.
+
+The <i>replication slot</i> also influences the number of them.
+</p>
+
+
+<p>
+As mentioned in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.7.">Section 9.7</a>,
+checkpoint process occurs when the number of <i>checkpoint_segments</i> files has been consumed.
+It is therefore guaranteed that two or more REDO points are always included within the WAL files because the number of the files is always greater than \(2 \times \verb|checkpoint_segments|\).
+The same is true if it occurs by timing out. Thus,
+PostgreSQL will always hold enough WAL segment files (sometimes more than necessary) required for recovery.
+</p>
+
+
+
+<br/>
+<div>
+<p>
+In version 9.4 or earlier, the parameter <i>checkpoint_segments</i> is a pain in the neck. If it is set at a small number, checkpoint occurs frequently, which causes a decrease in performance, whereas if set at a large number, the huge disk space is always required for the WAL files, some of which is not always necessary.
+</p>
+
+<p>
+In version 9.5, the management policy of WAL files has improved and <i>checkpoint_segments</i> has obsoleted. Therefore, the trade-off problem described above has also been resolved.
+</p>
+
+  </div>
+<br/>
+
+
+
+
+  </div>
+<p><h2><a id="_9.10." name="_9.10."></a>9.10. Continuous Archiving and Archive Logs</h2></p>
+ <div>
+
+
+<p>
+<b>Continuous Archiving</b> is a feature that copies WAL segment files to archival area at the time when WAL segment switches, and is performed by the <i>archiver (background)</i> process. The copied file is called an <b>archive log</b>.  This feature is usually used for hot physical backup and PITR (Point-in-Time Recovery) described in <a href="https://www.interdb.jp/pg/pgsql10.html">Chapter 10</a>. 
+</p>
+
+<p>
+The path of archival area is set to the configuration parameter <i>archive_command</i>. For example, using the following parameter, WAL segment files are copied to the directory <i>&#39;/home/postgres/archives/&#39;</i> every time when each segment switches:
+</p>
+
+<pre>archive_command = &#39;cp %p /home/postgres/archives/%f&#39;
+</pre>
+
+<p>
+where, placeholder <i>%p</i> is copied WAL segment, and <i>%f</i> is archive log. 
+</p>
+
+
+
+
+
+<p><b>Fig. 9.20. Continuous archiving.</b></p><div>
+<figure>
+<img alt="Fig. 9.20. Continuous archiving." data-src="./img/fig-9-20.png" alt=""/>
+</figure>
+       <div id="small">
+<hr/><p>
+When the WAL segment file <i>WAL_7</i> is switched,
+ the file is copied to the archival area as <i>Archive log 7</i>.
+            </p></div>
+  </div>
+
+
+
+
+<p>
+The parameter <i>archive_command</i> can be set any Unix commands and tools, 
+so you can transfer the archive logs to other host by setting the scp command or any file backup tools instead of ordinary copy command. 
+</p>
+
+<br/>
+<div>
+<p>
+PostgreSQL does *not* clean up created archiving logs, so you should properly manage the logs when using this feature. If you do nothing, the number of archiving logs continues to increase.
+</p>
+
+<p>
+The <a href="http://www.postgresql.org/docs/current/static/pgarchivecleanup.html" target="_blank" rel="noopener noreferrer">pg_archivecleanup</a> utility is one of the useful tools for the archiving log management. 
+</p>
+<p>
+Also the unix command <i>find</i> can be used to delete your archiving logs.
+The following command deletes archiving logs that were created more than three days ago.
+</p>
+
+<pre>$ find /home/postgres/archives -mtime +3d -exec rm  -f {} \;
+</pre>
+
+
+  </div>
+<br/>
+
+
+
+</div>
+            </div></div>

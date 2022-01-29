@@ -1,0 +1,395 @@
+---
+url: https://www.interdb.jp/pg/pgsql07.html
+title: Chapter 7 Heap Only Tuple and Index-Only Scans
+archived_at: 2022-01-29T17:14:24.305811+08:00
+---
+<div id="readability-page-1" class="page"><div>
+ <div>
+
+
+
+<p>
+This chapter describes two features related to the index scan, which are the heap only tuple and index-only scans.
+</p>
+
+
+
+
+  </div>
+<p><h2><a id="_7.1." name="_7.1."></a>7.1. Heap Only Tuple (HOT)</h2></p>
+ <div>
+
+
+<p>
+The HOT was implemented in version 8.3 to effectively use the pages of both index and table when the updated row is stored in the same table page that stores the old row. 
+The HOT also reduces the necessity of VACUUM processing. 
+</p>
+
+<p>
+Since the details of HOT are described in the <a href="https://github.com/postgres/postgres/blob/master/src/backend/access/heap/README.HOT" target="_blank" rel="noopener noreferrer">README.HOT</a> in the source code directory, this chapter briefly introduces HOT.
+
+Firstly, Section 7.1.1 describes how to update a row without HOT to clarify the issues that the resolves.
+Next, Section 7.1.2 describes how HOT performs.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_7.1.1." name="_7.1.1."></a>7.1.1. Update a Row Without HOT</h3></p>
+ <div>
+
+
+<p>
+Assume that the table ‘tbl’ has two columns: ‘id’ and ‘data’; ‘id’ is the primary key of ‘tbl’.
+</p>
+
+<pre>testdb=# \d tbl
+                Table &#34;public.tbl&#34;
+ Column |  Type   | Collation | Nullable | Default 
+--------+---------+-----------+----------+---------
+ id     | integer |           | not null | 
+ data   | text    |           |          | 
+Indexes:
+    &#34;tbl_pkey&#34; PRIMARY KEY, btree (id)
+</pre>
+
+<p>
+The table ‘tbl’ has 1000 tuples; the last tuple of which the id is ‘1000’ is stored in the 5th page of the table.
+
+The last tuple is pointed from the corresponding index tuple, of which the key is ‘1000’ and whose tid is ‘(5,1)’.
+
+Refer to Fig. 7.1(a).
+</p>
+
+
+<p><b>Fig. 7.1. Update a row without HOT</b></p><div>
+<figure>
+<img alt="Fig. 7.1. Update a row without HOT" data-src="./img/fig-7-01.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+We consider how the last tuple is updated without HOT.
+</p>
+
+<pre>testdb=# UPDATE tbl SET data = &#39;B&#39; WHERE id = 1000;
+</pre>
+
+
+<p>
+In this case,
+PostgreSQL inserts not only the new table tuple but also the new index tuple in the index page.
+Refer to Fig. 7.1(b).
+</p>
+
+<p>
+The inserting of the index tuples consumes the index page space,
+and both the inserting and vacuuming costs of the index tuples are high.
+The HOT reduces the impact of these issues.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_7.1.2." name="_7.1.2."></a>7.1.2. How HOT Performs</h3></p>
+ <div>
+
+
+<p>
+When a row is updated with HOT,
+if the updated row will be stored in the same table page that stores the old row,
+PostgreSQL does not insert the corresponding index tuple and sets the HEAP_HOT_UPDATED bit and the HEAP_ONLY_TUPLE bit to the t_informask2 fields of the old tuple and the new tuple, respectively. 
+Refer to Figs. 7.2 and 7.3.
+</p>
+
+
+<p><b>Fig. 7.2. Update a row with HOT</b></p><div>
+<figure>
+<img alt="Fig. 7.2. Update a row with HOT" data-src="./img/fig-7-02.png" alt=""/>
+</figure>
+  </div>
+
+
+<div>
+<div>
+
+<p>
+For example,
+in this case, ‘Tuple_1’ and ‘Tuple_2’ are set to the HEAP_HOT_UPDATED bit and the HEAP_ONLY_TUPLE bit, respectively.
+</p>
+
+<p>
+In addition, 
+the HEAP_HOT_UPDATED and the HEAP_ONLY_TUPLE bits are used regardless of the <i>pruning</i> and the <i>defragmentation</i> processes, which are described in the following, are executed.
+</p>
+
+
+</div>
+
+<div>
+<p><b>Fig. 7.3. HEAP_HOT_UPDATED and HEAP_ONLY_TUPLE bits</b></p><div>
+<figure>
+<img alt="Fig. 7.3. HEAP_HOT_UPDATED and HEAP_ONLY_TUPLE bits" data-src="./img/fig-7-03.png" alt=""/>
+</figure>
+  </div>
+</div>
+</div>
+
+
+<p>
+In the following,
+a description of how PostgreSQL accesses the updated tuples using the index scan just after updating the tuples with HOT is given. 
+Refer to Fig. 7.4(a).
+</p>
+
+
+<p><b>Fig. 7.4. Pruning of the line pointers</b></p><div>
+<figure>
+<img alt="Fig. 7.4. Pruning of the line pointers" data-src="./img/fig-7-04.png" alt=""/>
+</figure>
+  </div>
+
+
+<ul>
+<li>(1) Find the index tuple that points to the target tuple.
+</li>
+
+<li>(2) Access the line pointer ‘[1]’ that is pointed from the getting index tuple.
+</li>
+
+<li>(3) Read ‘Tuple_1’.
+</li>
+
+<li>(4) Read ‘Tuple_2’ via the t_ctid of ‘Tuple_1’.
+</li>
+</ul>
+
+<p>
+In this case, PostgreSQL reads two tuples, ‘Tuple_1’ and ‘Tuple_2’,
+and decides which is visible using the concurrency control mechanism described in <a href="https://www.interdb.jp/pg/pgsql05.html" target="_blank" rel="noopener noreferrer">Chapter 5</a>.
+</p>
+
+
+<p>
+However, a problem arises if the dead tuples in the table pages are removed.
+For example, in Fig. 7.4(a),
+if ‘Tuple_1’ is removed since it is a dead tuple, 
+‘Tuple_2’ cannot be accessed from the index.
+</p>
+
+
+<p>
+To resolve this problem, at an appropriate time,
+PostgreSQL redirects the line pointer that points to the old tuple to the line pointer that points to the new tuple.
+
+In PostgreSQL, this processing is called <b>pruning</b>.
+Fig. 7.4(b) despicts how PostgreSQL accesses the updated tuples after pruning.
+</p>
+
+<ul>
+<li>(1) Find the index tuple.
+</li>
+
+<li>(2) Access the line pointer ‘[1]’ that is pointed from the getting index tuple.
+</li>
+
+<li>(3) Access the line pointer ‘[2]’ that points to ‘Tuple_2’ via the redirected line pointer.
+</li>
+
+<li>(4) Read ‘Tuple_2’ that is pointed from the line pointer ‘[2]’.
+</li>
+</ul>
+
+
+<p>
+The pruning processing will be executed, if possible, when a SQL command is executed such as SELECT, UPDATE, INSERT and DELETE.
+The exact execution timing is not described in this chapter because it is very complicated.
+The details are described in the <a href="https://github.com/postgres/postgres/blob/master/src/backend/access/heap/README.HOT" target="_blank" rel="noopener noreferrer">README.HOT</a> file.
+</p>
+
+<p>
+PostgreSQL removes dead tuples if possible, as in the pruning process, at an appropriate time.
+In the document of PostgreSQL, this processing is called <b>defragmentation</b>.
+Fig. 7.5 despicts the defragmentation by HOT.
+</p>
+
+
+<p><b>Fig. 7.5. Defragmentation of the dead tuples</b></p><div>
+<figure>
+<img alt="Fig. 7.5. Defragmentation of the dead tuples" data-src="./img/fig-7-05.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Note that the cost of defragmentation is less than the cost of normal VACUUM processing
+because defragmentation does not involve removing the index tuples.
+</p>
+
+<p>
+Thus, using HOT reduces the consumption of both indexes and tables of pages;
+this also reduces the number of tuples that the VACUUM processing has to process.
+Therefore, HOT has a good influence on performance
+because it eventually reduces the number of insertions of the index tuples by updating and the necessity of VACUUM processing.
+</p>
+
+<br/>
+<div>
+  <p><i>  The Cases in which HOT is not available</i>
+  </p>
+  <div>
+
+<p>
+To clearly understand how HOT performs, the cases in which HOT is not available are described.
+</p>
+
+<p>
+When the updated tuple is stored in the other page, which does not store the old tuple, the index tuple that points to the tuple is also inserted in the index page. Refer to Fig. 7.6(a).
+</p>
+
+<p>
+When the key value of the index tuple is updated, the new index tuple is inserted in the index page.
+Refer to Fig. 7.6(b).
+</p>
+
+<p><b>Fig. 7.6. The Cases in which HOT is not available</b></p><div>
+<figure>
+<img alt="Fig. 7.6. The Cases in which HOT is not available" data-src="./img/fig-7-06.png" alt=""/>
+</figure>
+  </div>
+  </div>
+</div>
+<div>
+  <p><i>  The statistics related to the HOT</i>
+  </p>
+  
+</div>
+<br/>
+
+
+  </div>
+<p><h2><a id="_7.2." name="_7.2."></a>7.2. Index-Only Scans </h2></p>
+ <div>
+
+
+<p>
+To reduce the I/O (input/output) cost,
+index-only scans (often called index-only access) directly use the index key without accessing the corresponding table pages when all of the target entries of the SELECT statement are included in the index key.
+This technique is provided by almost all commercial RDBMS, such as DB2 and Oracle.
+PostgreSQL has introduced this option since version 9.2.
+</p>
+
+<p>
+In the following, 
+using a specific example, a description of how index-only scans in PostgreSQL perform is given.
+</p>
+
+<p>
+The assumptions of the example areexplained below:
+</p>
+
+<ul>
+<li>Table definition</li>
+<p>
+We have a table ‘tbl’ of which the definition is shown below:
+</p>
+
+<pre>testdb=# \d tbl
+      Table &#34;public.tbl&#34;
+ Column |  Type   | Modifiers 
+--------+---------+-----------
+ id     | integer | 
+ name   | text    | 
+ data   | text    | 
+Indexes:
+    &#34;tbl_idx&#34; btree (id, name)
+</pre>
+
+<li>Index</li>
+
+<p>
+The table ‘tbl’ has an index ‘tbl_idx’, which is composed of two columns: ‘id’ and ‘name’.
+</p>
+
+<li>Tuples</li>
+<p>
+‘tbl’ has already inserted tuples.
+</p><ul>
+<li>‘Tuple_18’, of which the id is ‘18’ and name is ‘Queen’, is stored in the 0th page.</li>
+<li>‘Tuple_19’, of which the id is ‘19’ and name is ‘BOSTON’, is stored in the 1st page.</li>
+
+</ul>
+
+<li>Visibility</li>
+<p>
+All tuples in the 0th page are always visible;
+the tuples in the 1st page are not always visible.
+Note that the visibility of each page is stored in the corresponding visibility map,
+and the visibility map is described in <a href="https://www.interdb.jp/pg/pgsql06.html#_6.2." target="_blank" rel="noopener noreferrer">Section 6.2</a>.
+</p>
+
+</ul>
+
+<p>
+Let us explore how PostgreSQL reads tuples when the following SELECT command is executed.
+</p>
+
+<pre>testdb=# SELECT id, name FROM tbl WHERE id BETWEEN 18 and 19;
+ id |  name   
+----+--------
+ 18 | Queen
+ 19 | Boston
+(2 rows)
+</pre>
+
+
+<p>
+This query gets data from two columns of the table: ‘id’ and ‘name’,
+and the index ‘tbl_idx’ is composed of these columns.
+Thus, when using index scan, it seems at first glance that accessing the table pages is not required because the index tuples contain the necessary data.
+However, in fact, PostgreSQL has to check the visibility of the tuples in principle,
+and the index tuples do not have any information about transactions such as the t_xmin and t_xmax of the heap tuples, which are described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.2." target="_blank" rel="noopener noreferrer">Section 5.2</a>.
+Therefore, PostgreSQL has to access the table data to check the visibility of the data in the index tuples.
+This is like putting the cart before the horse. 
+</p>
+
+
+<div>
+<div>
+
+<p>
+To avoid this dilemma,
+PostgreSQL uses the visibility map of the target table.
+If all tuples stored in a page are visible, PostgreSQL uses the key of the index tuple and does not access the table page that is pointed at from the index tuple to check its visibility;
+otherwise, PostgreSQL reads the table tuple that is pointed at from the index tuple and checks the visibility of the tuple, which is the ordinary process. 
+</p>
+
+<p>
+In this example,
+‘Tuple_18’ need not be accessed because the 0th page that stores ‘Tuple_18’ is visible,
+that is, all tuples including Tuple_18 in the 0th page are visible.
+In contrast, ‘Tuple_19’ needs to be accessed to treat the concurrency control because the visibility of the 1st page is not visible.
+Refer to Fig. 7.7.
+</p>
+
+
+</div>
+
+<div>
+
+<p><b>Fig. 7.7. How Index-Only Scans performs</b></p><div>
+<figure>
+<img alt="Fig. 7.7. How Index-Only Scans performs" data-src="./img/fig-7-07.png" alt=""/>
+</figure>
+  </div>
+
+</div>
+</div>
+
+
+
+
+</div>
+            </div></div>

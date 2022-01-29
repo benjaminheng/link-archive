@@ -1,0 +1,1271 @@
+---
+url: https://www.interdb.jp/pg/pgsql08.html
+title: 'The Internals of PostgreSQL : Chapter 8 Buffer Manager'
+archived_at: 2022-01-29T17:14:24.431297+08:00
+---
+<div id="readability-page-1" class="page"><div>
+ <div>
+<div>
+
+<p>
+A buffer manager manages data transfers between shared memory and persistent storage and can have a significant impact on the performance of the DBMS.
+The PostgreSQL buffer manager works very efficiently.
+</p>
+
+<p>
+In this chapter, 
+the PostgreSQL buffer manager is described.
+The first section provides an overview and
+the subsequent sections describe the following topics:
+</p>
+
+<ul>
+<li>Buffer manager structure
+</li>
+<li>Buffer manager locks
+</li>
+<li>How the buffer manager works
+</li>
+<li>Ring buffer
+</li>
+<li>Flushing of dirty pages
+</li>
+</ul>
+
+</div>
+
+<div>
+
+<p><b>Fig. 8.1. Relations between buffer manager, storage, and backend processes.</b></p><div>
+<figure>
+<img alt="Fig. 8.1. Relations between buffer manager, storage, and backend processes." data-src="./img/fig-8-01.png" alt=""/>
+</figure>
+  </div>
+
+</div>
+</div>
+<p><h2><a id="_8.1." name="_8.1."></a>8.1. Overview</h2></p>
+ <div>
+  <p>
+This section introduces key concepts required to facilitate descriptions in the subsequent sections.
+</p>
+ </div>
+<p><h3><a id="_8.1.1." name="_8.1.1."></a>8.1.1. Buffer Manager Structure</h3></p>
+ <div>
+
+<p>
+The PostgreSQL buffer manager comprises a buffer table, buffer descriptors, and buffer pool, which are described in the next section.
+The <b>buffer pool</b> layer stores data file pages,
+ such as tables and indexes, as well as <a href="https://www.interdb.jp/pg/pgsql05.html#_5.3.4." target="_blank">freespace maps</a> and <a href="https://www.interdb.jp/pg/pgsql06.html#_6.2." target="_blank">visibility maps</a>.
+
+The buffer pool is an array, i.e., each slot stores one page of a data file.
+ Indices of a buffer pool array are referred to as <b>buffer_id</b>s.
+</p>
+
+<p>
+<a href="https://www.interdb.jp/pg/pgsql08.html#_8.2." target="_blank">Sections 8.2</a> and <a href="https://www.interdb.jp/pg/pgsql08.html#_8.3." target="_blank">8.3</a> describe the details of the buffer manager internals.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_8.1.2." name="_8.1.2."></a>8.1.2. Buffer Tag</h3></p>
+ <div>
+
+
+<p>
+In PostgreSQL, each page of all data files can be assigned a unique tag, i.e. a <b>buffer tag</b>.
+When the buffer manager receives a request, PostgreSQL uses the buffer_tag of the desired page.
+</p>
+
+<p>
+The buffer_tag comprises three values: the RelFileNode and the fork number of the relation to which its page belongs, and the block number of its page.
+The fork numbers of tables, freespace maps and visibility maps are defined in 0, 1 and 2, respectively.
+</p>
+
+<p>
+For example,
+the buffer_tag &#39;{(16821, 16384, 37721), 0, 7}&#39; identifies the page that is in the seventh block whose relation&#39;s OID and fork number are 37721 and 0, respectively; the relation is contained in the database whose OID is 16384 under the tablespace whose OID is 16821.
+
+Similarly, the buffer_tag &#39;{(16821, 16384, 37721), 1, 3}&#39; identifies the page that is in the third block of the freespace map whose OID and fork number are  37721 and 1, respectively.
+</p>
+
+ 
+
+ 
+
+
+
+
+  </div>
+<p><h3><a id="_8.1.3." name="_8.1.3."></a>8.1.3. How a Backend Process Reads Pages</h3></p>
+ <div>
+
+<p>
+This subsection describes how a backend process reads a page from the buffer manager (Fig. 8.2).
+</p>
+
+
+
+<p><b>Fig. 8.2. How a backend reads a page from the buffer manager.</b></p><div>
+<figure>
+<img alt="Fig. 8.2. How a backend reads a page from the buffer manager." data-src="./img/fig-8-02.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<ul>
+<li>
+(1) When reading a table or index page,
+ a backend process sends a request that includes the page&#39;s buffer_tag to the buffer manager.
+</li>
+<li>
+(2) The buffer manager returns the buffer_ID of the slot that stores the requested page.
+ If the requested page is not stored in the buffer pool, the buffer manager loads the page from persistent storage to one of the buffer pool slots and then returns the buffer_ID&#39;s slot.
+</li>
+<li>
+(3) The backend process accesses the buffer_ID&#39;s slot (to read the desired page).
+</li>
+</ul>
+
+<p>
+When a backend process modifies a page in the buffer pool (e.g., by inserting tuples), 
+the modified page, which has not yet been flushed to storage, is referred to as a <b>dirty page</b>.
+</p>
+
+<p>
+<a href="https://www.interdb.jp/pg/pgsql08.html#_8.4." target="_blank">Section 8.4</a> describes how buffer manager works.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_8.1.4." name="_8.1.4."></a>8.1.4. Page Replacement Algorithm</h3></p>
+ <div>
+
+
+<p>
+When all buffer pool slots are occupied but the requested page is not stored,
+the buffer manager must select one page in the buffer pool that will be replaced by the requested page.
+Typically, in the field of computer science, page selection algorithms are called <i>page replacement algorithms</i>
+and the selected page is referred to as a <b>victim page</b>.
+</p>
+
+<p>
+Research on page replacement algorithms has been ongoing since the advent of computer science;
+ thus, many replacement algorithms have been proposed previously.
+ Since version 8.1, 
+ PostgreSQL has used <b>clock sweep</b> because it is simpler and more efficient than the LRU algorithm used in previous versions.
+</p>
+
+
+<p>
+<a href="https://www.interdb.jp/pg/pgsql08.html#_8.4.4." target="_blank">Section 8.4.4</a> describes the details of clock-sweep.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_8.1.5." name="_8.1.5."></a>8.1.5. Flushing Dirty Pages</h3></p>
+ <div>
+
+
+<p>
+Dirty pages should eventually be flushed to storage;
+ however, the buffer manager requires help to perform this task.
+ In PostgreSQL, two background processes, <b>checkpointer</b> and <b>background writer</b>, are responsible for this task.
+</p>
+
+<p>
+<a href="https://www.interdb.jp/pg/pgsql08.html#_8.6." target="_blank">Section 8.6</a> describes the checkpointer and background writer.
+</p>
+
+
+<br/>
+<div>
+  <p><i>  Direct I/O</i>
+  </p>
+  <div><p>
+PostgreSQL does <b>not</b> support direct I/O, though sometimes it has been discussed.
+If you want to know more details, refer to <a href="http://www.postgresql.org/message-id/529E267F.4050700@agliodbs.com" target="_blank" rel="noopener noreferrer">this discussion</a> on the pgsql-ML and <a href="http://lwn.net/Articles/580542/" target="_blank" rel="noopener noreferrer">this article</a>.
+</p></div>
+</div>
+<br/>
+
+
+
+  </div>
+<p><h2><a id="_8.2." name="_8.2."></a>8.2. Buffer Manager Structure</h2></p>
+ <div>
+
+
+
+<div>
+<p>
+The PostgreSQL buffer manager comprises three layers, i.e. the <i>buffer table</i>, <i>buffer descriptors</i>, and <i>buffer pool</i> (Fig. 8.3): 
+</p>
+
+<div>
+
+
+<p><b>Fig. 8.3. Buffer manager&#39;s three-layer structure.</b></p><div>
+<figure>
+<img alt="Fig. 8.3. Buffer manager&#39;s three-layer structure." data-src="./img/fig-8-03.png" alt=""/>
+</figure>
+  </div>
+
+</div>
+</div>
+
+
+
+<ul>
+<li>
+The <b>buffer pool</b> is an array. Each slot stores a data file pages.
+ The indices of the array slots are referred to as <i>buffer_id</i>s.
+</li>
+
+<li>
+The <b>buffer descriptors</b> layer is an array of buffer descriptors.
+ Each descriptor has one-to-one correspondence to a buffer pool slot and holds metadata of the stored page in the corresponding slot.
+<br/>
+Note that the term ‘buffer descriptors layer’ has been adopted for convenience and it is only used in this document.
+</li>
+
+<li>
+The <b>buffer table</b> is a hash table that stores the relations between the <i>buffer_tag</i>s of stored pages and the <i>buffer_id</i>s of the descriptors that hold the stored pages&#39; respective metadata.
+</li>
+</ul>
+
+
+<p>
+These layers are described in detail in the following subsections.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_8.2.1." name="_8.2.1."></a>8.2.1. Buffer Table</h3></p>
+ <div>
+
+
+<p>
+A buffer table can be logically divided into three parts: a hash function, hash bucket slots, and data entries (Fig. 8.4). 
+</p>
+
+
+<div>
+<p>
+The built-in hash function maps buffer_tags to the hash bucket slots.
+Even though the number of hash bucket slots is greater than the number of the buffer pool slots,
+ collisions may occur. 
+Therefore, the buffer table uses a <i>separate chaining with linked lists</i> method to resolve collisions.
+ When data entries are mapped to the same bucket slot,
+ this method stores the entries in the same linked list, as shown in Fig. 8.4.
+</p>
+
+<div>
+
+
+<p><b>Fig. 8.4. Buffer table.</b></p><div>
+<figure>
+<img alt="Fig. 8.4. Buffer table." data-src="./img/fig-8-04.png" alt=""/>
+</figure>
+  </div>
+
+</div>
+</div>
+
+<p>
+A data entry comprises two values: the buffer_tag of a page, and the buffer_id of the descriptor that holds the page&#39;s metadata.
+For example, 
+ a data entry ‘<i>Tag_A, id=1</i>’ means that the buffer descriptor with buffer_id <i>1</i> stores metadata of the page tagged with <i>Tag_A</i>.
+</p>
+
+<br/>
+<div>
+  <p><i>  Hash function</i>
+  </p>
+  <div>
+<p>
+The hash function is a composite function of <a href="https://doxygen.postgresql.org/dynahash_8c.html#ae802f2654df749ae0e0aadf4b5c5bcbd" target="_blank">calc_bucket()</a> and 
+
+<a href="https://doxygen.postgresql.org/rege__dfa_8c.html#a6aa3a27e7a0fc6793f3329670ac3b0cb" target="_blank">hash()</a>.
+
+
+The following is its representation as a pseudo-function.
+</p>
+
+<pre>uint32 bucket_slot = calc_bucket(unsigned hash(BufferTag buffer_tag), uint32 bucket_size)
+</pre>
+  </div>
+</div>
+
+
+
+<p>
+Note that basic operations (look up, insertion, and deletion of data entries) are not explained here. These are very common operations and are explained in the following sections.
+</p>
+
+
+
+
+
+  </div>
+<p><h3><a id="_8.2.2." name="_8.2.2."></a>8.2.2. Buffer Descriptor</h3></p>
+ <div>
+
+
+<p>
+The structure of buffer descriptor is described in this subsection, 
+ and the buffer descriptors layer in the next subsection.
+</p>
+
+<p>
+Buffer descriptor holds the metadata of the stored page in the corresponding buffer pool slot.
+The buffer descriptor structure is defined by the structure BufferDesc.
+While this structure has many fields, mainly ones are shown in the following:
+</p>
+
+ 
+
+<ul>
+<li>
+<b>tag</b> holds the <i>buffer_tag</i> of the stored page in the corresponding buffer pool slot (buffer tag is defined in  <a href="https://www.interdb.jp/pg/pgsql08.html#_8.1.2." target="_blank">Section 8.1.2</a>).
+</li>
+
+<li>
+<b>buffer_id</b> identifies the descriptor (equivalent to the <i>buffer_id</i> of the corresponding buffer pool slot).
+</li>
+
+<li>
+<b>refcount</b> holds the number of PostgreSQL processes currently accessing the associated stored page.
+ It is also referred to as <b>pin count</b>.
+When a PostgreSQL process accesses the stored page, its refcount must be incremented  by 1 (refcount++).
+ After accessing the page,
+ its refcount must be decreased by 1 (refcount--).
+<br/>
+
+When the refcount is zero, i.e. the associated stored page is not currently being accessed, the page is <b>unpinned</b>; otherwise it is <b>pinned</b>.
+</li>
+
+<li>
+<b>usage_count</b> holds the number of times the associated stored page has been accessed since it was loaded into the corresponding buffer pool slot.
+ Note that usage_count is used in the page replacement algorithm (<a href="https://www.interdb.jp/pg/pgsql08.html#_8.4.4.">Section 8.4.4</a>).
+</li>
+
+<li>
+<b>context_lock</b> and <b>io_in_progress_lock</b> are light-weight locks that are used to control access to the associated stored page.
+ These fields are described in <a href="https://www.interdb.jp/pg/pgsql08.html#_8.3.2." target="_blank">Section 8.3.2</a>.
+</li>
+
+<li>
+<b>flags</b> can hold several states of the associated stored page.
+ The main states are as follows:
+ <ul>
+  <li>
+  <b>dirty bit</b> indicates whether the stored page is dirty.
+  </li>
+
+  <li>
+  <b>valid bit</b> indicates whether the stored page can be read or written (valid).
+ For example, 
+if this bit is <i>valid</i>,
+ then the corresponding buffer pool slot stores a page and this descriptor (valid bit) holds the page metadata; thus, the stored page can be read or written.
+ If this bit is <i>invalid</i>,
+ then  this descriptor does not hold any metadata;
+ this means that the stored page cannot be read or written or the buffer manager is replacing the stored page.
+  </li>
+
+  <li><b>io_in_progress bit</b> indicates whether the buffer manager is reading/writing the associated page from/to storage.
+ In other words, this bit indicates whether a single process holds the io_in_progress_lock of this descriptor.
+  </li>
+ </ul>
+</li>
+
+<li>
+<b>freeNext</b> is a pointer to the next descriptor to generate a <i>freelist</i>, which is described in the next subsection.
+</li>
+</ul>
+
+<br/>
+
+
+
+<p>
+To simplify the following descriptions, three descriptor states are defined:
+</p>
+
+<ul>
+<li><b>Empty</b>: 
+When the corresponding buffer pool slot does not store a page (i.e. <i>refcount</i> and <i>usage_count</i> are 0),
+ the state of this descriptor is <i>empty</i>. 
+</li>
+
+<li><b>Pinned</b>: 
+When the corresponding buffer pool slot stores a page and any PostgreSQL processes are accessing the page (i.e. <i>refcount</i> and <i>usage_count</i> are greater than or equal to 1),
+ the state of this buffer descriptor is <i>pinned</i>. 
+</li>
+
+<li><b>Unpinned</b>: 
+When the corresponding buffer pool slot stores a page but no PostgreSQL processes are accessing the page (i.e. <i>usage_count</i> is greater than or equal to 1, but <i>refcount</i> is 0),
+ the state of this buffer descriptor is <i>unpinned</i>. 
+</li>
+</ul>
+
+
+<p>
+Each descriptor will have one of the above states.
+The descriptor state changes relative to particular conditions, which are described in the next subsection. 
+</p>
+
+<p>
+In the following figures, buffer descriptors’ states are represented by coloured boxes.
+</p>
+
+<ul>
+<li><span>    </span> (white) <i>Empty</i>
+</li>
+<li><span><span>    </span></span> (blue) <i>Pinned</i>
+</li>
+<li><span><span>    </span></span> (aqua blue) <i>Unpinned</i>
+</li>
+</ul>
+
+<p>
+In addition, 
+a dirty page is denoted as ‘X’. For example, an unpinned dirty descriptor is represented by <span><span> X </span></span>.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_8.2.3." name="_8.2.3."></a>8.2.3. Buffer Descriptors Layer</h3></p>
+ <div>
+
+
+<p>
+A collection of buffer descriptors forms an array. In this document, the array is referred to as the <i>buffer descriptors layer</i>. 
+</p>
+
+<div>
+<div>
+
+<p>
+When the PostgreSQL server starts, the state of all buffer descriptors is <i>empty</i>. In PostgreSQL, those descriptors comprise a linked list called <b>freelist</b> (Fig. 8.5). 
+</p>
+
+<br/>
+<div><p>
+Please note that the <b>freelist</b> in PostgreSQL is completely different concept from the <i>freelists</i> in Oracle.
+PostgreSQL&#39;s freelist is only linked list of empty buffer descriptors.
+In PostgreSQL <i>freespace maps</i>, which are described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.3.4." target="_blank">Section 5.3.4</a>, act as the same role of the freelists in Oracle.
+</p></div>
+<br/>
+
+</div>
+
+<div>
+
+
+<p><b>Fig. 8.5. Buffer manager initial state.</b></p><div>
+<figure>
+<img alt="Fig. 8.5. Buffer manager initial state." data-src="./img/fig-8-05.png" alt=""/>
+</figure>
+  </div>
+
+</div>
+</div>
+
+
+<p>
+Figure 8.6 shows that how the first page is loaded.
+</p>
+<ul>
+<li>
+(1) Retrieve an empty descriptor from the top of the freelist, and pin it (i.e. increase its refcount and usage_count by 1).
+</li>
+<li>
+(2) Insert the new entry, which holds the relation between the tag of the first page and the buffer_id of the retrieved descriptor, in the buffer table.
+</li>
+<li>
+(3) Load the new page from storage to the corresponding buffer pool slot.
+</li>
+<li>
+(4) Save the metadata of the new page to the retrieved descriptor.
+</li>
+</ul>
+
+<p>
+The second and subsequent pages are loaded in a similar manner.
+ Additional details are provided in <a href="https://www.interdb.jp/pg/pgsql08.html#_8.4.2.">Section 8.4.2</a>.
+</p>
+
+
+
+
+
+
+<p><b>Fig. 8.6. Loading the first page.</b></p><div>
+<figure>
+<img alt="Fig. 8.6. Loading the first page." data-src="./img/fig-8-06.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+Descriptors that have been retrieved from the freelist always hold page&#39;s metadata.
+In other words, non-empty descriptors continue to be used do not return to the freelist.
+
+However, related descriptors are added to the freelist again
+ and the descriptor state becomes ‘empty’ when one of the following occurs:
+
+</p><ol>
+<li> Tables or indexes have been dropped.
+</li>
+<li> Databases have been dropped.
+</li>
+<li> Tables or indexes have been cleaned up using the VACUUM FULL command.
+</li>
+</ol>
+
+<br/>
+<div>
+  <p><i>  Why empty descriptors comprise the freelist?</i>
+  </p>
+  <div><p>
+The reason why the freelist be made is to get the first descriptor immediately.
+This is a usual practice for dynamic memory resource allocation. Refer to <a href="https://en.wikipedia.org/wiki/Free_list" target="_blank" rel="noopener noreferrer">this description</a>.
+</p></div>
+</div>
+
+
+<p>
+The buffer descriptors layer contains an unsigned 32-bit integer variable, i.e. <b>nextVictimBuffer</b>.
+This variable is used in the page replacement algorithm described in <a href="https://www.interdb.jp/pg/pgsql08.html#_8.4.4." target="_blank">Section 8.4.4</a>.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_8.2.4." name="_8.2.4."></a>8.2.4. Buffer Pool</h3></p>
+ <div>
+
+
+
+<p>
+The buffer pool is a simple array that stores data file pages, such as tables and indexes. Indices of the buffer pool array are referred to as <i>buffer_id</i>s. 
+</p>
+
+<p>
+The buffer pool slot size is 8 KB, which is equal to the size of a page. Thus, each slot can store an entire page.
+</p>
+
+
+
+  </div>
+<p><h2><a id="_8.3." name="_8.3."></a>8.3. Buffer Manager Locks</h2></p>
+ <div>
+
+
+<p>
+The buffer manager uses many locks for many different purposes.
+This section describes the locks necessary for the explanations in the subsequent sections.
+</p>
+
+<br/>
+<div><p>
+Please note that the locks described in this section are parts of a synchronization mechanism for the buffer manager; they do <b>not</b> relate to any SQL statements and SQL options.
+</p></div>
+<br/>
+
+
+
+  </div>
+<p><h3><a id="_8.3.1." name="_8.3.1."></a>8.3.1. Buffer Table Locks</h3></p>
+ <div>
+
+
+<p>
+<b>BufMappingLock</b> protects the data integrity of the entire buffer table.
+ It is a light-weight lock that can be used in both shared and exclusive modes.
+ When searching an entry in the buffer table, a backend process holds a shared BufMappingLock.
+ When inserting or deleting entries, a backend process holds an exclusive lock. 
+</p>
+
+<div>
+<div>
+
+
+<p>
+The BufMappingLock is split into partitions to reduce the contention in the buffer table (the default is 128 partitions).
+ Each BufMappingLock partition guards the portion of the corresponding hash bucket slots.
+</p>
+
+
+<p>
+Figure 8.7 shows a typical example of the effect of splitting BufMappingLock.
+ Two backend processes can simultaneously hold respective BufMappingLock partitions in exclusive mode in order to insert new data entries.
+If the BufMappingLock is a single system-wide lock, both processes should wait for the processing of another process, depending on which started processing.
+</p>
+
+
+</div>
+
+<div>
+
+
+<p><b>Fig. 8.7. Two processes simultaneously acquire the respective partitions of BufMappingLock in exclusive mode to insert new data entries.</b></p><div>
+<figure>
+<img alt="Fig. 8.7. Two processes simultaneously acquire the respective partitions of BufMappingLock in exclusive mode to insert new data entries." data-src="./img/fig-8-07.png" alt=""/>
+</figure>
+  </div>
+
+
+</div>
+</div>
+
+
+<p>
+The buffer table requires many other locks. For example, the buffer table internally uses a spin lock to delete an entry.
+However, descriptions of these other locks are omitted because they are not required in this document.
+</p>
+
+<br/>
+<div><p>
+The BufMappingLock had been split into 16 separate locks by default until version 9.4.
+</p></div>
+<br/>
+
+
+
+
+  </div>
+<p><h3><a id="_8.3.2." name="_8.3.2."></a>8.3.2. Locks for Each Buffer Descriptor</h3></p>
+ <div>
+  <p>
+Each buffer descriptor uses two light-weight locks, <b>content_lock</b> and <b>io_in_progress_lock</b>, to control access to the stored page in the corresponding buffer pool slot. When the values of own fields are checked or changed, a spinlock is used. 
+</p>
+ </div>
+<p><h4><a id="_8.3.2.1." name="_8.3.2.1."></a>8.3.2.1. content_lock</h4></p>
+ <div>
+
+
+<p>
+The content_lock is a typical lock that enforces access limits.
+It can be used in <i>shared</i> and <i>exclusive</i> modes.
+</p>
+
+<p>
+When reading a page,
+a backend process acquires a shared content_lock of the buffer descriptor that stores the page.
+</p>
+
+<p>
+However,
+an exclusive content_lock is acquired when doing one of the following:
+</p>
+<ul>
+<li> Inserting rows (i.e. tuples) into the stored page or changing the t_xmin/t_xmax fields of tuples within the stored page
+ (t_xmin and t_xmax are described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.2." target="_blank" rel="noopener noreferrer">Section 5.2</a>;
+ simply, when deleting or updating rows,
+these fields of the associated tuples are changed).
+</li> 
+<li> 
+Removing tuples physically or compacting free space on the stored page (performed by vacuum processing and HOT, which are described in <a href="https://www.interdb.jp/pg/pgsql06.html" target="_blank" rel="noopener noreferrer">Chapters 6</a> and <a href="https://www.interdb.jp/pg/pgsql07.html" target="_blank" rel="noopener noreferrer">7</a>, respectively).
+</li>
+<li> Freezing tuples within the stored page (freezing is described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.10.1.">Section 5.10.1</a> and <a href="https://www.interdb.jp/pg/pgsql06.html#_6.3." target="_blank" rel="noopener noreferrer">Section 6.3</a>).
+</li>
+</ul>
+
+<p>
+The official <a href="https://github.com/postgres/postgres/blob/master/src/backend/storage/buffer/README" target="_blank" rel="noopener noreferrer">README</a>
+ file shows more details.
+</p>
+
+
+
+  </div>
+<p><h4><a id="_8.3.2.2." name="_8.3.2.2."></a>8.3.2.2. io_in_progress_lock</h4></p>
+ <div>
+  <p>
+The io_in_progress lock is used to wait for I/O on a buffer to complete.
+
+When a PostgreSQL process loads/writes page data from/to storage,
+ the process holds an exclusive io_in_progress lock of the corresponding descriptor while accessing the storage.
+</p>
+ </div>
+<p><h4><a id="_8.3.2.3." name="_8.3.2.3."></a>8.3.2.3. spinlock</h4></p>
+ <div>
+
+
+<p>
+When the flags or other fields (e.g. refcount and usage_count) are checked or changed, a spinlock is used.
+ Two specific examples of spinlock usage are given below:
+</p>
+
+<ul>
+<li>(1) The following shows how to <b>pin</b> the buffer descriptor:
+</li>
+ <ul>
+ <li>1. Acquire a spinlock of the buffer descriptor.
+ </li>
+ <li>2. Increase the values of its refcount and usage_count by 1.
+ </li>
+ <li>3. Release the spinlock. 
+ </li>
+ </ul>
+
+<pre>LockBufHdr(bufferdesc);    /* Acquire a spinlock */
+bufferdesc-&gt;refcont++;
+bufferdesc-&gt;usage_count++;
+UnlockBufHdr(bufferdesc); /* Release the spinlock */
+</pre>
+
+
+<li>(2) The following shows how to set the dirty bit to &#39;1&#39;: 
+</li>
+ <ul>
+ <li>1. Acquire a spinlock of the buffer descriptor.
+ </li>
+ <li>2. Set the dirty bit to &#39;1&#39; using a bitwise operation.
+ </li>
+ <li>3. Release the spinlock. 
+ </li>
+ </ul>
+
+<pre>#define BM_DIRTY             (1 &lt;&lt; 0)    /* data needs writing */
+#define BM_VALID             (1 &lt;&lt; 1)    /* data is valid */
+#define BM_TAG_VALID         (1 &lt;&lt; 2)    /* tag is assigned */
+#define BM_IO_IN_PROGRESS    (1 &lt;&lt; 3)    /* read or write in progress */
+#define BM_JUST_DIRTIED      (1 &lt;&lt; 5)    /* dirtied since write started */
+
+LockBufHdr(bufferdesc);
+bufferdesc-&gt;flags |= BM_DIRTY;
+UnlockBufHdr(bufferdesc);
+</pre>
+
+<p>
+Changing other bits is performed in the same manner. 
+</p>
+
+</ul>
+
+<br/>
+<div>
+  <p><i>  Replacing buffer manager spinlock with atomic operations</i>
+  </p>
+  <div><p>
+In version 9.6, the spinlocks of buffer manager will be replaced to atomic operations.
+See this <a href="https://commitfest.postgresql.org/9/408/" target="_blank">result of commitfest</a>.
+If you want to know the details, refer to <a href="http://www.postgresql.org/message-id/flat/2400449.GjM57CE0Yg@dinodell#2400449.GjM57CE0Yg@dinodell" target="_blank">this discussion</a>.
+</p></div>
+</div>
+<br/>
+
+
+
+
+  </div>
+<p><h2><a id="_8.4." name="_8.4."></a>8.4. How the Buffer Manager Works</h2></p>
+ <div>
+
+<p>
+This section describes how the buffer manager works.
+When a backend process wants to access a desired page, it calls the <i>ReadBufferExtended</i> function.
+</p>
+
+<p>
+The behavior of the <i>ReadBufferExtended</i> function depends on three logical cases.
+Each case is described in the following subsections.
+In addition, the PostgreSQL <i>clock sweep</i> page replacement algorithm is described in the final subsection.
+</p>
+
+
+
+
+  </div>
+<p><h3><a id="_8.4.1." name="_8.4.1."></a>8.4.1. Accessing a Page Stored in the Buffer Pool</h3></p>
+ <div>
+
+
+<p>
+First, the simplest case is described, i.e. the desired page is already stored in the buffer pool.
+In this case, the buffer manager performs the following steps: 
+</p>
+
+<ul>
+<li>
+(1) Create the <i>buffer_tag</i> of the desired page (in this example, the buffer_tag is &#39;Tag_C&#39;) 
+and compute the <i>hash bucket slot</i>, which contains the associated entry of the created <i>buffer_tag</i>, using the hash function.
+</li>
+<li>
+(2) Acquire the BufMappingLock partition that covers the obtained hash bucket slot in shared mode (this lock will be released in step (5)).
+</li>
+<li>
+(3) Look up the entry whose tag is &#39;Tag_C&#39; and obtain the <i>buffer_id</i> from the entry. In this example, the buffer_id is 2.
+</li>
+<li>
+(4) Pin the buffer descriptor for buffer_id 2,
+ i.e.
+ the refcount and usage_count of the descriptor are increased by 1
+( <a href="https://www.interdb.jp/pg/pgsql08.html#_8.3.2." target="_blank">Section 8.3.2</a> describes pinning).
+</li>
+
+<li>
+(5) Release the BufMappingLock.
+</li>
+
+<li>
+(6) Access the buffer pool slot with buffer_id 2.
+</li>
+
+</ul>
+
+
+
+
+<p><b>Fig. 8.8. Accessing a page stored in the buffer pool.</b></p><div>
+<figure>
+<img alt="Fig. 8.8. Accessing a page stored in the buffer pool." data-src="./img/fig-8-08.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Then,
+when reading rows from the page in the buffer pool slot,
+the PostgreSQL process acquires the <i>shared content_lock</i> of the corresponding buffer descriptor.
+Thus, buffer pool slots can be read by multiple processes simultaneously. 
+</p>
+
+<p>
+When inserting (and updating or deleting) rows to the page, a Postgres process acquires the <i>exclusive content_lock</i> of the corresponding buffer descriptor (note that the dirty bit of the page must be set to &#39;1&#39;). 
+</p>
+
+<p>
+After accessing the pages,
+the refcount values of the corresponding buffer descriptors are decreased  by 1.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_8.4.2." name="_8.4.2."></a>8.4.2. Loading a Page from Storage to Empty Slot</h3></p>
+ <div>
+
+
+<p>
+In this second case, assume that the desired page is not in the buffer pool and the freelist has free elements (empty descriptors). In this case, the buffer manager performs the following steps: 
+</p>
+
+<ul>
+<li>
+(1) Look up the buffer table (we assume it is not found).
+ <ul>
+ <li>
+ 1. Create the buffer_tag of the desired page (in this example, the buffer_tag is &#39;Tag_E&#39;) and compute the hash bucket slot.
+ </li>
+ <li>
+ 2. Acquire the BufMappingLock partition in shared mode.
+ </li>
+ <li>
+ 3. Look up the buffer table (not found according to the assumption).
+ </li>
+ <li>
+ 4. Release the BufMappingLock.
+ </li>
+ </ul>
+</li>
+
+<li>
+(2) Obtain the <i>empty buffer descriptor</i> from the freelist, and pin it.
+ In this example, the buffer_id of the obtained descriptor is 4.
+</li>
+
+<li>
+(3) Acquire the BufMappingLock partition in <i>exclusive</i> mode (this lock will be released in step (6)).
+</li>
+
+<li>
+(4) Create a new data entry that comprises the buffer_tag &#39;Tag_E&#39; and buffer_id 4;
+ insert the created entry to the buffer table.
+</li>
+
+<li>
+(5) Load the desired page data from storage to the buffer pool slot with buffer_id 4 as follows:
+
+ <ul>
+ <li>1. Acquire the exclusive io_in_progress_lock of the corresponding descriptor.
+ </li>
+ <li>2. Set the <i>io_in_progress</i> bit of the corresponding descriptor to &#39;1 to prevent access by other processes.
+ </li>
+ <li>
+3. Load the desired page data from storage to the buffer pool slot.
+ </li>
+ <li>
+4. Change the states of the corresponding descriptor;
+ the <i>io_in_progress</i> bit is set to &#39;0&#39;, and the <i>valid</i> bit is set to &#39;1&#39;.
+ </li>
+ <li>
+5. Release the io_in_progress_lock.
+ </li>
+ </ul>
+
+</li>
+
+<li>
+(6) Release the BufMappingLock.
+</li>
+
+<li>
+(7) Access the buffer pool slot with buffer_id 4.
+</li>
+</ul>
+
+
+
+<p><b>Fig. 8.9. Loading a page from storage to an empty slot.</b></p><div>
+<figure>
+<img alt="Fig. 8.9. Loading a page from storage to an empty slot." data-src="./img/fig-8-09.png" alt=""/>
+</figure>
+  </div>
+
+
+
+  </div>
+<p><h3><a id="_8.4.3." name="_8.4.3."></a>8.4.3. Loading a Page from Storage to a Victim Buffer Pool Slot</h3></p>
+ <div>
+
+<p>
+In this case, assume that all buffer pool slots are occupied by pages but the desired page is not stored. The buffer manager performs the following steps: 
+</p>
+
+<ul>
+<li>
+(1) Create the buffer_tag of the desired page and look up the buffer table. 
+In this example, we assume that the buffer_tag is &#39;Tag_M&#39; (the desired page is not found).
+</li>
+
+<li>
+(2) Select a victim buffer pool slot using the clock-sweep algorithm,
+ obtain the old entry, which contains the buffer_id of the victim pool slot,
+ from the buffer table and pin the victim pool slot in the buffer descriptors layer.
+In this example, the buffer_id of the victim slot is 5 and the old entry is 
+‘Tag_F, id=5’. The clock sweep is described in the <a href="https://www.interdb.jp/pg/pgsql08.html#_8.4.4." target="_blank">next subsection</a>.
+</li>
+
+<li>
+(3) Flush (write and fsync) the victim page data if it is dirty; otherwise proceed to step (4).
+<br/>
+The dirty page must be written to storage before overwriting with new data.
+ Flushing a dirty page is performed as follows: 
+
+ <ul>
+ <li>
+1. Acquire the shared content_lock and the exclusive io_in_progress lock of the descriptor with buffer_id  5 (released in step 6).
+ </li>
+ <li>
+2. Change the states of the corresponding descriptor; the <i>io_in_progress</i> bit is set to &#39;1&#39; and the <i>just_dirtied</i> bit is set to &#39;0&#39;.
+ </li>
+ <li>
+3. Depending on the situation, the <i>XLogFlush()</i> function is invoked to write WAL data on the WAL buffer to the current WAL segment file (details are omitted; WAL and the <i>XLogFlush</i> function are described in <a href="https://www.interdb.jp/pg/pgsql09.html" target="_blank" rel="noopener noreferrer">Chapter 9</a>).
+ </li>
+ <li>
+4. Flush the victim page data to storage.
+ </li>
+ <li>
+5. Change the states of the corresponding descriptor; the <i>io_in_progress</i> bit is set to &#39;0&#39; and the <i>valid</i> bit is set to &#39;1&#39;.
+ </li>
+ <li>
+6. Release the io_in_progress and content_lock locks.
+ </li>
+ </ul>
+</li>
+
+<li>
+(4) Acquire the old BufMappingLock partition that covers the slot that contains the old entry, in exclusive mode.
+</li>
+
+<li>
+(5) Acquire the new BufMappingLock partition and insert the new entry to the buffer table:
+ <ul>
+ <li>
+ 1. Create the new entry comprised of the new buffer_tag &#39;Tag_M&#39; and the victim&#39;s buffer_id.
+ </li>
+ <li>
+ 2. Acquire the new BufMappingLock partition that covers the slot containing the new entry in exclusive mode.
+ </li>
+ <li>
+ 3. Insert the new entry to the buffer table.
+ </li>
+ </ul>
+</li>
+
+</ul>
+
+
+
+<p><b>Fig. 8.10. Loading a page from storage to a victim buffer pool slot.</b></p><div>
+<figure>
+<img alt="Fig. 8.10. Loading a page from storage to a victim buffer pool slot." data-src="./img/fig-8-10.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(6) Delete the old entry from the buffer table, and release the old BufMappingLock partition.
+</li>
+
+<li>
+(7) Load the desired page data from the storage to the victim buffer slot.
+Then, update the flags of the descriptor with buffer_id 5; the dirty bit is set to &#39;0 and initialize other bits.
+</li>
+
+<li>
+(8) Release the new BufMappingLock partition. 
+</li>
+
+<li>
+(9) Access the buffer pool slot with buffer_id 5. 
+</li>
+
+</ul>
+
+
+
+
+
+<p><b>Fig. 8.11. Loading a page from storage to a victim buffer pool slot (continued from Fig. 8.10).</b></p><div>
+<figure>
+<img alt="Fig. 8.11. Loading a page from storage to a victim buffer pool slot (continued from Fig. 8.10)." data-src="./img/fig-8-11.png" alt=""/>
+</figure>
+  </div>
+
+
+  </div>
+<p><h3><a id="_8.4.4." name="_8.4.4."></a>8.4.4. Page Replacement Algorithm: Clock Sweep</h3></p>
+ <div>
+
+
+<p>
+The rest of this section describes the <b>clock-sweep</b> algorithm. This algorithm is a variant of NFU (Not Frequently Used) with low overhead; it selects less frequently used pages efficiently. 
+</p>
+
+<p>
+Imagine buffer descriptors as a circular list (Fig. 8.12). The nextVictimBuffer, an unsigned 32-bit integer, is always pointing to one of the buffer descriptors and rotates clockwise. The pseudocode and description of the algorithm are follows: 
+</p>
+
+<br/>
+<div>
+  <p><i>  Pseudocode: clock-sweep</i>
+  </p>
+  <div>
+<pre>     <b>WHILE</b> true
+(1)     Obtain the candidate <i>buffer descriptor</i> pointed by the nextVictimBuffer
+(2)     <b>IF</b> the candidate <i>descriptor</i> is <i>unpinned</i> <b>THEN</b>
+(3)	       <b>IF</b> the candidate descriptor&#39;s <i>usage_count</i> == 0 <b>THEN</b>
+	            <b>BREAK</b> WHILE LOOP  /* the corresponding slot of this descriptor is victim slot. */
+	       <b>ELSE</b>
+		    Decrease the candidate descriptpor&#39;s <i>usage_count</i> by <i>1</i>
+               <b>END IF</b>
+         <b>END IF</b>
+(4)     Advance nextVictimBuffer to the next one
+      <b>END WHILE</b> 
+(5) <b>RETURN</b> <i>buffer_id</i> of the victim
+</pre>
+
+<ul>
+<li>
+(1) Obtain the candidate buffer descriptor pointed to by <i>nextVictimBuffer</i>.
+</li>
+<li>
+(2) If the candidate buffer descriptor is <i>unpinned</i>, proceed to step (3);
+otherwise, proceed to step (4).
+</li>
+<li>
+(3) If the <i>usage_count</i> of the candidate descriptor is <i>0</i>, select the corresponding slot of this descriptor as a victim and proceed to step (5);
+otherwise, decrease this descriptor&#39;s <i>usage_count</i> by 1 and proceed to step (4).
+</li>
+<li>
+(4) Advance the nextVictimBuffer to the next descriptor (if at the end, wrap around) and return to step (1).  Repeat until a victim is found. 
+</li>
+<li>
+(5) Return the buffer_id of the victim.
+</li>
+</ul>
+  </div>
+</div>
+
+
+<p>
+A specific example is  shown in Fig. 8.12.
+The buffer descriptors are shown as blue or cyan boxes, 
+and the numbers in the boxes show the usage_count of each descriptor.
+</p>
+
+
+
+<p><b>Fig. 8.12. Clock Sweep.</b></p><div>
+<figure>
+<img alt="Fig. 8.12. Clock Sweep." data-src="./img/fig-8-12.png" alt=""/>
+</figure>
+  </div>
+
+
+<ul>
+<li>
+1) The nextVictimBuffer points to the first descriptor (buffer_id 1);
+however, this descriptor is skipped because it is pinned.
+</li>
+<li>
+2) The nextVictimBuffer points to the second descriptor (buffer_id 2).
+This descriptor is unpinned but its usage_count is 2;
+thus, the usage_count is decreased by 1 and the nextVictimBuffer advances to the third candidate.
+</li>
+<li>
+3) The nextVictimBuffer points to the third descriptor (buffer_id 3).
+This descriptor is unpinned and its usage_count is 0;
+thus, this is the victim in this round.
+</li>
+</ul>
+
+<p>
+Whenever the <i>nextVictimBuffer</i> sweeps an unpinned descriptor, its <i>usage_count</i> is decreased by 1.
+Therefore, if unpinned descripters exist in the buffer pool, this algorithm can always find a victim, whose usage_count is 0,  by rotating the <i>nextVictimBuffer</i>.
+</p>
+
+
+
+  </div>
+<p><h2><a id="_8.5." name="_8.5."></a>8.5. Ring Buffer</h2></p>
+ <div>
+
+
+<p>
+When reading or writing a huge table,
+PostgreSQL uses a <b>ring buffer</b> rather than the buffer pool.
+
+The <i>ring buffer</i> is a small and temporary buffer area.
+When any condition listed below is met, a ring buffer is allocated to  shared memory:
+
+</p><ol>
+<li>Bulk-reading</li>
+<p>
+When a relation whose size exceeds one-quarter of the buffer pool size (shared_buffers/4) is scanned. In this case, the ring buffer size is <i>256 KB</i>.
+</p>
+
+<li>Bulk-writing</li>
+<p>
+When the SQL commands listed below are executed.
+In this case, the ring buffer size is <i>16 MB</i>.
+</p>
+<ul>
+<li><i><a href="http://www.postgresql.org/docs/current/static/sql-copy.html" target="_blank" rel="noopener noreferrer">COPY FROM</a></i> command.
+</li>
+
+<li><i><a href="http://www.postgresql.org/docs/current/static/sql-createtableas.html" target="_blank" rel="noopener noreferrer">CREATE TABLE AS</a></i> command.
+</li>
+
+<li><a href="http://www.postgresql.org/docs/current/static/sql-creatematerializedview.html" target="_blank" rel="noopener noreferrer"><i>CREATE MATERIALIZED VIEW</i></a> or  <a href="http://www.postgresql.org/docs/current/static/sql-refreshmaterializedview.html" target="_blank" rel="noopener noreferrer"><i>REFRESH MATERIALIZED VIEW</i></a> command.
+</li>
+<li><a href="http://www.postgresql.org/docs/current/static/sql-altertable.html" target="_blank" rel="noopener noreferrer">
+<i>ALTER TABLE</i></a> command.
+</li>
+</ul>
+
+<li>Vacuum-processing</li>
+When an autovacuum performs a vacuum processing. In this case, the ring buffer size is <i>256 KB</i>.
+</ol>
+
+<p>
+The allocated ring buffer is released immediately after use.
+</p>
+
+<p>
+The benefit of the ring buffer is obvious. If a backend process reads a huge table without using a ring buffer, all stored pages in the buffer pool are removed (kicked out);
+therefore, the cache hit ratio decreases.
+The ring buffer avoids this issue.
+</p>
+
+<br/>
+<div>
+  <p><i>  Why the default ring buffer size for bulk-reading and vacuum processing is 256 KB?</i>
+  </p>
+  <div>
+<p>
+Why 256 KB? The answer is explained in the <a href="https://github.com/postgres/postgres/blob/master/src/backend/storage/buffer/README" target="_blank" rel="noopener noreferrer">README</a> located under the buffer manager&#39;s source directory.
+</p>
+
+<blockquote>
+For sequential scans, a 256 KB ring is used. That&#39;s small enough to fit in L2
+cache, which makes transferring pages from OS cache to shared buffer cache
+efficient.  Even less would often be enough, but the ring must be big enough
+to accommodate all pages in the scan that are pinned concurrently. 
+(snip)
+</blockquote>
+  </div>
+</div>
+<br/>
+
+
+
+
+  </div>
+<p><h2><a id="_8.6." name="_8.6."></a>8.6. Flushing Dirty Pages</h2></p>
+ <div>
+
+
+<p>
+In addition to replacing victim pages, the checkpointer and background writer processes flush dirty pages to storage. Both processes have the same function (flushing dirty pages); however, they have different roles and behaviours. 
+</p>
+
+<p>
+The checkpointer process writes a checkpoint record to the WAL segment file and flushes dirty pages whenever checkpointing starts. <a href="https://www.interdb.jp/pg/pgsql09.html#_9.7." target="_blank" rel="noopener noreferrer">Section 9.7</a> describes checkpointing and when it begins. 
+</p>
+
+<p>
+The role of the background writer is to reduce the influence of the intensive writing of checkpointing.
+ The background writer continues to flush dirty pages little by little with minimal impact on database activity.
+ By default, the background writer wakes every 200 msec (defined by <a href="http://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-BGWRITER-DELAY" target="_blank" rel="noopener noreferrer">bgwriter_delay</a>) and flushes <a href="http://www.postgresql.org/docs/current/static/runtime-config-resource.html#GUC-BGWRITER-LRU-MAXPAGES" target="_blank" rel="noopener noreferrer">bgwriter_lru_maxpages</a> (the default is 100 pages) at maximum. 
+</p>
+
+
+<br/>
+<div>
+  <p><i>  Why the checkpointer was separated from the background writer?</i>
+  </p>
+  <div>
+<p>
+In version 9.1 or earlier, background writer had regularly done the checkpoint processing.
+In version 9.2, the checkpointer process has been separated from the background writer process.
+Since the reason is described in the proposal whose title is <a href="https://www.postgresql.org/message-id/CA%2BU5nMLv2ah-HNHaQ%3D2rxhp_hDJ9jcf-LL2kW3sE4msfnUw9gA%40mail.gmail.com" target="_blank">&#34;Separating bgwriter and checkpointer&#34;</a>, the sentences from it are shown in the following.
+</p>
+
+<blockquote>
+Currently(in 2011) the bgwriter process performs both background writing, checkpointing and some other duties. This means that we can&#39;t perform the final checkpoint fsync without stopping background writing, so there is a negative performance effect from doing both things in one process.
+<br/>
+Additionally, our aim in 9.2 is to replace polling loops with latches
+for power reduction. The complexity of the bgwriter loops is high and
+it seems unlikely to come up with a clean approach using latches.
+<br/>
+(snip)
+</blockquote>
+  </div>
+</div>
+<br/>
+
+
+
+
+
+</div>
+            </div></div>

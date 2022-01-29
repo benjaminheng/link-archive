@@ -1,0 +1,564 @@
+---
+url: https://www.interdb.jp/pg/pgsql10.html
+title: Chapter 10 Base Backup & Point-in-Time Recovery
+archived_at: 2022-01-29T17:14:24.680913+08:00
+---
+<div id="readability-page-1" class="page"><div>
+
+
+
+
+<div>
+ <div>
+
+
+
+
+<p>
+Online database backup can be roughly classified into two categories: logical and physical backups. While both of them have advantages and disadvantages, there is one disadvantage in logical backup; taking too much time for its performance. In particular, it requires a fairy long time to make the backup of a large database, and even more time to restore such a database from backup data. On the contrary, physical backup makes it possible to backup and to restore large databases in a relatively short time so that it is a very important and useful feature in practical systems.
+</p>
+
+<p>
+In PostgreSQL, online physical full backup has been available since version 8.0, and a snapshot of a running whole database cluster (i.e. physical backup data) is known as a <b>base backup</b>.
+</p>
+
+<p>
+<b>Point-in-Time Recovery (PITR)</b>, which has also been available since version 8.0, is the feature to restore a database cluster to any point in time using a <i>base backup</i> and <i>archive logs</i> created by 
+<a href="https://www.interdb.jp/pg/pgsql09.html#_9.10." target="_blank" rel="noopener noreferrer">continuous archiving</a> feature. For example, even if you made a critical mistake (e.g. truncating all tables), this feature enables you to restore the database of the point just before the mistake you have made.
+</p>
+
+<p>
+In this chapter, following topics are described:
+</p>
+
+<ul>
+<li>What base backup is</li>
+<li>How PITR works</li>
+<li>What timelineId is</li>
+<li>What timeline history file is</li>
+</ul>
+
+<br/>
+<div><p>
+In version 7.4 or earlier, PostgreSQL had supported only logical backups (logical full and partial backups, and data exports).
+</p></div>
+<br/>
+
+
+
+
+  </div>
+<p><h2><a id="_10.1." name="_10.1."></a>10.1. Base Backup</h2></p>
+ <div>
+  <div>
+
+
+
+
+<p>
+First of all, the standard procedure to make a base backup using the low-level commands is shown below:
+</p>
+
+<ul>
+<li>(1) Issue the <i><a href="http://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADMIN-BACKUP" target="_blank" rel="noopener noreferrer">pg_start_backup</a></i> command</li>
+<li>(2) Take a snapshot of the database cluster with the archiving command you want to use</li>
+<li>(3) Issue the <i><a href="http://www.postgresql.org/docs/current/static/functions-admin.html#FUNCTIONS-ADMIN-BACKUP" target="_blank" rel="noopener noreferrer">pg_stop_backup</a></i> command</li>
+</ul>
+
+
+<div>
+<div>
+<p>
+This simple procedure is easy-to-use for database system administrators, because it requires no special tools but common tools such as copy command or a similar archiving tools to create a base backup. In addition, in this procedure, no table locks are required and all users can issue queries without being affected by backup operation. Those are big advantages over other major open source RDBMS.
+</p>
+
+<p>
+More simple way to make a base backup is to use the <i><a href="http://www.postgresql.org/docs/current/static/app-pgbasebackup.html" target="_blank" rel="noopener noreferrer">pg_basebackup</a></i> utility, but it internally issues those low-level commands.
+</p>
+</div>
+
+
+
+<div>
+<p><b>Fig. 10.1. Making a base backup.</b></p><div>
+<figure>
+<img alt="Fig. 10.1. Making a base backup." data-src="./img/fig-10-01.png" alt=""/>
+</figure>
+  </div>
+</div>
+</div>
+</div>
+
+<p>
+As the pair of those commands is clearly one of the key points for understanding the PITR, we will explore them in the following subsections.
+</p>
+
+<br/>
+
+<br/>
+
+
+
+
+
+  </div>
+ </div>
+<p><h3><a id="_10.1.1." name="_10.1.1."></a>10.1.1. pg_start_backup</h3></p>
+ <div>
+
+
+
+
+<p>
+The <i>pg_start_backup</i> prepares for making a base backup.
+As discussed in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.8." target="_blank" rel="noopener noreferrer">Section 9.8</a>, recovery process starts from a REDO point, so the <i>pg_start_backup</i> must do checkpoint to explicitly create a REDO point at the start of making a base backup.
+Moreover, the checkpoint location of its checkpoint must be saved in a file other than pg_control because regular checkpoint might be done a number of times during backup.
+Hence the <i>pg_start_backup</i> performs the following four operations:
+</p>
+
+<ol>
+<li>Force into the full-page wirte mode.</li>
+<li>Switch to the current WAL segment file (version 8.4 or later).</li>
+<li>Do checkpoint.</li>
+<li>Create a <i>backup_label file</i> – This file, created in the top level of the base directory, contains essential information about base backup itself, such as the checkpoint location of this checkpoint.
+</li></ol>
+
+<p>
+The third and fourth operations are the heart of this command; 
+the first and second operations are performed to recover a database cluster more reliably.
+</p>
+
+<p>
+A <i>backup_label</i> file contains the following six items (version 11 or later, seven items):
+</p>
+
+<ul>
+<li>CHECKPOINT LOCATION – This is the LSN location where the checkpoint created by this command has been recorded.</li>
+
+<li>START WAL LOCATION – This is <b>not</b> used with PITR, but used with the streaming replication, which is described in <a href="https://www.interdb.jp/pg/pgsql11.html" target="_blank" rel="noopener noreferrer">Chapter 11</a>. It is named ‘START WAL LOCATION’ because standby server in replication-mode reads this value only once at initial startup.</li>
+
+<li>BACKUP METHOD – This is the method used to make this base backup. (Either <i>&#39;pg_start_backup&#39;</i> or <i>&#39;pg_basebackup&#39;</i>.)</li>
+
+<li>BACKUP FROM – This shows whether this backup is taken from primary or standby.</li>
+
+<li>START TIME – This is the timestamp when the <i>pg_start_backup</i> has executed.</li>
+
+<li>LABEL – This is the label specified at the <i>pg_start_backup</i>.</li>
+
+<li>START TIMELINE – This is the timeline that the backup started. This is for a sanity check and has been introduced in Version 11.</li>
+</ul>
+
+<br/>
+<div>
+  <p><i>  backup_label</i>
+  </p>
+  <div>
+<p>
+An actual example of backup_label file in version 9.6 is shown in the following:
+</p>
+<pre>postgres&gt; cat /usr/local/pgsql/data/backup_label
+START WAL LOCATION: 0/9000028 (file 000000010000000000000009)
+CHECKPOINT LOCATION: 0/9000060
+BACKUP METHOD: pg_start_backup
+BACKUP FROM: master
+START TIME:  11:45:19 GMT
+LABEL: Weekly Backup
+</pre>
+  </div>
+</div>
+
+
+<p>
+As you may imagine, when you recover a database using this base backup, PostgreSQL takes the ‘CHECKPOINT LOCATION’ out of the backup_label file to read the checkpoint record from the appropriate archive log, and then, gets the REDO point from its record and starts recovery process. (The details will be described in the next section.)
+</p>
+
+
+
+  </div>
+<p><h3><a id="_10.1.2." name="_10.1.2."></a>10.1.2. pg_stop_backup</h3></p>
+ <div>
+
+
+
+<p>
+The <i>pg_stop_backup</i> performs the following five operations to complete the backup.
+</p>
+
+<ol>
+<li>Reset to <i>non-full-page writes</i> mode if it has been forcibly changed by the <i>pg_start_backup</i>.</li>
+<li>Write a XLOG record of backup end.</li>
+<li>Switch the WAL segment file.</li>
+<li>Create a backup history file – This file contains the contents of the backup_label file and the timestamp that the <i>pg_stop_backup</i> has been executed.</li>
+<li>Delete the backup_label file – The backup_label file is required for recovery from the base backup and once copied, it is not necessary in the original database cluster.</li>
+</ol>
+
+<br/>
+<div>
+<p>
+The <i>naming method for backup history file</i> is shown below. 
+</p>
+<pre>{WAL segment}.{offset value at the time the base backup was started}.backup
+</pre>
+  </div>
+<br/>
+
+
+
+
+
+  </div>
+<p><h2><a id="_10.2." name="_10.2."></a>10.2. How Point-in-Time Recovery Works</h2></p>
+ <div>
+
+
+<p>
+Figure 10.2 shows the basic concept of PITR. PostgreSQL in PITR-mode replays the WAL data of the archive logs on the base backup, from the REDO point created by the <i>pg_start_backup</i> up to the point you want to recover. In PostgreSQL, the point to be recovered is referred to as a <b>recovery target</b>.
+</p>
+
+
+
+<p><b>Fig. 10.2. Basic concept of PITR.</b></p><div>
+<figure>
+<img alt="Fig. 10.2. Basic concept of PITR." data-src="./img/fig-10-02.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<p>
+Here is the description of how PITR works. Suppose that you made a mistake at 12:05 GMT of 
+. You should remove the database cluster and restore the new one using the base backup you made before that.
+Then, set the command of the parameter <i>restore_command</i>, and also set the time of the parameter <i>recovery_target_time</i> at the point you made the mistake (in this case, 12:05 GMT) in a recovery.conf (version 11 or earlier) or postgresql.conf (version 12 or later).
+</p>
+
+<pre># Place archive logs under /mnt/server/archivedir directory.
+restore_command = &#39;cp /mnt/server/archivedir/%f %p&#39;
+recovery_target_time = &#34; 12:05 GMT&#34;
+</pre>
+
+<p>
+When PostgreSQL starts up, it enters into PITR mode if there are a <i>recovery.conf</i> (version 11 or earlier) or <i>recovery.signal</i>(version 12 or later), and a <i>backup_label</i> in the database cluster.
+</p>
+
+<br/>
+<div>
+  <p><i>  recovery.conf</i>
+  </p>
+  <div>
+<p>
+<i>recovery.conf</i> has been abolished in version 12, and all recovery-related parameters should be written in postgresql.conf.
+See the <a href="https://www.postgresql.org/docs/12/runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVE-RECOVERY" target="_blank" rel="noopener noreferrer">official document</a> in detail.
+</p>
+
+<p>
+In version 12 or later, when you restore your server from a basebackup, you need to make an empty file called <i>recovery.signal</i> file in the database cluster directory.
+</p>
+
+<pre>$ touch /usr/local/pgsql/data/recovery.signal
+</pre>
+
+
+  </div>
+</div>
+<p>
+
+
+If a recovery target is not set to the recovery.conf (version 11 or earlier) or the postgresql.conf (version 12 or later), PostgreSQL will replay until the end of archiving logs.
+
+
+
+</p><li>
+(4) When the recovery process completes,
+ a <b>timeline history file</b>, such as ‘00000002.history’, is created in the pg_xlog subdirectory (in version 10 or later, pg_wal subdirectory);
+ if archiving log feature is enabled, same named file is also created in the archival directory.
+ The contents and role of this file are described in the following sections.
+</li>
+
+
+<p>
+The records of commit and abort actions contain the timestamp at which each action has done (XLOG data portion of both actions are defined in 
+xl_xact_commit and xl_xact_abort respectively). Therefore, if a target time is set to the parameter <i>recovery_target_time</i>, PostgreSQL may select whether to continue recovery or not, whenever it replays XLOG record of either commit or abort action. When XLOG record of each action is replayed, PostgreSQL compares the target time and each timestamp written in the record; and if the timestamp exceed the target time, PITR process will be finished.
+</p>
+
+
+ 
+ 
+
+<p>
+PITR process is almost the same as the normal recovery process described in <a href="https://www.interdb.jp/pg/pgsql09.html#_9.8.">Chapter 9</a>; the only differences between them are the following two points:
+</p>
+
+<ol>
+<li>Where are WAL segments/Archive logs read from?
+ <ul>
+  <li>Normal recovery mode – from the pg_xlog subdirectory (in version 10 or later, pg_wal subdirectory) under the base directory.</li>
+  <li>PITR mode – from an archival directory set in the configuration parameter archive_command.</li>
+ </ul>
+</li>
+<li>Where is the checkpoint location read from?
+ <ul>
+  <li>Normal recovery mode – from a <i>pg_control file</i>.</li>
+  <li>PITR mode – from a <i>backup_label file</i>.</li>
+ </ul>
+</li>
+</ol>
+
+
+<p>
+The outline of PITR process is described as follows:
+</p>
+
+<ul>
+<li>
+(1) In order to find the REDO point, PostgreSQL reads the value of ‘<i>CHECKPOINT LOCATION</i>’ from the backup_label file with the internal function <i>read_backup_label</i>.
+</li>
+
+<li>
+(2) PostgreSQL reads some values of parameters from the recovery.conf (version 11 or earlier) or the postgresql.conf (version 12 or later) ; in this example, <i>restore_command</i> and <i>recovery_target_time</i>.
+</li>
+
+<li>
+(3) PostgreSQL starts replaying WAL data from the REDO point, which can be easily obtained from the value of ‘<i>CHECKPOINT LOCATION</i>’.
+
+The WAL data are read from archive logs which are copied from the archival area to a temporary area by executing the command written in the parameter <i>resotere_command</i>. (The copied log files in the temporary area are removed after using.)
+<br/>
+ In this example, PostgreSQL reads and replays WAL data from the REDO point to the one before the timestamp ‘ 12:05:00’  because the parameter <i>recovery_target_time</i> is set to this timestamp.
+If a recovery target is not set to the recovery.conf (version 11 or earlier) or the postgresql.conf (version 12 or later), PostgreSQL will replay until the end of archiving logs.
+</li>
+
+
+<li>
+(4) When the recovery process completes,
+ a <b>timeline history file</b>, such as ‘00000002.history’, is created in the pg_xlog subdirectory (in version 10 or later, pg_wal subdirectory);
+ if archiving log feature is enabled, same named file is also created in the archival directory.
+ The contents and role of this file are described in the following sections.
+</li>
+</ul>
+
+<p>
+The records of commit and abort actions contain the timestamp at which each action has done (XLOG data portion of both actions are defined in 
+xl_xact_commit and xl_xact_abort respectively). Therefore, if a target time is set to the parameter <i>recovery_target_time</i>, PostgreSQL may select whether to continue recovery or not, whenever it replays XLOG record of either commit or abort action. When XLOG record of each action is replayed, PostgreSQL compares the target time and each timestamp written in the record; and if the timestamp exceed the target time, PITR process will be finished.
+</p>
+
+
+ 
+ 
+
+<br/>
+
+<div>
+  <p><i>  Why can we use common archiving tools to make a base backup?</i>
+  </p>
+  <div><p>
+Recovery process is a process to make a database cluster in a consistent state, though the cluster is inconsistent. As PITR is based on the recovery process, it can recover the database cluster even if a base backup is a bunch of inconsistent files. This is the reason why we can use common archiving tools without a file system snapshot capability or a special tool.
+</p></div>
+</div>
+<br/>
+
+
+
+
+
+  </div>
+<p><h2><a id="_10.3." name="_10.3."></a>10.3. timelineId and Timeline History File</h2></p>
+ <div>
+  <p>
+<b>Timeline</b> in PostgreSQL is used to distinguish between the original database cluster and the recovered ones, and is central concept of PITR. In this section, two things associated with the timeline are described: <i>timelineId</i> and <i>timeline history files</i>.
+</p>
+ </div>
+<p><h3><a id="_10.3.1." name="_10.3.1."></a>10.3.1. timelineId</h3></p>
+ <div>
+
+
+<p>
+Each timeline is given a corresponding <b>timelineId</b>, a 4-byte unsigned integer starting at 1.
+</p>
+<p>
+An individual timelineId is assigned to each database cluster. The timelineId of original database cluster created by the initdb utility is 1. Whenever database cluster recovers, timelineId will be increased by 1. For example, in the example of the previous section, the timelineId of the cluster recovered from the original one is 2.
+</p>
+<p>
+Figure 10.3 illustrates the PITR process from the viewpoint of the timelineId. First, we remove our current database cluster and restore the base backup made in the past, in order to go back to the starting point of recovery, and such situation is represented in the red arrow curve in the figure. Next, we start the PostgreSQL server which replays WAL data in the archive logs from the REDO point created by the <i>pg_start_backup</i> until the recovery target by tracing along the initial timeline (timelineId 1), and such situation is represented in the blue arrow line in the figure. Then, a new timelineId 2 is assigned to recovered database cluster and PostgreSQL runs on the new timeline.
+</p>
+
+
+
+<p><b>Fig. 10.3. Relation of  timelineId between an original and a recovered database clusters.</b></p><div>
+<figure>
+<img alt="Fig. 10.3. Relation of  timelineId between an original and a recovered database clusters." data-src="./img/fig-10-03.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+As briefly mentioned in <a href="https://www.interdb.jp/pg/pgsql09.html">Chapter 9</a>, the first 8-digit of WAL segment filename is equal to the timelineId of the database cluster created for each segment. When the timelineId is changed, WAL segment filename will also be changed.
+</p>
+<p>
+Focusing on WAL segment files, the recovery process will be described again. Suppose that we recover the database cluster using two archive logs ‘<span color="#0000ff">00000001</span>0000000000000009’ and ‘<span color="#0000ff">00000001</span>000000000000000A’. The newly recovered database cluster is assigned the timelineId 2, and PostgreSQL creates the WAL segment from ‘<span color="#0000ff">00000002</span>000000000000000A’. Figure 10.4 shows this situation.
+</p>
+
+
+
+
+<p><b>Fig. 10.4. Relation of WAL segment files between an original and a recovered database clusters.</b></p><div>
+<figure>
+<img alt="Fig. 10.4. Relation of WAL segment files between an original and a recovered database clusters." data-src="./img/fig-10-04.png" alt=""/>
+</figure>
+  </div>
+
+
+  </div>
+<p><h3><a id="_10.3.2." name="_10.3.2."></a>10.3.2. Timeline History File</h3></p>
+ <div>
+
+
+<p>
+When a PITR process completes, a timeline history file with names like ‘00000002.history’ is created under the archival directory and the pg_xlog subdirectory (in version 10 or later, pg_wal subdirectory). This file records which timeline it branched off from and when.
+</p>
+<p>
+The naming rule of this file is shown in the following:
+</p>
+
+<pre>&#34;8-digit new timelineId&#34;.history
+</pre>
+<p>
+A timeline history file contains at least one line, and each line is composed of the following three items:
+</p>
+
+<ul>
+<li>timelineId – timelineId of the archive logs used to recover.</li>
+<li>LSN – LSN location where the WAL segment switches happened.</li>
+<li>reason – human-readable explanation of why the timeline was changed.</li>
+</ul>
+
+<p>
+A specific example is shown below:
+</p>
+
+<pre>postgres&gt; cat /home/postgres/archivelogs/00000002.history
+1	  0/A000198	before  12:05:00.861324+00
+</pre>
+
+<p>
+Meaning as follows:
+</p>
+
+<blockquote>
+The database cluster (timelineId=2) is based on the base backup whose timelineId is <i>1</i>,
+ and is recovered in the time just <i>before ‘ 12:05:00.861324+00</i>’ by replaying the archive logs until the <i>0/A000198</i>.
+</blockquote>
+
+<p>
+In this way, each timeline history file tells us a complete history of the individual recovered database cluster. Moreover, it is also used to PITR process itself. The detail is explained in the next section.
+</p>
+
+<br/>
+<div>
+<p>
+The timeline history file format is changed in version 9.3. Formats of versions 9.3 or later and earlier both are shown below but not in detail.
+</p><p>
+
+Later version 9.3:
+</p><pre>timelineId	LSN	&#34;reason&#34;
+</pre><p>
+
+Until version 9.2:
+</p><pre>timelineId	WAL_segment	&#34;reason&#34;
+</pre>
+  </div>
+<br/>
+
+
+
+
+
+  </div>
+<p><h2><a id="_10.4." name="_10.4."></a>10.4. Point-in-Time Recovery with Timeline History File</h2></p>
+ <div>
+
+
+<p>
+The timeline history file plays an important role in the second and subsequent PITR processes.
+ By trying the second time recovery, we will explore how it is used.
+</p>
+
+<p>
+Again, suppose that you made a mistake at 12:15:00 in the recovered database cluster whose timelineId is 2. 
+ In this case, to recover the database cluster, you should create a new recovery.conf shown below:
+</p>
+
+<pre>restore_command = &#39;cp /mnt/server/archivedir/%f %p&#39;
+recovery_target_time = &#34; 12:15:00 GMT&#34;
+recovery_target_timeline = 2
+</pre>
+
+<p>
+The parameter <i>recovery_target_time</i> sets the time you made new mistake,
+ and the <i>recovery_target_timeline</i> is set at &#39;2&#39;, in order to recover along its timeline. 
+</p>
+<p>
+Restart the PostgreSQL server and enter PITR mode to recover the database at the target time along the timelineId 2. See Fig. 10.5.
+</p>
+
+
+
+<p><b>Fig. 10.5. Recover the database at 12:15:00 along the timelineId 2.</b></p><div>
+<figure>
+<img alt="Fig. 10.5. Recover the database at 12:15:00 along the timelineId 2." data-src="./img/fig-10-05.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>
+(1) PostgreSQL reads the value of ‘<i>CHECKPOINT LOCATION</i>’ from the backup_label file.
+</li>
+
+<li>
+(2) Some values of parameters are read from the recovery.conf;
+ in this example, <i>restore_command</i>, <i>recovery_target_time</i>, and <i>recovery_target_timeline</i>.
+</li>
+
+<li>
+(3) PostgreSQL reads the timeline history file ‘00000002.history’ which is corresponding to the value of the parameter <i>recovery_target_timeline</i>.
+</li>
+
+<li>
+(4) PostgreSQL does replaying WAL data by the following steps:
+ <ul>
+  <li>
+ 1. From the REDO point to the LSN ‘0/A000198’ which is written in the 00000002.history file,
+ PostgreSQL reads and replays WAL data of appropriate archive logs whose timelineId is 1.
+  </li>
+  <li>
+ 2. From the one after LSN ‘0/A000198’ to the one before the timestamp ‘ 12:15:00’,
+ PostgreSQL reads and replays WAL data (of appropriate archive logs) whose timelineId is 2.
+  </li>
+ </ul>
+
+</li>
+
+<li>
+(5) When the recovery process completes, the current timelineId will advance to 3, and new timeline history file named <i>00000003.history</i> is created in the pg_xlog subdirectory (pg_wal subdirectory if version 10 or later) and the archival directory.
+</li>
+
+<pre>postgres&gt; cat /home/postgres/archivelogs/00000003.history
+1         0/A000198     before  12:05:00.861324+00
+
+2         0/B000078     before  12:15:00.927133+00
+</pre>
+</ul>
+
+<p>
+When you do PITR more than once, you should explicitly set a timelineId for using the appropriate timeline history file.
+</p>
+
+<p>
+In this way, timeline history files are not only history logs of database cluster, but also the recovery instruction documents for PITR process.
+</p>
+
+
+</div>
+            </div></div>

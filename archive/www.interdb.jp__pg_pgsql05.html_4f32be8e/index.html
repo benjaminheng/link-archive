@@ -1,0 +1,2238 @@
+---
+url: https://www.interdb.jp/pg/pgsql05.html
+title: 'The Internals of PostgreSQL : Chapter 5 Concurrency Control'
+archived_at: 2022-01-29T17:14:24.078157+08:00
+---
+<div id="readability-page-1" class="page"><div>
+
+
+
+
+<div>
+ <div>
+
+
+
+<p>
+Concurrency Control is a mechanism that maintains atomicity and isolation,
+which are two properties of the ACID,
+when several transactions run concurrently in the database.
+
+</p>
+
+<p>
+There are three broad concurrency control techniques,
+i.e.
+<i>Multi-version Concurrency Control</i> (MVCC),
+<i>Strict Two-Phase Locking</i> (S2PL),
+and <i>Optimistic Concurrency Control</i> (OCC),
+and each technique has many variations.
+
+
+In MVCC, each write operation creates a new version of a data item while retaining the old version.
+When a transaction reads a data item, the system selects one of the versions to ensure isolation of the individual transaction.
+
+The main advantage of MVCC is that &#39;<i>readers don’t block writers, and writers don’t block readers</i>&#39;, in contrast, for example, an S2PL-based system must block readers when a writer writes an item because the writer acquires an exclusive lock for the item.
+
+
+PostgreSQL and some RDBMSs use a variation of MVCC called <b>Snapshot Isolation (SI)</b>.
+</p>
+
+<p>
+To implement SI,
+some RDBMSs, e.g., Oracle, use rollback segments.
+When writing a new data item, the old version of the item is written to the rollback segment,
+ and subsequently the new item is overwritten to the data area.
+
+PostgreSQL uses a simpler method.
+A new data item is inserted directly into the relevant table page.
+
+When reading items, 
+PostgreSQL selects the appropriate version of an item in response to an individual transaction by applying <b>visibility check rules</b>.
+</p>
+
+
+<p>
+SI does not allow the three anomalies defined in the ANSI SQL-92 standard, i.e.  <i>Dirty Reads</i>, <i>Non-Repeatable Reads</i>, and <i>Phantom Reads</i>.
+
+However, SI cannot achieve true serializability because it allows serialization anomalies, such as <i>Write Skew</i> and <i>Read-only Transaction Skew</i>.
+
+Note that the ANSI SQL-92 standard based on the classical serializability definition is <b>not</b> equivalent to the definition in modern theory.
+
+To deal with this issue, <b>Serializable Snapshot Isolation (SSI)</b> has been added as of version 9.1.
+
+SSI can detect the serialization anomalies and can resolve the conflicts caused by such anomalies.
+Thus, PostgreSQL version 9.1 and later provides a true SERIALIZABLE isolation level.
+ (In addition, SQL Server also uses SSI, Oracle still uses only SI.)
+</p>
+
+
+
+
+<p>
+This chapter comprises the following four parts:
+</p>
+
+<ul>
+<li><b>Part 1:</b> Sections 5.1. — 5.3.</li>
+<p>
+This part provides basic information required for understanding the subsequent parts.
+</p>
+<p>
+Sections 5.1 and 5.2 describe transaction ids and tuple structure, respectively.
+Section 5.3 exhibits how tuples are inserted, deleted, and updated.
+</p>
+
+<li><b>Part 2:</b> Sections 5.4.  — 5.6.</li>
+<p>
+This part illustrates the key features required for implementing the concurrency control mechanism.
+</p>
+
+<p>
+Sections 5.4, 5.5, and 5.6 describe the commit log (clog), which holds all transaction states, 
+transaction snapshots, and the visibility check rules, respectively.
+</p>
+
+<li><b>Part 3:</b> Sections 5.7.  — 5.9.</li>
+<p>
+This part describes the concurrency control in PostgreSQL using specific examples.
+</p>
+
+<p>
+Section 5.7 describes the visibility check.
+This section also shows how the three anomalies defined in the ANSI SQL standard are prevented.
+Section 5.8 describes preventing <i>Lost Updates</i>,
+and Section 5.9 briefly describes SSI.
+</p>
+
+<li><b>Part 4:</b> Section 5.10.</li>
+<p>
+This part describes several maintenance process required to permanently running the concurrency control mechanism.
+The maintenance processes are performed by vacuum processing, which is described in <a href="https://www.interdb.jp/pg/pgsql06.html" target="_blank" rel="noopener noreferrer">Chapter 6</a>.
+</p>
+
+</ul>
+
+<p>
+This chapter focuses on the topics that are unique to PostgreSQL, although there are many concurrency control-related topics.
+Note that descriptions of deadlock prevention and lock modes are omitted
+(refer to the <a href="https://www.postgresql.org/docs/current/static/explicit-locking.html" target="_blank">official documentation</a> for more information).
+</p>
+
+<br/>
+<div>
+  <p><i>  Transaction Isolation Level in PostgreSQL</i>
+  </p>
+  <div>
+<p>
+PostgreSQL-implemented transaction isolation levels are described in the following table:
+</p>
+
+<table>
+<tbody><tr>
+<th>Isolation Level</th>
+<th>Dirty Reads</th>
+<th>Non-repeatable Read</th>
+<th>Phantom Read</th>
+<th>Serialization Anomaly</th>
+
+</tr><tr>
+
+<td>READ COMMITTED</td>
+<td>Not possible</td>
+<td>Possible</td>
+<td>Possible</td>
+<td>Possible</td>
+
+</tr><tr>
+
+<td>REPEATABLE READ<sup>*1</sup></td>
+<td>Not possible</td>
+<td>Not possible</td>
+<td><span color="#0000ff">Not possible</span> in PG; See <a href="https://www.interdb.jp/pg/pgsql05.html#_5.7.2." target="_blank" rel="noopener noreferrer">Section 5.7.2.</a><br/>(Possible in ANSI SQL)</td>
+<td>Possible</td>
+
+</tr><tr>
+
+<td>SERIALIZABLE</td>
+<td>Not possible</td>
+<td>Not possible</td>
+<td>Not possible</td>
+<td>Not possible</td>
+
+</tr><tr>
+
+</tr>
+</tbody></table>
+
+<p>
+*1 : In version 9.0 and earlier,
+this level had been used as ‘SERIALIZABLE’ because it does not allow the three anomalies defined in the ANSI SQL-92 standard.
+However, with the implementation of SSI in version 9.1,
+this level has changed to &#39;REPEATABLE READ&#39; and a true SERIALIZABLE level was introduced.
+</p>
+  </div>
+</div>
+<div><p>
+PostgreSQL uses SSI for DML (Data Manipulation Language, e.g, SELECT, UPDATE, INSERT, DELETE), and 2PL for DDL (Data Definition Language, e.g., CREATE TABLE, etc).
+</p></div>
+<br/>
+
+
+
+  </div>
+<p><h2><a id="_5.1." name="_5.1."></a>5.1. Transaction ID</h2></p>
+ <div>
+
+
+<p>
+Whenever a transaction begins, 
+a unique identifier, referred to as a <b>transaction id (txid)</b>, is assigned by the transaction manager.
+
+PostgreSQL&#39;s txid is a 32-bit unsigned integer, approximately 4.2 billion (thousand millions).
+If you execute the built-in <i>txid_current()</i> function after a transaction starts,
+ the function returns the current txid as follows.
+</p>
+
+<pre>testdb=# BEGIN;
+BEGIN
+testdb=# SELECT txid_current();
+ txid_current 
+--------------
+          100
+(1 row)
+</pre>
+
+<p>
+PostgreSQL reserves the following three special txids:
+</p>
+
+<ul>
+<li><b>0</b> means <b>Invalid</b> txid.
+</li>
+
+<li><b>1</b> means <b>Bootstrap</b> txid, which is only used in the initialization of the database cluster.
+</li>
+
+<li><b>2</b> means <b>Frozen</b> txid, which is described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.10.1." target="_blank" rel="noopener noreferrer">Section 5.10.1</a>.
+</li>
+
+</ul>
+
+<p>
+Txids can be compared with each other.
+For example, at the viewpoint of txid 100,
+txids which are greater than 100 are ‘in the future’ and they are <i>invisible</i> from the txid 100;
+txids which are less than 100 are ‘in the past’ and <i>visible</i> (Fig. 5.1 a)).
+</p>
+
+
+
+<p><b>Fig. 5.1. Transaction ids in PostgreSQL.</b></p><div>
+<figure>
+<img alt="Fig. 5.1. Transaction ids in PostgreSQL." data-src="./img/fig-5-01.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Since the txid space is insufficient in practical systems,
+PostgreSQL treats the txid space as a circle.
+
+The previous 2.1 billion txids are &#39;in the past&#39;, 
+and the next 2.1 billion txids are &#39;in the future&#39; (Fig. 5.1 b).
+</p>
+
+<p>
+Note that the so-called <i>txid wraparound problem</i> is described in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.10.1.">Section 5.10.1</a>. 
+</p>
+
+<br/>
+<div><p>
+Note that BEGIN command does not be assigned a txid.
+
+In PostgreSQL,
+when the first command is executed after a BEGIN command executed, a tixd is assigned by the transaction manager,
+and then its transaction starts.
+</p></div>
+<br/>
+
+
+
+
+  </div>
+<p><h2><a id="_5.2." name="_5.2."></a>5.2. Tuple Structure</h2></p>
+ <div>
+
+
+<p>
+Heap tuples in table pages are classified as a usual data tuple and a TOAST tuple. This section describes only the usual tuple.
+</p>
+
+<p>
+A heap tuple comprises three parts,
+i.e.
+the HeapTupleHeaderData structure, NULL bitmap, and user data (Fig. 5.2).
+</p>
+
+
+<p><b>Fig. 5.2. Tuple structure.</b></p><div>
+<figure>
+<img alt="Fig. 5.2. Tuple structure." data-src="./img/fig-5-02.png" alt=""/>
+</figure>
+  </div>
+
+
+<br/>
+
+
+
+<p>
+While the HeapTupleHeaderData structure contains seven fields,
+four fields are required in the subsequent sections.
+</p>
+
+
+<ul>
+<li><b>t_xmin</b> holds the txid of the transaction that inserted this tuple.
+</li>
+
+<li><b>t_xmax</b> holds the txid of the transaction that deleted or updated this tuple.
+If this tuple has not been deleted or updated, t_xmax is set to <i>0</i>, which means INVALID.
+</li>
+
+<li>
+<b>t_cid</b> holds the command id (cid), which means how many SQL commands were executed before this command was executed within the current transaction beginning from 0.
+
+For example, assume that we execute three INSERT commands within a single transaction: &#39;BEGIN; INSERT; INSERT; INSERT; COMMIT;&#39;.
+If the first command inserts this tuple, t_cid is set to 0.
+If the second command inserts this, t_cid is set to 1, and so on.
+</li>
+
+<li><b>t_ctid</b> holds the tuple identifier (tid) that points to itself or a new tuple.
+
+tid, described in <a href="https://www.interdb.jp/pg/pgsql01.html#_1.3." target="_blank">Section 1.3</a>, is used to identify a tuple within a table.
+
+When this tuple is updated, the t_ctid of this tuple points to the new tuple;
+otherwise, the t_ctid points to itself.
+</li>
+
+</ul>
+
+
+ 
+
+
+
+
+
+
+  </div>
+<p><h2><a id="_5.3." name="_5.3."></a>5.3. Inserting, Deleting and Updating Tuples</h2></p>
+ <div>
+
+
+<p>
+This section describes how tuples are inserted, deleted, and updated.
+Then, the <i>Free Space Map (FSM)</i>, which is used to insert and update tuples, is briefly described.
+</p>
+
+
+<p>
+To focus on tuples, page headers and line pointers are not represented in the following.
+Figure 5.3 shows an example of how tuples are represented.
+</p>
+
+
+<p><b>Fig. 5.3. Representation of tuples.</b></p><div>
+<figure>
+<img alt="Fig. 5.3. Representation of tuples." data-src="./img/fig-5-03.png" alt=""/>
+</figure>
+  </div>
+
+
+  </div>
+<p><h3><a id="_5.3.1." name="_5.3.1."></a>5.3.1. Insertion</h3></p>
+ <div>
+
+
+<p>
+With the insertion operation,
+a new tuple is inserted directly into a page of the target table (Fig. 5.4).
+</p>
+
+
+<p><b>Fig. 5.4. Tuple insertion.</b></p><div>
+<figure>
+<img alt="Fig. 5.4. Tuple insertion." data-src="./img/fig-5-04.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Suppose that a tuple is inserted in a page by a transaction whose txid is 99.
+In this case, the header fields of the inserted tuple are set as follows.
+</p>
+
+
+<ul>
+<li>Tuple_1:
+ <ul>
+  <li><b>t_xmin</b> is set to 99 because this tuple is inserted by txid 99.
+  </li>
+  <li><b>t_xmax</b> is set to 0 because this tuple has not been deleted or updated.
+  </li>
+  <li><b>t_cid</b> is set to 0 because this tuple is the first tuple inserted by txid 99.
+  </li>
+  <li><b>t_ctid</b> is set to (0,1), which points to itself, because this is the latest tuple.
+  </li>
+ </ul>
+</li>
+</ul>
+
+<br/>
+<div>
+  <p><i>  pageinspect</i>
+  </p>
+  <div>
+
+<p>
+PostgreSQL provides an extension <i>pageinspect</i>, which is a contribution module, to show the contents of the database pages.
+</p>
+
+
+<pre>testdb=# CREATE EXTENSION pageinspect;
+CREATE EXTENSION
+testdb=# CREATE TABLE tbl (data text);
+CREATE TABLE
+testdb=# INSERT INTO tbl VALUES(&#39;A&#39;);
+INSERT 0 1
+testdb=# SELECT lp as tuple, t_xmin, t_xmax, t_field3 as t_cid, t_ctid 
+                FROM heap_page_items(get_raw_page(&#39;tbl&#39;, 0));
+ tuple | t_xmin | t_xmax | t_cid | t_ctid 
+-------+--------+--------+-------+--------
+     1 |     99 |      0 |     0 | (0,1)
+(1 row)
+</pre>
+  </div>
+</div>
+<br/>
+
+
+
+
+  </div>
+<p><h3><a id="_5.3.2." name="_5.3.2."></a>5.3.2. Deletion</h3></p>
+ <div>
+
+
+<p>
+In the deletion operation,
+the target tuple is deleted logically.
+The value of the txid that executes the DELETE command is set to the t_xmax of the tuple (Fig. 5.5).
+</p>
+
+
+<p><b>Fig. 5.5. Tuple deletion.</b></p><div>
+<figure>
+<img alt="Fig. 5.5. Tuple deletion." data-src="./img/fig-5-05.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Suppose that Tuple_1 is deleted by txid 111.
+In this case, the header fields of Tuple_1 are set as follows.
+</p>
+<ul>
+<li>Tuple_1:
+ <ul>
+  <li><b>t_xmax</b> is set to 111.
+  </li>
+ </ul>
+</li>
+</ul>
+
+<p>
+If txid 111 is committed, Tuple_1 is no longer required.
+Generally, unneeded tuples are referred to as <b>dead tuples</b> in PostgreSQL. 
+</p>
+
+<p>
+Dead tuples should eventually be removed from pages.
+Cleaning dead tuples is referred to as <b>VACUUM</b> processing, which is described in <a href="https://www.interdb.jp/pg/pgsql06.html" target="_blank" rel="noopener noreferrer">Chapter 6</a>.
+</p>
+
+
+  </div>
+<p><h3><a id="_5.3.3." name="_5.3.3."></a>5.3.3. Update</h3></p>
+ <div>
+
+
+<p>
+In the update operation,
+PostgreSQL logically deletes the latest tuple and inserts a new one (Fig. 5.6).
+</p>
+
+
+<p><b>Fig. 5.6. Update the row twice.</b></p><div>
+<figure>
+<img alt="Fig. 5.6. Update the row twice." data-src="./img/fig-5-06.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Suppose that the row, which has been inserted by txid 99, is updated twice by txid 100.
+</p>
+
+<p>
+When the first UPDATE command is executed,
+Tuple_1 is logically deleted by setting txid 100 to the <i>t_xmax</i>,
+and then Tuple_2 is inserted.
+Then, the <i>t_ctid</i> of Tuple_1 is rewritten to point to Tuple_2.
+The header fields of both Tuple_1 and Tuple_2 are as follows.
+</p>
+
+<ul>
+<li>Tuple_1:
+ <ul>
+  <li><b>t_xmax</b> is set to 100.
+  </li>
+  <li><b>t_ctid</b> is rewritten from (0, 1) to (0, 2).
+  </li>
+ </ul>
+</li>
+<li>Tuple_2:
+ <ul>
+  <li><b>t_xmin</b> is set to 100.
+  </li>
+  <li><b>t_xmax</b> is set to 0.
+  </li>
+  <li><b>t_cid</b> is set to 0.
+  </li>
+  <li><b>t_ctid</b> is set to (0,2).
+  </li>
+ </ul>
+</li>
+</ul>
+
+
+<p>
+When the second UPDATE command is executed, as in the first UPDATE command, 
+Tuple_2 is logically deleted and Tuple_3 is inserted.
+
+The header fields of both Tuple_2 and Tuple_3 are as follows.
+</p>
+
+<ul>
+<li>Tuple_2:
+ <ul>
+  <li><b>t_xmax</b> is set to 100.
+  </li>
+  <li><b>t_ctid</b> is rewritten from (0, 2) to (0, 3).
+  </li>
+ </ul>
+</li>
+<li>Tuple_3:
+ <ul>
+  <li><b>t_xmin</b> is set to 100.
+  </li>
+  <li><b>t_xmax</b> is set to 0.
+  </li>
+  <li><b>t_cid</b> is set to 1.
+  </li>
+  <li><b>t_ctid</b> is set to (0,3).
+  </li>
+ </ul>
+</li>
+</ul>
+
+<p>
+As with the delete operation, if txid 100 is committed, Tuple_1 and Tuple_2 will be dead tuples, and,
+if txid 100 is aborted, Tuple_2 and Tuple_3 will be dead tuples.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_5.3.4." name="_5.3.4."></a>5.3.4. Free Space Map</h3></p>
+ <div>
+
+
+<p>
+When inserting a heap or an index tuple,
+PostgreSQL uses the <b>FSM</b> of the corresponding table or index
+to select the page which can be inserted it. 
+</p>
+
+<p>
+As mentioned in <a href="https://www.interdb.jp/pg/pgsql01.html#_1.2.3." target="_blank">Section 1.2.3</a>,
+all tables and indexes have respective FSMs.
+
+Each FSM stores the information about the free space capacity of each page within the corresponding table or index file.
+</p>
+
+<p>
+All FSMs are stored with the suffix &#39;fsm&#39;,
+and they are loaded into shared memory if necessary.
+</p>
+
+
+
+<br/>
+<div>
+  <p>
+pg_freespacemap
+  </p>
+  <div>
+<p>
+The extension <a href="https://www.postgresql.org/docs/current/static/pgfreespacemap.html" target="_blank" rel="noopener noreferrer">pg_freespacemap</a> provides the freespace of the specified table/index.
+The following query shows the freespace ratio of each page in the specified table.
+</p>
+
+<pre>testdb=# CREATE EXTENSION pg_freespacemap;
+CREATE EXTENSION
+
+testdb=# SELECT *, round(100 * avail/8192 ,2) as &#34;freespace ratio&#34;
+                FROM pg_freespace(&#39;accounts&#39;);
+ blkno | avail | freespace ratio 
+-------+-------+-----------------
+     0 |  7904 |           96.00
+     1 |  7520 |           91.00
+     2 |  7136 |           87.00
+     3 |  7136 |           87.00
+     4 |  7136 |           87.00
+     5 |  7136 |           87.00
+....
+</pre>
+
+  </div>
+</div>
+<br/>
+
+
+<hr/>
+
+
+
+  </div>
+<p><h2><a id="_5.4." name="_5.4."></a>5.4. Commit Log (clog)</h2></p>
+ <div>
+
+
+<p>
+PostgreSQL holds the statuses of transactions in the <b>Commit Log</b>.
+
+The Commit Log, often called the <b>clog</b>,
+is allocated to the shared memory,
+and is used throughout transaction processing.
+</p>
+
+<p>
+This section describes the the status of transactions in PostgreSQL,
+how the clog operates, and maintenance of the clog.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_5.4.1" name="_5.4.1"></a>5.4.1 Transaction Status</h3></p>
+ <div>
+
+
+<p>
+PostgreSQL defines four transaction states,
+i.e. IN_PROGRESS, COMMITTED, ABORTED, and SUB_COMMITTED.
+</p>
+
+<p>
+The first three statuses are obvious.
+For example, when a transaction is in progress, its status is IN_PROGRESS, etc.
+</p>
+
+<p>
+SUB_COMMITTED is for sub-transactions, and its description is omitted in this document.
+</p>
+
+
+  </div>
+<p><h3><a id="_5.4.2." name="_5.4.2."></a>5.4.2. How Clog Performs</h3></p>
+ <div>
+
+
+<p>
+The clog comprises one or more 8 KB pages in shared memory.
+The clog logically forms an array.
+The indices of the array correspond to the respective transaction ids,
+and each item in the array holds the status of the corresponding transaction id.
+Figure 5.7 shows the clog and how it operates.
+</p>
+
+
+
+<p><b>Fig. 5.7. How the clog operates.</b></p><div>
+<figure>
+<img alt="Fig. 5.7. How the clog operates." data-src="./img/fig-5-07.png" alt=""/>
+</figure>
+       <div id="small">
+<hr/>
+
+<ul>
+<li><b>T1:</b>
+txid 200 commits;
+the status of txid 200 is changed from IN_PROGRESS to COMMITTED.
+</li>
+
+<li><b>T2:</b>
+txid 201 aborts;
+the status of txid 201 is changed from IN_PROGRESS to ABORTED.
+</li>
+</ul>
+
+            </div>
+  </div>
+
+
+<p>
+When the current txid advances and the clog can no longer store it, a new page is appended.
+</p>
+
+<p>
+When the status of a transaction is needed, the internal functions are invoked. Those functions read the clog and return the status of the requested transaction.
+
+(See also <i> &#39;Hint Bits&#39;</i> in <a href="https://www.interdb.jp/pg/pgsql05.html#_5.7.1.">Section 5.7.1</a>.)
+</p>
+
+
+  </div>
+<p><h3><a id="_5.4.3." name="_5.4.3."></a>5.4.3. Maintenance of the Clog</h3></p>
+ <div>
+
+
+<p>
+When PostgreSQL shuts down or whenever the checkpoint process runs,
+the data of the clog are written into files stored under the <b>pg_xact</b> subdirectory.
+(Note that pg_xact had been called <i>pg_clog</i> in Version 9.6 or earlier.)
+
+These files are named <i>0000</i>, <i>0001</i>, etc.
+
+The maximum file size is 256 KB.
+
+For example, when the clog uses eight pages (the first page to the eighth page; the total size is 64 KB), its data are written into 0000 (64 KB), 
+and with 37 pages (296 KB), the data are written into 0000 and 0001,
+whose sizes are 256 KB and 40 KB, respectively.
+</p>
+
+<p>
+When PostgreSQL starts up, the data stored in the pg_xact&#39;s files are loaded to initialize the clog.
+</p>
+
+<p>
+The size of the clog continuously increases because a new page is appended whenever the clog is filled up.
+
+However, not all data in the clog are necessary.
+
+Vacuum processing, described in <a href="https://www.interdb.jp/pg/pgsql06.html" target="_blank" rel="noopener noreferrer">Chapter 6</a>, regularly removes such old data (both the clog pages and files).
+
+Details about removing the clog data is described in <a href="https://www.interdb.jp/pg/pgsql06.html#_6.4." target="_blank" rel="noopener noreferrer">Section 6.4</a>.
+</p>
+
+
+
+  </div>
+<p><h2><a id="_5.5." name="_5.5."></a>5.5. Transaction Snapshot</h2></p>
+ <div>
+
+
+<p>
+A <b>transaction snapshot</b> is a dataset that stored information about whether all transactions are active,
+ at a certain point in time for an individual transaction.
+Here an active transaction means it is in progress or has not yet started. 
+</p>
+
+<p>
+PostgreSQL internally defines the textual representation format of transaction snapshots as &#39;100:100:&#39;.
+For example, &#39;100:100:&#39; means &#39;txids that are less than 99 are not active, and txids that are equal or greater than 100 are active&#39;.
+
+In the following descriptions, this convenient representation form is used.
+If you are not familiar with it,
+see <i></i> below.
+</p>
+
+<br/>
+<div>
+  <p><i>  The built-in function txid_current_snapshot and its textual representation format</i>
+  </p>
+  <div>
+<p>
+The function <a href="http://www.postgresql.org/docs/current/static/functions-info.html#FUNCTIONS-TXID-SNAPSHOT">txid_current_snapshot</a> shows a snapshot of the current transaction.
+</p>
+
+<pre>testdb=# SELECT txid_current_snapshot();
+ txid_current_snapshot 
+-----------------------
+ 100:104:100,102
+(1 row)
+</pre>
+
+
+<p>
+The textual representation of the txid_current_snapshot is <b>‘xmin:xmax:xip_list’</b>,
+and the components are described as follows.
+</p>
+
+<ul>
+<li>xmin</li>Earliest txid that is still active.
+All earlier transactions will either be committed and visible, or rolled back and dead.
+
+<li>xmax</li>  First as-yet-unassigned txid.
+All txids greater than or equal to this are not yet started as of the time of the snapshot, and thus invisible.
+
+<li>xip_list</li>    Active txids at the time of the snapshot.
+The list includes only active txids between xmin and xmax.
+</ul>
+
+<p>
+For example, in the snapshot ‘100:104:100,102’, xmin is ‘100’, xmax ‘104’, and xip_list ‘100,102’.
+</p>
+
+<p>
+Two specific examples are shown in the following:
+</p>
+
+
+<p><b>Fig. 5.8. Examples of transaction snapshot representation.</b></p><div>
+<figure>
+<img alt="Fig. 5.8. Examples of transaction snapshot representation." data-src="./img/fig-5-08.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+The first example is <b>&#39;100:100:&#39;</b>.
+This snapshot means the following (Fig. 5.8(a)):
+</p>
+
+<ul>
+<li>txids that are equal or less than 99 are <b>not</b> <i>active</i> because xmin is 100.</li>
+<li>txids that are equal or greater than 100 are <i>active</i> because xmax is 100.</li>
+</ul>
+
+<p>
+The second example is <b>&#39;100:104:100,102&#39;</b>.
+ This snapshot means the following (Fig. 5.8(b)):
+</p>
+
+<ul>
+<li>txids that are equal or less than 99 are <b>not</b> <i>active</i>.</li>
+<li>txids that are equal or greater than 104 are <i>active</i>.</li>
+<li>txids 100 and 102 are <i>active</i> since they exist in the xip list,
+whereas txids 101 and 103 are <b>not</b> <i>active</i>.
+</li></ul>
+
+  </div>
+</div>
+
+
+
+<p>
+Transaction snapshots are provided by the transaction manager. 
+
+In the READ COMMITTED isolation level, the transaction obtains a snapshot whenever an SQL command is executed;
+otherwise (REPEATABLE READ or SERIALIZABLE), the transaction only gets a snapshot when the first SQL command is executed.
+
+The obtained transaction snapshot is used for a visibility check of tuples, which is described in Section 5.7.
+</p>
+
+
+<p>
+When using the obtained snapshot for the visibility check,
+<i>active</i> transactions in the snapshot must be treated as <i>in progress</i> 
+even if they have actually been committed or aborted.
+
+This rule is important because it causes the difference in the behaviour between READ COMMITTED and REPEATABLE READ (or SERIALIZABLE).
+We refer to this rule repeatedly in the following sections.
+</p>
+
+<p>
+In the remainder of this section, the transaction manager and transactions are described
+using a specific scenario Fig. 5.9.
+</p>
+
+
+<p><b>Fig. 5.9. Transaction manager and transactions.</b></p><div>
+<figure>
+<img alt="Fig. 5.9. Transaction manager and transactions." data-src="./img/fig-5-09.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+The transaction manager always holds information about currently running transactions.
+
+Suppose that three transactions start one after another,
+and the isolation level of Transaction_A and Transaction_B are READ COMMITTED,
+and that of Transaction_C is REPEATABLE READ.
+</p>
+
+
+<ul>
+<li><b>T1:</b></li>
+<p>
+Transaction_A starts and executes the first SELECT command.
+
+When executing the first command, Transaction_A requests the txid and snapshot of this moment.
+
+In this scenario,
+the transaction manager assigns txid 200, and returns the transaction snapshot &#39;200:200:&#39;.
+</p>
+
+<li><b>T2:</b></li>
+<p>
+Transaction_B starts and executes the first SELECT command.
+The transaction manager assigns txid 201, and returns the transaction snapshot &#39;200:200:&#39;
+because Transaction_A (txid 200) is in progress.
+Thus, Transaction_A cannot be seen from Transaction_B.
+</p>
+
+
+<li><b>T3:</b></li>
+<p>
+Transaction_C starts and executes the first SELECT command.
+The transaction manager assigns txid 202, and returns the transaction snapshot &#39;200:200:&#39;,
+thus, Transaction_A and Transaction_B cannot be seen from Transaction_C.
+</p>
+
+
+<li><b>T4:</b></li>
+<p>
+Transaction_A has been committed.
+The transaction manager removes the information about this transaction.
+</p>
+
+<li><b>T5:</b></li>
+<p>
+Transaction_B and Transaction_C execute their respective SELECT commands.
+</p>
+
+<p>
+Transaction_B requires a transaction snapshot because it is in the READ COMMITTED level.
+In this scenario, Transaction_B obtains a new snapshot &#39;201:201:&#39;
+because Transaction_A (txid 200) is committed.
+Thus, Transaction_A is no longer invisible from Transaction_B.
+</p>
+
+<p>
+Transaction_C does not require a transaction snapshot because it is in the REPEATABLE READ level
+and uses the obtained snapshot, i.e. &#39;200:200:&#39;.
+Thus, Transaction_A is still invisible from Transaction_C.
+</p>
+
+</ul>
+
+
+
+
+
+  </div>
+<p><h2><a id="_5.6." name="_5.6."></a>5.6. Visibility Check Rules</h2></p>
+ <div>
+
+
+<p>
+Visibility check rules are a set of rules used to determine whether each tuple is visible or invisible
+using both the t_xmin and t_xmax of the tuple, the clog, and the obtained transaction snapshot.
+
+These rules are too complicated to explain in detail.
+Therefore this document shows the minimal rules required for the subsequent descriptions.
+In the following,
+we omit the rules related to sub-transactions
+and ignore discussion about t_ctid, i.e. we do not consider tuples that have been updated more than twice within a transaction.
+</p>
+
+
+<p>
+The number of selected rules is ten, and they can be classified into three cases.
+</p>
+
+
+
+  </div>
+<p><h3><a id="_5.6.1." name="_5.6.1."></a>5.6.1. Status of t_xmin is ABORTED</h3></p>
+ <div>
+
+
+
+
+<p>
+A tuple whose t_xmin status is ABORTED is always <i>invisible</i> (Rule 1)
+because the transaction that inserted this tuple has been aborted.
+</p>
+
+<pre> /* t_xmin status == ABORTED */
+<b>Rule 1:</b><b> IF</b> t_xmin status is &#39;ABORTED&#39; <b>THEN</b>
+                  <b>RETURN</b> &#39;Invisible&#39;
+            <b>END IF</b>
+</pre>
+
+<p>
+This rule is explicitly expressed as the following mathematical expression.
+</p>
+
+
+<ul>
+<li><b>Rule 1:</b> If Status(t_xmin) = ABORTED ⇒ Invisible
+</li>
+</ul>
+
+
+
+
+  </div>
+<p><h3><a id="_5.6.2." name="_5.6.2."></a>5.6.2. Status of t_xmin is IN_PROGRESS</h3></p>
+ <div>
+
+
+<p>
+A tuple whose t_xmin status is IN_PROGRESS is essentially <i>invisible</i> (Rules 3 and 4),
+ except under one condition.
+</p>
+
+<pre> /* t_xmin status == IN_PROGRESS */
+              <b>IF</b> t_xmin status is &#39;IN_PROGRESS&#39; <b>THEN</b>
+            	   <b>IF</b> t_xmin = current_txid <b>THEN</b>
+<b>Rule 2:</b>              <b>IF</b> t_xmax = INVALID <b>THEN</b>
+			      <b>RETURN</b> &#39;Visible&#39;
+<b>Rule 3:</b>              <b>ELSE</b>  /* this tuple has been deleted or updated by the current transaction itself. */
+			      <b>RETURN</b> &#39;Invisible&#39;
+                         <b>END IF</b>
+<b>Rule 4:</b>        <b>ELSE</b>   /* t_xmin ≠ current_txid */
+		          <b>RETURN</b> &#39;Invisible&#39;
+                   <b>END IF</b>
+             <b>END IF</b>
+</pre>
+
+
+<p>
+If this tuple is inserted by another transaction and the status of t_xmin is IN_PROGRESS,
+this tuple is obviously <i>invisible</i> (Rule 4).
+</p>
+
+<p>
+If t_xmin is equal to the current txid (i.e., this tuple is inserted by the current transaction) and t_xmax is <b>not</b> INVALID,
+this tuple is <i>invisible</i>
+because it has been updated or deleted by the current transaction (Rule 3).
+</p>
+
+<p>
+The exception condition is the case whereby this tuple is inserted by the current transaction and t_xmax is INVALID.
+In this case, this tuple must be <i>visible</i> from the current transaction (Rule 2) because this tuple is the tuple inserted by the current transaction itself.
+</p>
+
+<ul>
+<li><b>Rule 2:</b> If Status(t_xmin) = IN_PROGRESS ∧ t_xmin = current_txid ∧ t_xmax = INVAILD ⇒ Visible
+</li>
+<li><b>Rule 3:</b> If Status(t_xmin) = IN_PROGRESS ∧ t_xmin = current_txid ∧ t_xmax ≠ INVAILD ⇒ Invisible
+</li>
+<li><b>Rule 4:</b> If Status(t_xmin) = IN_PROGRESS ∧ t_xmin ≠  current_txid ⇒ Invisible
+</li>
+</ul>
+
+
+
+  </div>
+<p><h3><a id="_5.6.3." name="_5.6.3."></a>5.6.3. Status of t_xmin is COMMITTED</h3></p>
+ <div>
+
+
+<p>
+A tuple whose t_xmin status is COMMITTED is  <i>visible</i> (Rules 6,8, and 9), except under three conditions.
+</p>
+
+<pre> /* t_xmin status == COMMITTED */
+            <b>IF</b> t_xmin status is &#39;COMMITTED&#39; <b>THEN</b>
+<b>Rule 5:</b>      <b>IF</b> t_xmin is <i>active</i> in the obtained transaction snapshot <b>THEN</b>
+                      <b>RETURN</b> &#39;Invisible&#39;
+<b>Rule 6:</b>      <b>ELSE IF</b> t_xmax = INVALID OR status of t_xmax is &#39;ABORTED&#39; <b>THEN</b>
+                      <b>RETURN</b> &#39;Visible&#39;
+            	 <b>ELSE IF</b> t_xmax status is &#39;IN_PROGRESS&#39; <b>THEN</b>
+<b>Rule 7:</b>           <b>IF</b> t_xmax =  current_txid <b>THEN</b>
+                            <b>RETURN</b> &#39;Invisible&#39;
+<b>Rule 8:</b>           <b>ELSE</b>  /* t_xmax ≠ current_txid */
+                            <b>RETURN</b> &#39;Visible&#39;
+                      <b>END IF</b>
+            	 <b>ELSE IF</b> t_xmax status is &#39;COMMITTED&#39; <b>THEN</b>
+<b>Rule 9:</b>           <b>IF</b> t_xmax is <i>active</i> in the obtained transaction snapshot <b>THEN</b>
+                            <b>RETURN</b> &#39;Visible&#39;
+<b>Rule 10:</b>         <b>ELSE</b>
+                            <b>RETURN</b> &#39;Invisible&#39;
+                      <b>END IF</b>
+            	 <b>END IF</b>
+            <b>END IF</b>
+</pre>
+
+<p>
+Rule 6 is obvious because t_xmax is INVALID or ABORTED.
+
+Three exception conditions and both Rules 8 and 9 are described as follows.
+</p>
+
+<p>
+The first exception condition is that t_xmin is <i>active</i> in the obtained transaction snapshot (Rule 5).
+Under this condition,
+this tuple is <i>invisible</i>
+because t_xmin should be treated as in progress. 
+</p>
+
+<p>
+The second exception condition is that
+t_xmax is the current txid (Rule 7).
+Under this condition,
+as with Rule 3,
+this tuple is <i>invisible</i>
+because it has been updated or deleted by this transaction itself.
+</p>
+
+<p>
+In contrast,
+if the status of t_xmax is IN_PROGRESS and t_xmax is not the current txid (Rule 8),
+the tuple is <i>visible</i>
+because it has not been deleted.
+</p>
+
+<p>
+The third exception condition is that the status of t_xmax is COMMITTED and t_xmax is <b>not</b> active in the obtained transaction snapshot (Rule 10).
+Under this condition,
+this tuple is <i>invisible</i>
+because it has been updated or deleted by another transaction.
+</p>
+
+<p>
+In contrast,
+if the status of t_xmax is COMMITTED but t_xmax is active in the obtained transaction snapshot (Rule 9),
+the tuple is <i>visible</i> because t_xmax should be treated as in progress.
+</p>
+
+<ul>
+<li><b>Rule 5:</b> If Status(t_xmin) = COMMITTED ∧ Snapshot(t_xmin) = active  ⇒ Invisible
+</li>
+<li><b>Rule 6:</b> If Status(t_xmin) = COMMITTED ∧ (t_xmax = INVALID ∨ Status(t_xmax) = ABORTED) ⇒ Visible
+</li>
+<li><b>Rule 7:</b> If Status(t_xmin) = COMMITTED ∧ Status(t_xmax) = IN_PROGRESS ∧ t_xmax = current_txid ⇒ Invisible
+</li>
+<li><b>Rule 8:</b> If Status(t_xmin) = COMMITTED ∧ Status(t_xmax) = IN_PROGRESS ∧ t_xmax ≠ current_txid ⇒ Visible
+</li>
+<li><b>Rule 9:</b> If Status(t_xmin) = COMMITTED ∧ Status(t_xmax) = COMMITTED ∧ Snapshot(t_xmax) = active ⇒ Visible
+</li>
+<li><b>Rule 10:</b> If Status(t_xmin) = COMMITTED ∧ Status(t_xmax) = COMMITTED ∧ Snapshot(t_xmax) ≠ active ⇒ Invisible
+</li>
+</ul>
+
+<hr/>
+
+
+  </div>
+<p><h2><a id="_5.7." name="_5.7."></a>5.7. Visibility Check</h2></p>
+ <div>
+  <p>
+This section describes how PostgreSQL performs a visibility check,
+i.e. how heap tuples of the appropriate versions in a given transaction are selected.
+This section also describes how PostgreSQL prevents the anomalies defined in the ANSI SQL-92 Standard: Dirty Reads, Repeatable Reads and Phantom Reads.
+</p>
+ </div>
+<p><h3><a id="_5.7.1." name="_5.7.1."></a>5.7.1. Visibility Check</h3></p>
+ <div>
+  <div>
+
+
+<p>
+Figure 5.10 shows a scenario to describe the visibility check. 
+</p>
+
+
+<p><b>Fig. 5.10. Scenario to describe visibility check.</b></p><div>
+<figure>
+<img alt="Fig. 5.10. Scenario to describe visibility check." data-src="./img/fig-5-10.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<p>
+In the scenario shown in Fig. 5.10, SQL commands are executed in the following time sequence.
+</p>
+
+<ul>
+<li><b>T1:</b> Start transaction (txid 200)</li>
+<li><b>T2:</b> Start transaction (txid 201)</li>
+<li><b>T3:</b> Execute SELECT commands of txid 200 and 201</li>
+<li><b>T4:</b> Execute UPDATE command of txid 200</li>
+<li><b>T5:</b> Execute SELECT commands of txid 200 and 201</li>
+<li><b>T6:</b> Commit txid 200</li>
+<li><b>T7:</b> Execute SELECT command of txid 201</li>
+</ul>
+
+<p>
+To simplify the description,
+assume that there are only two transactions, i.e. txid 200 and 201.
+The isolation level of txid 200 is READ COMMITTED,
+and the isolation level of txid 201 is either READ COMMITTED or REPEATABLE READ.
+</p>
+
+<p>
+We explore how SELECT commands perform a visibility check for each tuple.
+</p>
+
+<p>
+<b>SELECT commands of T3:</b>
+</p>
+
+<p>
+At T3, there is an only Tuple_1 in the table <i>tbl</i> and it is <i>visible</i> by <b>Rule 6</b>;
+thus, SELECT commands in both transactions return &#39;Jekyll&#39;.
+</p>
+
+<ul>
+<li>
+Rule6(Tuple_1) ⇒ Status(t_xmin:199) = COMMITTED ∧ t_xmax = INVALID ⇒ Visible
+</li>
+</ul>
+
+<div>
+<div>
+<pre>testdb=# -- txid 200
+testdb=# SELECT * FROM tbl;
+  name  
+--------
+ Jekyll
+(1 row)
+</pre>
+</div>
+<div>
+<pre>testdb=# -- txid 201
+testdb=# SELECT * FROM tbl;
+  name  
+--------
+ Jekyll
+(1 row)
+</pre>
+</div>
+</div>
+
+<p>
+<b>SELECT commands of T5:</b>
+</p>
+
+<p>
+First, we explore the SELECT command executed by txid 200.
+Tuple_1 is invisible by <b>Rule 7</b> and Tuple_2 is visible by <b>Rule 2</b>;
+thus, this SELECT command returns &#39;Hyde&#39;.
+</p>
+
+<ul>
+<li>Rule7(Tuple_1): Status(t_xmin:199) = COMMITTED ∧ Status(t_xmax:200) = IN_PROGRESS ∧ t_xmax:200 = current_txid:200 ⇒ Invisible
+</li>
+
+<li>Rule2(Tuple_2): Status(t_xmin:200) = IN_PROGRESS ∧ t_xmin:200 = current_txid:200 ∧ t_xmax = INVAILD ⇒ Visible
+</li>
+</ul>
+
+
+<div>
+<pre>testdb=# -- txid 200
+testdb=# SELECT * FROM tbl;
+ name 
+------
+ Hyde
+(1 row)
+</pre>
+</div>
+
+<p>
+On the other hand, in the SELECT command executed by txid 201,
+Tuple_1 is visible by <b>Rule 8</b> and Tuple_2 is invisible by <b>Rule 4</b>;
+thus, this SELECT command returns &#39;Jekyll&#39;.
+</p>
+
+<ul>
+<li>Rule8(Tuple_1): Status(t_xmin:199) = COMMITTED ∧ Status(t_xmax:200) = IN_PROGRESS ∧ t_xmax:200 ≠ current_txid:201 ⇒ Visible
+</li>
+<li>Rule4(Tuple_2): Status(t_xmin:200) = IN_PROGRESS ∧ t_xmin:200 ≠ current_txid:201 ⇒ Invisible
+</li>
+</ul>
+
+<div>
+<pre>testdb=# -- txid 201
+testdb=# SELECT * FROM tbl;
+  name  
+--------
+ Jekyll
+(1 row)
+</pre>
+</div>
+
+<p>
+If the updated tuples are visible from other transactions before they are committed,
+they are referred to as <b>Dirty Reads</b>,
+also known as <b>wr-conflicts</b>.
+
+However, as shown above, Dirty Reads do not occur in any isolation levels in PostgreSQL.
+
+
+
+</p><p>
+<b>SELECT command of T7:</b>
+</p>
+
+<p>
+In the following, the behaviours of SELECT commands of T7 in both isolation levels are described.
+</p>
+
+<p>
+First, we explore when txid 201 is in the READ COMMITTED level.
+In this case, 
+txid 200 is treated as COMMITTED because the transaction snapshot is <i>&#39;201:201:&#39;</i>.
+Therefore, Tuple_1 is <i>invisible</i> by <b>Rule 10</b> and Tuple_2 is <i>visible</i> by <b>Rule 6</b>,
+and the SELECT command returns &#39;Hyde&#39;.
+</p>
+
+
+<ul>
+<li>Rule10(Tuple_1): Status(t_xmin:199) = COMMITTED ∧ Status(t_xmax:200) = COMMITTED ∧ Snapshot(t_xmax:200) ≠ active ⇒ Invisible
+</li>
+
+<li>Rule6(Tuple_2): Status(t_xmin:200) = COMMITTED ∧ t_xmax = INVALID ⇒ Visible
+</li>
+</ul>
+
+<div>
+<pre>testdb=# -- txid 201 (READ COMMITTED)
+testdb=# SELECT * FROM tbl;
+ name 
+------
+ Hyde
+(1 row)
+</pre>
+</div>
+
+<p>
+Note that the results of the SELECT commands,
+which are executed before and after txid 200 is committed, differ.
+This is generally known as <b>Non-Repeatable Reads</b>.
+</p>
+
+<p>
+In contrast,
+when txid 201 is in the REPEATABLE READ level,
+txid 200 must be treated as IN_PROGRESS because the transaction snapshot is &#39;200:200:&#39;.
+
+Therefore,
+Tuple_1 is <i>visible</i> by <b>Rule 9</b> and Tuple_2 is <i>invisible</i> by <b>Rule 5</b>,
+and the SELECT command returns &#39;Jekyll&#39;.
+
+Note that Non-Repeatable Reads do not occur in the REPEATABLE READ (and SERIALIZABLE) level.
+</p>
+
+<ul>
+<li>Rule9(Tuple_1): Status(t_xmin:199) = COMMITTED ∧ Status(t_xmax:200) = COMMITTED ∧ Snapshot(t_xmax:200) = active ⇒ Visible
+</li>
+
+<li>Rule5(Tuple_2): Status(t_xmin:200) = COMMITTED ∧ Snapshot(t_xmin:200) = active  ⇒ Invisible
+</li>
+</ul>
+
+
+<div>
+<pre>testdb=# -- txid 201 (REPEATABLE READ)
+testdb=# SELECT * FROM tbl;
+  name  
+--------
+ Jekyll
+(1 row)
+</pre>
+</div>
+
+</div>
+
+
+<br/>
+<div>
+  <p><i>  Hint Bits</i>
+  </p>
+  <div>
+<p>
+To obtain the status of a transaction,
+PostgreSQL internally provides three functions, i.e., TransactionIdIsInProgress, TransactionIdDidCommit, and TransactionIdDidAbort.
+These functions are implemented to reduce frequent access to the clog, such as caches.
+However, bottlenecks will occur if they are executed whenever each tuple is checked.
+</p>
+
+<p>
+To deal with this issue, PostgreSQL uses <i>hint bits</i>, which are shown in the following.
+</p>
+
+<pre>#define HEAP_XMIN_COMMITTED       0x0100   /* t_xmin committed */
+#define HEAP_XMIN_INVALID         0x0200   /* t_xmin invalid/aborted */
+#define HEAP_XMAX_COMMITTED       0x0400   /* t_xmax committed */
+#define HEAP_XMAX_INVALID         0x0800   /* t_xmax invalid/aborted */
+</pre>
+
+
+
+<p>
+When reading or writing a tuple, PostgreSQL sets hint bits to the t_informask of the tuple if possible.
+For example, assume that PostgreSQL checks the status of the t_xmin of a tuple and obtains the status COMMITTED.
+In this case, PostgreSQL sets a hint bit HEAP_XMIN_COMMITTED to the t_infomask of the tuple.
+If hint bits are already set, TransactionIdDidCommit and TransactionIdDidAbort are no longer needed.
+Therefore, PostgreSQL can efficiently check the statuses of both t_xmin and t_xmax of each tuple.
+</p>
+
+
+  </div>
+</div>
+<br/>
+
+
+
+  </div>
+ </div>
+<p><h3><a id="_5.7.2." name="_5.7.2."></a>5.7.2. Phantom Reads in PostgreSQL‘s REPEATABLE READ Level</h3></p>
+ <div>
+
+
+<p>
+REPEATABLE READ as defined in the ANSI SQL-92 standard allows <b>Phantom Reads</b>.
+However, PostgreSQL&#39;s implementation does not allow them.
+In principle, SI does not allow Phantom Reads.
+</p>
+
+
+<p>
+Assume that two transactions, i.e. Tx_A and Tx_B, are running concurrently.
+Their isolation levels are READ COMMITTED and REPEATABLE READ, and their txids are 100 and 101, respectively.
+First, Tx_A inserts a tuple.
+Then, it is committed.
+The t_xmin of the inserted tuple is 100.
+
+Next, Tx_B executes a SELECT command;
+however, the tuple inserted by Tx_A is <i>invisible</i> by <b>Rule 5</b>.
+Thus, Phantom Reads do not occur.
+</p>
+
+
+<ul>
+<li>Rule5(new tuple):  Status(t_xmin:100) = COMMITTED ∧ Snapshot(t_xmin:100) = active  ⇒ Invisible
+</li>
+</ul>
+
+
+<div>
+<div>
+<pre>testdb=# -- Tx_A: txid 100
+testdb=# START TRANSACTION
+testdb-#  ISOLATION LEVEL READ COMMITTED;
+START TRANSACTION
+
+
+testdb=# INSERT tbl(id, data) 
+                VALUES (1,&#39;phantom&#39;);
+INSERT 1
+ 
+testdb=# COMMIT;
+COMMIT
+ 
+ 
+ 
+ 
+</pre>
+</div>
+
+<div>
+<pre>
+
+
+testdb=# -- Tx_B: txid 101
+testdb=# START TRANSACTION
+testdb-#  ISOLATION LEVEL REPEATABLE READ;
+START TRANSACTION
+testdb=# SELECT txid_current();
+ txid_current
+--------------
+          101
+(1 row)
+
+testdb=# SELECT * FROM tbl WHERE id=1;
+ id | data 
+----+------
+(0 rows)
+</pre>
+</div>
+</div>
+
+
+
+
+  </div>
+<p><h2><a id="_5.8." name="_5.8."></a>5.8. Preventing Lost Updates</h2></p>
+ <div>
+  <p>
+A <b>Lost Update</b>, also known as a <b>ww-conflict</b>,
+is an anomaly that occurs when concurrent transactions update the same rows,
+and it must be prevented in both the REPEATABLE READ and SERIALIZABLE levels.
+(Note that the READ COMMITTED level does not need to prevent Lost Updates.)
+This section describes how PostgreSQL prevents Lost Updates and shows examples.
+</p>
+ </div>
+<p><h3><a id="_5.8.1." name="_5.8.1."></a>5.8.1. Behavior of Concurrent UPDATE Commands</h3></p>
+ <div>
+
+
+<p>
+When UPDATE command is executed, the function ExecUpdate is internally invoked.
+The pseudocode of the ExecUpdate is shown below: 
+</p>
+
+<br/>
+<div>
+  <p><i>  Pseudocode: ExecUpdate</i>
+  </p>
+  <div>
+
+<pre>(1)  <b>FOR</b> each row that will be updated by this UPDATE command
+(2)       <b>WHILE</b> true
+
+               /* The First Block */
+(3)            <b>IF</b> the target row is <i>being updated</i> <b>THEN</b>
+(4)	              <b>WAIT</b> for the termination of the transaction that updated the target row
+
+(5)	              <b>IF</b> (the status of the terminated transaction is COMMITTED)
+   	                   AND (the isolation level of this transaction is REPEATABLE READ or SERIALIZABLE) <b>THEN</b>
+(6)	                       <b>ABORT</b> this transaction  /* First-Updater-Win */
+	              <b>ELSE</b> 
+(7)                           <b>GOTO</b> step (2)
+	              <b>END IF</b>
+
+               /* The Second Block */
+(8)            <b>ELSE IF</b> the target row has been updated by another concurrent transaction <b>THEN</b>
+(9)	              <b>IF</b> (the isolation level of this transaction is READ COMMITTED <b>THEN</b>
+(10)	                       <b>UPDATE</b> the target row
+	              <b>ELSE</b>
+(11)	                       <b>ABORT</b> this transaction  /* First-Updater-Win */
+	              <b>END IF</b>
+
+               /* The Third Block */
+                <b>ELSE</b>  /* The target row is not yet modified or has been updated by a terminated transaction. */
+(12)	              <b>UPDATE</b> the target row
+                <b>END IF</b>
+           <b>END WHILE</b> 
+      <b>END FOR</b> 
+</pre>
+
+
+<ul>
+<li>
+(1) Get each row that will be updated by this UPDATE command.
+</li>
+
+<li>
+(2) Repeat the following process until the target row has been updated (or this transaction is aborted).
+</li>
+
+<li>
+(3) If the target row <i>is being updated</i>, proceed to step (3);
+otherwise, proceed to step (8).
+</li>
+
+<li>
+(4) Wait for the termination of the transaction that updated the target row
+ because PostgreSQL uses <i>first-updater-win</i> scheme in SI.
+</li>
+
+<li>
+(5) If the status of the transaction that updated the target row is COMMITTED and the isolation level of this transaction is REPEATABLE READ (or SERIALIZABLE),
+proceed to step (6); otherwise, proceed to step (7).
+</li>
+
+<li>
+(6) Abort this transaction to prevent Lost Updates.
+</li>
+
+<li>
+(7) Proceed to step (2) and attempt to update the target row in the next round.
+</li>
+
+<li>
+(8) If the target row has been updated by another concurrent transaction, proceed to step (9); otherwise, proceed to step (12).
+</li>
+
+<li>
+(9) If the isolation level of this transaction is READ COMMITTED, proceed to step (10); otherwise, proceed to step (11).
+</li>
+
+<li>
+(10) UPDATE the target row, and proceed to step (1).
+</li>
+
+<li>
+(11) 
+Abort this transaction to prevent Lost Updates.
+</li>
+
+<li>
+(12) UPDATE the target row, and proceed to step (1)
+because the target row is not yet modified or has been updated by a terminated transaction,
+i.e. there is ww-conflict.
+</li>
+</ul>
+
+  </div>
+</div>
+
+
+
+<p>
+This function performs update operations for each of the target rows.
+It has a while loop to update each row,
+and the inside of the while loop branches to three blocks according to the conditions shown in Fig. 5.11.
+</p>
+
+
+<p><b>Fig. 5.11. Three internal blocks in ExecUpdate.</b></p><div>
+<figure>
+<img alt="Fig. 5.11. Three internal blocks in ExecUpdate." data-src="./img/fig-5-11.png" alt=""/>
+</figure>
+  </div>
+
+
+
+<ul>
+<li>[1] The target row is being updated (Fig. 5.11[1])</li>
+<p>
+&#39;Being updated&#39; means that the row is updated by another concurrent transaction and its transaction has not terminated.
+
+In this case, the current transaction must wait for termination of the transaction that updated the target row
+because PostgreSQL&#39;s SI uses the <b>first-updater-win</b> scheme.
+
+For example, assume that transactions Tx_A and Tx_B run concurrently,
+and Tx_B attempts to update a row;
+however, Tx_A has updated it and is still in progress. 
+In this case, Tx_B waits for the termination of Tx_A.
+</p>
+
+<p>
+After the transaction that updated the target row commits, 
+the update operation of the current transaction proceeds.
+
+If the current transaction is in the READ COMMITTED level, the target row will be updated;
+otherwise (REPEATABLE READ or SERIALIZABLE), the current transaction is aborted immediately to prevent lost updates.
+</p>
+
+
+<li>[2] The target row has been updated by the concurrent transaction (Fig. 5.11[2])</li>
+<p>
+The current transaction attempts to update the target tuple;
+however, the other concurrent transaction has updated the target row and has already been committed.
+
+In this case,
+if the current transaction is in the READ COMMITTED level, the target row will be updated;
+otherwise, the current transaction is aborted immediately to prevent lost updates.
+</p>
+
+<li>[3] There is no conflict (Fig. 5.11[3])</li>
+<p>
+When there is no conflict, the current transaction can update the target row.
+</p>
+</ul>
+
+
+<br/>
+<div>
+  <p><i>  first-updater-win / first-commiter-win</i>
+  </p>
+  <div><p>
+As mentioned in this section, PostgreSQL&#39;s concurrency control based on SI uses the <i>first-updater-win</i> scheme to avoid lost update anomalies.
+In contrast, as explained in the next section, PostgreSQL&#39;s SSI uses the <i>first-committer-win</i> scheme to avoid serialization anomalies.
+</p></div>
+</div>
+<br/>
+
+
+
+  </div>
+<p><h3><a id="_5.8.2." name="_5.8.2."></a>5.8.2. Examples</h3></p>
+ <div>
+
+
+<p>
+Three examples are shown in the following.
+The first and second examples show behaviours when the target row is being updated,
+and the third example shows the behaviour when the target row has been updated.
+</p>
+
+<p><b>Example 1:</b></p>
+
+<p>
+Transactions Tx_A and Tx_B update the same row in the same table,
+and their isolation level is READ COMMITTED.
+</p>
+
+
+<div>
+<div>
+<pre>testdb=# -- Tx_A
+testdb=# START TRANSACTION
+testdb-#    ISOLATION LEVEL READ COMMITTED;
+START TRANSACTION
+
+
+testdb=# UPDATE tbl SET name = &#39;Hyde&#39;;
+UPDATE 1
+
+
+
+testdb=# COMMIT;
+COMMIT
+</pre>
+</div>
+<div>
+<pre>
+
+
+testdb=# -- Tx_B
+testdb=# START TRANSACTION
+testdb-#    ISOLATION LEVEL READ COMMITTED;
+START TRANSACTION
+
+
+testdb=# UPDATE tbl SET name = &#39;Utterson&#39;;
+    ↓ 
+    ↓ this transaction is being blocked
+    ↓ 
+UPDATE 1
+</pre>
+</div>
+</div>
+
+
+
+<p>
+Tx_B is executed as follows.
+</p>
+
+<ul>
+<li>
+1) After executing the UPDATE command,
+Tx_B should wait for the termination of Tx_A,
+because the target tuple is being updated by Tx_A  (Step (4) in ExecUpdate).
+</li>
+
+<li>
+2) After Tx_A is committed,
+Tx_B attempts to update the target row (Step (7) in ExecUpdate).
+</li>
+
+<li>
+3) In the second round of ExecUpdate,
+the target row is updated again by Tx_B
+(Steps (2),(8),(9),(10) in ExecUpdate).
+</li>
+
+</ul>
+
+<p><b>Example 2:</b></p>
+
+<p>
+Tx_A and Tx_B update the same row in the same table,
+and their isolation levels are READ COMMITTED and REPEATABLE READ, respectively.
+</p>
+
+<div>
+<div>
+<pre>testdb=# -- Tx_A
+testdb=# START TRANSACTION
+testdb-#    ISOLATION LEVEL READ COMMITTED;
+START TRANSACTION
+
+
+testdb=# UPDATE tbl SET name = &#39;Hyde&#39;;
+UPDATE 1
+
+
+
+testdb=# COMMIT;
+COMMIT
+</pre>
+</div>
+
+<div>
+<pre>
+
+
+testdb=# -- Tx_B
+testdb=# START TRANSACTION
+testdb-#    ISOLATION LEVEL REPEATABLE READ;
+START TRANSACTION
+
+
+testdb=# UPDATE tbl SET name = &#39;Utterson&#39;;
+    ↓ 
+    ↓ this transaction is being blocked
+    ↓
+ERROR:couldn&#39;t serialize access due to concurrent update
+</pre>
+</div>
+</div>
+
+
+
+<p>
+The behaviour of Tx_B is described as follows.
+</p>
+
+
+<ul>
+<li>
+1)
+After executing the UPDATE command, Tx_B should wait for the termination of Tx_A
+(Step (4) in ExecUpdate).
+</li>
+
+<li>
+2) After Tx_A is committed,
+Tx_B is aborted to resolve conflict
+because the target row has been updated and the isolation level of this transaction is REPEATABLE READ
+(Steps (5) and (6) in ExecUpdate).
+</li>
+
+</ul>
+
+
+<p><b>Example 3:</b></p>
+
+<p>
+Tx_B (REPEATABLE READ) attempts to update the target row that has been updated by the committed Tx_A.
+In this case, Tx_B is aborted (Steps (2),(8),(9), and (11) in ExecUpdate).
+</p>
+
+<div>
+<div>
+<pre>testdb=# -- Tx_A
+testdb=# START TRANSACTION
+testdb-#    ISOLATION LEVEL READ COMMITTED;
+START TRANSACTION
+
+
+testdb=# UPDATE tbl SET name = &#39;Hyde&#39;;
+UPDATE 1
+
+
+testdb=# COMMIT;
+COMMIT
+ 
+</pre>
+</div>
+
+<div>
+<pre>
+
+
+testdb=# -- Tx_B
+testdb=# START TRANSACTION
+testdb-#    ISOLATION LEVEL REPEATABLE READ;
+START TRANSACTION
+testdb=# SELECT * FROM tbl;
+  name  
+--------
+ Jekyll
+(1 row)
+testdb=# UPDATE tbl SET name = &#39;Utterson&#39;;
+ERROR:couldn&#39;t serialize access due to concurrent update
+</pre>
+</div>
+</div>
+
+
+
+
+
+  </div>
+<p><h2><a id="_5.9." name="_5.9."></a>5.9. Serializable Snapshot Isolation</h2></p>
+ <div>
+
+
+<p>
+Serializable Snapshot Isolation (SSI) has been embedded in SI since version 9.1 to realize a true SERIALIZABLE isolation level.
+Since the explanation of SSI is not simple, only an outline is explained.
+For details,
+see <a href="https://www.interdb.jp/pg/pgsql05.html#_5.ref.2" target="_blank" rel="noopener noreferrer">[2]</a>.
+</p>
+
+<p>
+In the following, 
+the technical terms shown in below are used without definitions.
+If you are unfamiliar with these terms, see 
+[<a href="https://www.interdb.jp/pg/pgsql05.html#_5.ref.1" target="_blank" rel="noopener noreferrer">1</a>, <a href="https://www.interdb.jp/pg/pgsql05.html#_5.ref.3" target="_blank" rel="noopener noreferrer">3</a>].
+</p>
+
+<ul>
+<li><i>precedence graph</i> (also known as <i>dependency graph</i> and <i>serialization graph)</i>
+</li>
+<li><i>serialization anomalies</i> (e.g. <i>Write-Skew)</i>
+</li>
+</ul>
+
+
+  </div>
+<p><h3><a id="_5.9.1." name="_5.9.1."></a>5.9.1. Basic Strategy for SSI Implementation</h3></p>
+ <div>
+
+
+<p>
+If a cycle that is generated with some conflicts is present in the precedence graph,
+there will be a serialization anomaly.
+This is explained using the simplest anomaly, i.e. Write-Skew.
+</p>
+
+<p>
+Figure 5.12(1) shows a schedule.
+Here, Transaction_A reads Tuple_B and Transaction_B reads Tuple_A. 
+Then, Transaction_A writes Tuple_A and Transaction_B writes Tuple_B.
+
+In this case, there are two rw-conflicts,
+and they make a cycle in the precedence graph of this schedule, as shown in Fig. 5.12(2).
+Thus, this schedule has a serialization anomaly, i.e. Write-Skew.
+</p>
+
+
+<p><b>Fig. 5.12. Write-Skew schedule and its precedence graph.</b></p><div>
+<figure>
+<img alt="Fig. 5.12. Write-Skew schedule and its precedence graph." data-src="./img/fig-5-12.png" alt=""/>
+</figure>
+  </div>
+
+
+<p>
+Conceptually, there are three types of conflicts: wr-conflicts (Dirty Reads), ww-conflicts (Lost Updates), and rw-conflicts.
+However, wr- and ww-conflicts do not need to be considered because,
+as shown in the previous sections, PostgreSQL prevents such conflicts.
+Thus, SSI implementation in PostgreSQL only needs to consider rw-conflicts.
+</p>
+
+
+<p>
+PostgreSQL takes the following strategy for the SSI implementation:
+</p>
+
+<ol>
+<li>Record all objects (tuples, pages, relations) accessed by transactions as SIREAD locks.</li>
+<li>Detect rw-conflicts using SIREAD locks whenever any heap or index tuple is written.</li>
+<li>Abort the transaction if a serialization anomaly is detected by checking detected rw-conflicts.</li>
+</ol>
+
+
+
+  </div>
+<p><h3><a id="_5.9.2." name="_5.9.2."></a>5.9.2. Implementing SSI in PostgreSQL</h3></p>
+ <div>
+
+
+<p>
+To realize the strategy described above,
+PostgreSQL has implemented many functions and data structures.
+However,
+here we uses only two data structures: <b>SIREAD locks</b> and <b>rw-conflicts</b>, to describe the SSI mechanism.
+They are stored in shared memory.
+</p>
+
+
+<br/>
+<div><p>
+For simplicity, some important data structures, such as SERIALIZABLEXACT, are omitted in this document.
+Thus, the explanations of the functions, i.e. CheckTargetForConflictOut, CheckTargetForConflictIn, and PreCommit_CheckForSerializationFailure, are also extremely simplified.
+
+For example, we indicate which functions detect conflicts;
+however, how the conflicts are detected is not explained in detail.
+
+If you want to know the details, refer to the source code: predicate.c. 
+</p></div>
+<br/>
+
+
+
+<ul>
+<li><b>SIREAD locks:</b></li>
+<p>
+An SIREAD lock, internally called a predicate lock, is a pair of an object and (virtual) txids
+that store information about who has accessed which object.
+
+Note that the description of virtual txid is omitted. txid is used rather than virtual txid to simplify the following explanation.
+</p>
+
+<p>
+SIREAD locks are created by the CheckTargetForConflictsOut function whenever one DML command is executed in SERIALIZABLE mode.
+For example, 
+if txid 100 reads Tuple_1 of the given table,
+an SIREAD lock {Tuple_1, {100}} is created.
+If another transaction, e.g. txid 101, reads Tuple_1,
+the SIREAD lock is updated to {Tuple_1, {100,101}}.
+
+Note that a SIREAD lock is also created when an index page is read because an index page is only read without reading the table page when the <a href="https://www.postgresql.org/docs/current/static/indexes-index-only-scans.html" target="_blank">Index-Only Scans</a> feature, which is described in <a href="https://www.interdb.jp/pg/pgsql07.html#_7.2." target="_blank" rel="noopener noreferrer">Section 7.2</a>, is applied.
+</p>
+
+<p>
+SIREAD lock has three levels: tuple, page, and relation.
+
+If the SIREAD locks of all tuples within a single page are created,
+they are aggregated into a single SIREAD lock for that page,
+and all SIREAD locks of the associated tuples are released (removed),
+to reduce memory space.
+
+The same is true for all pages that are read.
+</p>
+
+<p>
+When creating an SIREAD lock for an index, the page level SIREAD lock is created from the beginning.
+When using sequential scan, a relation level SIREAD lock is created from the beginning regardless of the presence of indexes and/or WHERE clauses.
+
+Note that, in certain situations,
+this implementation can cause false-positive detections of serialization anomalies.
+The details are described in Section 5.9.4.
+</p>
+
+
+<li><b>rw-conflicts:</b></li>
+<p>
+A rw-conflict is a triplet of an SIREAD lock and two txids that reads and writes the SIREAD lock.
+</p>
+
+<p>
+The CheckTargetForConflictsIn function is invoked  whenever either an INSERT, UPDATE or DELETE command is executed in SERIALIZABLE mode,
+and it creates rw-conflicts when detecting conflicts by checking SIREAD locks.
+</p>
+
+<p>
+For example,
+assume that txid 100 reads Tuple_1 and then txid 101 updates Tuple_1.
+
+In this case, the CheckTargetForConflictsIn function, invoked by the UPDATE command in txid 101,
+detects a rw-conflict with Tuple_1 between txid 100 and 101
+then creates a rw-conflict {r=100, w=101, {Tuple_1}}.
+</p>
+
+</ul>
+
+<p>
+Both CheckTargetForConflictOut and CheckTargetForConflictIn functions, as well as the PreCommit_CheckForSerializationFailure function, which is invoked when the COMMIT command is executed in SERIALIZABLE mode, check serialization anomalies using the created rw-conflicts.
+
+If they detect anomalies, only the first-committed transaction is committed and the other transactions are aborted
+(by the <b>first-committer-win</b> scheme).
+</p>
+
+
+  </div>
+<p><h3><a id="_5.9.3." name="_5.9.3."></a>5.9.3. How SSI Performs</h3></p>
+ <div>
+  <div>
+
+
+<p>
+Here, we describe how SSI resolves Write-Skew anomalies.
+We use a simple table <i>tbl</i> shown below:
+</p>
+
+<pre>testdb=# CREATE TABLE tbl (id INT primary key, flag bool DEFAULT false);
+testdb=# INSERT INTO tbl (id) SELECT generate_series(1,2000);
+testdb=# ANALYZE tbl;
+</pre>
+
+<p>
+Transactions Tx_A and Tx_B execute the following commands (Fig. 5.13).
+</p>
+
+
+
+<p><b>Fig. 5.13. Write-Skew scenario.</b></p><div>
+<figure>
+<img alt="Fig. 5.13. Write-Skew scenario." data-src="./img/fig-5-13.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<div>
+<p>
+Assume that all commands use index scan.
+Therefore, when the commands are executed, 
+they read both heap tuples and index pages,
+each of which contains the index tuple that points to the corresponding heap tuple.
+See Fig. 5.14.
+</p>
+
+
+<div>
+<p><b>Fig. 5.14. Relationship between the index and table in the scenario shown in Fig. 5.13.</b></p><div>
+<figure>
+<img alt="Fig. 5.14. Relationship between the index and table in the scenario shown in Fig. 5.13." data-src="./img/fig-5-14.png" alt=""/>
+</figure>
+  </div>
+</div>
+</div>
+</div>
+
+
+
+<ul>
+<li><b>T1:</b>
+Tx_A executes a SELECT command.
+This command reads a heap tuple (Tuple_2000) and one page of the primary key (Pkey_2).
+</li>
+
+<li><b>T2:</b>
+Tx_B executes a SELECT command.
+This command reads a heap tuple (Tuple_1) and one page of the primary key (Pkey_1).
+</li>
+
+<li><b>T3:</b>
+Tx_A executes an UPDATE command to update Tuple_1.
+</li>
+
+<li><b>T4:</b>
+Tx_B executes an UPDATE command to update Tuple_2000.
+</li>
+
+<li><b>T5:</b>
+Tx_A commits.
+</li>
+
+<li><b>T6:</b>
+Tx_B commits; however, it is aborted due to a Write-Skew anomaly.
+</li>
+
+</ul>
+
+<p>
+Figure 5.15 shows how PostgreSQL detects and resolves the Write-Skew anomaly described in the above scenario.
+</p>
+
+
+
+<p><b>Fig. 5.15. SIREAD locks and rw-conflicts, and schedule of the scenario shown in Fig. 5.13.</b></p><div>
+<figure>
+<img alt="Fig. 5.15. SIREAD locks and rw-conflicts, and schedule of the scenario shown in Fig. 5.13." data-src="./img/fig-5-15.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<ul>
+<li><b>T1:</b></li>
+<p>
+When executing the SELECT command of Tx_A, CheckTargetForConflictsOut creates SIREAD locks.
+In this scenario, the function creates two SIREAD locks: L1 and L2.
+</p>
+<p>
+L1 and L2 are associated with Pkey_2 and Tuple_2000, respectively.
+</p>
+
+<li><b>T2:</b></li>
+<p>
+When executing the SELECT command of Tx_B,
+CheckTargetForConflictsOut creates two SIREAD locks: L3 and L4.
+</p>
+<p>
+L3 and L4 are associated with Pkey_1 and Tuple_1, respectively.
+</p>
+
+<li><b>T3:</b></li>
+<p>
+When executing the UPDATE command of Tx_A,
+both CheckTargetForConflictsOut and CheckTargetForConflictsIN are invoked before and after ExecUpdate.
+</p>
+
+<p>
+In this scenario, CheckTargetForConflictsOut does nothing.
+</p>
+
+<p>
+CheckTargetForConflictsIn creates rw-conflict C1,
+which is the conflict of both Pkey_1 and Tuple_1 between Tx_B and Tx_A,
+because both Pkey_1 and Tuple_1 were read by Tx_B and written by Tx_A.
+</p>
+
+
+<li><b>T4:</b></li>
+
+<p>
+When executing the UPDATE command of Tx_B,
+CheckTargetForConflictsIn creates rw-conflict C2,
+which is the conflict of both Pkey_2 and Tuple_2000 between Tx_A and Tx_B.
+</p>
+
+<p>
+In this scenario,
+C1 and C2 create a cycle in the precedence graph;
+thus, Tx_A and Tx_B are in a non-serializable state.
+
+However, both transactions Tx_A and Tx_B have not been committed,
+therefore CheckTargetForConflictsIn does not abort Tx_B.
+
+Note that this occurs because PostgreSQL&#39;s SSI implementation is based on the <i>first-committer-win</i> scheme.
+</p>
+
+
+<li><b>T5:</b></li>
+
+<p>
+When Tx_A attempts to commit, PreCommit_CheckForSerializationFailure is invoked.
+This function can detect serialization anomalies
+and can execute a commit action if possible.
+
+In this scenario,
+Tx_A is committed because Tx_B is still in progress.
+</p>
+
+
+<li><b>T6:</b></li>
+<p>
+When Tx_B attempts to commit, 
+PreCommit_CheckForSerializationFailure detects a serialization anomaly
+and Tx_A has already been committed; thus, Tx_B is aborted.
+</p>
+
+</ul>
+
+<p>
+In addition,
+if the UPDATE command is executed by Tx_B after Tx_A has been committed (at <b>T5</b>),
+Tx_B is immediately aborted
+because CheckTargetForConflictsIn invoked by Tx_B&#39;s UPDATE command detects a serialization anomaly (Fig. 5.16(1)).
+</p>
+
+<p>
+If the SELECT command is executed instead of COMMIT at <b>T6</b>,
+Tx_B is immediately aborted
+because CheckTargetForConflictsOut invoked by Tx_B&#39;s SELECT command detects a serialization anomaly (Fig. 5.16(2)).
+</p>
+
+
+<p><b>Fig. 5.16. Other Write-Skew scenarios.</b></p><div>
+<figure>
+<img alt="Fig. 5.16. Other Write-Skew scenarios." data-src="./img/fig-5-16.png" alt=""/>
+</figure>
+  </div>
+
+
+
+
+<br/>
+<div><p>
+<a href="https://wiki.postgresql.org/wiki/SSI" target="_blank" rel="noopener noreferrer">This Wiki</a> explains several more complex anomalies.
+</p></div>
+<br/>
+
+
+  </div>
+ </div><p><h3><a id="_5.9.4." name="_5.9.4."></a>5.9.4. False-Positive Serialization Anomalies</h3></p><p><h2><a id="_5.10." name="_5.10."></a>5.10. Required Maintenance Processes</h2></p><p><h3><a id="_5.10.1." name="_5.10.1."></a>5.10.1. FREEZE Processing</h3></p></div>
