@@ -1,0 +1,102 @@
+---
+url: https://github.com/benjaminheng/md-code-renderer
+title: GitHub - benjaminheng/md-code-renderer
+archived_at: 2022-01-29T17:11:03.017532+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+          <article itemprop="text">
+<p dir="auto">Renders code blocks in Markdown files into images, and inlines the images in the file.</p>
+<ul dir="auto">
+<li>Supported languages: <code>dot</code>, <code>plantuml</code></li>
+</ul>
+<p dir="auto">This is an experimental program for use in my knowledge base. The goal is to
+have code blocks containing diagramming DSLs, and be able to render them into
+inline images. There are a few existing implementations, but none of them do
+what I want. Most <em>replace</em> the code block, whereas I want to inline the
+rendered image <em>alongside</em> the code block. This tool is fairly opinionated at
+the moment. I may extend and generalize it in the future, though at the moment
+it does what I need it to.</p>
+<h2 dir="auto">Example</h2>
+<p dir="auto">This readme has been processed by <code>md-code-renderer</code> to render the diagrams.</p>
+<div data-snippet-clipboard-copy-content="md-code-renderer render --languages dot --output-dir example/ --link-prefix &#34;./example/&#34; ./README.md"><pre>md-code-renderer render --languages dot --output-dir example/ --link-prefix <span><span>&#34;</span>./example/<span>&#34;</span></span> ./README.md</pre></div>
+<p dir="auto">To mark a code block for rendering, add the <code>render</code> keyword to the opening fence.</p>
+<div data-snippet-clipboard-copy-content="```dot render
+digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}
+```"><pre><code>```dot render
+digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}
+```
+</code></pre></div>
+<p dir="auto">By default, the image will be rendered and placed above the code block.</p>
+<div data-snippet-clipboard-copy-content="![render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg](./example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg)
+
+```dot render
+digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}
+```"><pre><code>![render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg](./example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg)
+
+```dot render
+digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}
+```
+</code></pre></div>
+<p dir="auto">The <code>render</code> keyword supports options, which can be specified in the form
+<code>render{&#34;mode&#34;: &#34;normal&#34;}</code>. If no options are passed, the default mode is
+<code>normal</code>.</p>
+<p dir="auto">Supported modes are:</p>
+<ul dir="auto">
+<li><code>normal</code></li>
+<li><code>code-collapsed</code></li>
+<li><code>image-collapsed</code></li>
+<li><code>code-hidden</code></li>
+</ul>
+<h3 dir="auto"><code>normal</code> mode</h3>
+<p dir="auto">Image is placed above the code block.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/benjaminheng/md-code-renderer/blob/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"><img src="https://github.com/benjaminheng/md-code-renderer/raw/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg" alt="render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"/></a></p>
+<div data-snippet-clipboard-copy-content="digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}"><pre><span>digraph</span> <span>G</span> {
+    <span>rankdir</span>=LR;
+    A <span>-&gt;</span> B <span>-&gt;</span> C;
+}</pre></div>
+<h3 dir="auto"><code>code-collapsed</code> mode</h3>
+<p dir="auto">Image is placed above the code block. Code block is collapsed.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/benjaminheng/md-code-renderer/blob/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"><img src="https://github.com/benjaminheng/md-code-renderer/raw/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg" alt="render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"/></a></p>
+<details><summary>Source</summary>
+<div data-snippet-clipboard-copy-content="digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}"><pre><span>digraph</span> <span>G</span> {
+    <span>rankdir</span>=LR;
+    A <span>-&gt;</span> B <span>-&gt;</span> C;
+}</pre></div>
+</details>
+<h3 dir="auto"><code>image-collapsed</code> mode</h3>
+<p dir="auto">Code block is placed above the image. Image is collapsed.</p>
+<div data-snippet-clipboard-copy-content="digraph G {
+    rankdir=LR;
+    A -&gt; B -&gt; C;
+}"><pre><span>digraph</span> <span>G</span> {
+    <span>rankdir</span>=LR;
+    A <span>-&gt;</span> B <span>-&gt;</span> C;
+}</pre></div>
+<details><summary>Image</summary>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/benjaminheng/md-code-renderer/blob/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"><img src="https://github.com/benjaminheng/md-code-renderer/raw/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg" alt="render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"/></a></p>
+</details>
+<h3 dir="auto"><code>code-hidden</code> mode</h3>
+<p dir="auto">The code block will be hidden in this mode. It will still be viewable in the
+HTML source code as a HTML comment.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/benjaminheng/md-code-renderer/blob/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"><img src="https://github.com/benjaminheng/md-code-renderer/raw/master/example/render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg" alt="render-32455c4fc3bf7fc9a6c67d15f4cfd869.svg"/></a></p>
+
+</article>
+        </div></div>

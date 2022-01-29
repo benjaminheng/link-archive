@@ -1,0 +1,129 @@
+---
+url: https://cooklang.org/
+title: Cooklang – Recipe Markup Language
+archived_at: 2022-01-29T17:11:06.36771+08:00
+---
+<div id="readability-page-1" class="page"><div>
+<p><img src="https://cooklang.org/example.png" alt="Recipes"/></p>
+<p>Cooklang and the tools we’ve built to use it, you can:</p>
+<ul>
+<li>simplify your personal recipe management;</li>
+<li>streamline your shopping routine;</li>
+<li>make cooking more fun.</li>
+</ul>
+<p>Here’s how the Cooklang ecosystem makes that happen:</p>
+<ul>
+<li>All recipes are human-readable text files.</li>
+<li>Everything is a file. No databases. And you have complete control over your information.</li>
+<li>All the tools are simple, focused, and efficient; the UNIX way.</li>
+</ul>
+<h2 id="getting-started">Getting Started</h2>
+<p><strong>Create a recipe file</strong>, where each line is a step in the recipe. Tag your ingredients with <code>@</code> and <code>{}</code>, then save your file. For a complete reference on Cooklang, see the <a href="https://cooklang.org/docs/spec">language specification page</a>.</p>
+<p><strong>Install a recipe viewer.</strong> We support a few tools for viewing Cooklang recipes:</p>
+<ul>
+<li><a href="https://cooklang.org/cli/">The CookCLI program for Mac and Linux</a> provides a webserver for presenting your recipes, viewable with any web browser.</li>
+<li><a href="https://cooklang.org/app/">The iOS app for iPad and iPhone</a> allows you to read your recipe files directly from iCloud.</li>
+</ul>
+<p><strong>Cook something!</strong> Open a recipe on your viewer of choice, whip out the ingredients, and make something tasty.</p>
+<h2 id="cookcli">CookCLI</h2>
+<p>The <a href="https://cooklang.org/cli/">Cook CLI</a> command line program provides a suite of tools to create shopping lists and maintain recipes. We’ve built it to be simple and useful for automating your cooking and shopping routine with existing UNIX command line and scripting tools. It can also function as a webserver for your recipes, making them browsable on any device with a web browser.</p>
+<p>Add sample recipes:</p>
+<div><pre tabindex="0"><code data-lang="fallback">$ cook seed
+$ tree .
+.
+├── Baked Potato Soup.cook
+...
+├── Neapolitan Pizza.cook
+...
+├── README.md
+├── Root Vegetable Tray Bake.cook
+...
+└── config
+    └── aisle.conf
+
+3 directories, 15 files
+</code></pre></div><p>Check “Neapolitan Pizza”:</p>
+<div><pre tabindex="0"><code data-lang="fallback">$ cook recipe read &#34;Neapolitan Pizza.cook&#34;
+Metadata:
+    servings: 6
+
+Ingredients:
+    chopped tomato                3 cans
+    dried oregano                 3 tbsp
+    fresh basil                   18 leaves
+    fresh yeast                   1.6 g
+    garlic                        3 gloves
+    mozzarella                    3 packs
+    parma ham                     3 packs
+    salt                          25 g
+    tipo zero flour               820 g
+    water                         530 ml
+
+Steps:
+     1. Make 6 pizza balls using tipo zero flour, water, salt and fresh yeast. Put in a fridge for 2 days.
+        [fresh yeast: 1.6 g; salt: 25 g; tipo zero flour: 820 g; water: 530 ml]
+     2. Set oven to max temperature and heat pizza stone for about 40 minutes.
+        [–]
+     3. Make some tomato sauce with chopped tomato and garlic and dried oregano. Put on a pan and leave for 15 minutes occasionally stirring.
+        [chopped tomato: 3 cans; dried oregano: 3 tbsp; garlic: 3 gloves]
+     4. Make pizzas putting some tomato sauce with spoon on top of flattened dough. Add fresh basil, parma ham and mozzarella.
+        [fresh basil: 18 leaves; mozzarella: 3 packs; parma ham: 3 packs]
+     5. Put in an oven for 4 minutes.
+        [–]
+
+</code></pre></div><p>Create a shopping list:</p>
+<div><pre tabindex="0"><code data-lang="fallback">$ cook shopping-list \
+&gt; Neapolitan\ Pizza.cook \
+&gt; Root\ Vegetable\ Tray\ Bake.cook
+BREADS AND BAKED GOODS
+    breadcrumbs                   150 g
+
+DRIED HERBS AND SPICES
+    dried oregano                 3 tbsp
+    dried sage                    1 tsp
+    pepper                        1 pinch
+    salt                          25 g, 2 pinches
+
+FRUIT AND VEG
+    beetroots                     300 g
+    carrots                       300 g
+    celeriac                      300 g
+    fresh basil                   18 leaves
+    garlic                        3 gloves
+    lemon                         1 item
+    onion                         1 large
+    red onion                     2 items
+    thyme                         2 springs
+
+MEAT AND SEAFOOD
+    parma ham                     3 packs
+
+MILK AND DAIRY
+    butter                        15 g
+    egg                           1 item
+    mozzarella                    3 packs
+
+OILS AND DRESSINGS
+    Dijon mustard                 1 tsp
+    Marmite                       1 tsp
+    cider                         150 ml
+    olive oil                     3 tbsp
+
+OTHER (add new items into aisle.conf)
+    tipo zero flour               820 g
+
+PACKAGED GOODS, PASTA AND SAUCES
+    vegetable stock               150 ml
+    water                         530 ml
+
+TINNED GOODS AND BAKING
+    cannellini beans              400 g
+    chopped tomato                3 cans
+    fresh yeast                   1.6 g
+    redcurrant jelly              1 tsp
+</code></pre></div><h2 id="ios-app">iOS app</h2>
+<p>We created the <a href="https://cooklang.org/app/">iOS app</a> to assist you while cooking, shopping, and meal planning. Simply connect the app to your iCloud, open a recipe, and start cooking.</p>
+<p><img src="https://cooklang.org/app/recipes.png" alt="Recipes"/>
+<img src="https://cooklang.org/app/recipe-ingredients.png" alt="Recipe"/>
+<img src="https://cooklang.org/app/shopping-list.png" alt="Shopping list"/></p>
+</div></div>
