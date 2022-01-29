@@ -1,0 +1,157 @@
+---
+url: https://www.interdb.jp/pg/index.html
+title: 'The Internals of PostgreSQL : Introduction'
+archived_at: 2022-01-29T17:11:40.97309+08:00
+---
+<div id="readability-page-1" class="page"><div>
+	  
+	  <div>
+		<figure>
+		  <img src="https://www.interdb.jp/pg/img/puestas-fauna-mecanica-c.png" alt="Copyright Diego Zazzeo"/>
+		</figure>
+	      </div> 
+	  <div>
+ <div>
+
+
+
+
+
+<p>
+PostgreSQL is a well-designed open-source multi-purpose relational database system which is widely used throughout the world.
+It is one huge system with the integrated subsystems, each of which has a particular complex feature and works with each other cooperatively.
+Although understanding of the internal mechanism is crucial for both administration and integration using PostgreSQL, its hugeness and complexity prevent it.
+The main purposes of this document are to explain how each subsystem works, and to provide the whole picture of PostgreSQL.
+</p>
+
+<p>
+This document is based on the book I wrote in Japanese in 2012, and covers version 14 and earlier.
+</p>
+
+<p>
+The <a href="https://item.jd.com/12527505.html" target="_blank" rel="noopener noreferrer">Chinese version</a> of this document was published in June 2019.
+</p>
+
+
+<p><b>Contents</b></p><ul>
+<li><a href="https://www.interdb.jp/pg/pgsql01.html">Chapter 1</a>. Database Cluster, Databases and Tables</li>
+<li><a href="https://www.interdb.jp/pg/pgsql02.html">Chapter 2</a>. Process and Memory Architecture</li>
+<li><a href="https://www.interdb.jp/pg/pgsql03.html">Chapter 3</a>. Query Processing</li>
+<li><a href="https://www.interdb.jp/pg/pgsql04.html">Chapter 4</a>. Foreign Data Wrappers (FDW) <span color="#cccccc">and Parallel Query</span></li>
+
+<li><a href="https://www.interdb.jp/pg/pgsql05.html">Chapter 5</a>. Concurrency Control</li>
+<li><a href="https://www.interdb.jp/pg/pgsql06.html">Chapter 6</a>. VACUUM Processing</li>
+<li><a href="https://www.interdb.jp/pg/pgsql07.html">Chapter 7</a>. Heap Only Tuple (HOT) and Index-Only Scans</li>
+<li><a href="https://www.interdb.jp/pg/pgsql08.html">Chapter 8</a>. Buffer Manager</li>
+<li><a href="https://www.interdb.jp/pg/pgsql09.html">Chapter 9</a>. Write Ahead Logging (WAL)</li>
+<li><a href="https://www.interdb.jp/pg/pgsql10.html">Chapter 10</a>. Base Backup and Point-In-Time Recovery (PITR)</li>
+<li><a href="https://www.interdb.jp/pg/pgsql11.html">Chapter 11</a>. Streaming Replication</li>
+</ul>
+
+
+<p><b>Guide map</b></p>
+
+<p><b>Change History</b></p><p>
+Click here to show the change history since 3rd June, 2018.
+</p>
+
+
+
+
+
+  </div>
+<p><h2><a id="_Author" name="_Author"></a>Author</h2></p>
+ <div>
+
+<p>
+Hironobu SUZUKI
+</p>
+
+<p>
+I graduated from graduate school of information engineering (M.S. in Information Engineering),
+have worked for several companies as a software developer and technical manager/director.
+I published <a href="https://www.amazon.co.jp/s/ref=dp_byline_sr_book_1?ie=UTF8&amp;field-author=%E9%88%B4%E6%9C%A8+%E5%95%93%E4%BF%AE&amp;search-alias=books-jp&amp;text=%E9%88%B4%E6%9C%A8+%E5%95%93%E4%BF%AE&amp;sort=relevancerank" target="_blank" rel="noopener noreferrer">seven books</a> in the fields of database and system integration (4 PostgreSQL books and 3 MySQL books).
+In June 2019, the <a href="https://item.jd.com/12527505.html" target="_blank" rel="noopener noreferrer">Chinese book</a> of this document was published.
+</p>
+
+<p>
+As a director of the Japan PostgreSQL Users Group (2010-2016), I organized the largest (non-commercial) technical <a href="http://www.postgresql.jp/wg/shikumi/" target="_blank" rel="noopener noreferrer">seminar/lecture</a> of PostgreSQL in Japan for more than six years,
+and also served as the program committee chair of the Japan PostgreSQL Conference in 2013 and as a member in 2008 and 2009.
+</p>
+
+<p>
+In 2021, I released <a href="https://github.com/s-hironobu/pg_plan_inspector" target="_blank" rel="noopener noreferrer">pg_plan_inspector</a> that is a framework to monitor and improve the performance of PostgreSQL using Machine Learning methods.
+</p>
+
+<p>
+Cuando era joven,  vivió en Sudamérica por unos años. Recientemente, a veces vuelve a allí.
+</p>
+
+<p>
+Now I live in Zürich.
+<br/>
+I am considering looking for a new job in Swiss or the EU.
+<br/>
+I love Swiss and like the company I work for, however, I would like to do new challenges, e.g. applying ML and AI technologies to DBMS.
+I am waiting for contacts from people who want to do new things.
+
+
+
+
+
+
+
+</p>
+
+<p>
+
+ 
+<a href="https://github.com/s-hironobu" target="_blank" rel="noopener noreferrer"><i></i></a>
+ 
+ 
+<a href="https://www.interdb.jp/blog/" target="_blank" rel="noopener noreferrer"><i></i>Blog</a>
+</p>
+
+
+
+  </div>
+<p><h2><a id="_Contact" name="_Contact"></a>Contact</h2></p>
+ <div>
+
+
+<p>
+Please read this <a href="https://www.interdb.jp/pg/faq.html" target="_blank" rel="noopener noreferrer">FAQ</a>
+
+ before sending messages.
+</p>
+
+<p>
+After reading, send a message to my twitter in public.
+
+<a href="http://twitter.com/suzuki_hironobu" target="_blank" rel="noopener noreferrer"><i></i></a>
+ 
+</p>
+
+
+
+
+  </div>
+<p><h2><a id="_Copyright" name="_Copyright"></a>Copyright</h2></p>
+ <div>
+
+<p>
+© Copyright ALL Right Reserved, Hironobu SUZUKI.
+</p>
+<p>
+If you want to use any part of this document and/or any figure, please contact me. 
+If you work at Amazon, you cannot use and refer to this document  because of the copyright violation issues.
+
+<br/>
+<span color="#0000ff">Exception: Educational institutions can use this document freely.</span>
+</p>
+
+
+
+</div>
+            </div>
+      </div></div>
