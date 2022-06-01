@@ -1,0 +1,81 @@
+---
+url: https://docs.gunicorn.org/en/19.x/signals.html
+title: Signal Handling — Gunicorn 19.10.0 documentation
+archived_at: 2022-06-02T01:16:37.09958+08:00
+---
+<div id="readability-page-1" class="page"><p>A brief description of the signals handled by Gunicorn. We also document the
+signals used internally by Gunicorn to communicate with the workers.</p><div id="worker-process">
+<h2>Worker process<a href="#worker-process" title="Permalink to this headline">¶</a></h2>
+<p>Sending signals directly to the worker processes should not normally be
+needed.  If the master process is running, any exited worker will be
+automatically respawned.</p>
+<ul>
+<li><code><span>QUIT</span></code>, <code><span>INT</span></code>: Quick shutdown</li>
+<li><code><span>TERM</span></code>: Graceful shutdown</li>
+<li><code><span>USR1</span></code>: Reopen the log files</li>
+</ul>
+</div><div id="reload-the-configuration">
+<h2>Reload the configuration<a href="#reload-the-configuration" title="Permalink to this headline">¶</a></h2>
+<p>The <code><span>HUP</span></code> signal can be used to reload the Gunicorn configuration on the
+fly.</p>
+<div><pre><span></span><span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20682</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Handling</span> <span>signal</span><span>:</span> <span>hup</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20682</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Hang</span> <span>up</span><span>:</span> <span>Master</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20703</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Booting</span> <span>worker</span> <span>with</span> <span>pid</span><span>:</span> <span>20703</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20702</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Booting</span> <span>worker</span> <span>with</span> <span>pid</span><span>:</span> <span>20702</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20688</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Worker</span> <span>exiting</span> <span>(</span><span>pid</span><span>:</span> <span>20688</span><span>)</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20687</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Worker</span> <span>exiting</span> <span>(</span><span>pid</span><span>:</span> <span>20687</span><span>)</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20689</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Worker</span> <span>exiting</span> <span>(</span><span>pid</span><span>:</span> <span>20689</span><span>)</span>
+<span>2013</span><span>-</span><span>06</span><span>-</span><span>29</span> <span>06</span><span>:</span><span>26</span><span>:</span><span>55</span> <span>[</span><span>20704</span><span>]</span> <span>[</span><span>INFO</span><span>]</span> <span>Booting</span> <span>worker</span> <span>with</span> <span>pid</span><span>:</span> <span>20704</span>
+</pre></div>
+<p>Sending a <code><span>HUP</span></code> signal will reload the configuration, start the new
+worker processes with a new configuration and gracefully shutdown older
+workers. If the application is not preloaded (using the <a href="https://docs.gunicorn.org/en/19.x/settings.html#preload-app"><span>preload_app</span></a>
+option), Gunicorn will also load the new version of it.</p>
+</div><div id="upgrading-to-a-new-binary-on-the-fly">
+<h2>Upgrading to a new binary on the fly<a href="#upgrading-to-a-new-binary-on-the-fly" title="Permalink to this headline">¶</a></h2>
+<p><span>Changed in version 19.6.0: </span>PID file naming format has been changed from <code><span>&lt;name&gt;.pid.oldbin</span></code> to
+<code><span>&lt;name&gt;.pid.2</span></code>.</p>
+<p>If you need to replace the Gunicorn binary with a new one (when
+upgrading to a new version or adding/removing server modules), you can
+do it without any service downtime - no incoming requests will be
+lost. Preloaded applications will also be reloaded.</p>
+<p>First, replace the old binary with a new one, then send a <code><span>USR2</span></code> signal to
+the current master process. It executes a new binary whose PID file is
+postfixed with <code><span>.2</span></code> (e.g. <code><span>/var/run/gunicorn.pid.2</span></code>),
+which in turn starts a new master process and new worker processes:</p>
+<div><pre><span></span>  <span>PID</span> <span>USER</span>      <span>PR</span>  <span>NI</span>  <span>VIRT</span>  <span>RES</span>  <span>SHR</span> <span>S</span>  <span>%</span><span>CPU</span> <span>%</span><span>MEM</span>    <span>TIME</span><span>+</span>  <span>COMMAND</span>
+<span>20844</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>54808</span>  <span>11</span><span>m</span> <span>3352</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.36</span> <span>gunicorn</span><span>:</span> <span>master</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20849</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>54808</span> <span>9.9</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.02</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20850</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>54808</span> <span>9.9</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.01</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20851</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>54808</span> <span>9.9</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.01</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20854</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>12</span><span>m</span> <span>3348</span> <span>S</span>   <span>0.0</span>  <span>0.2</span>   <span>0</span><span>:</span><span>00.35</span> <span>gunicorn</span><span>:</span> <span>master</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20859</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>11</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.01</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20860</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>11</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.00</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20861</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>11</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.01</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+</pre></div>
+<p>At this point, two instances of Gunicorn are running, handling the
+incoming requests together. To phase the old instance out, you have to
+send a <code><span>WINCH</span></code> signal to the old master process, and its worker
+processes will start to gracefully shut down.</p>
+<p>At this point you can still revert to the old process since it hasn’t closed
+its listen sockets yet, by following these steps:</p>
+<ul>
+<li>Send a <code><span>HUP</span></code> signal to the old master process - it will start the worker
+processes without reloading a configuration file</li>
+<li>Send a <code><span>TERM</span></code> signal to the new master process to gracefully shut down its
+worker processes</li>
+<li>Send a <code><span>QUIT</span></code> signal to the new master process to force it quit</li>
+</ul>
+<p>If for some reason the new worker processes do not quit, send a <code><span>KILL</span></code> signal
+to them after the new master process quits, and everything will back to exactly
+as before the upgrade attempt.</p>
+<p>If the update is successful and you want to keep the new master process, send a
+<code><span>TERM</span></code> signal to the old master process to leave only the new server
+running:</p>
+<div><pre><span></span>  <span>PID</span> <span>USER</span>      <span>PR</span>  <span>NI</span>  <span>VIRT</span>  <span>RES</span>  <span>SHR</span> <span>S</span>  <span>%</span><span>CPU</span> <span>%</span><span>MEM</span>    <span>TIME</span><span>+</span>  <span>COMMAND</span>
+<span>20854</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>12</span><span>m</span> <span>3348</span> <span>S</span>   <span>0.0</span>  <span>0.2</span>   <span>0</span><span>:</span><span>00.45</span> <span>gunicorn</span><span>:</span> <span>master</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20859</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>11</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.02</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20860</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>11</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.02</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+<span>20861</span> <span>benoitc</span>   <span>20</span>   <span>0</span> <span>55748</span>  <span>11</span><span>m</span> <span>1500</span> <span>S</span>   <span>0.0</span>  <span>0.1</span>   <span>0</span><span>:</span><span>00.01</span> <span>gunicorn</span><span>:</span> <span>worker</span> <span>[</span><span>test</span><span>:</span><span>app</span><span>]</span>
+</pre></div>
+</div></div>

@@ -1,0 +1,358 @@
+---
+url: https://github.com/hashicorp/consul-template
+title: 'GitHub - hashicorp/consul-template: Template rendering, notifier, and supervisor
+  for @HashiCorp Consul and Vault data.'
+archived_at: 2022-06-02T01:16:38.875843+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+            <article itemprop="text">
+<p dir="auto"><a href="https://circleci.com/gh/hashicorp/consul-template" rel="nofollow"><img src="https://camo.githubusercontent.com/6dd52658254048b2adfb7b6d929cca2296a991e31c988a223149f3c426b690d4/68747470733a2f2f636972636c6563692e636f6d2f67682f6861736869636f72702f636f6e73756c2d74656d706c6174652e7376673f7374796c653d737667" alt="CircleCI" data-canonical-src="https://circleci.com/gh/hashicorp/consul-template.svg?style=svg"/></a>
+<a href="https://godoc.org/github.com/hashicorp/consul-template" rel="nofollow"><img src="https://camo.githubusercontent.com/c391fbee51a02c2f7b0c6108fab70a09b68e0906cbdf363f22e8875ab2fb9301/687474703a2f2f696d672e736869656c64732e696f2f62616467652f676f2d646f63756d656e746174696f6e2d253233303061636437" alt="Go Documentation" data-canonical-src="http://img.shields.io/badge/go-documentation-%2300acd7"/></a></p>
+<p dir="auto">This project provides a convenient way to populate values from <a href="https://www.consul.io" title="Consul by HashiCorp" rel="nofollow">Consul</a>
+into the file system using the <code>consul-template</code> daemon.</p>
+<p dir="auto">The daemon <code>consul-template</code> queries a <a href="https://www.consul.io" title="Consul by HashiCorp" rel="nofollow">Consul</a> or <a href="https://www.vaultproject.io" title="Vault by HashiCorp" rel="nofollow">Vault</a>
+cluster and updates any number of specified templates on the file system. As an
+added bonus, it can optionally run arbitrary commands when the update process
+completes. Please see the examples folder for some scenarios where
+this functionality might prove useful.</p>
+<hr/>
+<p dir="auto"><strong>The documentation in this README corresponds to the master branch of Consul Template. It may contain unreleased features or different APIs than the most recently released version.</strong></p>
+<p dir="auto"><strong>Please see the <a href="https://github.com/hashicorp/consul-template/releases">Git tag</a> that corresponds to your version of Consul Template for the proper documentation.</strong></p>
+<hr/>
+<h2 dir="auto">Table of Contents</h2>
+<ul dir="auto">
+<li><a href="#community-support">Community Support</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#quick-example">Quick Example</a></li>
+<li><a href="#learn-guides">Learn Guides</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/configuration.md">Configuration</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/configuration.md#command-line-flags">Command Line Flags</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/configuration.md#configuration-file">Configuration File</a></li>
+<li><a href="#reload-configuration-and-templates">Reload Configuration and Templates</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/templating-language.md">Templating Language</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/templating-language.md#api-functions">API Functions</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/templating-language.md#scratch">Scratch</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/templating-language.md#helper-functions">Helper Functions</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/templating-language.md#math-functions">Math Functions</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/observability.md">Observability</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/observability.md#logging">Logging</a>
+<ul dir="auto">
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/observability.md#logging-to-file">Logging to file</a></li>
+</ul>
+</li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/modes.md">Modes</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/modes.md#once-mode">Once Mode</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/modes.md#de-duplication-mode">De-Duplication Mode</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/modes.md#exec-mode">Exec Mode</a></li>
+<li><a href="https://github.com/hashicorp/consul-template/blob/main/docs/plugins.md">Plugins</a></li>
+<li><a href="#caveats">Caveats</a></li>
+<li><a href="#docker-image-use">Docker Image Use</a></li>
+<li><a href="#dots-in-service-names">Dots in Service Names</a></li>
+<li><a href="#termination-on-error">Termination on Error</a></li>
+<li><a href="#commands">Commands</a>
+<ul dir="auto">
+<li><a href="#environment">Environment</a></li>
+<li><a href="#multiple-commands">Multiple Commands</a></li>
+</ul>
+</li>
+<li><a href="#multi-phase-execution">Multi-phase Execution</a></li>
+<li><a href="#debugging">Debugging</a></li>
+<li><a href="#faq">FAQ</a></li>
+<li><a href="#contributing">Contributing</a></li>
+</ul>
+<h2 dir="auto">Community Support</h2>
+<p dir="auto">If you have questions about how consul-template works, its capabilities or
+anything other than a bug or feature request (use github&#39;s issue tracker for
+those), please see our community support resources.</p>
+<p dir="auto">Community portal: <a href="https://discuss.hashicorp.com/tags/c/consul/29/consul-template" rel="nofollow">https://discuss.hashicorp.com/tags/c/consul/29/consul-template</a></p>
+<p dir="auto">Other resources: <a href="https://www.consul.io/community.html" rel="nofollow">https://www.consul.io/community.html</a></p>
+<p dir="auto">Additionally, for issues and pull requests, we&#39;ll be using the <g-emoji alias="+1" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44d.png">👍</g-emoji> reactions
+as a rough voting system to help gauge community priorities. So please add <g-emoji alias="+1" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f44d.png">👍</g-emoji>
+to any issue or pull request you&#39;d like to see worked on. Thanks.</p>
+<h2 dir="auto">Installation</h2>
+<ol dir="auto">
+<li>
+<p dir="auto">Download a pre-compiled, released version from the <a href="https://releases.hashicorp.com/consul-template" title="Consul Template Releases" rel="nofollow">Consul Template releases page</a>.</p>
+</li>
+<li>
+<p dir="auto">Extract the binary using <code>unzip</code> or <code>tar</code>.</p>
+</li>
+<li>
+<p dir="auto">Move the binary into <code>$PATH</code>.</p>
+</li>
+</ol>
+<p dir="auto">To compile from source, please see the instructions in the
+<a href="#contributing">contributing section</a>.</p>
+<h2 dir="auto">Quick Example</h2>
+<p dir="auto">This short example assumes Consul is installed locally.</p>
+<ol dir="auto">
+<li>Start a Consul cluster in dev mode:</li>
+</ol>
+
+<ol dir="auto">
+<li>Author a template <code>in.tpl</code> to query the kv store:</li>
+</ol>
+
+<ol dir="auto">
+<li>Start Consul Template:</li>
+</ol>
+<div data-snippet-clipboard-copy-content="$ consul-template -template &#34;in.tpl:out.txt&#34; -once"><pre>$ consul-template -template <span><span>&#34;</span>in.tpl:out.txt<span>&#34;</span></span> -once</pre></div>
+<ol dir="auto">
+<li>Write data to the key in Consul:</li>
+</ol>
+
+<ol dir="auto">
+<li>Observe Consul Template has written the file <code>out.txt</code>:</li>
+</ol>
+
+<p dir="auto">For more examples and use cases, please see the examples folder in
+this repository.</p>
+<h2 dir="auto">Learn Guides</h2>
+<p dir="auto">In addition to these examples, HashiCorp has published guides and
+official documentation to help walk through a few common use cases for Consul
+Template.</p>
+<ul dir="auto">
+<li><a href="https://learn.hashicorp.com/consul/developer-configuration/consul-template#use-case-consul-kv" rel="nofollow">Consul KV</a></li>
+<li><a href="https://learn.hashicorp.com/consul/developer-configuration/consul-template#use-case-discover-all-services" rel="nofollow">Consul Catalog</a></li>
+<li><a href="https://learn.hashicorp.com/vault/identity-access-management/agent-templates" rel="nofollow">Vault Agent Templates</a></li>
+<li><a href="https://www.vaultproject.io/docs/agent/template#example-template" rel="nofollow">Vault Secrets</a></li>
+</ul>
+<h2 dir="auto">Configuration</h2>
+<p dir="auto">Configuration documentation has been moved to <a href="https://github.com/hashicorp/consul-template/blob/main/docs/configuration.md">docs/configuration.md</a>.</p>
+<h2 dir="auto">Reload Configuration and Templates</h2>
+<p dir="auto">While there are multiple ways to run Consul Template, the most common pattern is
+to run Consul Template as a system service. When Consul Template first starts,
+it reads any configuration files and templates from disk and loads them into
+memory. From that point forward, changes to the files on disk do not propagate
+to running process without a reload.</p>
+<p dir="auto">The reason for this behavior is simple and aligns with other tools like haproxy.
+A user may want to perform pre-flight validation checks on the configuration or
+templates before loading them into the process. Additionally, a user may want to
+update configuration and templates simultaneously. Having Consul Template
+automatically watch and reload those files on changes is both operationally
+dangerous and against some of the paradigms of modern infrastructure. Instead,
+Consul Template listens for the <code>SIGHUP</code> syscall to trigger a configuration
+reload. If you update configuration or templates, simply send <code>HUP</code> to the
+running Consul Template process and Consul Template will reload all the
+configurations and templates from disk.</p>
+<h2 dir="auto">Templating Language</h2>
+<p dir="auto">Templating Language documentation has been moved to
+<a href="https://github.com/hashicorp/consul-template/blob/main/docs/templating-language.md">docs/templating-language.md</a>.</p>
+<h2 dir="auto">Caveats</h2>
+<h3 dir="auto">Docker Image Use</h3>
+<p dir="auto">The Alpine Docker image is configured to support an external volume to render
+shared templates to. If mounted you will need to make sure that the
+consul-template user in the docker image has write permissions to the
+directory. Also if you build your own image using these you need to be sure you
+have the permissions correct.</p>
+<p dir="auto"><strong>The consul-template user in docker has a UID of 100 and a GID of 1000.</strong></p>
+<p dir="auto">This effects the in image directories /consul-template/config, used to add
+configuration when using this as a parent image, and /consul-template/data,
+exported as a VOLUME as a location to render shared results.</p>
+<p dir="auto">Previously the image initially ran as root in order to ensure the permissions
+allowed it. But this ran against docker best practices and security policies.</p>
+<p dir="auto">If you build your own image based on ours you can override these values with
+<code>--build-arg</code> parameters.</p>
+<h3 dir="auto">Dots in Service Names</h3>
+<p dir="auto">Using dots <code>.</code> in service names will conflict with the use of dots for <a href="https://github.com/hashicorp/consul-template#service">TAG
+delineation</a> in the
+template. Dots already <a href="https://www.consul.io/docs/agent/services.html#service-and-tag-names-with-dns" rel="nofollow">interfere with using
+DNS</a>
+for service names, so we recommend avoiding dots wherever possible.</p>
+<h3 dir="auto">Termination on Error</h3>
+<p dir="auto">By default Consul Template is highly fault-tolerant. If Consul is unreachable or
+a template changes, Consul Template will happily continue running. The only
+exception to this rule is if the optional <code>command</code> exits non-zero. In this
+case, Consul Template will also exit non-zero. The reason for this decision is
+so the user can easily configure something like Upstart or God to manage Consul
+Template as a service.</p>
+<p dir="auto">If you want Consul Template to continue watching for changes, even if the
+optional command argument fails, you can append <code>|| true</code> to your command. Note
+that <code>||</code> is a &#34;shell-ism&#34;, not a built-in function. You will also need to run
+your command under a shell:</p>
+<div data-snippet-clipboard-copy-content="$ consul-template \
+  -template &#34;in.ctmpl:out.file:/bin/bash -c &#39;service nginx restart || true&#39;&#34;"><pre>$ consul-template \
+  -template <span><span>&#34;</span>in.ctmpl:out.file:/bin/bash -c &#39;service nginx restart || true&#39;<span>&#34;</span></span></pre></div>
+<p dir="auto">In this example, even if the Nginx restart command returns non-zero, the overall
+function will still return an OK exit code; Consul Template will continue to run
+as a service. Additionally, if you have complex logic for restarting your
+service, you can intelligently choose when you want Consul Template to exit and
+when you want it to continue to watch for changes. For these types of complex
+scripts, we recommend using a custom sh or bash script instead of putting the
+logic directly in the <code>consul-template</code> command or configuration file.</p>
+<h3 dir="auto">Commands</h3>
+<h4 dir="auto">Environment</h4>
+<p dir="auto">The current processes environment is used when executing commands with the following additional environment variables:</p>
+<ul dir="auto">
+<li><code>CONSUL_HTTP_ADDR</code></li>
+<li><code>CONSUL_HTTP_TOKEN</code></li>
+<li><code>CONSUL_HTTP_TOKEN_FILE</code></li>
+<li><code>CONSUL_HTTP_AUTH</code></li>
+<li><code>CONSUL_HTTP_SSL</code></li>
+<li><code>CONSUL_HTTP_SSL_VERIFY</code></li>
+</ul>
+<p dir="auto">These environment variables are exported with their current values when the
+command executes. Other Consul tooling reads these environment variables,
+providing smooth integration with other Consul tools (like <code>consul maint</code> or
+<code>consul lock</code>). Additionally, exposing these environment variables gives power
+users the ability to further customize their command script.</p>
+<h4 dir="auto">Multiple Commands</h4>
+<p dir="auto">The command configured for running on template rendering must take one of two
+forms.</p>
+<p dir="auto">The first is as a list of the command and arguments split at spaces. The
+command can use an absolute path or be found on the execution environment&#39;s
+PATH and must be the first item in the list. This form allows for single or
+multi-word commands that can be executed directly with a system call. For
+example...</p>
+<p dir="auto"><code>command = [&#34;echo&#34;, &#34;hello&#34;]</code>
+<code>command = [&#34;/opt/foo-package/bin/run-foo&#34;]</code>
+<code>command = [&#34;foo&#34;]</code></p>
+<p dir="auto">Note that if you give a single command without the list denoting square
+brackets (<code>[]</code>) it is converted into a list with a single argument.</p>
+<p dir="auto">This:
+<code>command = &#34;foo&#34;</code>
+is equivalent to:
+<code>command = [&#34;foo&#34;]</code></p>
+<p dir="auto">The second form is as a single quoted command using system shell features. This
+form <strong>requires</strong> a shell named <code>sh</code> be on the executable search path (eg. PATH
+on *nix). This is the standard on all *nix systems and should work out of the
+box on those systems. This won&#39;t work on, for example, Docker images with only
+the executable and without a minimal system like Alpine. Using this form you
+can join multiple commands with logical operators, <code>&amp;&amp;</code> and <code>||</code>, use pipelines
+with <code>|</code>, conditionals, etc. Note that the shell <code>sh</code> is normally <code>/bin/sh</code> on
+*nix systems and is either a POSIX shell or a shell run in POSIX compatible
+mode, so it is best to stick to POSIX shell syntax in this command. For
+example..</p>
+<p dir="auto"><code>command = &#34;/opt/foo &amp;&amp; /opt/bar&#34;</code></p>
+<p dir="auto"><code>command = &#34;if /opt/foo ; then /opt/bar ; fi&#34;</code></p>
+<p dir="auto">Using this method you can run as many shell commands as you need with whatever
+logic you need. Though it is suggested that if it gets too long you might want
+to wrap it in a shell script, deploy and run that.</p>
+<h4 dir="auto">Shell Commands and Exec Mode</h4>
+<p dir="auto">Using the system shell based command has one additional caveat when used for
+the Exec mode process (the managed, executed process to which it will propagate
+signals). That is to get signals to work correctly means not only does anything
+the shell runs need to handle signals, but the shell itself needs to handle
+them. This needs to be managed by you as shells will exit upon receiving most
+signals.</p>
+<p dir="auto">A common example of this would be wanting the SIGHUP signal to trigger a reload
+of the underlying process and to be ignored by the shell process. To get this
+you have 2 options, you can use <code>trap</code> to ignore the signal or you can use
+<code>exec</code> to replace the shell with another process.</p>
+<p dir="auto">To use <code>trap</code> to ignore the signal, you call <code>trap</code> to catch the signal in the
+shell with no action. For example if you had an underlying nginx process you
+wanted to run with a shell command and have the shell ignore it you&#39;d do..</p>
+<p dir="auto"><code>command = &#34;trap &#39;&#39; HUP; /usr/sbin/nginx -c /etc/nginx/nginx.conf&#34;</code></p>
+<p dir="auto">The <code>trap &#39;&#39; HUP;</code> bit is enough to get the shell to ignore the HUP signal. If
+you left off the <code>trap</code> command nginx would reload but the shell command would
+exit but leave the nginx still running, not unmanaged.</p>
+<p dir="auto">Alternatively using <code>exec</code> will replace the shell&#39;s process with a sub-process,
+keeping the same PID and process grouping (allowing the sub-process to be
+managed). This is simpler, but a bit less flexible than <code>trap</code>, and looks
+like..</p>
+<p dir="auto"><code>command = &#34;exec /usr/sbin/nginx -c /etc/nginx/nginx.conf&#34;</code></p>
+<p dir="auto">Where the nginx process would replace the enclosing shell process to be managed
+by consul-template, receiving the Signals directly. Basically <code>exec</code> eliminates
+the shell from the equation.</p>
+<p dir="auto">See your shell&#39;s documentation on <code>trap</code> and/or <code>exec</code> for more details on this.</p>
+<h3 dir="auto">Multi-phase Execution</h3>
+<p dir="auto">Consul Template does an n-pass evaluation of templates, accumulating
+dependencies on each pass. This is required due to nested dependencies, such as:</p>
+<div data-snippet-clipboard-copy-content="{{ range services }}
+{{ range service .Name }}
+  {{ .Address }}
+{{ end }}{{ end }}"><pre>{{ <span>range</span> <span>services</span> }}
+{{ <span>range</span> <span>service</span> .<span>Name</span> }}
+  {{ .<span>Address</span> }}
+{{ <span>end</span> }}{{ <span>end</span> }}</pre></div>
+<p dir="auto">During the first pass, Consul Template does not know any of the services in
+Consul, so it has to perform a query. When those results are returned, the
+inner-loop is then evaluated with that result, potentially creating more queries
+and watches.</p>
+<p dir="auto">Because of this implementation, template functions need a default value that is
+an acceptable parameter to a <code>range</code> function (or similar), but does not
+actually execute the inner loop (which would cause a panic). This is important
+to mention because complex templates <strong>must</strong> account for the &#34;empty&#34; case. For
+example, the following <strong>will not work</strong>:</p>
+<div data-snippet-clipboard-copy-content="{{ with index (service &#34;foo&#34;) 0 }}
+# ...
+{{ end }}"><pre>{{ <span>with</span> <span>index</span> <span>(service &#34;foo&#34;)</span> <span>0</span> }}
+# ...
+{{ <span>end</span> }}</pre></div>
+<p dir="auto">This will raise an error like:</p>
+<div data-snippet-clipboard-copy-content="&lt;index $services 0&gt;: error calling index: index out of range: 0"><pre lang="text"><code>&lt;index $services 0&gt;: error calling index: index out of range: 0
+</code></pre></div>
+<p dir="auto">That is because, during the <em>first</em> evaluation of the template, the <code>service</code>
+key is returning an empty slice. You can account for this in your template like
+so:</p>
+<div data-snippet-clipboard-copy-content="{{ with service &#34;foo&#34; }}
+{{ with index . 0 }}
+{{ .Node }}{{ end }}{{ end }}"><pre>{{ <span>with</span> <span>service</span> <span>&#34;foo&#34;</span> }}
+{{ <span>with</span> <span>index</span> . <span>0</span> }}
+{{ .<span>Node</span> }}{{ <span>end</span> }}{{ <span>end</span> }}</pre></div>
+<p dir="auto">This will still add the dependency to the list of watches, but will not
+evaluate the inner-if, avoiding the out-of-index error.</p>
+<h2 dir="auto">Debugging</h2>
+<p dir="auto">Consul Template can print verbose debugging output. To set the log level for
+Consul Template, use the <code>-log-level</code> flag:</p>
+<div data-snippet-clipboard-copy-content="$ consul-template -log-level info ..."><pre>$ consul-template -log-level info ...</pre></div>
+<div data-snippet-clipboard-copy-content="&lt;timestamp&gt; [INFO] (cli) received redis from Watcher
+&lt;timestamp&gt; [INFO] (cli) invoking Runner
+# ..."><pre lang="text"><code>&lt;timestamp&gt; [INFO] (cli) received redis from Watcher
+&lt;timestamp&gt; [INFO] (cli) invoking Runner
+# ...
+</code></pre></div>
+<p dir="auto">You can also specify the level as debug:</p>
+<div data-snippet-clipboard-copy-content="$ consul-template -log-level debug ..."><pre>$ consul-template -log-level debug ...</pre></div>
+<div data-snippet-clipboard-copy-content="&lt;timestamp&gt; [DEBUG] (cli) creating Runner
+&lt;timestamp&gt; [DEBUG] (cli) creating Consul API client
+&lt;timestamp&gt; [DEBUG] (cli) creating Watcher
+&lt;timestamp&gt; [DEBUG] (cli) looping for data
+&lt;timestamp&gt; [DEBUG] (watcher) starting watch
+&lt;timestamp&gt; [DEBUG] (watcher) all pollers have started, waiting for finish
+&lt;timestamp&gt; [DEBUG] (redis) starting poll
+&lt;timestamp&gt; [DEBUG] (service redis) querying Consul with &amp;{...}
+&lt;timestamp&gt; [DEBUG] (service redis) Consul returned 2 services
+&lt;timestamp&gt; [DEBUG] (redis) writing data to channel
+&lt;timestamp&gt; [DEBUG] (redis) starting poll
+&lt;timestamp&gt; [INFO] (cli) received redis from Watcher
+&lt;timestamp&gt; [INFO] (cli) invoking Runner
+&lt;timestamp&gt; [DEBUG] (service redis) querying Consul with &amp;{...}
+# ..."><pre lang="text"><code>&lt;timestamp&gt; [DEBUG] (cli) creating Runner
+&lt;timestamp&gt; [DEBUG] (cli) creating Consul API client
+&lt;timestamp&gt; [DEBUG] (cli) creating Watcher
+&lt;timestamp&gt; [DEBUG] (cli) looping for data
+&lt;timestamp&gt; [DEBUG] (watcher) starting watch
+&lt;timestamp&gt; [DEBUG] (watcher) all pollers have started, waiting for finish
+&lt;timestamp&gt; [DEBUG] (redis) starting poll
+&lt;timestamp&gt; [DEBUG] (service redis) querying Consul with &amp;{...}
+&lt;timestamp&gt; [DEBUG] (service redis) Consul returned 2 services
+&lt;timestamp&gt; [DEBUG] (redis) writing data to channel
+&lt;timestamp&gt; [DEBUG] (redis) starting poll
+&lt;timestamp&gt; [INFO] (cli) received redis from Watcher
+&lt;timestamp&gt; [INFO] (cli) invoking Runner
+&lt;timestamp&gt; [DEBUG] (service redis) querying Consul with &amp;{...}
+# ...
+</code></pre></div>
+<h2 dir="auto">FAQ</h2>
+<p dir="auto"><strong>Q: How is this different than confd?</strong><br/>
+A: The answer is simple: Service Discovery as a first class citizen. You are also encouraged to read <a href="https://github.com/kelseyhightower/confd/pull/102" data-hovercard-type="pull_request" data-hovercard-url="/kelseyhightower/confd/pull/102/hovercard">this Pull Request</a> on the project for more background information. We think confd is a great project, but Consul Template fills a missing gap. Additionally, Consul Template has first class integration with <a href="https://www.vaultproject.io" title="Vault by HashiCorp" rel="nofollow">Vault</a>, making it easy to incorporate secret material like database credentials or API tokens into configuration files.</p>
+<p dir="auto"><strong>Q: How is this different than Puppet/Chef/Ansible/Salt?</strong><br/>
+A: Configuration management tools are designed to be used in unison with Consul Template. Instead of rendering a stale configuration file, use your configuration management software to render a dynamic template that will be populated by <a href="https://www.consul.io" title="Consul by HashiCorp" rel="nofollow">Consul</a>.</p>
+<h2 dir="auto">Contributing</h2>
+<p dir="auto">To build and install Consul-Template locally, you will need to <a href="https://golang.org" title="Go programming language" rel="nofollow">install Go</a>.</p>
+<p dir="auto">Clone the repository:</p>
+<div data-snippet-clipboard-copy-content="$ git clone https://github.com/hashicorp/consul-template.git"><pre>$ git clone https://github.com/hashicorp/consul-template.git</pre></div>
+<p dir="auto">To compile the <code>consul-template</code> binary for your local machine:</p>
+
+<p dir="auto">This will compile the <code>consul-template</code> binary into <code>bin/consul-template</code> as
+well as your <code>$GOPATH</code> and run the test suite.</p>
+<p dir="auto">If you want to compile a specific binary, set <code>XC_OS</code> and <code>XC_ARCH</code> or run the
+following to generate all binaries:</p>
+
+<p dir="auto">If you want to run the tests, first install <a href="https://www.consul.io/docs/install/index.html" rel="nofollow">consul</a> and <a href="https://www.vaultproject.io/docs/install/" rel="nofollow">vault</a> locally, then:</p>
+
+<p dir="auto">Or to run a specific test in the suite:</p>
+<div data-snippet-clipboard-copy-content="go test ./... -run SomeTestFunction_name"><pre>go <span>test</span> ./... -run SomeTestFunction_name</pre></div>
+</article>
+          </div></div>

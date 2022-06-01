@@ -1,0 +1,87 @@
+---
+url: https://opentelemetry.io/docs/migration/opentracing/
+title: Migrating from OpenTracing
+archived_at: 2022-06-02T01:16:34.521508+08:00
+---
+<div id="readability-page-1" class="page"><div><main role="main"><div><p>Backwards compatibility with <a href="https://opentracing.io" target="_blank" rel="noopener">OpenTracing</a> has been a priority for the
+OpenTelemetry project from the start. To ease migration, OpenTelemetry supports
+the use of both the OpenTelemetry <em>and</em> OpenTracing APIs in the same codebase.
+This allows OpenTracing instrumentation to be recorded using OpenTelemetry SDKs.</p><p>To accomplish this, each OpenTelemetry SDK provides an <strong>OpenTracing shim</strong>,
+which acts as a bridge between the OpenTracing API and the OpenTelemetry SDK.
+Note that OpenTracing shims are disabled by default.</p><h2 id="language-version-support">Language version support</h2><p>Before using an OpenTracing shim, check your project’s language and runtime
+component versions, and update if necessary. The minimum <strong>language</strong> versions
+of the OpenTracing and OpenTelemetry APIs are listed in the table below.</p><table><thead><tr><th>Language</th><th>OpenTracing API</th><th>OpenTelemetry API</th></tr></thead><tbody><tr><td><a href="https://pkg.go.dev/go.opentelemetry.io/otel/bridge/opentracing" target="_blank" rel="noopener">Go</a></td><td>1.13</td><td>1.16</td></tr><tr><td><a href="https://github.com/open-telemetry/opentelemetry-java/tree/main/opentracing-shim" target="_blank" rel="noopener">Java</a></td><td>7</td><td>8</td></tr><tr><td><a href="https://opentelemetry-python.readthedocs.io/en/stable/shim/opentracing_shim/opentracing_shim.html" target="_blank" rel="noopener">Python</a></td><td>2.7</td><td>3.6</td></tr><tr><td><a href="https://www.npmjs.com/package/@opentelemetry/shim-opentracing" target="_blank" rel="noopener">Javascript</a></td><td>6</td><td>8.5</td></tr><tr><td><a href="https://opentelemetry.io/docs/instrumentation/net/shim/">.NET</a></td><td>1.3</td><td>1.4</td></tr><tr><td><a href="https://github.com/open-telemetry/opentelemetry-cpp/issues/78" target="_blank" rel="noopener">C++</a></td><td>11</td><td>11</td></tr></tbody></table><p>Note that the OpenTelemetry API and SDKs generally have higher language version
+requirements than their OpenTracing counterparts.</p><h2 id="migration-overview">Migration overview</h2><p>Many codebases are currently instrumented with OpenTracing. These codebases use
+the OpenTracing API to instrument their application code and/or install
+OpenTracing plugins to instrument their libraries and frameworks.</p><p>A general approach to migrating to OpenTelemetry can be summarized as follows:</p><ol><li>Install OpenTelemetry SDK(s), and remove the current OpenTracing
+implementation – for example, a Jaeger client.</li><li>Install the OpenTelemetry instrumentation libraries, and remove the
+OpenTracing equivalents.</li><li>Update your dashboards, alerts, etc., to consume the new OpenTelemetry data.</li><li>When writing new application code, write all new instrumentation using the
+OpenTelemetry API.</li><li>Progressively re-instrument your application using the OpenTelemetry API.
+There is no hard requirement to remove existing OpenTracing API calls from
+your application, they will continue to work.</li></ol><p>While migrating a sizable application can require significant effort, as
+suggested above, we recommend that OpenTracing users progressively migrate their
+application code. This will ease the burden of migration and help avoid breaks
+in observability.</p><p>The steps below present a careful, incremental approach to transitioning to
+OpenTelemetry.</p><h3 id="step-1-install-the-opentelemetry-sdk">Step 1: Install the OpenTelemetry SDK</h3><p>Before changing any instrumentation, ensure that you can switch to the
+OpenTelemetry SDK without causing any break in the telemetry the application
+currently emits. Doing this step on its own – without simultaneously introducing
+any new instrumentation – is recommended, as it makes it easier to determine whether
+there is any kind of break in instrumentation.</p><ol><li>Replace the OpenTracing Tracer implementation you are currently using with
+the OpenTelemetry SDK. For example, if you are using the Jaeger, remove the
+Jaeger client and install the equivalent OpenTelemetry client.</li><li>Install the OpenTracing Shim. This shim allows the OpenTelemetry SDK to
+consume OpenTracing instrumentation.</li><li>Configure the OpenTelemetry SDK to export data using the same protocol and
+format that the OpenTracing client was using. For example, if you were using an
+OpenTracing client that exported tracing data in Zipkin format, configure the
+OpenTelemetry client to do the same.</li><li>Alternatively, configure the OpenTelemetry SDK to emit OTLP, and send the
+data to a Collector, where you can manage exporting data in multiple formats.</li></ol><p>Once you have the OpenTelemetry SDK installed, confirm that you can deploy your
+application and still receive the same OpenTracing-based telemetry. In other
+words, confirm that your dashboards, alerts, and other tracing-based analysis
+tools are still working.</p><h3 id="step-2-progressively-replace-instrumentation">Step 2: Progressively replace instrumentation</h3><p>Once the OpenTelemetry SDK is installed, all new instrumentation can now be
+written using the OpenTelemetry API. With few exceptions, OpenTelemetry and
+OpenTracing instrumentation will work together seamlessly (see “limits on
+compatibility” below).</p><p>What about existing instrumentation? There is no hard requirement to migrate
+existing application code to OpenTelemetry. However, we do recommend migrating
+from any OpenTracing instrumentation libraries – libraries used to instrument
+web frameworks, HTTP clients, database clients, etc. – to their OpenTelemetry
+equivalents. This will improve support, as many OpenTracing libraries will be
+retired and may no longer be updated.</p><p>It is important to note that when switching to an OpenTelemetry instrumentation
+library, the data which is produced will change. OpenTelemetry has an improved
+model for how we instrument software (what we refer to as our “semantic
+conventions”). In many cases OpenTelemetry produces better, more comprehensive
+tracing data. However, “better” also means “different.” This means that existing
+dashboards, alerts, etc. based on older OpenTracing instrumentation libraries
+may no longer work when those libraries are replaced.</p><p>For existing instrumentation, it is recommended that</p><ol><li>Replace one piece of OpenTracing instrumentation with its OpenTelemetry
+equivalent.</li><li>Observe how this changes the telemetry which your application produces.</li><li>Create new dashboards, alerts, etc which consume this new telemetry. Set up
+these dashboards before deploying the new OpenTelemetry library to production.</li><li>Optionally, add processing rules to the Collector which convert the new
+telemetry back into the old telemetry. The Collector can then be configured to
+emit both versions of the same telemetry, creating a data overlap. This allows
+new dashboards to populate themselves while you continue to use the old
+dashboards.</li></ol><h2 id="limits-on-compatibility">Limits on compatibility</h2><p>In this section we describe limits on compatibility other than the <a href="#language-version-support">language
+version constraints</a> mentioned earlier.</p><h3 id="semantic-conventions">Semantic conventions</h3><p>As mentioned above, OpenTelemetry has an improved model for instrumenting
+software. This means that the “tags” which are set by OpenTracing
+instrumentation may be different than the “attributes” which are set by
+OpenTelemetry. In other words, when replacing existing instrumentation, the data
+OpenTelemetry produces may be different from the data OpenTracing produces.</p><p>Again, for clarity: When changing instrumentation, be sure to also update any
+dashboards, alerts, etc. which relied on the old data.</p><h3 id="baggage">Baggage</h3><p>In OpenTracing, baggage is carried with a SpanContext object associated with a
+Span. In OpenTelemetry, context and propagation are lower-level concepts –
+spans, baggage, metrics instruments, and other items are carried within a
+context object.
+`
+As a result of this change, baggage which is set using the OpenTracing API is
+not available to OpenTelemetry Propagators. As a result, mixing the
+OpenTelemetry and OpenTracing APIs is not recommended when using baggage.</p><p>Specifically, when baggage is set using the OpenTracing API:</p><ul><li>It is not accessible via the OpenTelemetry API.</li><li>It is not injected by the OpenTelemetry propagators.</li></ul><p>If you are using baggage, it is recommended that all baggage-related API calls
+be switched to OpenTelemetry at the same time. Be sure to check that any
+critical baggage items are still being propagated before rolling these changes
+into production.</p><h3 id="context-management-in-javascript">Context management in Javascript</h3><p>In Javascript, the OpenTelemetry API makes use of commonly available context
+managers, such as <code>async_hooks</code> for Node.js and <code>Zones.js</code> for the browser. These
+context managers make tracing instrumentation a much less invasive and onerous
+task, compared to adding a span as a parameter to every method which needs to
+be traced.</p><p>However, the OpenTracing API predates the common use of these context managers.
+OpenTracing code which passes the current active span as a parameter may create
+problems when mixed with OpenTelemetry code that stores the active span in a
+context manager. Using both methods within the same trace may create broken or
+mismatched spans, and is not recommended.</p><p>Instead of mixing the two APIs in the same trace, we recommend that you migrate
+complete code paths from OpenTracing to OpenTelemetry as a single unit, so that
+only one API is used at a time.</p><h2 id="specification-and-implementation-details">Specification and implementation details</h2><p>For details on how each individual OpenTracing shim works, see the appropriate
+language-specific documentation. For details on the design of the OpenTracing
+shim, see <a href="https://opentelemetry.io/docs/reference/specification/compatibility/opentracing/">OpenTracing Compatibility</a>.</p></div></main></div></div>

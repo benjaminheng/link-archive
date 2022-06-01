@@ -1,0 +1,963 @@
+---
+url: https://hbenjamin.com/post/exploring-my-listen-history-with-visidata/
+title: Exploring my listen history with VisiData
+archived_at: 2022-06-02T01:17:09.086993+08:00
+---
+<div id="readability-page-1" class="page"><div>
+  
+
+  <div>
+    <p>Table of contents</p>
+    <nav id="TableOfContents">
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#setup">Setup</a></li>
+    <li><a href="#clean-the-data">Clean the data</a></li>
+    <li><a href="#artists-with-the-most-listens">Artists with the most listens</a></li>
+    <li><a href="#albums-with-the-most-listens">Albums with the most listens</a></li>
+    <li><a href="#top-artists-for-each-year">Top artists for each year</a></li>
+    <li><a href="#top-20-artists-for-each-year">Top 20 artists for each year</a></li>
+    <li><a href="#artists-with-the-most-staying-power-over-the-years">Artists with the most staying power over the years</a></li>
+    <li><a href="#day-of-week-with-the-most-listens-on-average">Day of week with the most listens on average</a></li>
+    <li><a href="#time-of-day-with-the-most-listens-on-average">Time of day with the most listens on average</a></li>
+    <li><a href="#in-closing">In closing</a></li>
+  </ul>
+</nav>
+</div>
+
+
+  <h2 id="overview"><a href="#overview" arialabel="Anchor"></a>Overview</h2>
+<p>Since 2008 I’ve been uploading (called “scrobbling”) my listens to my
+<a href="https://www.last.fm/">Last.fm</a> profile, so I have quite the trove of data. I
+then sync my Last.fm listen history to
+<a href="https://listenbrainz.org/">ListenBrainz</a>, mostly for data redundancy.</p>
+<p>In this post I’ll use <a href="https://www.visidata.org/">VisiData</a> to explore my
+listen history. VisiData makes it really easy to wrangle tabular data, and is
+an indispensible tool in any engineer’s toolkit. My two main goals for this
+post are:</p>
+<ol>
+<li>Showcase how VisiData can be used to manipulate and explore tabular data.</li>
+<li>Gain more familiarity with the tool myself.</li>
+</ol>
+<h2 id="setup"><a href="#setup" arialabel="Anchor"></a>Setup</h2>
+<p>First I sync my listens from Last.fm to ListenBrainz. I do this mostly for data
+redundancy, but ListenBrainz also makes it convenient to export my listens.
+Last.fm doesn’t provide such an export service.</p>
+<p>ListenBrainz exports into a JSON file. Once we have this file we can proceed to
+the next step, where we clean up the data.</p>
+<h2 id="clean-the-data"><a href="#clean-the-data" arialabel="Anchor"></a>Clean the data</h2>
+<p>Before we begin exploring our data, we should clean it up first. VisiData
+supports not just CSVs, but JSON as well, so we can open the JSON file
+directly. Open the file downloaded from ListenBrainz with the following
+command.</p>
+<pre><code>$ vd listens.json
+</code></pre><p>Here’s what VisiData looks like.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> track_metadata </span><span></span><span>|</span><span></span><span> listened_at#</span><span></span><span>|</span><span></span><span> recording_msid     </span><span></span><span>|</span><span></span><span> user_name </span><span></span><span>|</span><span></span><span> inserted_at#</span><span></span><span>║</span><span>
+</span><span> {4}            </span><span></span><span></span><span>|  1645359422 | 122938e1-5157-432b…| hbenjamin |  1645375360 ║</span><span></span><span>
+</span><span> {4}            </span><span></span><span>|</span><span>  1645359060 </span><span>|</span><span> 3e027b89-a08f-4664…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {4}            </span><span></span><span>|</span><span>  1645358737 </span><span>|</span><span> 7f327fee-1d9e-460c…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {4}            </span><span></span><span>|</span><span>  1645358456 </span><span>|</span><span> c2c55801-bb73-498f…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {4}            </span><span></span><span>|</span><span>  1645358120 </span><span>|</span><span> b4eea3be-23dd-4982…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {4}            </span><span></span><span>|</span><span>  1645357874 </span><span>|</span><span> 32b5380d-3745-45f2…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645357642 </span><span>|</span><span> 27cd64c9-25fb-45c6…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645357445 </span><span>|</span><span> 0e29105e-f268-4cbf…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645357131 </span><span>|</span><span> 602060cc-589e-4adb…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645356867 </span><span>|</span><span> 60d1968a-bda5-4749…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645356628 </span><span>|</span><span> c329612b-426c-4272…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645356287 </span><span>|</span><span> cb3c39b9-8d69-4b0a…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645356049 </span><span>|</span><span> 7b891d32-7de8-4d12…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645355785 </span><span>|</span><span> b4f66b79-d157-45d5…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645355474 </span><span>|</span><span> 1f81475f-0e31-4d7d…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645355171 </span><span>|</span><span> 3d3e1488-d6d7-4d25…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645355137 </span><span>|</span><span> 4bfafb45-7560-461f…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645286392 </span><span>|</span><span> 0511a065-fd94-4202…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645286079 </span><span>|</span><span> 5cff0e56-299a-4c85…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645174407 </span><span>|</span><span> aedf1436-d310-4934…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645165001 </span><span>|</span><span> b11944f4-9987-470b…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span> {5}            </span><span></span><span>|</span><span>  1645164652 </span><span>|</span><span> dfa87939-e1d0-4713…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1645375360 </span><span>║</span><span>
+</span><span></span><span></span><span>1› listens| saul.pw/VisiData v2.8 | opening /tmp/listens.json as json | Someo         94081 rows  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>I immediately noticed that about 1500 records have a malformed <code>listened_at</code> value.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> track_metadata </span><span></span><span>|</span><span></span><span> listened_at#</span><span></span><span>|</span><span></span><span> recording_msid     </span><span></span><span>|</span><span></span><span> user_name </span><span></span><span>|</span><span></span><span> inserted_at#</span><span></span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>          12 </span><span></span><span>|</span><span> 7ee0fbe2-3e13-4dd2…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>          11 </span><span></span><span>|</span><span> cec1b686-8a57-438f…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>          10 </span><span></span><span>|</span><span> cec1b686-8a57-438f…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           9 </span><span></span><span>|</span><span> 24cd6cdb-a089-449f…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           8 </span><span></span><span>|</span><span> 93fbf716-2e82-48cf…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           7 </span><span></span><span>|</span><span> 9af6db9c-8ec8-49dd…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           6 </span><span></span><span>|</span><span> 9af6db9c-8ec8-49dd…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           5 </span><span></span><span>|</span><span> 1a8ee0ac-6bf6-4614…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {4}            </span><span>|</span><span></span><span>           4 </span><span></span><span>|</span><span> 51e187d2-d463-44a6…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           3 </span><span></span><span>|</span><span> 8d8a4f12-d713-4fff…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+ {5}            </span><span>|</span><span></span><span>           2 </span><span></span><span>|</span><span> 3b6a31bd-3c28-4757…</span><span>|</span><span> hbenjamin </span><span>|</span><span>  1595522511 </span><span>║</span><span>
+</span><span> {5}            |</span><span>           1 </span><span></span><span></span><span>| 3b6a31bd-3c28-4757…| hbenjamin |  1595522511 ║</span><span></span><span>
+</span><span></span><span></span><span>1› listens|                                                           j   go-down     94081 rows  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>It’s supposed to be a unix timestamp, but these records have an
+autoincrementing integer from 1 to about 1500 instead. We’ll remove these records.</p>
+<ol>
+<li>Select valid unix timestamps using a Python expression with <code>z| listened_at &gt; 100000</code>.</li>
+<li>Open the selection in new sheet with <code>&#34;</code>.</li>
+</ol>
+<p>Next we’ll remove some uninteresting tracks. I often listen to an internet
+radio station called <a href="https://somafm.com/">soma.fm</a>, which has the occasional
+ad break. These ads end up being registered in my listening history.</p>
+<ol>
+<li>Expand the <code>track_metadata</code> column with <code>(</code>.</li>
+<li>Select the <code>track_metadata.artist_name</code> column.</li>
+<li>Create a frequency table with <code>Shift+F</code>, this will open a new sheet with a histogram.</li>
+<li>Select rows in the frequency table containing “soma” with <code>|soma</code>.</li>
+<li>Open a new sheet with <code>&#34;</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> track_metadata.artist_name </span><span></span><span>║</span><span></span><span> count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                                         ~</span><span></span><span>║</span><span>
+</span><span> Somafm Id                  </span><span></span><span></span><span>║   116 |    0.12 | *                                                  ║</span><span></span><span>
+</span><span></span><span> SomaFM                     </span><span></span><span>║</span><span>    97 </span><span>|</span><span>    0.10 </span><span>|</span><span> *                                                  </span><span>║</span><span>
+</span><span></span><span> SomaFM Secret Agent        </span><span></span><span>║</span><span>    67 </span><span>|</span><span>    0.07 </span><span>|</span><span> *                                                  </span><span>║</span><span>
+</span><span></span><span> SomaFM DropIn              </span><span></span><span>║</span><span>    34 </span><span>|</span><span>    0.04 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> Soma Fm Spy Numbers        </span><span></span><span>║</span><span>    18 </span><span>|</span><span>    0.02 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> SomaFM Secret Agent Sfx    </span><span></span><span>║</span><span>    14 </span><span>|</span><span>    0.01 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> SomaFM Secret Agent Dropin </span><span></span><span>║</span><span>     9 </span><span>|</span><span>    0.01 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> SomaFM Begathon            </span><span></span><span>║</span><span>     9 </span><span>|</span><span>    0.01 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> New SomaFM ID              </span><span></span><span>║</span><span>     2 </span><span>|</span><span>    0.00 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> Soma Sonic                 </span><span></span><span>║</span><span>     2 </span><span>|</span><span>    0.00 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> SomaFM Xmas in Frisko      </span><span></span><span>║</span><span>     1 </span><span>|</span><span>    0.00 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span> SomaFM Xmas Dropin         </span><span></span><span>║</span><span>     1 </span><span>|</span><span>    0.00 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span></span><span>3› listens_track_metadata.artist_name_freq_selectedref|       KEY_RESIZE   redraw        12 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>From this we can see that there are about 300 of these tracks.</p>
+<ol>
+<li>Select all rows in the frequency table with <code>gs</code>.</li>
+<li>Go back to the original sheet with <code>q</code>. Notice that the rows in the original
+sheet that were in the histogram buckets are now also selected.</li>
+<li>Invert the selection with <code>gt</code>. Now we are selecting every row except the soma.fm ads.</li>
+<li>Create a new sheet with <code>&#34;</code>.</li>
+</ol>
+<p>Next we’ll rename some of the columns. Since we opened a JSON file with
+nested objects, our sheet contains many columns prefixed with
+<code>track_metadata.</code>. Let’s start by flattening the sheet.</p>
+<ol>
+<li>Expand the nested columns using <code>(</code>.</li>
+<li>Open the Columns sheet with <code>Shift+C</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> name                                               </span><span></span><span>║</span><span></span><span> width#</span><span></span><span>|</span><span></span><span> height#</span><span></span><span>|</span><span></span><span> type </span><span></span><span>|</span><span></span><span> fmtstr </span><span></span><span>|</span><span></span><span> value       </span><span></span><span>&gt;</span><span>
+</span><span></span><span> track_metadata                                     </span><span></span><span>║     0 |      1 |      |        | {4}          </span><span>
+</span><span> track_metadata.artist_name                         </span><span></span><span></span><span>║    63 |      1 |      |        | Rudimental/A…</span><span></span><span>
+</span><span></span><span> track_metadata.release_name                        </span><span></span><span>║</span><span>    29 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Home (Deluxe…
+</span><span></span><span> track_metadata.additional_info                     </span><span></span><span>║     0 |      1 |      |        | {5}          </span><span>
+</span><span></span><span> track_metadata.additional_info.artist_msid         </span><span></span><span>║</span><span>    44 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 1193820a-2fa…
+</span><span></span><span> track_metadata.additional_info.release_msid        </span><span></span><span>║</span><span>    45 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2e8775c-722…
+</span><span></span><span> track_metadata.additional_info.listening_from      </span><span></span><span>║</span><span>    47 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> lastfm
+</span><span></span><span> track_metadata.additional_info.recording_mbid      </span><span></span><span>║</span><span>    47 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> track_metadata.additional_info.recording_msid      </span><span></span><span>║</span><span>    47 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2c55801-bb7…
+</span><span></span><span> track_metadata.additional_info.lastfm_artist_mbid  </span><span></span><span>║</span><span>    51 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> track_metadata.additional_info.lastfm_release_mbid </span><span></span><span>║</span><span>    52 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> track_metadata.additional_info.lastfm_track_mbid   </span><span></span><span>║</span><span>    50 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 1fd04c2e-940…
+</span><span></span><span> track_metadata.track_name                          </span><span></span><span>║</span><span>    69 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Hell Could F…
+</span><span></span><span> track_metadata.mbid_mapping                        </span><span></span><span>║</span><span>    29 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> listened_at                                        </span><span></span><span>║</span><span>    13 </span><span>|</span><span>      1 </span><span>|</span><span> int  </span><span>|</span><span>        </span><span>|</span><span> 1645358456
+</span><span></span><span> recording_msid                                     </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2c55801-bb7…
+</span><span></span><span> user_name                                          </span><span></span><span>║</span><span>    11 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> hbenjamin
+</span><span></span><span> inserted_at                                        </span><span></span><span>║</span><span>    13 </span><span>|</span><span>      1 </span><span>|</span><span> int  </span><span>|</span><span>        </span><span>|</span><span> 1645375360
+</span><span></span><span></span><span>Shift+C› listens_selectedref_selectedref_columns|                  j   go-down        18 columns  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Let’s start by removing the <code>track_metadata.</code> prefix from these columns. We can
+do this one by one by using <code>e</code> to edit each cell, but let’s do it in bulk with
+a search-and-replace instead.</p>
+<ol>
+<li>Select columns containing <code>track_metadata.</code> with <code>| track_metadata\.</code>.</li>
+<li>Search and replace selected values with <code>g* track_metadata\./</code> (<code>g*</code> accepts input in the form <code>&lt;regex&gt;/&lt;substitution&gt;</code>).</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> name                                               </span><span></span><span>║</span><span></span><span> width#</span><span></span><span>|</span><span></span><span> height#</span><span></span><span>|</span><span></span><span> type </span><span></span><span>|</span><span></span><span> fmtstr </span><span></span><span>|</span><span></span><span> value       </span><span></span><span>&gt;</span><span>
+</span><span></span><span> track_metadata                                     </span><span></span><span>║     0 |      1 |      |        | {4}          </span><span>
+</span><span></span><span> artist_name                                        </span><span></span><span>║</span><span>    63 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Rudimental/A…
+</span><span></span><span> release_name                                       </span><span></span><span>║</span><span>    29 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Home (Deluxe…
+</span><span></span><span> additional_info                                    </span><span></span><span>║     0 |      1 |      |        | {5}          </span><span>
+</span><span></span><span> additional_info.artist_msid                        </span><span></span><span>║</span><span>    44 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 1193820a-2fa…
+</span><span></span><span> additional_info.release_msid                       </span><span></span><span>║</span><span>    45 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2e8775c-722…
+</span><span> additional_info.listening_from                     </span><span></span><span></span><span>║    47 |      1 |      |        | lastfm       </span><span></span><span>
+</span><span></span><span> additional_info.recording_mbid                     </span><span></span><span>║</span><span>    47 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.recording_msid                     </span><span></span><span>║</span><span>    47 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2c55801-bb7…
+</span><span></span><span> additional_info.lastfm_artist_mbid                 </span><span></span><span>║</span><span>    51 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.lastfm_release_mbid                </span><span></span><span>║</span><span>    52 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.lastfm_track_mbid                  </span><span></span><span>║</span><span>    50 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 1fd04c2e-940…
+</span><span></span><span> track_name                                         </span><span></span><span>║</span><span>    69 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Hell Could F…
+</span><span></span><span> mbid_mapping                                       </span><span></span><span>║</span><span>    29 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> listened_at                                        </span><span></span><span>║</span><span>    13 </span><span>|</span><span>      1 </span><span>|</span><span> int  </span><span>|</span><span>        </span><span>|</span><span> 1645358456
+</span><span></span><span> recording_msid                                     </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2c55801-bb7…
+</span><span></span><span> user_name                                          </span><span></span><span>║</span><span>    11 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> hbenjamin
+</span><span></span><span> inserted_at                                        </span><span></span><span>║</span><span>    13 </span><span>|</span><span>      1 </span><span>|</span><span> int  </span><span>|</span><span>        </span><span>|</span><span> 1645375360
+</span><span></span><span></span><span>Shift+C› listens_selectedref_selectedref_columns|              j   go-down        18 columns  [M] •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Previously we’ve been looking at the Columns sheet. Let’s take a look at the
+Statistics sheet now. It’s similar to the Columns sheet, but has some basic
+statistics about the values in each column.</p>
+<ol>
+<li>On the main sheet, go to the Statistics sheet with <code>Shift+I</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> column                              </span><span></span><span>║</span><span></span><span> errors♯</span><span></span><span>|</span><span></span><span> nulls♯</span><span></span><span>|</span><span></span><span> distinct♯</span><span></span><span>|</span><span></span><span> mode~</span><span></span><span>|</span><span></span><span> min~</span><span></span><span>|</span><span></span><span> max~</span><span></span><span>|</span><span></span><span> sum </span><span></span><span>|</span><span></span><span> median~</span><span></span><span>&gt;</span><span>
+</span><span></span><span> artist_name                         </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>     5940 </span><span>|</span><span> E.S.…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> release_name                        </span><span></span><span>║</span><span>      0 </span><span>|</span><span> 12065 </span><span>|</span><span>      874 </span><span>|</span><span> Cart…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.artist_msid         </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>     5971 </span><span>|</span><span> e665…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.release_msid        </span><span></span><span>║</span><span>      0 </span><span>|</span><span> 12065 </span><span>|</span><span>      926 </span><span>|</span><span> 17b5…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span> additional_info.listening_from      </span><span></span><span></span><span>║      0 |     0 |        1 | last…|     |     |     |        |</span><span></span><span>
+</span><span></span><span> additional_info.recording_mbid      </span><span></span><span>║</span><span>      0 </span><span>|</span><span> 24986 </span><span>|</span><span>     7658 </span><span>|</span><span> 00bd…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.recording_msid      </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>    17970 </span><span>|</span><span> cd48…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.lastfm_artist_mbid  </span><span></span><span>║</span><span>      0 </span><span>|</span><span> 23291 </span><span>|</span><span>     1794 </span><span>|</span><span> 391c…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.lastfm_release_mbid </span><span></span><span>║</span><span>      0 </span><span>|</span><span> 23241 </span><span>|</span><span>      739 </span><span>|</span><span> 977f…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> additional_info.lastfm_track_mbid   </span><span></span><span>║</span><span>      0 </span><span>|</span><span> 81746 </span><span>|</span><span>     4123 </span><span>|</span><span> 006c…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> track_name                          </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>    14544 </span><span>|</span><span> Intro</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> mbid_mapping                        </span><span></span><span>║</span><span>  84524 </span><span>|</span><span>  8933 </span><span>|</span><span>        1 </span><span>|</span><span>     </span><span>!</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> listened_at                         </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>    93447 </span><span>|</span><span> 1624…</span><span>|</span><span> 1   </span><span>|</span><span> 164…</span><span>|</span><span> 12…</span><span>#</span><span>|</span><span> 140665…</span><span>|</span><span>
+</span><span></span><span> recording_msid                      </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>    17970 </span><span>|</span><span> cd48…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> user_name                           </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>        1 </span><span>|</span><span> hben…</span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>     </span><span>|</span><span>        </span><span>|</span><span>
+</span><span></span><span> inserted_at                         </span><span></span><span>║</span><span>      0 </span><span>|</span><span>     0 </span><span>|</span><span>     1638 </span><span>|</span><span> 1642…</span><span>|</span><span> 159…</span><span>|</span><span> 164…</span><span>|</span><span> 14…</span><span>#</span><span>|</span><span> 159552…</span><span>|</span><span>
+
+
+</span><span></span><span></span><span>11› listens_selectedref_selectedref_describe|                      j   go-down        16 columns  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Here we can see some interesting information, like how many distinct artists,
+albums and tracks I’ve listened to. We’ll do more analysis later, for now I’d
+like to draw your eye to columns with only 1 distinct value.</p>
+<p>Columns with only 1 distinct value tend not to be interesting. The column
+<code>listened_from</code> that contains only the value <code>lastfm</code>. The <code>user_name</code> column
+contains only my username. Let’s delete these columns.</p>
+<ol>
+<li>Return to the Columns sheet with <code>Shift+C</code>.</li>
+<li>Delete the <code>listened_from</code> and <code>user_name</code> columns with <code>d</code>.</li>
+</ol>
+<p>Let’s expand all our remaining columns. You’ll notice that we have quite a few
+ID columns, either MSID or MBID. MSIDs are
+<a href="https://messybrainz.org/">MessyBrainz</a> IDs whereas MBIDs are
+<a href="https://musicbrainz.org/">MusicBrainz</a> IDs. In short, MSIDs represent unclean
+data, and MBIDs represent clean data.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> name                                </span><span></span><span>║</span><span></span><span> width#</span><span></span><span>|</span><span></span><span> height#</span><span></span><span>|</span><span></span><span> type </span><span></span><span>|</span><span></span><span> fmtstr </span><span></span><span>|</span><span></span><span> value              </span><span></span><span>|</span><span></span><span> expr  </span><span></span><span>&gt;</span><span>
+</span><span> additional_info.artist_msid         </span><span></span><span></span><span>║    38 |      1 |      |        | 548b0bb6-80b6-43c5…| additi…</span><span></span><span>
+</span><span></span><span> additional_info.release_msid        </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> c2e8775c-722f-4cff…</span><span>|</span><span> additi…
+</span><span></span><span> additional_info.recording_msid      </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 27cd64c9-25fb-45c6…</span><span>|</span><span> additi…
+</span><span></span><span> recording_msid                      </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 27cd64c9-25fb-45c6…</span><span>|</span><span> record…
+</span><span></span><span> additional_info.lastfm_track_mbid   </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 18b9ade6-6791-4b27…</span><span>|</span><span> additi…
+</span><span></span><span> additional_info.lastfm_artist_mbid  </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> b09ced80-aa65-43c1…</span><span>|</span><span> additi…
+</span><span></span><span> mbid_mapping                        </span><span></span><span>║     0 |      1 |      |        | {3}                | mbid_m…</span><span>
+</span><span></span><span> mbid_mapping.recording_mbid         </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> ddf2e8df-f671-4975…</span><span>|</span><span>
+</span><span></span><span> mbid_mapping.release_mbid           </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> ec6d908f-cf79-4225…</span><span>|</span><span>
+</span><span></span><span> mbid_mapping.artist_mbids           </span><span></span><span>║     0 |      1 |      |        | [1]                |        </span><span>
+</span><span></span><span> mbid_mapping.artist_mbids[0]        </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> b09ced80-aa65-43c1…</span><span>|</span><span>
+</span><span></span><span> mbid_mapping.artist_mbids[1]        </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span>
+</span><span></span><span> mbid_mapping.artist_mbids[2]        </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span>
+</span><span></span><span> mbid_mapping.artist_mbids[3]        </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span>
+</span><span></span><span> mbid_mapping.artist_mbids[4]        </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span>
+</span><span></span><span> additional_info.lastfm_release_mbid </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span> additi…
+</span><span></span><span> additional_info.recording_mbid      </span><span></span><span>║</span><span>    32 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span> additi…
+</span><span></span><span></span><span>4› listens-cleaned_columns_selectedref|                    KEY_RESIZE   redraw        17 columns  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Let’s get rid of the MSIDs since these represent unclean data. We’ll also get
+rid of all the fields populated by Last.fm and only use those populated by
+MusicBrainz. Basically, we’ll just keep the ID fields
+<code>mbid_mapping.artist_mbids[0]</code>, <code>mbid_mapping.release_mbid</code>,
+<code>mbid_mapping.recording_mbid</code>. We’ll also remove the <code>mbid_mapping.</code> prefix.</p>
+<p>These are the columns we have now.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                  </span><span></span>
+<span></span><span></span><span> name           </span><span></span><span>║</span><span></span><span> width#</span><span></span><span>|</span><span></span><span> height#</span><span></span><span>|</span><span></span><span> type </span><span></span><span>|</span><span></span><span> fmtstr </span><span></span><span>|</span><span></span><span> value              </span><span></span><span>|</span><span></span><span> expr </span><span></span><span>|</span><span></span><span> aggregators </span><span></span><span>║</span><span>
+</span><span> artist_name    </span><span></span><span></span><span>║    20 |      1 |      |        | Rudimental/Becky H…| 0   </span><span>#</span><span>|             ║</span><span></span><span>
+</span><span></span><span> release_name   </span><span></span><span>║</span><span>    20 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Home (Deluxe Editi…</span><span>|</span><span> 1   </span><span>#</span><span>|</span><span>             </span><span>║</span><span>
+</span><span></span><span> track_name     </span><span></span><span>║</span><span>    20 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> Powerless          </span><span>|</span><span> 2   </span><span>#</span><span>|</span><span>             </span><span>║</span><span>
+</span><span></span><span> listened_at    </span><span></span><span>║</span><span>    13 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span> 1645359422         </span><span>|</span><span> 3   </span><span>#</span><span>|</span><span>             </span><span>║</span><span>
+</span><span></span><span> recording_mbid </span><span></span><span>║</span><span>    20 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span> 4   </span><span>#</span><span>|</span><span>             </span><span>║</span><span>
+</span><span></span><span> release_mbid   </span><span></span><span>║</span><span>    20 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span> 5   </span><span>#</span><span>|</span><span>             </span><span>║</span><span>
+</span><span></span><span> artist_mbid    </span><span></span><span>║</span><span>    38 </span><span>|</span><span>      1 </span><span>|</span><span>      </span><span>|</span><span>        </span><span>|</span><span>                    </span><span>|</span><span> 6   </span><span>#</span><span>|</span><span>             </span><span>║</span><span>
+
+</span><span></span><span></span><span>Shift+C› listens-cleaned_columns|                                    k   go-up         7 columns  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Looks good so far. Save it with <code>Ctrl+S</code>. VisiData will prompt for the output
+filepath. We’ll save it as a CSV file now instead of JSON. Call it
+<code>listens-cleaned.csv</code>.</p>
+<h2 id="artists-with-the-most-listens"><a href="#artists-with-the-most-listens" arialabel="Anchor"></a>Artists with the most listens</h2>
+<p>Let’s start with something simple: finding the artists with the most listens.
+If you followed the section where we cleaned up the data, you might already
+have an idea of how to accomplish this.</p>
+<ol>
+<li>Select the <code>artist_name</code> column</li>
+<li>Open a frequency table with <code>Shift+F</code></li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> artist_name        </span><span></span><span>║</span><span></span><span>↓count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                                         ~</span><span></span><span>║</span><span>
+</span><span> E.S. Posthumus     </span><span></span><span></span><span>║  2963 |    3.22 | ************************************************** ║</span><span></span><span>
+</span><span></span><span> Queen              </span><span></span><span>║</span><span>  2762 </span><span>|</span><span>    3.01 </span><span>|</span><span> **********************************************     </span><span>║</span><span>
+</span><span></span><span> Black Sabbath      </span><span></span><span>║</span><span>  2562 </span><span>|</span><span>    2.79 </span><span>|</span><span> *******************************************        </span><span>║</span><span>
+</span><span></span><span> Nightwish          </span><span></span><span>║</span><span>  1694 </span><span>|</span><span>    1.84 </span><span>|</span><span> ****************************                       </span><span>║</span><span>
+</span><span></span><span> Within Temptation  </span><span></span><span>║</span><span>  1674 </span><span>|</span><span>    1.82 </span><span>|</span><span> ****************************                       </span><span>║</span><span>
+</span><span></span><span> Amon Amarth        </span><span></span><span>║</span><span>  1631 </span><span>|</span><span>    1.77 </span><span>|</span><span> ***************************                        </span><span>║</span><span>
+</span><span></span><span> Flobots            </span><span></span><span>║</span><span>  1613 </span><span>|</span><span>    1.76 </span><span>|</span><span> ***************************                        </span><span>║</span><span>
+</span><span></span><span> Opeth              </span><span></span><span>║</span><span>  1594 </span><span>|</span><span>    1.73 </span><span>|</span><span> **************************                         </span><span>║</span><span>
+</span><span></span><span> Pendulum           </span><span></span><span>║</span><span>  1556 </span><span>|</span><span>    1.69 </span><span>|</span><span> **************************                         </span><span>║</span><span>
+</span><span></span><span> Florence + the Mac…</span><span></span><span>║</span><span>  1449 </span><span>|</span><span>    1.58 </span><span>|</span><span> ************************                           </span><span>║</span><span>
+</span><span></span><span> The xx             </span><span></span><span>║</span><span>  1405 </span><span>|</span><span>    1.53 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Delain             </span><span></span><span>║</span><span>  1377 </span><span>|</span><span>    1.50 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Pantera            </span><span></span><span>║</span><span>  1286 </span><span>|</span><span>    1.40 </span><span>|</span><span> *********************                              </span><span>║</span><span>
+</span><span></span><span> Iron Maiden        </span><span></span><span>║</span><span>  1276 </span><span>|</span><span>    1.39 </span><span>|</span><span> *********************                              </span><span>║</span><span>
+</span><span></span><span> Bon Jovi           </span><span></span><span>║</span><span>  1224 </span><span>|</span><span>    1.33 </span><span>|</span><span> ********************                               </span><span>║</span><span>
+</span><span></span><span> Epica              </span><span></span><span>║</span><span>  1158 </span><span>|</span><span>    1.26 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Massive Attack     </span><span></span><span>║</span><span>  1128 </span><span>|</span><span>    1.23 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Rainbow            </span><span></span><span>║</span><span>  1119 </span><span>|</span><span>    1.22 </span><span>|</span><span> ******************                                 </span><span>║</span><span>
+</span><span></span><span> Dark Tranquillity  </span><span></span><span>║</span><span>  1065 </span><span>|</span><span>    1.16 </span><span>|</span><span> *****************                                  </span><span>║</span><span>
+</span><span></span><span> AC/DC              </span><span></span><span>║</span><span>  1052 </span><span>|</span><span>    1.14 </span><span>|</span><span> *****************                                  </span><span>║</span><span>
+</span><span></span><span> Metallica          </span><span></span><span>║</span><span>   967 </span><span>|</span><span>    1.05 </span><span>|</span><span> ****************                                   </span><span>║</span><span>
+</span><span></span><span> Avenged Sevenfold  </span><span></span><span>║</span><span>   955 </span><span>|</span><span>    1.04 </span><span>|</span><span> ****************                                   </span><span>║</span><span>
+</span><span></span><span> Krewella           </span><span></span><span>║</span><span>   952 </span><span>|</span><span>    1.04 </span><span>|</span><span> ****************                                   </span><span>║</span><span>
+</span><span></span><span> Judas Priest       </span><span></span><span>║</span><span>   904 </span><span>|</span><span>    0.98 </span><span>|</span><span> ***************                                    </span><span>║</span><span>
+</span><span></span><span></span><span>2› listens-cleaned_artist_name_freq|                                  Shift+F         5940 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>It’s that simple! From the frequency table we can also hit <code>Enter</code> on any row,
+VisiData will show us all the listens from that artist.</p>
+<p>The frequency table is also just a sheet like any other, so you can filter,
+search, and manipulate this sheet however you wish.</p>
+<h2 id="albums-with-the-most-listens"><a href="#albums-with-the-most-listens" arialabel="Anchor"></a>Albums with the most listens</h2>
+<p>Let’s find the top albums next. We could simply do the same as the top artists
+and use <code>Shift+F</code> on the <code>release_name</code> field, but this doesn’t account for
+different artists with the same album name. Instead we can use key columns to
+tell VisiData what the unique key should be when generating the histogram.</p>
+<ol>
+<li>Select the <code>artist_name</code> column and use <code>!</code> to mark it as a key column. The
+column will turn blue to indicate it is now a key column.</li>
+<li>Select the <code>release_name</code> column and use <code>!</code> to mark it as a key column.</li>
+<li>Open a histogram with <code>gF</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> artist_name        </span><span></span><span>|</span><span></span><span> release_name       </span><span></span><span>║</span><span></span><span>↓count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                             </span><span></span><span>
+</span><span> E.S. Posthumus     </span><span></span><span></span><span>| Cartographer       ║  1603 |    1.74 | *************************************…</span><span></span><span>
+</span><span></span><span> The xx             </span><span></span><span>|</span><span> xx                 </span><span>║</span><span>  1307 </span><span>|</span><span>    1.42 </span><span>|</span><span> *************************************…
+</span><span></span><span> Bon Jovi           </span><span></span><span>|</span><span> Crossroad          </span><span>║</span><span>  1034 </span><span>|</span><span>    1.13 </span><span>|</span><span> ********************************
+</span><span></span><span> Florence + the Mac…</span><span></span><span>|</span><span> Lungs              </span><span>║</span><span>  1025 </span><span>|</span><span>    1.12 </span><span>|</span><span> *******************************
+</span><span></span><span> Queen              </span><span></span><span>|</span><span> Greatest Hits I    </span><span>║</span><span>   978 </span><span>|</span><span>    1.06 </span><span>|</span><span> ******************************
+</span><span></span><span> Queen              </span><span></span><span>|</span><span> Greatest Hits II   </span><span>║</span><span>   916 </span><span>|</span><span>    1.00 </span><span>|</span><span> ****************************
+</span><span></span><span> Amon Amarth        </span><span></span><span>|</span><span> With Oden On Our S…</span><span>║</span><span>   908 </span><span>|</span><span>    0.99 </span><span>|</span><span> ****************************
+</span><span></span><span> Dio                </span><span></span><span>|</span><span> Holy Diver         </span><span>║</span><span>   895 </span><span>|</span><span>    0.97 </span><span>|</span><span> ***************************
+</span><span></span><span> Queen              </span><span></span><span>|</span><span> Greatest Hits III  </span><span>║</span><span>   866 </span><span>|</span><span>    0.94 </span><span>|</span><span> ***************************
+</span><span></span><span> E.S. Posthumus     </span><span></span><span>|</span><span> Unearthed          </span><span>║</span><span>   850 </span><span>|</span><span>    0.92 </span><span>|</span><span> **************************
+</span><span></span><span> Flobots            </span><span></span><span>|</span><span> Fight With Tools   </span><span>║</span><span>   846 </span><span>|</span><span>    0.92 </span><span>|</span><span> **************************
+</span><span></span><span> Pendulum           </span><span></span><span>|</span><span> Hold Your Colour   </span><span>║</span><span>   834 </span><span>|</span><span>    0.91 </span><span>|</span><span> **************************
+</span><span></span><span> Within Temptation  </span><span></span><span>|</span><span> Silent Force       </span><span>║</span><span>   775 </span><span>|</span><span>    0.84 </span><span>|</span><span> ************************
+</span><span></span><span> Flobots            </span><span></span><span>|</span><span> Survival Story     </span><span>║</span><span>   766 </span><span>|</span><span>    0.83 </span><span>|</span><span> ***********************
+</span><span></span><span> Grimes             </span><span></span><span>|</span><span> Visions            </span><span>║</span><span>   644 </span><span>|</span><span>    0.70 </span><span>|</span><span> ********************
+</span><span></span><span> Pantera            </span><span></span><span>|</span><span> Cowboys From Hell  </span><span>║</span><span>   614 </span><span>|</span><span>    0.67 </span><span>|</span><span> *******************
+</span><span></span><span> Portishead         </span><span></span><span>|</span><span> Dummy              </span><span>║</span><span>   585 </span><span>|</span><span>    0.64 </span><span>|</span><span> ******************
+</span><span></span><span> Delain             </span><span></span><span>|</span><span> Lucidity           </span><span>║</span><span>   565 </span><span>|</span><span>    0.61 </span><span>|</span><span> *****************
+</span><span></span><span> Within Temptation  </span><span></span><span>|</span><span> The Heart of Every…</span><span>║</span><span>   538 </span><span>|</span><span>    0.59 </span><span>|</span><span> ****************
+</span><span></span><span> Pendulum           </span><span></span><span>|</span><span> In Sillico         </span><span>║</span><span>   532 </span><span>|</span><span>    0.58 </span><span>|</span><span> ****************
+</span><span></span><span> Opeth              </span><span></span><span>|</span><span> Ghost Reveries     </span><span>║</span><span>   519 </span><span>|</span><span>    0.56 </span><span>|</span><span> ****************
+</span><span></span><span> E.S. Posthumus     </span><span></span><span>|</span><span> Makara             </span><span>║</span><span>   510 </span><span>|</span><span>    0.55 </span><span>|</span><span> ***************
+</span><span></span><span> Delain             </span><span></span><span>|</span><span> April Rain         </span><span>║</span><span>   495 </span><span>|</span><span>    0.54 </span><span>|</span><span> ***************
+</span><span></span><span> OceanLab           </span><span></span><span>|</span><span> Sirens of the Sea  </span><span>║</span><span>   487 </span><span>|</span><span>    0.53 </span><span>|</span><span> ***************
+</span><span></span><span></span><span>3› listens-cleaned_artist_name-release_name_freq|                    gShift+F         6608 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<blockquote>
+<p><strong>Tip:</strong> Many VisiData commands can be prefixed with <code>g</code> for a “global”
+version. For instance, <code>s</code> selects a <em>single</em> row while <code>gs</code> selects <em>all</em> rows.
+<code>Shift+F</code> opens a frequency table on the <em>selected</em> column, while <code>gF</code> opens one
+on the <em>key</em> columns.</p>
+</blockquote>
+<h2 id="top-artists-for-each-year"><a href="#top-artists-for-each-year" arialabel="Anchor"></a>Top artists for each year</h2>
+<p>Let’s find which were my most listened-to artists for each given year. To do so
+we need to derive a <code>year</code> column from our <code>listened_at</code> column, which is
+currently just a unix timestamp.</p>
+<ol>
+<li>Set the <code>listened_at</code> column’s data type to integer with <code>#</code>.</li>
+<li>Create a new column using a Python expression using <code>= datetime.datetime.fromtimestamp(listened_at).year</code></li>
+<li>Set the new column’s data type to integer with <code>#</code></li>
+<li>Rename the new column with <code>^</code>. Name it <code>year</code>.</li>
+</ol>
+<p>We should have something that looks like this:</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> artist_name               </span><span></span><span>|</span><span></span><span> release_name          </span><span></span><span>|</span><span></span><span> track_name </span><span></span><span>|</span><span></span><span> listened_at       #</span><span></span><span>|</span><span></span><span> year#</span><span></span><span>|</span><span></span><span> reco</span><span></span><span>&gt;</span><span>
+</span><span> Within Temptation         | The Unforgiving       | In the Mid…|         1645355474 |</span><span> 2022 </span><span></span><span></span><span>| 20fb…</span><span></span><span>
+ Within Temptation         </span><span>|</span><span> The Unforgiving       </span><span>|</span><span> Shot in th…</span><span>|</span><span>         1645355171 </span><span>|</span><span></span><span> 2022 </span><span></span><span>|</span><span> bbbe…
+ Within Temptation         </span><span>|</span><span> The Unforgiving       </span><span>|</span><span> Why Not Me </span><span>|</span><span>         1645355137 </span><span>|</span><span></span><span> 2022 </span><span></span><span>|</span><span> e97d…
+ AC/DC                     </span><span>|</span><span> Back in Black         </span><span>|</span><span> Shoot to T…</span><span>|</span><span>         1645286392 </span><span>|</span><span></span><span> 2022 </span><span></span><span>|</span><span> 994b…
+ AC/DC                     </span><span>|</span><span> Back in Black         </span><span>|</span><span> Hells Bells</span><span>|</span><span>         1645286079 </span><span>|</span><span></span><span> 2022 </span><span></span><span>|</span><span> c7c2…
+</span><span></span><span></span><span>1› listens-cleaned|                                                 l   go-right     91895 rows  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>To see the artists with the most listens per year, we can use a pivot table.</p>
+<ol>
+<li>Mark the <code>artist_name</code> column as a key column with <code>!</code>.</li>
+<li>Mark the <code>year</code> column as a key column with <code>!</code>.</li>
+<li>Select the <code>year</code> column and pivot the table around it with <code>Shift+W</code>.</li>
+</ol>
+<p>We should now have something that looks like this:</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> artist_name               </span><span></span><span>║</span><span></span><span>↓2022#</span><span></span><span>|</span><span></span><span> 2021#</span><span></span><span>|</span><span></span><span> 2020#</span><span></span><span>|</span><span></span><span> 2019#</span><span></span><span>|</span><span></span><span> 2018#</span><span></span><span>|</span><span></span><span> 2017#</span><span></span><span>|</span><span></span><span> 2016#</span><span></span><span>|</span><span></span><span> 2015#</span><span></span><span>|</span><span></span><span> 2014#</span><span></span><span>|</span><span></span><span> 2013#</span><span></span><span>|&gt;</span><span>
+</span><span> Celestial Aeon Project    ║</span><span>  126 </span><span></span><span></span><span>|    0 |    0 |    0 |    0 |    0 |    0 |    0 |    0 |    0 |0</span><span></span><span>
+</span><span> Black Sabbath             </span><span>║</span><span></span><span>   86 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Purity Ring               </span><span>║</span><span></span><span>   40 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Nightwish                 </span><span>║</span><span></span><span>   36 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Queen                     </span><span>║</span><span></span><span>   33 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Moderator                 </span><span>║</span><span></span><span>   29 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Dio                       </span><span>║</span><span></span><span>   24 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Ludovico Einaudi          </span><span>║</span><span></span><span>   22 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Iron Maiden               </span><span>║</span><span></span><span>   22 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Blackmore&#39;s Night         </span><span>║</span><span></span><span>   21 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Scar Symmetry             </span><span>║</span><span></span><span>   21 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Within Temptation         </span><span>║</span><span></span><span>   20 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> DragonForce               </span><span>║</span><span></span><span>   20 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Massive Attack            </span><span>║</span><span></span><span>   20 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span></span><span></span><span>28› listens-cleaned_pivot_year_count|                KEY_RESIZE   redraw      8264 grouped rows  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>To view the top artists for different years, simply select the year and use <code>]</code>
+to sort in descending order. Here’s my top artists five years ago in 2017.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> artist_name               </span><span></span><span>║</span><span></span><span> 2022#</span><span></span><span>|</span><span></span><span> 2021#</span><span></span><span>|</span><span></span><span> 2020#</span><span></span><span>|</span><span></span><span> 2019#</span><span></span><span>|</span><span></span><span> 2018#</span><span></span><span>|</span><span></span><span>↓2017#</span><span></span><span>|</span><span></span><span> 2016#</span><span></span><span>|</span><span></span><span> 2015#</span><span></span><span>|</span><span></span><span> 2014#</span><span></span><span>|</span><span></span><span> 2013#</span><span></span><span>|&gt;</span><span>
+</span><span> E.S. Posthumus            ║    0 |    0 |    0 |    0 |    0 |</span><span>  240 </span><span></span><span></span><span>|    0 |    0 |    0 |    0 |0</span><span></span><span>
+</span><span> Celestial Aeon Project    </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  200 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Queen                     </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  188 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Amon Amarth               </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  186 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Amaranthe                 </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  168 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Florence + the Machine    </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  158 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Within Temptation         </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  145 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Avenged Sevenfold         </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  143 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Black Sabbath             </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  133 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Carly Rae Jepsen          </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  127 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Nightwish                 </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  102 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Iron Maiden               </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>  101 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Arch Enemy                </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>   96 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span> Epica                     </span><span>║</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span></span><span>   93 </span><span></span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>    0 </span><span>|</span><span>0
+</span><span></span><span></span><span>28› listens-cleaned_pivot_year_count|                      ]   sort-desc      8264 grouped rows  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>The same pivot approach can be used to find the top albums for each year. Make both the
+<code>artist_name</code> and <code>release_name</code> key columns, then pivot on the <code>year</code> column again.</p>
+<h2 id="top-20-artists-for-each-year"><a href="#top-20-artists-for-each-year" arialabel="Anchor"></a>Top 20 artists for each year</h2>
+<p>Let’s do something similar to the previous section, but this time we select the
+top 20 artists for each year. The goal is to have a sheet with 21 columns: 1
+<code>year</code> column and 20 <code>topN</code> columns.</p>
+<pre><code>| year | top1 | top2 | top3 | ... | top20 |
+</code></pre><p>We’ll start by generating a histogram.</p>
+<ol>
+<li>Mark the <code>year</code> and <code>artist_name</code> columns as key columns with <code>!</code></li>
+<li>Create a frequency table on our key columns with <code>gF</code></li>
+<li>Sort the <code>year</code> column in descending order with <code>]</code>.</li>
+<li>Sort the <code>count</code> column as well. This time we add it to existing sort criteria with <code>z]</code>.</li>
+</ol>
+<p>Now we are sorting the frequency table by year descending, then count descending.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span>↓year              #</span><span></span><span>|</span><span></span><span> artist_name        </span><span></span><span>║</span><span></span><span> count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                             </span><span></span><span>
+</span><span>               2022 |</span><span> Celestial Aeon Pro…</span><span></span><span></span><span>║   126 |    0.14 | *********                             </span><span></span><span>
+</span><span>               2022 </span><span>|</span><span></span><span> Black Sabbath      </span><span></span><span>║</span><span>    86 </span><span>|</span><span>    0.09 </span><span>|</span><span> ******
+</span><span>               2022 </span><span>|</span><span></span><span> Purity Ring        </span><span></span><span>║</span><span>    40 </span><span>|</span><span>    0.04 </span><span>|</span><span> **
+</span><span>               2022 </span><span>|</span><span></span><span> Nightwish          </span><span></span><span>║</span><span>    36 </span><span>|</span><span>    0.04 </span><span>|</span><span> **
+</span><span>               2022 </span><span>|</span><span></span><span> Queen              </span><span></span><span>║</span><span>    33 </span><span>|</span><span>    0.04 </span><span>|</span><span> **
+</span><span>               2022 </span><span>|</span><span></span><span> Moderator          </span><span></span><span>║</span><span>    29 </span><span>|</span><span>    0.03 </span><span>|</span><span> **
+</span><span>               2022 </span><span>|</span><span></span><span> Dio                </span><span></span><span>║</span><span>    24 </span><span>|</span><span>    0.03 </span><span>|</span><span> *
+</span><span>               2022 </span><span>|</span><span></span><span> Ludovico Einaudi   </span><span></span><span>║</span><span>    22 </span><span>|</span><span>    0.02 </span><span>|</span><span> *
+</span><span>               2022 </span><span>|</span><span></span><span> Iron Maiden        </span><span></span><span>║</span><span>    22 </span><span>|</span><span>    0.02 </span><span>|</span><span> *
+</span><span></span><span></span><span>2› listens-cleaned_year-artist_name_freq|                    KEY_RESIZE   redraw      8718 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Next we’ll flatten the sheet to get our desired column layout. To do so we’ll
+utilize frequency tables again, but this time with a <code>list</code> aggregator applied
+to the <code>artist_name</code> column.</p>
+<ol>
+<li>Apply an aggregator on the <code>artist_name</code> column with <code>+</code>. Type <code>list</code> or
+press <code>Ctrl+X</code> for an interactive menu.</li>
+<li>Create a frequency table on the <code>year</code> column with <code>Shift+F</code>.</li>
+</ol>
+<p>With the <code>list</code> aggregator on the <code>artist_name</code> column, when VisiData creates
+the frequency table, it also aggregates the values of that column into a list.
+The frequency table looks like this.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> year              #</span><span></span><span>║</span><span></span><span> count♯</span><span></span><span>|</span><span></span><span> artist_name_list </span><span></span><span>║</span><span>
+</span><span>               2022 </span><span></span><span></span><span>║   335 | [335]            ║</span><span></span><span>
+</span><span></span><span>               2021 </span><span></span><span>║</span><span>  1537 </span><span>|</span><span> [1537]           </span><span>║</span><span>
+</span><span></span><span>               2020 </span><span></span><span>║</span><span>  1129 </span><span>|</span><span> [1129]           </span><span>║</span><span>
+</span><span></span><span>               2019 </span><span></span><span>║</span><span>    24 </span><span>|</span><span> [24]             </span><span>║</span><span>
+</span><span></span><span></span><span>6› listens-cleaned_year-artist_name_freq_year_freq|          KEY_RESIZE   redraw        15 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>The <code>artist_name_list</code> column is an array, so can be expanded with <code>(</code>. The
+sheet now looks like this.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> year#</span><span></span><span>║</span><span></span><span> count♯</span><span></span><span>|</span><span></span><span> artist_name_list[0]    </span><span></span><span>|</span><span></span><span> artist_name_list[1]    </span><span></span><span>|</span><span></span><span> artist_name_list[2] </span><span></span><span>|</span><span></span><span> artist_nam</span><span></span><span>&gt;</span><span>
+</span><span> 2022 ║   335 |</span><span> Celestial Aeon Project </span><span></span><span></span><span>| Black Sabbath          | Purity Ring         | Nightwish  </span><span></span><span>
+</span><span> 2021 </span><span>║</span><span>  1537 </span><span>|</span><span></span><span> Nightwish              </span><span></span><span>|</span><span> Epica                  </span><span>|</span><span> Within Temptation   </span><span>|</span><span> ABBA
+</span><span> 2020 </span><span>║</span><span>  1129 </span><span>|</span><span></span><span> Nightwish              </span><span></span><span>|</span><span> Within Temptation      </span><span>|</span><span> Black Sabbath       </span><span>|</span><span> Moderator
+</span><span> 2019 </span><span>║</span><span>    24 </span><span>|</span><span></span><span> Dance With The Dead    </span><span></span><span>|</span><span> The xx                 </span><span>|</span><span> Bhelliom            </span><span>|</span><span> Avenged Se…
+</span><span></span><span></span><span>12› listens-cleaned_year-artist_name_freq_year_freq|         KEY_RESIZE   redraw        15 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>We only want the top 20, so let’s use a Python expression to extract
+just the first 20 elements from this array.</p>
+<ol>
+<li>Collapse the <code>artist_name_list</code> column again with <code>)</code>.</li>
+<li>Create a new column using a Python expression with <code>= artist_name_list[:20]</code>.</li>
+<li>Expand the new column with <code>(</code>.</li>
+</ol>
+<p>The new columns look like:</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> year#</span><span></span><span>║</span><span></span><span> artist_name_list[:20][0] </span><span></span><span>|</span><span></span><span> artist_name_list[:20][1] </span><span></span><span>|</span><span></span><span> artist_name_list[:20][2] </span><span></span><span>|</span><span></span><span> artist_na</span><span></span><span>&gt;</span><span>
+</span><span> 2022 ║</span><span> Celestial Aeon Project   </span><span></span><span></span><span>| Black Sabbath            | Purity Ring              | Nightwish </span><span></span><span>
+</span><span> 2021 </span><span>║</span><span></span><span> Nightwish                </span><span></span><span>|</span><span> Epica                    </span><span>|</span><span> Within Temptation        </span><span>|</span><span> ABBA
+</span><span> 2020 </span><span>║</span><span></span><span> Nightwish                </span><span></span><span>|</span><span> Within Temptation        </span><span>|</span><span> Black Sabbath            </span><span>|</span><span> Moderator
+</span><span> 2019 </span><span>║</span><span></span><span> Dance With The Dead      </span><span></span><span>|</span><span> The xx                   </span><span>|</span><span> Bhelliom                 </span><span>|</span><span> Avenged S…
+</span><span></span><span></span><span>12› listens-cleaned_year-artist_name_freq_year_freq|                   k   go-up        15 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>They’re not very nicely named, so let’s clean it up. We can rename it
+one-by-one, but I’ll just hack out something in Python to do so.</p>
+<ol>
+<li>Open the Columns sheet with <code>Shift+C</code>.</li>
+<li>Select the columns using a search with <code>| artist_name_list</code>.</li>
+<li>Rename the columns using a Python expression with <code>g= &#39;top&#39; + str(int(name.split(&#39;][&#39;)[-1][:-1]) + 1)</code>. Not the cleanest, but it’ll work.</li>
+</ol>
+<p>Now we have the sheet in our desired format. We can see from a quick glance
+there are some artists that consistently appear in my top 20 over the years.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                                               </span><span></span>
+<span></span><span></span><span> year#</span><span></span><span>║</span><span></span><span> top1                     </span><span></span><span>|</span><span></span><span> top2                     </span><span></span><span>|</span><span></span><span> top3                     </span><span></span><span>|</span><span></span><span> top4                     </span><span></span><span>|</span><span></span><span> top5        </span><span></span><span>&gt;</span><span>
+</span><span> 2022 ║ Celestial Aeon Project   |</span><span> Black Sabbath            </span><span></span><span></span><span>| Purity Ring              | Nightwish                | Queen        </span><span></span><span>
+</span><span> 2021 </span><span>║</span><span> Nightwish                </span><span>|</span><span></span><span> Epica                    </span><span></span><span>|</span><span> Within Temptation        </span><span>|</span><span> ABBA                     </span><span>|</span><span> Pantera
+</span><span> 2020 </span><span>║</span><span> Nightwish                </span><span>|</span><span></span><span> Within Temptation        </span><span></span><span>|</span><span> Black Sabbath            </span><span>|</span><span> Moderator                </span><span>|</span><span> ABBA
+</span><span> 2019 </span><span>║</span><span> Dance With The Dead      </span><span>|</span><span></span><span> The xx                   </span><span></span><span>|</span><span> Bhelliom                 </span><span>|</span><span> Avenged Sevenfold        </span><span>|</span><span> Timecop1983
+</span><span> 2018 </span><span>║</span><span> Dance With The Dead      </span><span>|</span><span></span><span> Carly Rae Jepsen         </span><span></span><span>|</span><span> Blackmore&#39;s Night        </span><span>|</span><span> Slow Club                </span><span>|</span><span> Queen
+</span><span> 2017 </span><span>║</span><span> E.S. Posthumus           </span><span>|</span><span></span><span> Celestial Aeon Project   </span><span></span><span>|</span><span> Queen                    </span><span>|</span><span> Amon Amarth              </span><span>|</span><span> Amaranthe
+</span><span> 2016 </span><span>║</span><span> E.S. Posthumus           </span><span>|</span><span></span><span> The xx                   </span><span></span><span>|</span><span> Black Sabbath            </span><span>|</span><span> Grimes                   </span><span>|</span><span> Massive Atta…
+</span><span> 2015 </span><span>║</span><span> Queen                    </span><span>|</span><span></span><span> The Glitch Mob           </span><span></span><span>|</span><span> Ludovico Einaudi         </span><span>|</span><span> E.S. Posthumus           </span><span>|</span><span> Rainbow
+</span><span> 2014 </span><span>║</span><span> Krewella                 </span><span>|</span><span></span><span> Queen                    </span><span></span><span>|</span><span> E.S. Posthumus           </span><span>|</span><span> Grimes                   </span><span>|</span><span> Within Tempt…
+</span><span> 2013 </span><span>║</span><span> Krewella                 </span><span>|</span><span></span><span> E.S. Posthumus           </span><span></span><span>|</span><span> Queen                    </span><span>|</span><span> Purity Ring              </span><span>|</span><span> Flobots
+</span><span> 2012 </span><span>║</span><span> Queen                    </span><span>|</span><span></span><span> E.S. Posthumus           </span><span></span><span>|</span><span> Dragonette               </span><span>|</span><span> Flobots                  </span><span>|</span><span> Florence + t…
+</span><span> 2011 </span><span>║</span><span> Flobots                  </span><span>|</span><span></span><span> Pendulum                 </span><span></span><span>|</span><span> Black Sabbath            </span><span>|</span><span> The xx                   </span><span>|</span><span> Queen
+</span><span> 2010 </span><span>║</span><span> Black Sabbath            </span><span>|</span><span></span><span> Florence + the Machine   </span><span></span><span>|</span><span> Flobots                  </span><span>|</span><span> E.S. Posthumus           </span><span>|</span><span> Overkill
+</span><span> 2009 </span><span>║</span><span> Black Sabbath            </span><span>|</span><span></span><span> Opeth                    </span><span></span><span>|</span><span> E.S. Posthumus           </span><span>|</span><span> AC/DC                    </span><span>|</span><span> Queen
+</span><span> 2008 </span><span>║</span><span> Opeth                    </span><span>|</span><span></span><span> Amon Amarth              </span><span></span><span>|</span><span> Dark Tranquillity        </span><span>|</span><span> Iron Maiden              </span><span>|</span><span> Judas Priest
+
+</span><span></span><span></span><span>12› listens-cleaned_year-artist_name_freq_year_freq|                                                 k   go-up        15 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<h2 id="artists-with-the-most-staying-power-over-the-years"><a href="#artists-with-the-most-staying-power-over-the-years" arialabel="Anchor"></a>Artists with the most staying power over the years</h2>
+<p>In the previous section we found the top 20 artists for each year. Let’s extend
+from those results and find the artists that have appeared the most in my 14
+years of listens.</p>
+<ol>
+<li>Melt the sheet with <code>Shift+M</code>. A melt is an inverse of a pivot.</li>
+</ol>
+<p>The sheet now looks like this.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> year#</span><span></span><span>║</span><span></span><span> Variable </span><span></span><span>|</span><span></span><span> Value                   </span><span></span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top1     </span><span></span><span>|</span><span> Celestial Aeon Project  </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top2     </span><span></span><span>|</span><span> Black Sabbath           </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top3     </span><span></span><span>|</span><span> Purity Ring             </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top4     </span><span></span><span>|</span><span> Nightwish               </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top5     </span><span></span><span>|</span><span> Queen                   </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top6     </span><span></span><span>|</span><span> Moderator               </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top7     </span><span></span><span>|</span><span> Dio                     </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top8     </span><span></span><span>|</span><span> Ludovico Einaudi        </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top9     </span><span></span><span>|</span><span> Iron Maiden             </span><span>║</span><span>
+</span><span> 2022 ║</span><span> top10    </span><span></span><span></span><span>| Blackmore&#39;s Night       ║</span><span></span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top11    </span><span></span><span>|</span><span> Scar Symmetry           </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top12    </span><span></span><span>|</span><span> Within Temptation       </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top13    </span><span></span><span>|</span><span> DragonForce             </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top14    </span><span></span><span>|</span><span> Massive Attack          </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top15    </span><span></span><span>|</span><span> Ensiferum               </span><span>║</span><span>
+</span><span> 2022 </span><span>║</span><span></span><span> top16    </span><span></span><span>|</span><span> Amon Amarth             </span><span>║</span><span>
+</span><span></span><span></span><span>15› listens-cleaned_year-artist_name_freq_year_freq_melted| h   go-left       300 melted values  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>By default when VisiData does a melt, it adds the <code>max</code> aggregator to the
+<code>Value</code> column. Let’s first remove it by going into the Columns sheet with
+<code>Shift+C</code> and using <code>e</code> to edit the aggregators cell for the <code>Value</code> column.</p>
+<p>Now we can simply create a frequency table to get our results.</p>
+<ol>
+<li>Select the <code>Value</code> column.</li>
+<li>Create a frequency table with <code>Shift+F</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> Value                   </span><span></span><span>║</span><span></span><span>↓count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                                         ~</span><span></span><span>║</span><span>
+</span><span> Black Sabbath           </span><span></span><span></span><span>║    13 |    4.33 | ************************************************** ║</span><span></span><span>
+</span><span></span><span> Queen                   </span><span></span><span>║</span><span>    12 </span><span>|</span><span>    4.00 </span><span>|</span><span> **********************************************     </span><span>║</span><span>
+</span><span></span><span> Amon Amarth             </span><span></span><span>║</span><span>    11 </span><span>|</span><span>    3.67 </span><span>|</span><span> ******************************************         </span><span>║</span><span>
+</span><span></span><span> Florence + the Machine  </span><span></span><span>║</span><span>    10 </span><span>|</span><span>    3.33 </span><span>|</span><span> **************************************             </span><span>║</span><span>
+</span><span></span><span> E.S. Posthumus          </span><span></span><span>║</span><span>    10 </span><span>|</span><span>    3.33 </span><span>|</span><span> **************************************             </span><span>║</span><span>
+</span><span></span><span> Within Temptation       </span><span></span><span>║</span><span>     9 </span><span>|</span><span>    3.00 </span><span>|</span><span> **********************************                 </span><span>║</span><span>
+</span><span></span><span> Delain                  </span><span></span><span>║</span><span>     9 </span><span>|</span><span>    3.00 </span><span>|</span><span> **********************************                 </span><span>║</span><span>
+</span><span></span><span> Pendulum                </span><span></span><span>║</span><span>     9 </span><span>|</span><span>    3.00 </span><span>|</span><span> **********************************                 </span><span>║</span><span>
+</span><span></span><span> Iron Maiden             </span><span></span><span>║</span><span>     8 </span><span>|</span><span>    2.67 </span><span>|</span><span> ******************************                     </span><span>║</span><span>
+</span><span></span><span> The xx                  </span><span></span><span>║</span><span>     8 </span><span>|</span><span>    2.67 </span><span>|</span><span> ******************************                     </span><span>║</span><span>
+</span><span></span><span> Nightwish               </span><span></span><span>║</span><span>     7 </span><span>|</span><span>    2.33 </span><span>|</span><span> **************************                         </span><span>║</span><span>
+</span><span></span><span> Massive Attack          </span><span></span><span>║</span><span>     7 </span><span>|</span><span>    2.33 </span><span>|</span><span> **************************                         </span><span>║</span><span>
+</span><span></span><span> Slow Club               </span><span></span><span>║</span><span>     6 </span><span>|</span><span>    2.00 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Avenged Sevenfold       </span><span></span><span>║</span><span>     6 </span><span>|</span><span>    2.00 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Bon Jovi                </span><span></span><span>║</span><span>     6 </span><span>|</span><span>    2.00 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Rainbow                 </span><span></span><span>║</span><span>     6 </span><span>|</span><span>    2.00 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Opeth                   </span><span></span><span>║</span><span>     6 </span><span>|</span><span>    2.00 </span><span>|</span><span> ***********************                            </span><span>║</span><span>
+</span><span></span><span> Purity Ring             </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Moderator               </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Dio                     </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Dance With The Dead     </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Amaranthe               </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Blind Guardian          </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Flobots                 </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Meiko                   </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span> Judas Priest            </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    1.67 </span><span>|</span><span> *******************                                </span><span>║</span><span>
+</span><span></span><span></span><span>23› listens-cleaned_year-artist_name_freq_year_freq_melted_V KEY_RESIZE   redraw        80 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<blockquote>
+<p><strong>Tip:</strong> Pressing <code>&lt;Enter&gt;</code> on any row in a frequency table will open a new sheet
+with the rows in the source sheet that comprise the histogram bucket. In this
+case <code>&lt;Enter&gt;</code> will show you which years the selected artist was in the top-20
+for.</p>
+</blockquote>
+<p>As you might have noticed by now, the ability to quickly create
+frequency tables is <em>extremely</em> convenient. In fact, during my day-to-day work,
+whenever I have to explore some data, I can very quickly do so with a
+combination to <code>Shift+F</code>, filtering with <code>&lt;Enter&gt;</code> and searching with <code>|</code>. It’s
+almost a superpower.</p>
+<h2 id="day-of-week-with-the-most-listens-on-average"><a href="#day-of-week-with-the-most-listens-on-average" arialabel="Anchor"></a>Day of week with the most listens on average</h2>
+<p>Let’s find out on which day of the week I have the most listens on. My
+intuition is that most listens will be clustered around weekdays, since I tend
+to leave my music on in the background while I work.</p>
+<ol>
+<li>Create a new column containing the day of week using a Python expression
+with <code>= datetime.datetime.fromtimestamp(listened_at).strftime(&#34;%A&#34;)</code>.</li>
+<li>Rename the new column with <code>^</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> artist_name        </span><span></span><span>|</span><span></span><span> release_name       </span><span></span><span>|</span><span></span><span> track_name         </span><span></span><span>|</span><span></span><span> listened_at#</span><span></span><span>|</span><span></span><span> day_of_week        </span><span></span><span>|&gt;</span><span>
+</span><span> Within Temptation  | The Unforgiving    | Fire and Ice       |  1645356049 |</span><span> Sunday             </span><span></span><span></span><span>|…</span><span></span><span>
+ Within Temptation  </span><span>|</span><span> The Unforgiving    </span><span>|</span><span> Faster             </span><span>|</span><span>  1645355785 </span><span>|</span><span></span><span> Sunday             </span><span></span><span>|</span><span>…
+ Within Temptation  </span><span>|</span><span> The Unforgiving    </span><span>|</span><span> In the Middle of t…</span><span>|</span><span>  1645355474 </span><span>|</span><span></span><span> Sunday             </span><span></span><span>|</span><span>…
+ Within Temptation  </span><span>|</span><span> The Unforgiving    </span><span>|</span><span> Shot in the Dark   </span><span>|</span><span>  1645355171 </span><span>|</span><span></span><span> Sunday             </span><span></span><span>|</span><span>…
+ Within Temptation  </span><span>|</span><span> The Unforgiving    </span><span>|</span><span> Why Not Me         </span><span>|</span><span>  1645355137 </span><span>|</span><span></span><span> Sunday             </span><span></span><span>|</span><span>…
+ AC/DC              </span><span>|</span><span> Back in Black      </span><span>|</span><span> Shoot to Thrill    </span><span>|</span><span>  1645286392 </span><span>|</span><span></span><span> Saturday           </span><span></span><span>|</span><span>…
+ AC/DC              </span><span>|</span><span> Back in Black      </span><span>|</span><span> Hells Bells        </span><span>|</span><span>  1645286079 </span><span>|</span><span></span><span> Saturday           </span><span></span><span>|</span><span>…
+ The Glitch Mob     </span><span>|</span><span> Drink the Sea      </span><span>|</span><span> Animus Vox         </span><span>|</span><span>  1645174407 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Daydreaming        </span><span>|</span><span> Hold Me (feat. Han…</span><span>|</span><span>  1645165001 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Daydreaming        </span><span>|</span><span> Dreaming (About Yo…</span><span>|</span><span>  1645164652 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Childhood Memories </span><span>|</span><span> Burning Hearts (bo…</span><span>|</span><span>  1645164354 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Childhood Memories </span><span>|</span><span> Space Jam          </span><span>|</span><span>  1645164174 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Childhood Memories </span><span>|</span><span> Into the Night     </span><span>|</span><span>  1645163921 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Childhood Memories </span><span>|</span><span> Summer Love        </span><span>|</span><span>  1645163653 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Childhood Memories </span><span>|</span><span> Renegade Dreams    </span><span>|</span><span>  1645163353 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+ Timecop1983        </span><span>|</span><span> Childhood Memories </span><span>|</span><span> To the Summit      </span><span>|</span><span>  1645163074 </span><span>|</span><span></span><span> Friday             </span><span></span><span>|</span><span>…
+</span><span></span><span></span><span>1› listens-cleaned|                                                 l   go-right     91895 rows  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<ol>
+<li>Open a frequency table on the <code>day_of_week</code> column with <code>Shift+F</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> day_of_week        </span><span></span><span>║</span><span></span><span>↓count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                                         ~</span><span></span><span>║</span><span>
+</span><span> Sunday             </span><span></span><span></span><span>║ 15761 |   17.15 | ************************************************** ║</span><span></span><span>
+</span><span></span><span> Saturday           </span><span></span><span>║</span><span> 15034 </span><span>|</span><span>   16.36 </span><span>|</span><span> ***********************************************    </span><span>║</span><span>
+</span><span></span><span> Friday             </span><span></span><span>║</span><span> 13535 </span><span>|</span><span>   14.73 </span><span>|</span><span> ******************************************         </span><span>║</span><span>
+</span><span></span><span> Monday             </span><span></span><span>║</span><span> 12022 </span><span>|</span><span>   13.08 </span><span>|</span><span> **************************************             </span><span>║</span><span>
+</span><span></span><span> Wednesday          </span><span></span><span>║</span><span> 11972 </span><span>|</span><span>   13.03 </span><span>|</span><span> *************************************              </span><span>║</span><span>
+</span><span></span><span> Thursday           </span><span></span><span>║</span><span> 11865 </span><span>|</span><span>   12.91 </span><span>|</span><span> *************************************              </span><span>║</span><span>
+</span><span></span><span> Tuesday            </span><span></span><span>║</span><span> 11706 </span><span>|</span><span>   12.74 </span><span>|</span><span> *************************************              </span><span>║</span><span>
+</span><span></span><span></span><span>4› listens-cleaned_day_of_week_freq|                         KEY_RESIZE   redraw         7 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Seems like my intuition was wrong. I noticeably listen to more music over the
+weekend. At least, this is true across listens over the 14 year period. Let’s
+take a look at the distribution for the more recent years (2020-2022) instead.</p>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span> day_of_week        </span><span></span><span>║</span><span></span><span>↓count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                                         ~</span><span></span><span>║</span><span>
+</span><span> Wednesday          </span><span></span><span></span><span>║  3129 |   20.62 | ************************************************** ║</span><span></span><span>
+</span><span></span><span> Thursday           </span><span></span><span>║</span><span>  2552 </span><span>|</span><span>   16.82 </span><span>|</span><span> ****************************************           </span><span>║</span><span>
+</span><span></span><span> Tuesday            </span><span></span><span>║</span><span>  2392 </span><span>|</span><span>   15.77 </span><span>|</span><span> **************************************             </span><span>║</span><span>
+</span><span></span><span> Monday             </span><span></span><span>║</span><span>  2375 </span><span>|</span><span>   15.65 </span><span>|</span><span> *************************************              </span><span>║</span><span>
+</span><span></span><span> Friday             </span><span></span><span>║</span><span>  2234 </span><span>|</span><span>   14.72 </span><span>|</span><span> ***********************************                </span><span>║</span><span>
+</span><span></span><span> Saturday           </span><span></span><span>║</span><span>  1399 </span><span>|</span><span>    9.22 </span><span>|</span><span> **********************                             </span><span>║</span><span>
+</span><span></span><span> Sunday             </span><span></span><span>║</span><span>  1091 </span><span>|</span><span>    7.19 </span><span>|</span><span> *****************                                  </span><span>║</span><span>
+</span><span></span><span></span><span>9› listens-cleaned_selectedref_day_of_week_freq|             KEY_RESIZE   redraw         7 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>This is much more in line with what I expected. Weekdays tend to have
+significantly more listens. Wednesdays seem to be a strange anomaly, with
+considerably more listens compared to the other weekdays.</p>
+<h2 id="time-of-day-with-the-most-listens-on-average"><a href="#time-of-day-with-the-most-listens-on-average" arialabel="Anchor"></a>Time of day with the most listens on average</h2>
+<p>Similar to what we did for the day of week, let’s analyze during what time of
+day I have the most listens. In particular I’m interested to see how many
+of those listens happen during my work hours. I’ll only consider the years
+2020-2022 for this analysis.</p>
+<ol>
+<li>Create a new column with the hour using a Python expression with <code>= datetime.datetime.fromtimestamp(listened_at).hour</code>.</li>
+<li>Rename the new column with <code>^</code>.</li>
+<li>Open a frequency table with <code>Shift+F</code>.</li>
+<li>Sort the <code>hour</code> column in ascending order with <code>[</code>.</li>
+</ol>
+
+
+  
+    <div>
+<pre><span></span><span>  File  Edit  View  Column  Row  Data  Plot  System  Help     Ctrl+H for help menu                 </span><span></span>
+<span></span><span></span><span>↑hour    #</span><span></span><span>║</span><span></span><span> count♯</span><span></span><span>|</span><span></span><span> percent%</span><span></span><span>|</span><span></span><span> histogram                                         ~</span><span></span><span>║</span><span>
+</span><span>        0 </span><span></span><span></span><span>║  1305 |    8.60 | *************************************              ║</span><span></span><span>
+</span><span></span><span>        1 </span><span></span><span>║</span><span>   774 </span><span>|</span><span>    5.10 </span><span>|</span><span> **********************                             </span><span>║</span><span>
+</span><span></span><span>        2 </span><span></span><span>║</span><span>   307 </span><span>|</span><span>    2.02 </span><span>|</span><span> ********                                           </span><span>║</span><span>
+</span><span></span><span>        3 </span><span></span><span>║</span><span>    81 </span><span>|</span><span>    0.53 </span><span>|</span><span> **                                                 </span><span>║</span><span>
+</span><span></span><span>        4 </span><span></span><span>║</span><span>    25 </span><span>|</span><span>    0.16 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span>        8 </span><span></span><span>║</span><span>     5 </span><span>|</span><span>    0.03 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span>        9 </span><span></span><span>║</span><span>     2 </span><span>|</span><span>    0.01 </span><span>|</span><span>                                                    </span><span>║</span><span>
+</span><span></span><span>       10 </span><span></span><span>║</span><span>    68 </span><span>|</span><span>    0.45 </span><span>|</span><span> *                                                  </span><span>║</span><span>
+</span><span></span><span>       11 </span><span></span><span>║</span><span>   330 </span><span>|</span><span>    2.18 </span><span>|</span><span> *********                                          </span><span>║</span><span>
+</span><span></span><span>       12 </span><span></span><span>║</span><span>   458 </span><span>|</span><span>    3.02 </span><span>|</span><span> *************                                      </span><span>║</span><span>
+</span><span></span><span>       13 </span><span></span><span>║</span><span>   556 </span><span>|</span><span>    3.66 </span><span>|</span><span> ***************                                    </span><span>║</span><span>
+</span><span></span><span>       14 </span><span></span><span>║</span><span>  1398 </span><span>|</span><span>    9.21 </span><span>|</span><span> ****************************************           </span><span>║</span><span>
+</span><span></span><span>       15 </span><span></span><span>║</span><span>  1746 </span><span>|</span><span>   11.51 </span><span>|</span><span> ************************************************** </span><span>║</span><span>
+</span><span></span><span>       16 </span><span></span><span>║</span><span>  1615 </span><span>|</span><span>   10.64 </span><span>|</span><span> **********************************************     </span><span>║</span><span>
+</span><span></span><span>       17 </span><span></span><span>║</span><span>  1181 </span><span>|</span><span>    7.78 </span><span>|</span><span> *********************************                  </span><span>║</span><span>
+</span><span></span><span>       18 </span><span></span><span>║</span><span>   875 </span><span>|</span><span>    5.77 </span><span>|</span><span> *************************                          </span><span>║</span><span>
+</span><span></span><span>       19 </span><span></span><span>║</span><span>   482 </span><span>|</span><span>    3.18 </span><span>|</span><span> *************                                      </span><span>║</span><span>
+</span><span></span><span>       20 </span><span></span><span>║</span><span>   652 </span><span>|</span><span>    4.30 </span><span>|</span><span> ******************                                 </span><span>║</span><span>
+</span><span></span><span>       21 </span><span></span><span>║</span><span>   973 </span><span>|</span><span>    6.41 </span><span>|</span><span> ***************************                        </span><span>║</span><span>
+</span><span></span><span>       22 </span><span></span><span>║</span><span>  1098 </span><span>|</span><span>    7.24 </span><span>|</span><span> *******************************                    </span><span>║</span><span>
+</span><span></span><span>       23 </span><span></span><span>║</span><span>  1241 </span><span>|</span><span>    8.18 </span><span>|</span><span> ***********************************                </span><span>║</span><span>
+
+</span><span></span><span></span><span>12› listens-cleaned_selectedref_hour_freq|                   KEY_RESIZE   redraw        21 bins  •0</span><span></span><span>
+</span>
+</pre>
+</div>
+
+  
+
+
+<p>Initially I didn’t think the frequency analysis looked that interesting, but
+there’s actually some insights we can draw from it.</p>
+<ol>
+<li>I typically head off to bed around 2 to 3am.</li>
+<li>My listens drop off during dinner time around 6 or 7pm, before ramping back
+up later in the night.</li>
+<li>Most listens begin around 2pm, after lunch time.</li>
+</ol>
+<h2 id="in-closing"><a href="#in-closing" arialabel="Anchor"></a>In closing</h2>
+<p>I hope this post showcased the usefulness of VisiData. It truly is a joy to
+use, being able to wrangle CSV data with a few keystrokes, as opposed to
+importing the data into a spreadsheet and mucking around with a GUI and formulas.</p>
+<p>I use it quite often in my day-to-day work, for instance to <a href="https://kb.hbenjamin.com/analyzing-sentry-events/">analyze Sentry
+events</a>. I also have a
+personal <a href="https://kb.hbenjamin.com/visidata-vd/">VisiData cheatsheet</a>.</p>
+
+</div></div>

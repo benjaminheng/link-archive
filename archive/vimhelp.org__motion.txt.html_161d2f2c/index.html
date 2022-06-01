@@ -1,0 +1,1373 @@
+---
+url: https://vimhelp.org/motion.txt.html#%3Akeepjumps
+title: 'Vim: motion.txt'
+archived_at: 2022-06-02T01:18:22.288987+08:00
+---
+<div id="readability-page-1" class="page">
+
+<pre><span id="motion.txt">motion.txt</span>    For <span>Vim version 8.2.</span>  Last change: 2022 Apr 18
+
+
+                  <span>VIM REFERENCE MANUAL    by Bram Moolenaar</span>
+
+
+Cursor motions                                  <span id="cursor-motions">cursor-motions</span> <span id="navigation">navigation</span>
+
+These commands move the cursor position.  If the new position <a href="#is">is</a> off of the
+screen, the screen <a href="#is">is</a> scrolled to show the cursor (see also <a href="https://vimhelp.org/options.txt.html#%27scrolljump%27">&#39;scrolljump&#39;</a> and
+<a href="https://vimhelp.org/options.txt.html#%27scrolloff%27">&#39;scrolloff&#39;</a> options).
+
+1. Motions and operators        <a href="#operator">operator</a>
+2. Left-right motions           <a href="#left-right-motions">left-right-motions</a>
+3. Up-down motions              <a href="#up-down-motions">up-down-motions</a>
+4. Word motions                 <a href="#word-motions">word-motions</a>
+5. Text object motions          <a href="#object-motions">object-motions</a>
+6. Text object selection        <a href="#object-select">object-select</a>
+7. Marks                        <a href="#mark-motions">mark-motions</a>
+8. Jumps                        <a href="#jump-motions">jump-motions</a>
+9. Various motions              <a href="#various-motions">various-motions</a>
+
+General remarks:
+
+If you want to know where you are in the file use the &#34;<a href="https://vimhelp.org/editing.txt.html#CTRL-G">CTRL-G</a>&#34; command
+<a href="https://vimhelp.org/editing.txt.html#CTRL-G">CTRL-G</a> or the &#34;<a href="https://vimhelp.org/index.txt.html#g">g</a> <a href="https://vimhelp.org/editing.txt.html#CTRL-G">CTRL-G</a>&#34; command <a href="https://vimhelp.org/editing.txt.html#g_CTRL-G">g_CTRL-G</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  If you set the <a href="https://vimhelp.org/options.txt.html#%27ruler%27">&#39;ruler&#39;</a> option,
+the cursor position <a href="#is">is</a> continuously shown in the status line (which slows down
+Vim <a href="https://vimhelp.org/insert.txt.html#a">a</a> little).
+
+Experienced users prefer the <a href="https://vimhelp.org/usr_02.txt.html#hjkl">hjkl</a> keys because they are always right under
+their fingers.  Beginners often prefer the arrow keys, because they <a href="https://vimhelp.org/diff.txt.html#do">do</a> not
+know what the <a href="https://vimhelp.org/usr_02.txt.html#hjkl">hjkl</a> keys do.  The mnemonic value of <a href="https://vimhelp.org/usr_02.txt.html#hjkl">hjkl</a> <a href="#is">is</a> clear from looking
+<a href="#at">at</a> the keyboard.  Think of <a href="#j">j</a> <a href="#as">as</a> an arrow pointing downwards.
+
+The <a href="https://vimhelp.org/options.txt.html#%27virtualedit%27">&#39;virtualedit&#39;</a> option can be set to make <a href="#it">it</a> possible to move the cursor to
+positions where there <a href="#is">is</a> no character or within <a href="https://vimhelp.org/insert.txt.html#a">a</a> multi-column character (like
+<a href="https://vimhelp.org/insert.txt.html#a">a</a> tab).
+
+<span>==============================================================================</span>
+1. Motions and operators                                <span id="operator">operator</span>
+
+The motion commands can be used after an <a href="#operator">operator</a> command, to have the command
+operate on the text that was moved over.  That <a href="#is">is</a> the text between the cursor
+position before and after the motion.  Operators are generally used to delete
+or change text.  The following operators are available:
+
+        <a href="https://vimhelp.org/change.txt.html#c">c</a>     <a href="https://vimhelp.org/change.txt.html#c">c</a>       change
+        <a href="https://vimhelp.org/change.txt.html#d">d</a>     <a href="https://vimhelp.org/change.txt.html#d">d</a>       delete
+        <a href="https://vimhelp.org/change.txt.html#y">y</a>     <a href="https://vimhelp.org/change.txt.html#y">y</a>       <a href="https://vimhelp.org/change.txt.html#yank">yank</a> into <a href="https://vimhelp.org/sponsor.txt.html#register">register</a> (does not change the text)
+        <a href="https://vimhelp.org/change.txt.html#~">~</a>     <a href="https://vimhelp.org/change.txt.html#~">~</a>       swap <a href="https://vimhelp.org/change.txt.html#case">case</a> (only if <a href="https://vimhelp.org/options.txt.html#%27tildeop%27">&#39;tildeop&#39;</a> <a href="#is">is</a> set)
+        <a href="https://vimhelp.org/change.txt.html#g~">g~</a>    <a href="https://vimhelp.org/change.txt.html#g~">g~</a>      swap <a href="https://vimhelp.org/change.txt.html#case">case</a>
+        <a href="https://vimhelp.org/change.txt.html#gu">gu</a>    <a href="https://vimhelp.org/change.txt.html#gu">gu</a>      make <a href="https://vimhelp.org/change.txt.html#lowercase">lowercase</a>
+        <a href="https://vimhelp.org/change.txt.html#gU">gU</a>    <a href="https://vimhelp.org/change.txt.html#gU">gU</a>      make <a href="https://vimhelp.org/change.txt.html#uppercase">uppercase</a>
+        <a href="https://vimhelp.org/change.txt.html#%21">!</a>     <a href="https://vimhelp.org/change.txt.html#%21">!</a>       <a href="https://vimhelp.org/change.txt.html#filter">filter</a> through an external program
+        <a href="https://vimhelp.org/change.txt.html#%3D">=</a>     <a href="https://vimhelp.org/change.txt.html#%3D">=</a>       <a href="https://vimhelp.org/change.txt.html#filter">filter</a> through <a href="https://vimhelp.org/options.txt.html#%27equalprg%27">&#39;equalprg&#39;</a> or <a href="https://vimhelp.org/indent.txt.html#C-indenting">C-indenting</a> if empty
+        <a href="https://vimhelp.org/change.txt.html#gq">gq</a>    <a href="https://vimhelp.org/change.txt.html#gq">gq</a>      text <a href="https://vimhelp.org/change.txt.html#formatting">formatting</a>
+        <a href="https://vimhelp.org/change.txt.html#gw">gw</a>    <a href="https://vimhelp.org/change.txt.html#gw">gw</a>      text <a href="https://vimhelp.org/change.txt.html#formatting">formatting</a> with no cursor <a href="https://vimhelp.org/intro.txt.html#movement">movement</a>
+        <a href="https://vimhelp.org/change.txt.html#g%3F">g?</a>    <a href="https://vimhelp.org/change.txt.html#g%3F">g?</a>      ROT13 encoding
+        <a href="https://vimhelp.org/change.txt.html#%3E">&gt;</a>     <a href="https://vimhelp.org/change.txt.html#%3E">&gt;</a>       <a href="https://vimhelp.org/intro.txt.html#shift">shift</a> right
+        <a href="https://vimhelp.org/change.txt.html#%3C">&lt;</a>     <a href="https://vimhelp.org/change.txt.html#%3C">&lt;</a>       <a href="https://vimhelp.org/intro.txt.html#shift">shift</a> left
+        <a href="https://vimhelp.org/fold.txt.html#zf">zf</a>    <a href="https://vimhelp.org/fold.txt.html#zf">zf</a>      define <a href="https://vimhelp.org/insert.txt.html#a">a</a> fold
+        <a href="https://vimhelp.org/map.txt.html#g%40">g@</a>    <a href="https://vimhelp.org/map.txt.html#g%40">g@</a>      call function set with the <a href="https://vimhelp.org/options.txt.html#%27operatorfunc%27">&#39;operatorfunc&#39;</a> option
+                                                <span id="motion-count-multiplied">motion-count-multiplied</span>
+If the motion includes <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> and the <a href="#operator">operator</a> also had <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> before it,
+the two counts are multiplied.  For example: &#34;2d3w&#34; deletes six words.
+                                                <span id="operator-doubled">operator-doubled</span>
+When doubling the <a href="#operator">operator</a> <a href="#it">it</a> operates on <a href="https://vimhelp.org/insert.txt.html#a">a</a> line.  When using <a href="https://vimhelp.org/insert.txt.html#a">a</a> count, before
+or after the first character, that many lines are operated upon.  Thus <span>3dd</span>
+deletes three lines. <a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> before and after the first character <a href="#is">is</a>
+multiplied, thus <span>2y3y</span> yanks six lines.
+
+After applying the <a href="#operator">operator</a> the cursor <a href="#is">is</a> mostly left <a href="#at">at</a> the start of the text
+that was operated upon.  For example, &#34;yfe&#34; doesn&#39;t move the cursor, but &#34;yFe&#34;
+moves the cursor leftwards to the &#34;<a href="#e">e</a>&#34; where the <a href="https://vimhelp.org/change.txt.html#yank">yank</a> started.
+
+                                                <span id="linewise">linewise</span> <span id="characterwise">characterwise</span>
+The <a href="#operator">operator</a> either affects whole lines, or the characters between the start
+and <a href="https://vimhelp.org/intro.txt.html#end">end</a> position.  Generally, motions that move between lines affect lines
+(are linewise), and motions that move within <a href="https://vimhelp.org/insert.txt.html#a">a</a> line affect characters (are
+characterwise).  However, there are some exceptions.
+
+                                                <span id="exclusive">exclusive</span> <span id="inclusive">inclusive</span>
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> character motion <a href="#is">is</a> either <a href="#inclusive">inclusive</a> or exclusive.  When inclusive, the
+start and <a href="https://vimhelp.org/intro.txt.html#end">end</a> position of the motion are included in the operation.  When
+exclusive, the last character towards the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the buffer <a href="#is">is</a> not included.
+Linewise motions always include the start and <a href="https://vimhelp.org/intro.txt.html#end">end</a> position.
+
+Which motions are linewise, <a href="#inclusive">inclusive</a> or <a href="#exclusive">exclusive</a> <a href="#is">is</a> mentioned with the
+command.  There are however, two general exceptions:
+1. If the motion <a href="#is">is</a> <a href="#exclusive">exclusive</a> and the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the motion <a href="#is">is</a> in column 1, the
+   <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the motion <a href="#is">is</a> moved to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the previous line and the motion
+   becomes inclusive.  Example: &#34;<a href="#%7D">}</a>&#34; moves to the first line after <a href="https://vimhelp.org/insert.txt.html#a">a</a> paragraph,
+   but &#34;d}&#34; will not include that line.
+                                                <span id="exclusive-linewise">exclusive-linewise</span>
+2. If the motion <a href="#is">is</a> exclusive, the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the motion <a href="#is">is</a> in column 1 and the
+   start of the motion was <a href="#at">at</a> or before the first non-blank in the line, the
+   motion becomes linewise.  Example: If <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a> begins with some blanks
+   and you <a href="https://vimhelp.org/diff.txt.html#do">do</a> &#34;d}&#34; while standing on the first non-blank, all the lines of
+   the <a href="#paragraph">paragraph</a> are deleted, including the blanks.  If you <a href="https://vimhelp.org/diff.txt.html#do">do</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#put">put</a> now, the
+   deleted lines will be inserted below the cursor position.
+
+<span>Note</span> that when the <a href="#operator">operator</a> <a href="#is">is</a> pending (the <a href="#operator">operator</a> command <a href="#is">is</a> typed, but the
+motion isn&#39;t yet), <a href="https://vimhelp.org/insert.txt.html#a">a</a> special set of mappings can be used.  See <a href="https://vimhelp.org/map.txt.html#%3Aomap">:omap</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+Instead of first giving the <a href="#operator">operator</a> and then <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion you can use <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a>
+mode: <a href="#mark">mark</a> the start of the text with &#34;<a href="https://vimhelp.org/visual.txt.html#v">v</a>&#34;<a href="#%2C">,</a> move the cursor to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the
+text that <a href="#is">is</a> to be affected and then hit the operator.  The text between the
+start and the cursor position <a href="#is">is</a> highlighted, so you can see what text will
+be operated upon.  This allows much more freedom, but requires more key
+strokes and has limited <a href="https://vimhelp.org/undo.txt.html#redo">redo</a> functionality.  See the chapter on <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode
+<a href="https://vimhelp.org/visual.txt.html#Visual-mode">Visual-mode</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+You can use <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#34;<a href="https://vimhelp.org/cmdline.txt.html#%3A">:</a>&#34; command for <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion.  For example &#34;d:call FindEnd()&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+But this can&#39;t be repeated with &#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>&#34; if the command <a href="#is">is</a> more than one line.
+This can be repeated: 
+<span>        d:call search(&#34;f&#34;)&lt;CR&gt;</span>
+This cannot be repeated: 
+<span>        d:if 1&lt;CR&gt;</span>
+<span>           call search(&#34;f&#34;)&lt;CR&gt;</span>
+<span>        endif&lt;CR&gt;</span>
+<span>Note</span> that when using &#34;<a href="https://vimhelp.org/cmdline.txt.html#%3A">:</a>&#34; any motion becomes <a href="#characterwise">characterwise</a> exclusive.
+
+                                                                <span id="forced-motion">forced-motion</span>
+FORCING <a href="https://vimhelp.org/insert.txt.html#A">A</a> MOTION TO BE LINEWISE, CHARACTERWISE OR BLOCKWISE
+
+When <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion <a href="#is">is</a> not of the type you would like to use, you can force another
+type by using &#34;<a href="https://vimhelp.org/visual.txt.html#v">v</a>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/visual.txt.html#V">V</a>&#34; or <a href="https://vimhelp.org/visual.txt.html#CTRL-V">CTRL-V</a> just after the operator.
+Example: 
+<span>        dj</span>
+deletes two lines 
+<span>        dvj</span>
+deletes from the cursor position until the character below the cursor 
+<span>        d&lt;C-V&gt;j</span>
+deletes the character under the cursor and the character below the cursor. 
+<span></span>
+Be careful with forcing <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#linewise">linewise</a> <a href="https://vimhelp.org/intro.txt.html#movement">movement</a> to be used <a href="#characterwise">characterwise</a> or
+blockwise, the column may not always be defined.
+
+                                                        <span id="o_v">o_v</span>
+<a href="https://vimhelp.org/visual.txt.html#v">v</a>               When used after an operator, before the motion command: Force
+                the <a href="#operator">operator</a> to work characterwise, also when the motion <a href="#is">is</a>
+                linewise.  If the motion was linewise, <a href="#it">it</a> will become
+                <a href="#exclusive">exclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                If the motion already was characterwise, <a href="https://vimhelp.org/options.txt.html#toggle">toggle</a>
+                inclusive/exclusive.  This can be used to make an <a href="#exclusive">exclusive</a>
+                motion <a href="#inclusive">inclusive</a> and an <a href="#inclusive">inclusive</a> motion exclusive.
+
+                                                        <span id="o_V">o_V</span>
+<a href="https://vimhelp.org/visual.txt.html#V">V</a>               When used after an operator, before the motion command: Force
+                the <a href="#operator">operator</a> to work linewise, also when the motion <a href="#is">is</a>
+                characterwise.
+
+                                                        <span id="o_CTRL-V">o_CTRL-V</span>
+<a href="https://vimhelp.org/visual.txt.html#CTRL-V">CTRL-V</a>          When used after an operator, before the motion command: Force
+                the <a href="#operator">operator</a> to work blockwise.  This works like <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> block
+                mode selection, with the corners defined by the cursor
+                position before and after the motion.
+
+<span>==============================================================================</span>
+2. Left-right motions                                   <span id="left-right-motions">left-right-motions</span>
+
+These commands move the cursor to the specified column in the current line.
+They stop <a href="#at">at</a> the first column and <a href="#at">at</a> the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the line, except &#34;<a href="#%24">$</a>&#34;<a href="#%2C">,</a> which
+may move to one of the next lines.  See <a href="https://vimhelp.org/options.txt.html#%27whichwrap%27">&#39;whichwrap&#39;</a> option to make some of the
+commands move across line boundaries.
+
+<a href="#h">h</a>               or                                      <span id="h">h</span>
+<a href="#%3CLeft%3E">&lt;Left&gt;</a>          or                                      <span id="%3CLeft%3E">&lt;Left&gt;</span>
+<a href="#CTRL-H">CTRL-H</a>          or                                      <span id="CTRL-H">CTRL-H</span> <span id="%3CBS%3E">&lt;BS&gt;</span>
+<a href="#%3CBS%3E">&lt;BS&gt;</a>                    <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> characters to the left.  <a href="#exclusive">exclusive</a> motion.
+                        <span>Note:</span> If you prefer <a href="#%3CBS%3E">&lt;BS&gt;</a> to delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> character, use
+                        the mapping:
+                                <a href="https://vimhelp.org/map.txt.html#%3Amap">:map</a> <a href="https://vimhelp.org/visual.txt.html#CTRL-V">CTRL-V</a><a href="#%3CBS%3E">&lt;BS&gt;</a>         <a href="https://vimhelp.org/change.txt.html#X">X</a>
+                        (to enter &#34;<a href="https://vimhelp.org/visual.txt.html#CTRL-V">CTRL-V</a><a href="#%3CBS%3E">&lt;BS&gt;</a>&#34; type the <a href="https://vimhelp.org/visual.txt.html#CTRL-V">CTRL-V</a> key, followed
+                        by the <a href="#%3CBS%3E">&lt;BS&gt;</a> key)
+                        See <a href="https://vimhelp.org/options.txt.html#%3Afixdel">:fixdel</a> if the <a href="#%3CBS%3E">&lt;BS&gt;</a> key does not <a href="https://vimhelp.org/diff.txt.html#do">do</a> what you
+                        want.
+
+<a href="#l">l</a>               or                                      <span id="l">l</span>
+<a href="#%3CRight%3E">&lt;Right&gt;</a>         or                                      <span id="%3CRight%3E">&lt;Right&gt;</span> <span id="%3CSpace%3E">&lt;Space&gt;</span>
+<a href="#%3CSpace%3E">&lt;Space&gt;</a>                 <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> characters to the right.  <a href="#exclusive">exclusive</a> motion.
+                        See the <a href="https://vimhelp.org/options.txt.html#%27whichwrap%27">&#39;whichwrap&#39;</a> option for adjusting the behavior
+                        <a href="#at">at</a> <a href="https://vimhelp.org/intro.txt.html#end">end</a> of line
+
+                                                        <span id="0">0</span>
+<a href="#0">0</a>                       To the first character of the line.  <a href="#exclusive">exclusive</a>
+                        motion.
+
+                                                        <span id="%3CHome%3E">&lt;Home&gt;</span> <span id="%3CkHome%3E">&lt;kHome&gt;</span>
+<a href="#%3CHome%3E">&lt;Home&gt;</a>                  To the first character of the line.  <a href="#exclusive">exclusive</a>
+                        motion.  When moving up or down next, stay in same
+                        TEXT column (if possible).  Most other commands stay
+                        in the same SCREEN column.  <a href="#%3CHome%3E">&lt;Home&gt;</a> works like &#34;1|&#34;<a href="#%2C">,</a>
+                        which differs from &#34;<a href="#0">0</a>&#34; when the line starts with <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+                        <a href="#%3CTab%3E">&lt;Tab&gt;</a>.
+
+                                                        <span id="%5E">^</span>
+<a href="#%5E">^</a>                       To the first non-blank character of the line.
+                        <a href="#exclusive">exclusive</a> motion.  Any <a href="https://vimhelp.org/intro.txt.html#count">count</a> <a href="#is">is</a> ignored.
+
+                                                        <span id="%24">$</span> <span id="%3CEnd%3E">&lt;End&gt;</span> <span id="%3CkEnd%3E">&lt;kEnd&gt;</span>
+<a href="#%24">$</a>  or <a href="#%3CEnd%3E">&lt;End&gt;</a>             To the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the line.  When <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> <a href="#is">is</a> given also <a href="#go">go</a>
+                        [count <a href="#-">-</a> 1] lines downward, or <a href="#as">as</a> far <a href="#is">is</a> possible.
+                        <a href="#inclusive">inclusive</a> motion.  If <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> of 2 or larger <a href="#is">is</a>
+                        given and the cursor <a href="#is">is</a> on the last line, that <a href="#is">is</a> an
+                        error and the cursor doesn&#39;t move.
+                        In <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode the cursor goes to just after the last
+                        character in the line.
+                        When <a href="https://vimhelp.org/options.txt.html#%27virtualedit%27">&#39;virtualedit&#39;</a> <a href="#is">is</a> active, &#34;<a href="#%24">$</a>&#34; may move the cursor
+                        back from past the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the line to the last
+                        character in the line.
+
+                                                        <span id="g_">g_</span>
+<a href="#g_">g_</a>                      To the last non-blank character of the line and
+                        [count <a href="#-">-</a> 1] lines downward <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="g0">g0</span> <span id="g%3CHome%3E">g&lt;Home&gt;</span>
+<a href="#g0">g0</a> or <a href="#g%3CHome%3E">g&lt;Home&gt;</a>           When lines wrap (&#39;wrap&#39; on): To the first character of
+                        the screen line.  <a href="#exclusive">exclusive</a> motion.  Differs from
+                        &#34;<a href="#0">0</a>&#34; when <a href="https://vimhelp.org/insert.txt.html#a">a</a> line <a href="#is">is</a> wider than the screen.
+                        When lines don&#39;t wrap (&#39;wrap&#39; off): To the leftmost
+                        character of the current line that <a href="#is">is</a> on the screen.
+                        Differs from &#34;<a href="#0">0</a>&#34; when the first character of the line
+                        <a href="#is">is</a> not on the screen.
+
+                                                        <span id="g%5E">g^</span>
+<a href="#g%5E">g^</a>                      When lines wrap (&#39;wrap&#39; on): To the first non-blank
+                        character of the screen line.  <a href="#exclusive">exclusive</a> motion.
+                        Differs from &#34;<a href="#%5E">^</a>&#34; when <a href="https://vimhelp.org/insert.txt.html#a">a</a> line <a href="#is">is</a> wider than the screen.
+                        When lines don&#39;t wrap (&#39;wrap&#39; off): To the leftmost
+                        non-blank character of the current line that <a href="#is">is</a> on the
+                        screen.  Differs from &#34;<a href="#%5E">^</a>&#34; when the first non-blank
+                        character of the line <a href="#is">is</a> not on the screen.
+
+                                                        <span id="gm">gm</span>
+<a href="#gm">gm</a>                      Like &#34;<a href="#g0">g0</a>&#34;<a href="#%2C">,</a> but half <a href="https://vimhelp.org/insert.txt.html#a">a</a> screenwidth to the right (or <a href="#as">as</a>
+                        much <a href="#as">as</a> possible).
+
+                                                        <span id="gM">gM</span>
+<a href="#gM">gM</a>                      Like &#34;<a href="#g0">g0</a>&#34;<a href="#%2C">,</a> but to halfway the text of the line.
+                        With <a href="https://vimhelp.org/insert.txt.html#a">a</a> count: to this percentage of text in the line.
+                        Thus &#34;10gM&#34; <a href="#is">is</a> near the start of the text and &#34;90gM&#34;
+                        <a href="#is">is</a> near the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the text.
+
+                                                        <span id="g%24">g$</span> <span id="g%3CEnd%3E">g&lt;End&gt;</span>
+<a href="#g%24">g$</a> or <a href="#g%3CEnd%3E">g&lt;End&gt;</a>            When lines wrap (&#39;wrap&#39; on): To the last character of
+                        the screen line and [count <a href="#-">-</a> 1] screen lines downward
+                        <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  Differs from &#34;<a href="#%24">$</a>&#34; when <a href="https://vimhelp.org/insert.txt.html#a">a</a> line <a href="#is">is</a> wider
+                        than the screen.
+                        When lines don&#39;t wrap (&#39;wrap&#39; off): To the rightmost
+                        character of the current line that <a href="#is">is</a> visible on the
+                        screen.  Differs from &#34;<a href="#%24">$</a>&#34; when the last character of
+                        the line <a href="#is">is</a> not on the screen or when <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> <a href="#is">is</a> used.
+                        Additionally, vertical movements keep the column,
+                        instead of going to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the line.
+                        When <a href="https://vimhelp.org/options.txt.html#%27virtualedit%27">&#39;virtualedit&#39;</a> <a href="#is">is</a> enabled moves to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the
+                        screen line.
+
+                                                        <span id="bar">bar</span>
+|                       To screen column <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> in the current line.
+                        <a href="#exclusive">exclusive</a> motion.  Ceci n&#39;est pas une pipe.
+
+                                                        <span id="f">f</span>
+f{char}                 To <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th occurrence of <span>{char}</span> to the right.  The
+                        cursor <a href="#is">is</a> placed on <span>{char}</span> <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <span>{char}</span> can be entered <a href="#as">as</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/digraph.txt.html#digraph">digraph</a> <a href="https://vimhelp.org/change.txt.html#digraph-arg">digraph-arg</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        When <a href="https://vimhelp.org/options.txt.html#%27encoding%27">&#39;encoding&#39;</a> <a href="#is">is</a> set to Unicode, composing
+                        characters may be used, see <a href="https://vimhelp.org/mbyte.txt.html#utf-8-char-arg">utf-8-char-arg</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <a href="https://vimhelp.org/map.txt.html#%3Almap">:lmap</a> mappings apply to <span>{char}</span>.  The <a href="https://vimhelp.org/editing.txt.html#CTRL-%5E">CTRL-^</a> command
+                        in <a href="https://vimhelp.org/insert.txt.html#Insert">Insert</a> mode can be used to switch this on/off
+                        <a href="https://vimhelp.org/insert.txt.html#i_CTRL-%5E">i_CTRL-^</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="F">F</span>
+F{char}                 To the <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th occurrence of <span>{char}</span> to the left.
+                        The cursor <a href="#is">is</a> placed on <span>{char}</span> <a href="#exclusive">exclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <span>{char}</span> can be entered like with the <a href="#f">f</a> command.
+
+                                                        <span id="t">t</span>
+t{char}                 Till before <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th occurrence of <span>{char}</span> to the
+                        right.  The cursor <a href="#is">is</a> placed on the character left of
+                        <span>{char}</span> <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <span>{char}</span> can be entered like with the <a href="#f">f</a> command.
+
+                                                        <span id="T">T</span>
+T{char}                 Till after <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th occurrence of <span>{char}</span> to the
+                        left.  The cursor <a href="#is">is</a> placed on the character right of
+                        <span>{char}</span> <a href="#exclusive">exclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <span>{char}</span> can be entered like with the <a href="#f">f</a> command.
+
+                                                        <span id="%3B">;</span>
+<a href="#%3B">;</a>                       Repeat latest f, t, <a href="#F">F</a> or <a href="#T">T</a> <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> times. See <a href="https://vimhelp.org/options.txt.html#cpo-%3B">cpo-;</a>
+
+                                                        <span id="%2C">,</span>
+<a href="#%2C">,</a>                       Repeat latest f, t, <a href="#F">F</a> or <a href="#T">T</a> in opposite direction
+                        <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> times. See also <a href="https://vimhelp.org/options.txt.html#cpo-%3B">cpo-;</a>
+
+<span>==============================================================================</span>
+3. Up-down motions                                      <span id="up-down-motions">up-down-motions</span>
+
+<a href="#k">k</a>               or                                      <span id="k">k</span>
+<a href="#%3CUp%3E">&lt;Up&gt;</a>            or                                      <span id="%3CUp%3E">&lt;Up&gt;</span> <span id="CTRL-P">CTRL-P</span>
+<a href="#CTRL-P">CTRL-P</a>                  <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> lines upward <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+<a href="#j">j</a>               or                                      <span id="j">j</span>
+<a href="#%3CDown%3E">&lt;Down&gt;</a>          or                                      <span id="%3CDown%3E">&lt;Down&gt;</span>
+<a href="#CTRL-J">CTRL-J</a>          or                                      <span id="CTRL-J">CTRL-J</span>
+<a href="#%3CNL%3E">&lt;NL&gt;</a>            or                                      <span id="%3CNL%3E">&lt;NL&gt;</span> <span id="CTRL-N">CTRL-N</span>
+<a href="#CTRL-N">CTRL-N</a>                  <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> lines downward <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+<a href="#gk">gk</a>              or                                      <span id="gk">gk</span> <span id="g%3CUp%3E">g&lt;Up&gt;</span>
+<a href="#g%3CUp%3E">g&lt;Up&gt;</a>                   <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> display lines upward.  <a href="#exclusive">exclusive</a> motion.
+                        Differs from &#39;k&#39; when lines wrap, and when used with
+                        an operator, because it&#39;s not linewise.
+
+<a href="#gj">gj</a>              or                                      <span id="gj">gj</span> <span id="g%3CDown%3E">g&lt;Down&gt;</span>
+<a href="#g%3CDown%3E">g&lt;Down&gt;</a>                 <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> display lines downward.  <a href="#exclusive">exclusive</a> motion.
+                        Differs from &#39;j&#39; when lines wrap, and when used with
+                        an operator, because it&#39;s not linewise.
+
+                                                        <span id="-">-</span>
+<a href="#-">-</a>  <span>&lt;minus&gt;</span>              <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> lines upward, on the first non-blank
+                        character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+<a href="#%2B">+</a>               or                                      <span id="%2B">+</span>
+<a href="#CTRL-M">CTRL-M</a>          or                                      <span id="CTRL-M">CTRL-M</span> <span id="%3CCR%3E">&lt;CR&gt;</span>
+<a href="#%3CCR%3E">&lt;CR&gt;</a>                    <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> lines downward, on the first non-blank
+                        character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="_">_</span>
+<a href="#_">_</a>  <span>&lt;underscore&gt;</span>         <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#-">-</a> 1 lines downward, on the first non-blank
+                        character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="G">G</span>
+<a href="#G">G</a>                       Goto line <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>, default last line, on the first
+                        non-blank character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  If <a href="https://vimhelp.org/options.txt.html#%27startofline%27">&#39;startofline&#39;</a> not
+                        set, keep the same column.
+                        <a href="#G">G</a> <a href="#is">is</a> one of the <a href="#jump-motions">jump-motions</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="%3CC-End%3E">&lt;C-End&gt;</span>
+<a href="#%3CC-End%3E">&lt;C-End&gt;</a>                 Goto line <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>, default last line, on the last
+                        character <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+<a href="#%3CC-Home%3E">&lt;C-Home&gt;</a>        or                                      <span id="gg">gg</span> <span id="%3CC-Home%3E">&lt;C-Home&gt;</span>
+<a href="#gg">gg</a>                      Goto line <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>, default first line, on the first
+                        non-blank character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  If <a href="https://vimhelp.org/options.txt.html#%27startofline%27">&#39;startofline&#39;</a> not
+                        set, keep the same column.
+
+                                                        <span id="%3A%5Brange%5D">:[range]</span>
+<a href="#%3A%5Brange%5D">:[range]</a>                Set the cursor on the last line number in <a href="https://vimhelp.org/cmdline.txt.html#%5Brange%5D">[range]</a>.
+                        <a href="https://vimhelp.org/cmdline.txt.html#%5Brange%5D">[range]</a> can also be just one line number, e.g., &#34;:1&#34;
+                        or &#34;:&#39;m&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        In contrast with <a href="#G">G</a> this command does not modify the
+                        <a href="#jumplist">jumplist</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                                                        <span id="N%25">N%</span>
+<span>{count}</span>%                Go to <span>{count}</span> percentage in the file, on the first
+                        non-blank in the line <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  To compute the new
+                        line number this formula <a href="#is">is</a> used:
+                            ({count} * number-of-lines <a href="#%2B">+</a> 99) <a href="https://vimhelp.org/pattern.txt.html#%2F">/</a> 100
+                        See also <a href="https://vimhelp.org/options.txt.html#%27startofline%27">&#39;startofline&#39;</a> option.
+
+:[range]go[to] <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>                                  <span id="%3Ago">:go</span> <span id="%3Agoto">:goto</span> <span id="go">go</span>
+<a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>go               Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> byte in the buffer.  Default <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#is">is</a>
+                        one, start of the file.  When giving <a href="https://vimhelp.org/cmdline.txt.html#%5Brange%5D">[range]</a>, the
+                        last number in <a href="#it">it</a> used <a href="#as">as</a> the byte count.  End-of-line
+                        characters are counted depending on the current
+                        <a href="https://vimhelp.org/options.txt.html#%27fileformat%27">&#39;fileformat&#39;</a> setting.
+                        Also see the <a href="https://vimhelp.org/builtin.txt.html#line2byte%28%29">line2byte()</a> function, and the &#39;o&#39;
+                        option in <a href="https://vimhelp.org/options.txt.html#%27statusline%27">&#39;statusline&#39;</a>.
+                        {not available when compiled without the
+                        <a href="https://vimhelp.org/various.txt.html#%2Bbyte_offset">+byte_offset</a> feature}
+
+These commands move to the specified line.  They stop when reaching the first
+or the last line.  The first two commands <a href="https://vimhelp.org/change.txt.html#put">put</a> the cursor in the same column
+(if possible) <a href="#as">as</a> <a href="#it">it</a> was after the last command that changed the column,
+except after the &#34;<a href="#%24">$</a>&#34; command, then the cursor will be <a href="https://vimhelp.org/change.txt.html#put">put</a> on the last
+character of the line.
+
+If &#34;<a href="#k">k</a>&#34;<a href="#%2C">,</a> &#34;<a href="#-">-</a>&#34; or <a href="#CTRL-P">CTRL-P</a> <a href="#is">is</a> used with <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> and there are <a href="https://vimhelp.org/various.txt.html#less">less</a> than <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>
+lines above the cursor and the <a href="https://vimhelp.org/options.txt.html#%27cpo%27">&#39;cpo&#39;</a> option includes the &#34;<a href="#-">-</a>&#34; flag <a href="#it">it</a> <a href="#is">is</a> an
+error. <a href="https://vimhelp.org/options.txt.html#cpo--">cpo--</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+<span>==============================================================================</span>
+4. Word motions                                         <span id="word-motions">word-motions</span>
+
+<a href="#%3CS-Right%3E">&lt;S-Right&gt;</a>       or                                      <span id="%3CS-Right%3E">&lt;S-Right&gt;</span> <span id="w">w</span>
+<a href="#w">w</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> words forward.  <a href="#exclusive">exclusive</a> motion.
+
+<a href="#%3CC-Right%3E">&lt;C-Right&gt;</a>       or                                      <span id="%3CC-Right%3E">&lt;C-Right&gt;</span> <span id="W">W</span>
+<a href="#W">W</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> WORDS forward.  <a href="#exclusive">exclusive</a> motion.
+                        If <a href="#%3CC-Right%3E">&lt;C-Right&gt;</a> does not work, check out
+                        <a href="https://vimhelp.org/term.txt.html#arrow_modifiers">arrow_modifiers</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="e">e</span>
+<a href="#e">e</a>                       Forward to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="#word">word</a> <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        Does not stop in an empty line.
+
+                                                        <span id="E">E</span>
+<a href="#E">E</a>                       Forward to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="#WORD">WORD</a> <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        Does not stop in an empty line.
+
+<a href="#%3CS-Left%3E">&lt;S-Left&gt;</a>        or                                      <span id="%3CS-Left%3E">&lt;S-Left&gt;</span> <span id="b">b</span>
+<a href="#b">b</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> words backward.  <a href="#exclusive">exclusive</a> motion.
+
+<a href="#%3CC-Left%3E">&lt;C-Left&gt;</a>        or                                      <span id="%3CC-Left%3E">&lt;C-Left&gt;</span> <span id="B">B</span>
+<a href="#B">B</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> WORDS backward.  <a href="#exclusive">exclusive</a> motion.
+                        If <a href="#%3CC-Left%3E">&lt;C-Left&gt;</a> does not work, check out
+                        <a href="https://vimhelp.org/term.txt.html#arrow_modifiers">arrow_modifiers</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="ge">ge</span>
+<a href="#ge">ge</a>                      Backward to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="#word">word</a> <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="gE">gE</span>
+<a href="#gE">gE</a>                      Backward to the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="#WORD">WORD</a> <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#inclusive">inclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+These commands move over words or WORDS.
+                                                        <span id="word">word</span>
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#word">word</a> consists of <a href="https://vimhelp.org/insert.txt.html#a">a</a> sequence of letters, digits and underscores, or <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+sequence of other non-blank characters, separated with white <a href="https://vimhelp.org/intro.txt.html#space">space</a> (spaces,
+tabs, <a href="https://vimhelp.org/intro.txt.html#%3CEOL%3E">&lt;EOL&gt;</a>).  This can be changed with the <a href="https://vimhelp.org/options.txt.html#%27iskeyword%27">&#39;iskeyword&#39;</a> option.  An empty line
+<a href="#is">is</a> also considered to be <a href="https://vimhelp.org/insert.txt.html#a">a</a> word.
+                                                        <span id="WORD">WORD</span>
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#WORD">WORD</a> consists of <a href="https://vimhelp.org/insert.txt.html#a">a</a> sequence of non-blank characters, separated with white
+space.  An empty line <a href="#is">is</a> also considered to be <a href="https://vimhelp.org/insert.txt.html#a">a</a> WORD.
+
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> sequence of folded lines <a href="#is">is</a> counted for one <a href="#word">word</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> single character.
+&#34;<a href="#w">w</a>&#34; and &#34;<a href="#W">W</a>&#34;<a href="#%2C">,</a> &#34;<a href="#e">e</a>&#34; and &#34;<a href="#E">E</a>&#34; move to the start/end of the first <a href="#word">word</a> or <a href="#WORD">WORD</a> after
+<a href="https://vimhelp.org/insert.txt.html#a">a</a> range of folded lines.  &#34;<a href="#b">b</a>&#34; and &#34;<a href="#B">B</a>&#34; move to the start of the first <a href="#word">word</a> or
+<a href="#WORD">WORD</a> before the fold.
+
+<a href="https://vimhelp.org/eval.txt.html#Special">Special</a> case: &#34;<a href="https://vimhelp.org/change.txt.html#cw">cw</a>&#34; and &#34;<a href="https://vimhelp.org/change.txt.html#cW">cW</a>&#34; are treated like &#34;ce&#34; and &#34;cE&#34; if the cursor <a href="#is">is</a>
+on <a href="https://vimhelp.org/insert.txt.html#a">a</a> non-blank.  This <a href="#is">is</a> because &#34;<a href="https://vimhelp.org/change.txt.html#cw">cw</a>&#34; <a href="#is">is</a> interpreted <a href="#as">as</a> change-word, and <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+<a href="#word">word</a> does not include the following white space.
+
+Another special case: When using the &#34;<a href="#w">w</a>&#34; motion in combination with an
+<a href="#operator">operator</a> and the last <a href="#word">word</a> moved over <a href="#is">is</a> <a href="#at">at</a> the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> line, the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of
+that <a href="#word">word</a> becomes the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the operated text, not the first <a href="#word">word</a> in the
+next line.
+
+The original <a href="https://vimhelp.org/intro.txt.html#Vi">Vi</a> implementation of &#34;<a href="#e">e</a>&#34; <a href="#is">is</a> buggy.  For example, the &#34;<a href="#e">e</a>&#34; command
+will stop on the first character of <a href="https://vimhelp.org/insert.txt.html#a">a</a> line if the previous line was empty.
+But when you use &#34;2e&#34; this does not happen.  In Vim &#34;ee&#34; and &#34;2e&#34; are the
+same, which <a href="#is">is</a> more logical.  However, this causes <a href="https://vimhelp.org/insert.txt.html#a">a</a> small incompatibility
+between <a href="https://vimhelp.org/intro.txt.html#Vi">Vi</a> and Vim.
+
+<span>==============================================================================</span>
+5. Text object motions                                  <span id="object-motions">object-motions</span>
+
+                                                        <span id="%28">(</span>
+<a href="#%28">(</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#sentence">sentence</a><a href="https://vimhelp.org/change.txt.html#s">s</a> backward.  <a href="#exclusive">exclusive</a> motion.
+
+                                                        <span id="%29">)</span>
+<a href="#%29">)</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#sentence">sentence</a><a href="https://vimhelp.org/change.txt.html#s">s</a> forward.  <a href="#exclusive">exclusive</a> motion.
+
+                                                        <span id="%7B">{</span>
+<a href="#%7B">{</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#paragraph">paragraph</a><a href="https://vimhelp.org/change.txt.html#s">s</a> backward.  <a href="#exclusive">exclusive</a> motion.
+
+                                                        <span id="%7D">}</span>
+<a href="#%7D">}</a>                       <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#paragraph">paragraph</a><a href="https://vimhelp.org/change.txt.html#s">s</a> forward.  <a href="#exclusive">exclusive</a> motion.
+
+                                                        <span id="%5D%5D">]]</span>
+<a href="#%5D%5D">]]</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#section">section</a><a href="https://vimhelp.org/change.txt.html#s">s</a> forward or to the next &#39;{&#39; in the
+                        first column.  When used after an operator, then also
+                        stops below <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#39;}&#39; in the first column.  <a href="#exclusive">exclusive</a>
+                        <span>Note</span> that <a href="#exclusive-linewise">exclusive-linewise</a> often applies.
+
+                                                        <span id="%5D%5B">][</span>
+<a href="#%5D%5B">][</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#section">section</a><a href="https://vimhelp.org/change.txt.html#s">s</a> forward or to the next &#39;}&#39; in the
+                        first column.  <a href="#exclusive">exclusive</a>
+                        <span>Note</span> that <a href="#exclusive-linewise">exclusive-linewise</a> often applies.
+
+                                                        <span id="%5B%5B">[[</span>
+<a href="#%5B%5B">[[</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#section">section</a><a href="https://vimhelp.org/change.txt.html#s">s</a> backward or to the previous &#39;{&#39; in
+                        the first column.  <a href="#exclusive">exclusive</a>
+                        <span>Note</span> that <a href="#exclusive-linewise">exclusive-linewise</a> often applies.
+
+                                                        <span id="%5B%5D">[]</span>
+<a href="#%5B%5D">[]</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#section">section</a><a href="https://vimhelp.org/change.txt.html#s">s</a> backward or to the previous &#39;}&#39; in
+                        the first column.  <a href="#exclusive">exclusive</a>
+                        <span>Note</span> that <a href="#exclusive-linewise">exclusive-linewise</a> often applies.
+
+These commands move over three kinds of text objects.
+
+                                                        <span id="sentence">sentence</span>
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#sentence">sentence</a> <a href="#is">is</a> defined <a href="#as">as</a> ending <a href="#at">at</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#39;.&#39;, &#39;!&#39; or &#39;?&#39; followed by either the
+<a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> line, or by <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#space">space</a> or tab.  Any number of closing &#39;)&#39;, &#39;]&#39;, <a href="#%27">&#39;</a>&#34;<a href="#%27">&#39;</a>
+and &#39;&#39;&#39; characters may appear after the &#39;.&#39;, &#39;!&#39; or &#39;?&#39; before the spaces,
+tabs or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of line.  <a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#paragraph">paragraph</a> and <a href="#section">section</a> boundary <a href="#is">is</a> also <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#sentence">sentence</a>
+boundary.
+If the &#39;J&#39; flag <a href="#is">is</a> present in <a href="https://vimhelp.org/options.txt.html#%27cpoptions%27">&#39;cpoptions&#39;</a>, <a href="#at">at</a> least two spaces have to
+follow the punctuation mark; <a href="#%3CTab%3E">&lt;Tab&gt;</a>s are not recognized <a href="#as">as</a> white space.
+The definition of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#sentence">sentence</a> cannot be changed.
+
+                                                        <span id="paragraph">paragraph</span>
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#paragraph">paragraph</a> begins after each empty line, and also <a href="#at">at</a> each of <a href="https://vimhelp.org/insert.txt.html#a">a</a> set of
+<a href="#paragraph">paragraph</a> macros, specified by the pairs of characters in the <a href="https://vimhelp.org/options.txt.html#%27paragraphs%27">&#39;paragraphs&#39;</a>
+option.  The default <a href="#is">is</a> &#34;IPLPPPQPP TPHPLIPpLpItpplpipbp&#34;<a href="#%2C">,</a> which corresponds to
+the macros &#34;.IP&#34;<a href="#%2C">,</a> &#34;.LP&#34;<a href="#%2C">,</a> etc.  (These are nroff macros, so the dot <a href="https://vimhelp.org/vim_faq.txt.html#must">must</a> be in
+the first column).  <a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#section">section</a> boundary <a href="#is">is</a> also <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a> boundary.
+<span>Note</span> that <a href="https://vimhelp.org/insert.txt.html#a">a</a> blank line (only containing white space) <a href="#is">is</a> NOT <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a>
+boundary.
+Also <span>note</span> that this does not include <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#39;{&#39; or &#39;}&#39; in the first column.  When
+the &#39;{&#39; flag <a href="#is">is</a> in <a href="https://vimhelp.org/options.txt.html#%27cpoptions%27">&#39;cpoptions&#39;</a> then &#39;{&#39; in the first column <a href="#is">is</a> used <a href="#as">as</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+<a href="#paragraph">paragraph</a> boundary <a href="https://vimhelp.org/vi_diff.txt.html#posix">posix</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="section">section</span>
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#section">section</a> begins after <a href="https://vimhelp.org/insert.txt.html#a">a</a> form-feed (&lt;C-L&gt;) in the first column and <a href="#at">at</a> each of
+<a href="https://vimhelp.org/insert.txt.html#a">a</a> set of <a href="#section">section</a> macros, specified by the pairs of characters in the
+<a href="https://vimhelp.org/options.txt.html#%27sections%27">&#39;sections&#39;</a> option.  The default <a href="#is">is</a> &#34;SHNHH HUnhsh&#34;<a href="#%2C">,</a> which defines <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#section">section</a> to
+start <a href="#at">at</a> the nroff macros &#34;.SH&#34;<a href="#%2C">,</a> &#34;.NH&#34;<a href="#%2C">,</a> &#34;.H&#34;<a href="#%2C">,</a> &#34;.HU&#34;<a href="#%2C">,</a> &#34;.nh&#34; and &#34;.sh&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+The &#34;<a href="#%5D%5D">]]</a>&#34; and &#34;<a href="#%5B%5B">[[</a>&#34; commands stop <a href="#at">at</a> the &#39;{&#39; in the first column.  This <a href="#is">is</a>
+useful to find the start of <a href="https://vimhelp.org/insert.txt.html#a">a</a> function in <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#C">C</a> program.  To search for <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#39;}&#39; in
+the first column, the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#C">C</a> function, use &#34;<a href="#%5D%5B">][</a>&#34; (forward) or &#34;<a href="#%5B%5D">[]</a>&#34;
+(backward).  <span>Note</span> that the first character of the command determines the
+search direction.
+
+If your &#39;{&#39; or &#39;}&#39; are not in the first column, and you would like to use &#34;<a href="#%5B%5B">[[</a>&#34;
+and &#34;<a href="#%5D%5D">]]</a>&#34; anyway, try these mappings: 
+<span>   :map [[ ?{&lt;CR&gt;w99[{</span>
+<span>   :map ][ /}&lt;CR&gt;b99]}</span>
+<span>   :map ]] j0[[%/{&lt;CR&gt;</span>
+<span>   :map [] k$][%?}&lt;CR&gt;</span>
+[type these literally, see <a href="https://vimhelp.org/intro.txt.html#%3C%3E">&lt;&gt;</a><a href="https://vimhelp.org/index.txt.html#%5D">]</a>
+
+<span>==============================================================================</span>
+6. Text object selection                        <span id="object-select">object-select</span> <span id="text-objects">text-objects</span>
+                                                <span id="v_a">v_a</span> <span id="v_i">v_i</span>
+
+This <a href="#is">is</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> series of commands that can only be used while in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode or
+after an operator.  The commands that start with &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34; select &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34;<a href="https://vimhelp.org/pattern.txt.html#n">n</a> object
+including white space, the commands <a href="https://vimhelp.org/starting.txt.html#starting">starting</a> with &#34;<a href="https://vimhelp.org/insert.txt.html#i">i</a>&#34; select an &#34;inner&#34; object
+without white space, or just the white space.  Thus the &#34;inner&#34; commands
+always select <a href="https://vimhelp.org/various.txt.html#less">less</a> text than the &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34; commands.
+
+These commands are not available when the <a href="https://vimhelp.org/various.txt.html#%2Btextobjects">+textobjects</a> feature has been
+disabled <a href="#at">at</a> compile time.
+Also see <span>gn</span> and <span>gN</span>, operating on the last search pattern.
+
+                                                        <span id="v_aw">v_aw</span> <span id="aw">aw</span>
+<a href="#aw">aw</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#word">word</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> words (see <a href="#word">word</a>).
+                        Leading or trailing white <a href="https://vimhelp.org/intro.txt.html#space">space</a> <a href="#is">is</a> included, but not
+                        counted.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#linewise">linewise</a> mode &#34;<a href="#aw">aw</a>&#34; switches to
+                        <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#characterwise">characterwise</a> mode.
+
+                                                        <span id="v_iw">v_iw</span> <span id="iw">iw</span>
+<a href="#iw">iw</a>                      &#34;inner <a href="#word">word</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> words (see <a href="#word">word</a>).
+                        White <a href="https://vimhelp.org/intro.txt.html#space">space</a> between words <a href="#is">is</a> counted too.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#linewise">linewise</a> mode &#34;<a href="#iw">iw</a>&#34; switches to
+                        <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#characterwise">characterwise</a> mode.
+
+                                                        <span id="v_aW">v_aW</span> <span id="aW">aW</span>
+<a href="#aW">aW</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#WORD">WORD</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> WORDs (see <a href="#WORD">WORD</a>).
+                        Leading or trailing white <a href="https://vimhelp.org/intro.txt.html#space">space</a> <a href="#is">is</a> included, but not
+                        counted.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#linewise">linewise</a> mode &#34;<a href="#aW">aW</a>&#34; switches to
+                        <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#characterwise">characterwise</a> mode.
+
+                                                        <span id="v_iW">v_iW</span> <span id="iW">iW</span>
+<a href="#iW">iW</a>                      &#34;inner <a href="#WORD">WORD</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> WORDs (see <a href="#WORD">WORD</a>).
+                        White <a href="https://vimhelp.org/intro.txt.html#space">space</a> between words <a href="#is">is</a> counted too.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#linewise">linewise</a> mode &#34;<a href="#iW">iW</a>&#34; switches to
+                        <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> <a href="#characterwise">characterwise</a> mode.
+
+                                                        <span id="v_as">v_as</span> <span id="as">as</span>
+<a href="#as">as</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#sentence">sentence</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> sentences (see
+                        <a href="#sentence">sentence</a>).
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+                                                        <span id="v_is">v_is</span> <span id="is">is</span>
+<a href="#is">is</a>                      &#34;inner <a href="#sentence">sentence</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> sentences (see
+                        <a href="#sentence">sentence</a>).
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+                                                        <span id="v_ap">v_ap</span> <span id="ap">ap</span>
+<a href="#ap">ap</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> paragraphs (see
+                        <a href="#paragraph">paragraph</a>).
+                        Exception: <a href="https://vimhelp.org/insert.txt.html#a">a</a> blank line (only containing white space)
+                        <a href="#is">is</a> also <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a> boundary.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made linewise.
+
+                                                        <span id="v_ip">v_ip</span> <span id="ip">ip</span>
+<a href="#ip">ip</a>                      &#34;inner <a href="#paragraph">paragraph</a>&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> paragraphs (see
+                        <a href="#paragraph">paragraph</a>).
+                        Exception: <a href="https://vimhelp.org/insert.txt.html#a">a</a> blank line (only containing white space)
+                        <a href="#is">is</a> also <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a> boundary.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made linewise.
+
+<a href="#a%5D">a]</a>                                              <span id="v_a%5D">v_a]</span> <span id="v_a%5B">v_a[</span> <span id="a%5D">a]</span> <span id="a%5B">a[</span>
+<a href="#a%5B">a[</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#%5B%5D">[]</a> block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> &#39;[&#39; &#39;]&#39; blocks.  This
+                        goes backwards to the <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> unclosed &#39;[&#39;, and finds
+                        the matching &#39;]&#39;.  The enclosed text <a href="#is">is</a> selected,
+                        including the &#39;[&#39; and &#39;]&#39;.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#i%5D">i]</a>                                              <span id="v_i%5D">v_i]</span> <span id="v_i%5B">v_i[</span> <span id="i%5D">i]</span> <span id="i%5B">i[</span>
+<a href="#i%5B">i[</a>                      &#34;inner <a href="#%5B%5D">[]</a> block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> &#39;[&#39; &#39;]&#39; blocks.  This
+                        goes backwards to the <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> unclosed &#39;[&#39;, and finds
+                        the matching &#39;]&#39;.  The enclosed text <a href="#is">is</a> selected,
+                        excluding the &#39;[&#39; and &#39;]&#39;.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#a%29">a)</a>                                                      <span id="v_a%29">v_a)</span> <span id="a%29">a)</span> <span id="a%28">a(</span>
+<a href="#a%28">a(</a>                                                      <span id="vab">vab</span> <span id="v_ab">v_ab</span> <span id="v_a%28">v_a(</span> <span id="ab">ab</span>
+<a href="#ab">ab</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> blocks, from &#34;<a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#%5B%28">[(</a>&#34; to
+                        the matching &#39;)&#39;, including the &#39;(&#39; and &#39;)&#39; (see
+                        <a href="#%5B%28">[(</a>).  Does not include white <a href="https://vimhelp.org/intro.txt.html#space">space</a> outside of the
+                        parenthesis.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#i%29">i)</a>                                                      <span id="v_i%29">v_i)</span> <span id="i%29">i)</span> <span id="i%28">i(</span>
+<a href="#i%28">i(</a>                                                      <span id="vib">vib</span> <span id="v_ib">v_ib</span> <span id="v_i%28">v_i(</span> <span id="ib">ib</span>
+<a href="#ib">ib</a>                      &#34;inner block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> blocks, from &#34;<a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#%5B%28">[(</a>&#34;
+                        to the matching &#39;)&#39;, excluding the &#39;(&#39; and &#39;)&#39; (see
+                        <a href="#%5B%28">[(</a>).
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#a%3E">a&gt;</a>                                              <span id="v_a%3E">v_a&gt;</span> <span id="v_a%3C">v_a&lt;</span> <span id="a%3E">a&gt;</span> <span id="a%3C">a&lt;</span>
+<a href="#a%3C">a&lt;</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <span>&lt;&gt; block&#34;, select [count] &lt;&gt;</span> blocks, from the
+                        <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th unmatched &#39;&lt;&#39; backwards to the matching
+                        &#39;&gt;&#39;, including the &#39;&lt;&#39; and &#39;&gt;&#39;.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#i%3E">i&gt;</a>                                              <span id="v_i%3E">v_i&gt;</span> <span id="v_i%3C">v_i&lt;</span> <span id="i%3E">i&gt;</span> <span id="i%3C">i&lt;</span>
+<a href="#i%3C">i&lt;</a>                      &#34;inner <span>&lt;&gt; block&#34;, select [count] &lt;&gt;</span> blocks, from
+                        the <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th unmatched &#39;&lt;&#39; backwards to the matching
+                        &#39;&gt;&#39;, excluding the &#39;&lt;&#39; and &#39;&gt;&#39;.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+                                                <span id="v_at">v_at</span> <span id="at">at</span>
+<a href="#at">at</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/tagsrch.txt.html#tag">tag</a> block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="https://vimhelp.org/tagsrch.txt.html#tag">tag</a> blocks, from the
+                        <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th unmatched &#34;<span>&lt;aaa&gt;</span>&#34; backwards to the matching
+                        &#34;<span>&lt;/aaa&gt;</span>&#34;<a href="#%2C">,</a> including the &#34;<span>&lt;aaa&gt;</span>&#34; and &#34;<span>&lt;/aaa&gt;</span>&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        See <a href="#tag-blocks">tag-blocks</a> about the details.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+                                                <span id="v_it">v_it</span> <span id="it">it</span>
+<a href="#it">it</a>                      &#34;inner <a href="https://vimhelp.org/tagsrch.txt.html#tag">tag</a> block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="https://vimhelp.org/tagsrch.txt.html#tag">tag</a> blocks, from the
+                        <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a>&#39;th unmatched &#34;<span>&lt;aaa&gt;</span>&#34; backwards to the matching
+                        &#34;<span>&lt;/aaa&gt;</span>&#34;<a href="#%2C">,</a> excluding the &#34;<span>&lt;aaa&gt;</span>&#34; and &#34;<span>&lt;/aaa&gt;</span>&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        See <a href="#tag-blocks">tag-blocks</a> about the details.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#a%7D">a}</a>                                                      <span id="v_a%7D">v_a}</span> <span id="a%7D">a}</span> <span id="a%7B">a{</span>
+<a href="#a%7B">a{</a>                                                      <span id="v_aB">v_aB</span> <span id="v_a%7B">v_a{</span> <span id="aB">aB</span>
+<a href="#aB">aB</a>                      &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> Block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> Blocks, from &#34;<a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#%5B%7B">[{</a>&#34; to
+                        the matching &#39;}&#39;, including the &#39;{&#39; and &#39;}&#39; (see
+                        <a href="#%5B%7B">[{</a>).
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="#i%7D">i}</a>                                                      <span id="v_i%7D">v_i}</span> <span id="i%7D">i}</span> <span id="i%7B">i{</span>
+<a href="#i%7B">i{</a>                                                      <span id="v_iB">v_iB</span> <span id="v_i%7B">v_i{</span> <span id="iB">iB</span>
+<a href="#iB">iB</a>                      &#34;inner Block&#34;<a href="#%2C">,</a> select <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> Blocks, from &#34;<a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#%5B%7B">[{</a>&#34;
+                        to the matching &#39;}&#39;, excluding the &#39;{&#39; and &#39;}&#39; (see
+                        <a href="#%5B%7B">[{</a>).
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+
+<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34;                                                      <span id="v_aquote">v_aquote</span> <span id="aquote">aquote</span>
+<a href="#a%27">a&#39;</a>                                                      <span id="v_a%27">v_a&#39;</span> <span id="a%27">a&#39;</span>
+<a href="#a%60">a`</a>                                                      <span id="v_a%60">v_a`</span> <span id="a%60">a`</span>
+                        &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a> quoted <a href="https://vimhelp.org/eval.txt.html#string">string</a>&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>  Selects the text from the previous
+                        <a href="https://vimhelp.org/change.txt.html#quote">quote</a> until the next <a href="https://vimhelp.org/change.txt.html#quote.">quote.</a>  The <a href="https://vimhelp.org/options.txt.html#%27quoteescape%27">&#39;quoteescape&#39;</a> option
+                        <a href="#is">is</a> used to skip escaped quotes.
+                        Only works within one line.
+                        When the cursor starts on <a href="https://vimhelp.org/insert.txt.html#a">a</a> quote, Vim will figure out
+                        which <a href="https://vimhelp.org/change.txt.html#quote">quote</a> pairs form <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/eval.txt.html#string">string</a> by searching from the
+                        start of the line.
+                        Any trailing white <a href="https://vimhelp.org/intro.txt.html#space">space</a> <a href="#is">is</a> included, unless there <a href="#is">is</a>
+                        none, then leading white <a href="https://vimhelp.org/intro.txt.html#space">space</a> <a href="#is">is</a> included.
+                        When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode <a href="#it">it</a> <a href="#is">is</a> made characterwise.
+                        Repeating this object in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode another <a href="https://vimhelp.org/eval.txt.html#string">string</a> <a href="#is">is</a>
+                        included.  <a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> <a href="#is">is</a> currently not used.
+
+<a href="https://vimhelp.org/insert.txt.html#i">i</a>&#34;                                                      <span id="v_iquote">v_iquote</span> <span id="iquote">iquote</span>
+<a href="#i%27">i&#39;</a>                                                      <span id="v_i%27">v_i&#39;</span> <span id="i%27">i&#39;</span>
+<a href="#i%60">i`</a>                                                      <span id="v_i%60">v_i`</span> <span id="i%60">i`</span>
+                        Like <a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34;<a href="#%2C">,</a> <a href="#a%27">a&#39;</a> and a`, but exclude the <a href="https://vimhelp.org/quotes.txt.html#quotes">quotes</a> and
+                        <a href="https://vimhelp.org/repeat.txt.html#repeating">repeating</a> won&#39;t extend the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> selection.
+                        <a href="https://vimhelp.org/eval.txt.html#Special">Special</a> case: With <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> of 2 the <a href="https://vimhelp.org/quotes.txt.html#quotes">quotes</a> are
+                        included, but no extra white <a href="https://vimhelp.org/intro.txt.html#space">space</a> <a href="#as">as</a> with <a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34;/a&#39;/a`.
+
+When used after an operator:
+For non-block objects:
+        For the &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34; commands: The <a href="#operator">operator</a> applies to the object and the white
+        <a href="https://vimhelp.org/intro.txt.html#space">space</a> after the object.  If there <a href="#is">is</a> no white <a href="https://vimhelp.org/intro.txt.html#space">space</a> after the object
+        or when the cursor was in the white <a href="https://vimhelp.org/intro.txt.html#space">space</a> before the object, the white
+        <a href="https://vimhelp.org/intro.txt.html#space">space</a> before the object <a href="#is">is</a> included.
+        For the &#34;inner&#34; commands: If the cursor was on the object, the
+        <a href="#operator">operator</a> applies to the object.  If the cursor was on white space, the
+        <a href="#operator">operator</a> applies to the white space.
+For <a href="https://vimhelp.org/insert.txt.html#a">a</a> block object:
+        The <a href="#operator">operator</a> applies to the block where the cursor <a href="#is">is</a> in, or the block
+        on which the cursor <a href="#is">is</a> on one of the braces.  For the &#34;inner&#34; commands
+        the surrounding braces are excluded.  For the &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34; commands, the braces
+        are included.
+
+When used in <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode:
+When start and <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> area are the same (just after typing &#34;<a href="https://vimhelp.org/visual.txt.html#v">v</a>&#34;):
+        One object <a href="#is">is</a> selected, the same <a href="#as">as</a> for using an operator.
+When start and <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> area are not the same:
+        For non-block <a href="https://vimhelp.org/index.txt.html#objects">objects</a> the area <a href="#is">is</a> extended by one object or the white
+        <a href="https://vimhelp.org/intro.txt.html#space">space</a> up to the next object, or both for the &#34;<a href="https://vimhelp.org/insert.txt.html#a">a</a>&#34; objects.  The
+        direction in which this happens depends on which side of the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a>
+        area the cursor is.  For the block <a href="https://vimhelp.org/index.txt.html#objects">objects</a> the block <a href="#is">is</a> extended one
+        level outwards.
+
+For illustration, here <a href="#is">is</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/eval.txt.html#list">list</a> of delete commands, grouped from small to big
+objects.  <span>Note</span> that for <a href="https://vimhelp.org/insert.txt.html#a">a</a> single character and <a href="https://vimhelp.org/insert.txt.html#a">a</a> whole line the existing <a href="https://vimhelp.org/intro.txt.html#vi">vi</a>
+<a href="https://vimhelp.org/intro.txt.html#movement">movement</a> commands are used.
+        &#34;<a href="https://vimhelp.org/change.txt.html#dl">dl</a>&#34;    delete character (alias: &#34;<a href="https://vimhelp.org/change.txt.html#x">x</a>&#34;<a href="#%29">)</a>           <a href="https://vimhelp.org/change.txt.html#dl">dl</a>
+        &#34;<a href="#diw">diw</a>&#34;   delete inner <a href="#word">word</a>                       <span id="diw">diw</span>
+        &#34;<a href="#daw">daw</a>&#34;   delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#word">word</a>                           <span id="daw">daw</span>
+        &#34;<a href="#diW">diW</a>&#34;   delete inner <a href="#WORD">WORD</a> (see <a href="#WORD">WORD</a><a href="#%29">)</a>          <span id="diW">diW</span>
+        &#34;<a href="#daW">daW</a>&#34;   delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#WORD">WORD</a> (see <a href="#WORD">WORD</a><a href="#%29">)</a>              <span id="daW">daW</span>
+        &#34;<a href="#dgn">dgn</a>&#34;   delete the next search <a href="https://vimhelp.org/pattern.txt.html#pattern">pattern</a> match    <span id="dgn">dgn</span>
+        &#34;<a href="https://vimhelp.org/change.txt.html#dd">dd</a>&#34;    delete one line                         <a href="https://vimhelp.org/change.txt.html#dd">dd</a>
+        &#34;<a href="#dis">dis</a>&#34;   delete inner <a href="#sentence">sentence</a>                   <span id="dis">dis</span>
+        &#34;<a href="#das">das</a>&#34;   delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#sentence">sentence</a>                       <span id="das">das</span>
+        &#34;<a href="#dib">dib</a>&#34;   delete inner &#39;(&#39; &#39;)&#39; block              <span id="dib">dib</span>
+        &#34;<a href="#dab">dab</a>&#34;   delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#39;(&#39; &#39;)&#39; block                  <span id="dab">dab</span>
+        &#34;<a href="#dip">dip</a>&#34;   delete inner <a href="#paragraph">paragraph</a>                  <span id="dip">dip</span>
+        &#34;<a href="#dap">dap</a>&#34;   delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#paragraph">paragraph</a>                      <span id="dap">dap</span>
+        &#34;<a href="#diB">diB</a>&#34;   delete inner &#39;{&#39; &#39;}&#39; block              <span id="diB">diB</span>
+        &#34;<a href="#daB">daB</a>&#34;   delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#39;{&#39; &#39;}&#39; block                  <span id="daB">daB</span>
+
+<span>Note</span> the difference between using <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#movement">movement</a> command and an object.  The
+<a href="https://vimhelp.org/intro.txt.html#movement">movement</a> command operates from here (cursor position) to where the <a href="https://vimhelp.org/intro.txt.html#movement">movement</a>
+takes us.  When using an object the whole object <a href="#is">is</a> operated upon, no matter
+where on the object the cursor is.  For example, compare &#34;dw&#34; and &#34;<a href="#daw">daw</a>&#34;<a href="https://vimhelp.org/cmdline.txt.html#%3A">:</a> &#34;dw&#34;
+deletes from the cursor position to the start of the next word, &#34;<a href="#daw">daw</a>&#34; deletes
+the <a href="#word">word</a> under the cursor and the <a href="https://vimhelp.org/intro.txt.html#space">space</a> after or before it.
+
+
+Tag blocks                                              <span id="tag-blocks">tag-blocks</span>
+
+For the &#34;<a href="#it">it</a>&#34; and &#34;<a href="#at">at</a>&#34; text <a href="https://vimhelp.org/index.txt.html#objects">objects</a> an attempt <a href="#is">is</a> done to select blocks between
+matching <a href="https://vimhelp.org/tagsrch.txt.html#tags">tags</a> for HTML and XML.  But since these are not completely compatible
+there are <a href="https://vimhelp.org/insert.txt.html#a">a</a> few restrictions.
+
+The normal <a href="https://vimhelp.org/eval.txt.html#method">method</a> <a href="#is">is</a> to select <a href="https://vimhelp.org/insert.txt.html#a">a</a> <span>&lt;tag&gt;</span> until the matching <span>&lt;/tag&gt;</span>.  For &#34;<a href="#at">at</a>&#34;
+the <a href="https://vimhelp.org/tagsrch.txt.html#tags">tags</a> are included, for &#34;<a href="#it">it</a>&#34; they are excluded.  But when &#34;<a href="#it">it</a>&#34; <a href="#is">is</a> repeated
+the <a href="https://vimhelp.org/tagsrch.txt.html#tags">tags</a> will be included (otherwise nothing would change).  Also, &#34;<a href="#it">it</a>&#34; used
+on <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/tagsrch.txt.html#tag">tag</a> block with no contents will select the leading tag.
+
+&#34;<span>&lt;aaa/&gt;</span>&#34; items are skipped.  Case <a href="#is">is</a> ignored, also for XML where <a href="https://vimhelp.org/change.txt.html#case">case</a> does
+matter.
+
+In HTML <a href="#it">it</a> <a href="#is">is</a> possible to have <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/tagsrch.txt.html#tag">tag</a> like <span>&lt;br&gt;</span> or <span>&lt;meta ...&gt;</span> without <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+matching <a href="https://vimhelp.org/intro.txt.html#end">end</a> tag.  These are ignored.
+
+The text <a href="https://vimhelp.org/index.txt.html#objects">objects</a> are tolerant about mistakes.  Stray <a href="https://vimhelp.org/intro.txt.html#end">end</a> <a href="https://vimhelp.org/tagsrch.txt.html#tags">tags</a> are ignored.
+
+<span>==============================================================================</span>
+7. Marks                                        <span id="mark-motions">mark-motions</span> <span id="E20">E20</span> <span id="E78">E78</span>
+
+Jumping to <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#mark">mark</a> can be done in two ways:
+1. With <a href="#%60">`</a> (backtick):     The cursor <a href="#is">is</a> positioned <a href="#at">at</a> the specified location
+                          and the motion <a href="#is">is</a> <a href="#exclusive">exclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+2. With <a href="#%27">&#39;</a> (single quote): The cursor <a href="#is">is</a> positioned on the first non-blank
+                          character in the line of the specified location and
+                          the motion <a href="#is">is</a> linewise.
+
+                                                <span id="m">m</span> <span id="mark">mark</span> <span id="Mark">Mark</span>
+m{a-zA-Z}               Set <a href="#mark">mark</a> <span>{a-zA-Z}</span> <a href="#at">at</a> cursor position (does not move
+                        the cursor, this <a href="#is">is</a> not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+
+                                                <span id="m%27">m&#39;</span> <span id="m%60">m`</span>
+<a href="#m%27">m&#39;</a>  or  <a href="#m%60">m`</a>              Set the previous context mark.  This can be jumped to
+                        with the &#34;<a href="#%27%27">&#39;&#39;</a>&#34; or &#34;<a href="#%60%60">``</a>&#34; command (does not move the
+                        cursor, this <a href="#is">is</a> not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+
+                                                <span id="m%5B">m[</span> <span id="m%5D">m]</span>
+<a href="#m%5B">m[</a>  or  <a href="#m%5D">m]</a>              Set the <a href="#%27%5B">&#39;[</a> or <a href="#%27%5D">&#39;]</a> mark.  Useful when an <a href="#operator">operator</a> <a href="#is">is</a>
+                        to be simulated by multiple commands.  (does not move
+                        the cursor, this <a href="#is">is</a> not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+
+                                                <span id="m%3C">m&lt;</span> <span id="m%3E">m&gt;</span>
+<a href="#m%3C">m&lt;</a>  or  <a href="#m%3E">m&gt;</a>              Set the <a href="#%27%3C">&#39;&lt;</a> or <a href="#%27%3E">&#39;&gt;</a> mark.  Useful to change what the
+                        <span>gv</span> command selects.  (does not move the cursor, this
+                        <a href="#is">is</a> not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+                        <span>Note</span> that the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode cannot be set, only the
+                        start and <a href="https://vimhelp.org/intro.txt.html#end">end</a> position.
+
+                                                <span id="%3Ama">:ma</span> <span id="%3Amark">:mark</span> <span id="E191">E191</span>
+:[range]ma[rk] <span>{a-zA-Z&#39;}</span>
+                        Set <a href="#mark">mark</a> <span>{a-zA-Z&#39;}</span> <a href="#at">at</a> last line number in <a href="https://vimhelp.org/cmdline.txt.html#%5Brange%5D">[range]</a>,
+                        column 0.  Default <a href="#is">is</a> cursor line.
+
+                                                <span id="%3Ak">:k</span>
+:[range]k{a-zA-Z&#39;}      Same <a href="#as">as</a> :mark, but the <a href="https://vimhelp.org/intro.txt.html#space">space</a> before the <a href="#mark">mark</a> name can
+                        be omitted.
+                        This command <a href="#is">is</a> not supported in <a href="https://vimhelp.org/vim9.txt.html#Vim9">Vim9</a> script,
+                        because <a href="#it">it</a> <a href="#is">is</a> too easily confused with <a href="https://vimhelp.org/insert.txt.html#a">a</a> variable
+                        name.
+
+                                                <span id="%27">&#39;</span> <span id="%27a">&#39;a</span> <span id="%60">`</span> <span id="%60a">`a</span>
+&#39;{a-z}  `{a-z}          Jump to the <a href="#mark">mark</a> <span>{a-z}</span> in the current buffer.
+
+                                                <span id="%27A">&#39;A</span> <span id="%270">&#39;0</span> <span id="%60A">`A</span> <span id="%600">`0</span>
+&#39;{A-Z0-9}  `{A-Z0-9}    To the <a href="#mark">mark</a> <span>{A-Z0-9}</span> in the file where <a href="#it">it</a> was set (not
+                        <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command when in another file).
+
+                                                <span id="g%27">g&#39;</span> <span id="g%27a">g&#39;a</span> <span id="g%60">g`</span> <span id="g%60a">g`a</span>
+g&#39;{mark}  g`{mark}
+                        Jump to the <span>{mark}</span>, but don&#39;t change the <a href="#jumplist">jumplist</a> when
+                        jumping within the current buffer.  Example: 
+<span>                                g`&#34;</span>
+                       jumps to the last known position in <a href="https://vimhelp.org/insert.txt.html#a">a</a> file.  See
+                        $VIMRUNTIME/vimrc_example.vim.
+                        Also see <a href="#%3Akeepjumps">:keepjumps</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                <span id="%3Amarks">:marks</span>
+<a href="#%3Amarks">:marks</a>                  <a href="https://vimhelp.org/eval.txt.html#List">List</a> all the current marks (not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+                        The <a href="#%27%28">&#39;(</a><a href="#%2C">,</a> <a href="#%27%29">&#39;)</a><a href="#%2C">,</a> <a href="#%27%7B">&#39;{</a> and <a href="#%27%7D">&#39;}</a> marks are not listed.
+                        The first column has number zero.
+
+                                                <span id="E283">E283</span>
+<a href="#%3Amarks">:marks</a> <span>{arg}</span>            <a href="https://vimhelp.org/eval.txt.html#List">List</a> the marks that are mentioned in <span>{arg}</span> (not <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+                        motion command).  For example: 
+<span>                                :marks aB</span>
+                       to <a href="https://vimhelp.org/eval.txt.html#list">list</a> marks &#39;a&#39; and &#39;B&#39;.
+
+                                                        <span id="%3Adelm">:delm</span> <span id="%3Adelmarks">:delmarks</span>
+:delm[arks] <span>{marks}</span>     Delete the specified marks.  Marks that can be deleted
+                        include A-Z and 0-9.  You cannot delete the <a href="#%27">&#39;</a> mark.
+                        They can be specified by giving the <a href="https://vimhelp.org/eval.txt.html#list">list</a> of <a href="#mark">mark</a>
+                        names, or with <a href="https://vimhelp.org/insert.txt.html#a">a</a> range, separated with <a href="https://vimhelp.org/insert.txt.html#a">a</a> dash.  Spaces
+                        are ignored.  Examples: 
+<span>                           :delmarks a        deletes mark a</span>
+<span>                           :delmarks a b 1    deletes marks a, b and 1</span>
+<span>                           :delmarks Aa       deletes marks A and a</span>
+<span>                           :delmarks p-z      deletes marks in the range p to z</span>
+<span>                           :delmarks ^.[]     deletes marks ^ . [ ]</span>
+<span>                           :delmarks \&#34;       deletes mark &#34;</span>
+<span></span>
+:delm[arks]!            Delete all marks for the current buffer, but not marks
+                        A-Z or 0-9.
+
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> <a href="#mark">mark</a> <a href="#is">is</a> not visible in any way.  It <a href="#is">is</a> just <a href="https://vimhelp.org/insert.txt.html#a">a</a> position in the file that <a href="#is">is</a>
+remembered.  Do not confuse marks with named registers, they are totally
+unrelated.
+
+<a href="#%27a">&#39;a</a> <a href="#-">-</a> &#39;z         <a href="https://vimhelp.org/change.txt.html#lowercase">lowercase</a> marks, valid within one file
+<a href="#%27A">&#39;A</a> <a href="#-">-</a> &#39;Z         <a href="https://vimhelp.org/change.txt.html#uppercase">uppercase</a> marks, also called file marks, valid between files
+<a href="#%270">&#39;0</a> <a href="#-">-</a> &#39;9         numbered marks, set from .viminfo file
+
+Lowercase marks <a href="#%27a">&#39;a</a> to &#39;z are remembered <a href="#as">as</a> long <a href="#as">as</a> the file remains in the
+buffer list.  If you remove the file from the buffer list, all its marks are
+lost.  If you delete <a href="https://vimhelp.org/insert.txt.html#a">a</a> line that contains <a href="https://vimhelp.org/insert.txt.html#a">a</a> mark, that <a href="#mark">mark</a> <a href="#is">is</a> erased.
+
+Lowercase marks can be used in combination with operators.  For example: &#34;d&#39;t&#34;
+deletes the lines from the cursor position to <a href="#mark">mark</a> &#39;t&#39;.  Hint: Use <a href="#mark">mark</a> &#39;t&#39; for
+Top, &#39;b&#39; for Bottom, etc..  Lowercase marks are restored when using <a href="https://vimhelp.org/undo.txt.html#undo">undo</a> and
+redo.
+
+Uppercase marks <a href="#%27A">&#39;A</a> to &#39;Z include the file name.  You can use them to jump from
+file to file.  You can only use an <a href="https://vimhelp.org/change.txt.html#uppercase">uppercase</a> <a href="#mark">mark</a> with an <a href="#operator">operator</a> if the <a href="#mark">mark</a>
+<a href="#is">is</a> in the current file.  The line number of the <a href="#mark">mark</a> remains correct, even if
+you insert/delete lines or edit another file for <a href="https://vimhelp.org/insert.txt.html#a">a</a> moment.  When the <a href="https://vimhelp.org/options.txt.html#%27viminfo%27">&#39;viminfo&#39;</a>
+option <a href="#is">is</a> not empty, <a href="https://vimhelp.org/change.txt.html#uppercase">uppercase</a> marks are kept in the .viminfo file.  See
+<a href="https://vimhelp.org/starting.txt.html#viminfo-file-marks">viminfo-file-marks</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+Numbered marks <a href="#%270">&#39;0</a> to &#39;9 are quite different.  They can not be set directly.
+They are only present when using <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/starting.txt.html#viminfo">viminfo</a> file <a href="https://vimhelp.org/starting.txt.html#viminfo-file">viminfo-file</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  Basically <a href="#%270">&#39;0</a>
+<a href="#is">is</a> the location of the cursor when you last exited Vim, &#39;1 the last but one
+time, etc.  Use the &#34;<a href="https://vimhelp.org/change.txt.html#r">r</a>&#34; flag in <a href="https://vimhelp.org/options.txt.html#%27viminfo%27">&#39;viminfo&#39;</a> to specify files for which no
+Numbered <a href="#mark">mark</a> should be stored.  See <a href="https://vimhelp.org/starting.txt.html#viminfo-file-marks">viminfo-file-marks</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+
+                                                        <span id="%27%5B">&#39;[</span> <span id="%60%5B">`[</span>
+<a href="#%27%5B">&#39;[</a>  <a href="#%60%5B">`[</a>                  To the first character of the previously changed
+                        or yanked text.
+
+                                                        <span id="%27%5D">&#39;]</span> <span id="%60%5D">`]</span>
+<a href="#%27%5D">&#39;]</a>  <a href="#%60%5D">`]</a>                  To the last character of the previously changed or
+                        yanked text.
+
+After executing an <a href="#operator">operator</a> the Cursor <a href="#is">is</a> <a href="https://vimhelp.org/change.txt.html#put">put</a> <a href="#at">at</a> the beginning of the text
+that was operated upon.  After <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#put">put</a> command <a href="#%28">(</a>&#34;<a href="https://vimhelp.org/change.txt.html#p">p</a>&#34; or &#34;<a href="https://vimhelp.org/change.txt.html#P">P</a>&#34;<a href="#%29">)</a> the cursor <a href="#is">is</a>
+sometimes placed <a href="#at">at</a> the first inserted line and sometimes on the last inserted
+character.  The four commands above <a href="https://vimhelp.org/change.txt.html#put">put</a> the cursor <a href="#at">at</a> either end.  Example:
+After yanking 10 lines you want to <a href="#go">go</a> to the last one of them: &#34;10Y&#39;]&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>  After
+<a href="https://vimhelp.org/insert.txt.html#inserting">inserting</a> several lines with the &#34;<a href="https://vimhelp.org/change.txt.html#p">p</a>&#34; command you want to jump to the lowest
+inserted line: &#34;p&#39;]&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>  This also works for text that has been inserted.
+
+<span>Note:</span> After <a href="https://vimhelp.org/change.txt.html#deleting">deleting</a> text, the start and <a href="https://vimhelp.org/intro.txt.html#end">end</a> positions are the same, except
+when using blockwise <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> mode.  These commands <a href="https://vimhelp.org/diff.txt.html#do">do</a> not work when no change
+was made yet in the current file.
+
+                                                        <span id="%27%3C">&#39;&lt;</span> <span id="%60%3C">`&lt;</span>
+<a href="#%27%3C">&#39;&lt;</a>  <a href="#%60%3C">`&lt;</a>                  To the first line or character of the last selected
+                        <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> area in the current buffer.  For block mode <a href="#it">it</a>
+                        may also be the last character in the first line (to
+                        be able to define the block).
+
+                                                        <span id="%27%3E">&#39;&gt;</span> <span id="%60%3E">`&gt;</span>
+<a href="#%27%3E">&#39;&gt;</a>  <a href="#%60%3E">`&gt;</a>                  To the last line or character of the last selected
+                        <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> area in the current buffer.  For block mode <a href="#it">it</a>
+                        may also be the first character of the last line (to
+                        be able to define the block).  <span>Note</span> that <a href="https://vimhelp.org/options.txt.html#%27selection%27">&#39;selection&#39;</a>
+                        applies, the position may be just after the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a>
+                        area.
+
+                                                        <span id="%27%27">&#39;&#39;</span> <span id="%60%60">``</span>
+<a href="#%27%27">&#39;&#39;</a>  <a href="#%60%60">``</a>                  To the position before the latest jump, or where the
+                        last &#34;<a href="#m%27">m&#39;</a>&#34; or &#34;<a href="#m%60">m`</a>&#34; command was given.  Not set when the
+                        <a href="#%3Akeepjumps">:keepjumps</a> command modifier was used.
+                        Also see <a href="https://vimhelp.org/tips.txt.html#restore-position">restore-position</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="%27quote">&#39;quote</span> <span id="%60quote">`quote</span>
+<a href="#%27">&#39;</a>&#34;  <a href="#%60">`</a>&#34;                  To the cursor position when last <a href="https://vimhelp.org/starting.txt.html#exiting">exiting</a> the current
+                        buffer.  Defaults to the first character of the first
+                        line.  See <a href="https://vimhelp.org/usr_05.txt.html#last-position-jump">last-position-jump</a> for how to use this
+                        for each opened file.
+                        Only one position <a href="#is">is</a> remembered per buffer, not one
+                        for each window.  As long <a href="#as">as</a> the buffer <a href="#is">is</a> visible in
+                        <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/windows.txt.html#window">window</a> the position won&#39;t be changed.
+
+                                                        <span id="%27%5E">&#39;^</span> <span id="%60%5E">`^</span>
+<a href="#%27%5E">&#39;^</a>  <a href="#%60%5E">`^</a>                  To the position where the cursor was the last time
+                        when <a href="https://vimhelp.org/insert.txt.html#Insert">Insert</a> mode was stopped.  This <a href="#is">is</a> used by the
+                        <a href="https://vimhelp.org/insert.txt.html#gi">gi</a> command.  Not set when the <a href="#%3Akeepjumps">:keepjumps</a> command
+                        modifier was used.
+
+                                                        <span id="%27.">&#39;.</span> <span id="%60.">`.</span>
+<a href="#%27.">&#39;.</a>  <a href="#%60.">`.</a>                  To the position where the last change was made.  The
+                        position <a href="#is">is</a> <a href="#at">at</a> or near where the change started.
+                        Sometimes <a href="https://vimhelp.org/insert.txt.html#a">a</a> command <a href="#is">is</a> executed <a href="#as">as</a> several changes,
+                        then the position can be near the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of what the
+                        command changed.  For example when <a href="https://vimhelp.org/insert.txt.html#inserting">inserting</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> word,
+                        the position will be on the last character.
+                        To jump to older changes use <a href="#g%3B">g;</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="%27%28">&#39;(</span> <span id="%60%28">`(</span>
+<a href="#%27%28">&#39;(</a>  <a href="#%60%28">`(</a>                  To the start of the current sentence, like the <a href="#%28">(</a>
+                        command.
+
+                                                        <span id="%27%29">&#39;)</span> <span id="%60%29">`)</span>
+<a href="#%27%29">&#39;)</a>  <a href="#%60%29">`)</a>                  To the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the current sentence, like the <a href="#%29">)</a>
+                        command.
+
+                                                        <span id="%27%7B">&#39;{</span> <span id="%60%7B">`{</span>
+<a href="#%27%7B">&#39;{</a>  <a href="#%60%7B">`{</a>                  To the start of the current paragraph, like the <a href="#%7B">{</a>
+                        command.
+
+                                                        <span id="%27%7D">&#39;}</span> <span id="%60%7D">`}</span>
+<a href="#%27%7D">&#39;}</a>  <a href="#%60%7D">`}</a>                  To the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the current paragraph, like the <a href="#%7D">}</a>
+                        command.
+
+These commands are not marks themselves, but jump to <a href="https://vimhelp.org/insert.txt.html#a">a</a> mark:
+
+                                                        <span id="%5D%27">]&#39;</span>
+<a href="#%5D%27">]&#39;</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> times to next line with <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#lowercase">lowercase</a> <a href="#mark">mark</a> below
+                        the cursor, on the first non-blank character in the
+                        line.
+
+                                                        <span id="%5D%60">]`</span>
+<a href="#%5D%60">]`</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> times to <a href="https://vimhelp.org/change.txt.html#lowercase">lowercase</a> <a href="#mark">mark</a> after the cursor.
+
+                                                        <span id="%5B%27">[&#39;</span>
+<a href="#%5B%27">[&#39;</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> times to previous line with <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#lowercase">lowercase</a> <a href="#mark">mark</a>
+                        before the cursor, on the first non-blank character in
+                        the line.
+
+                                                        <span id="%5B%60">[`</span>
+<a href="#%5B%60">[`</a>                      <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> times to <a href="https://vimhelp.org/change.txt.html#lowercase">lowercase</a> <a href="#mark">mark</a> before the cursor.
+
+
+:loc[kmarks] <span>{command}</span>                          <span id="%3Aloc">:loc</span> <span id="%3Alock">:lock</span> <span id="%3Alockmarks">:lockmarks</span>
+                        Execute <span>{command}</span> without adjusting marks.  This <a href="#is">is</a>
+                        useful when <a href="https://vimhelp.org/change.txt.html#changing">changing</a> text in <a href="https://vimhelp.org/insert.txt.html#a">a</a> way that the line <a href="https://vimhelp.org/intro.txt.html#count">count</a>
+                        will be the same when the change has completed.
+                        WARNING: When the line <a href="https://vimhelp.org/intro.txt.html#count">count</a> does change, marks below
+                        the change will keep their line number, thus move to
+                        another text line.
+                        These items will not be adjusted for deleted/inserted
+                        lines:
+                        <a href="#-">-</a> lower <a href="https://vimhelp.org/change.txt.html#case">case</a> <a href="https://vimhelp.org/print.txt.html#letter">letter</a> marks <a href="#%27a">&#39;a</a> <a href="#-">-</a> &#39;z
+                        <a href="#-">-</a> upper <a href="https://vimhelp.org/change.txt.html#case">case</a> <a href="https://vimhelp.org/print.txt.html#letter">letter</a> marks <a href="#%27A">&#39;A</a> <a href="#-">-</a> &#39;Z
+                        <a href="#-">-</a> numbered marks <a href="#%270">&#39;0</a> <a href="#-">-</a> &#39;9
+                        <a href="#-">-</a> last <a href="https://vimhelp.org/insert.txt.html#insert">insert</a> position <a href="#%27%5E">&#39;^</a>
+                        <a href="#-">-</a> last change position <a href="#%27.">&#39;.</a>
+                        <a href="#-">-</a> last affected text area <a href="#%27%5B">&#39;[</a> and <a href="#%27%5D">&#39;]</a>
+                        <a href="#-">-</a> the <a href="https://vimhelp.org/visual.txt.html#Visual">Visual</a> area <a href="#%27%3C">&#39;&lt;</a> and <a href="#%27%3E">&#39;&gt;</a>
+                        <a href="#-">-</a> line numbers in placed <a href="https://vimhelp.org/sign.txt.html#signs">signs</a>
+                        <a href="#-">-</a> line numbers in <a href="https://vimhelp.org/quickfix.txt.html#quickfix">quickfix</a> positions
+                        <a href="#-">-</a> positions in the <a href="#jumplist">jumplist</a>
+                        <a href="#-">-</a> positions in the <a href="https://vimhelp.org/tagsrch.txt.html#tagstack">tagstack</a>
+                        These items will still be adjusted:
+                        <a href="#-">-</a> previous context <a href="#mark">mark</a> <a href="#%27%27">&#39;&#39;</a>
+                        <a href="#-">-</a> the cursor position
+                        <a href="#-">-</a> the <a href="https://vimhelp.org/starting.txt.html#view">view</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/windows.txt.html#window">window</a> on <a href="https://vimhelp.org/insert.txt.html#a">a</a> buffer
+                        <a href="#-">-</a> <a href="https://vimhelp.org/fold.txt.html#folds">folds</a>
+                        <a href="#-">-</a> diffs
+
+:kee[pmarks] <span>{command}</span>                          <span id="%3Akee">:kee</span> <span id="%3Akeep">:keep</span> <span id="%3Akeepmarks">:keepmarks</span>
+                        Currently only has effect for the <a href="https://vimhelp.org/change.txt.html#filter">filter</a> command
+                        <a href="https://vimhelp.org/change.txt.html#%3Arange%21">:range!</a><a href="https://vimhelp.org/cmdline.txt.html#%3A">:</a>
+                        <a href="#-">-</a> When the number of lines after filtering <a href="#is">is</a> equal to
+                          or larger than before, all marks are kept <a href="#at">at</a> the
+                          same line number.
+                        <a href="#-">-</a> When the number of lines decreases, the marks in the
+                          lines that disappeared are deleted.
+                        In any <a href="https://vimhelp.org/change.txt.html#case">case</a> the marks below the filtered text have
+                        their line numbers adjusted, thus stick to the text,
+                        <a href="#as">as</a> usual.
+                        When the &#39;R&#39; flag <a href="#is">is</a> missing from <a href="https://vimhelp.org/options.txt.html#%27cpoptions%27">&#39;cpoptions&#39;</a> this has
+                        the same effect <a href="#as">as</a> using &#34;<a href="#%3Akeepmarks">:keepmarks</a>&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+                                                        <span id="%3Akeepj">:keepj</span> <span id="%3Akeepjumps">:keepjumps</span>
+:keepj[umps] <span>{command}</span>
+                        Moving around in <span>{command}</span> does not change the <a href="#%27%27">&#39;&#39;</a><a href="#%2C">,</a>
+                        <a href="#%27.">&#39;.</a> and <a href="#%27%5E">&#39;^</a> marks, the <a href="#jumplist">jumplist</a> or the
+                        <a href="#changelist">changelist</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        Useful when making <a href="https://vimhelp.org/insert.txt.html#a">a</a> change or <a href="https://vimhelp.org/insert.txt.html#inserting">inserting</a> text
+                        automatically and the user doesn&#39;t want to <a href="#go">go</a> to this
+                        position.  E.g., when updating <a href="https://vimhelp.org/insert.txt.html#a">a</a> &#34;Last change&#34;
+                        <a href="https://vimhelp.org/editing.txt.html#timestamp">timestamp</a> in the first line: 
+<span></span>
+<span>                                :let lnum = line(&#34;.&#34;)</span>
+<span>                                :keepjumps normal gg</span>
+<span>                                :call SetLastChange()</span>
+<span>                                :keepjumps exe &#34;normal &#34; .. lnum .. &#34;G&#34;</span>
+
+                        <span>Note</span> that &#34;<a href="#%3Akeepjumps">:keepjumps</a>&#34; <a href="https://vimhelp.org/vim_faq.txt.html#must">must</a> be used for every command.
+                        When invoking <a href="https://vimhelp.org/insert.txt.html#a">a</a> function the commands in that function
+                        can still change the jumplist.  Also, for
+                        &#34;<a href="#%3Akeepjumps">:keepjumps</a> exe &#39;command <a href="#%27">&#39;</a>&#34; the &#34;command&#34; won&#39;t keep
+                        jumps.  Instead use: &#34;<a href="https://vimhelp.org/eval.txt.html#%3Aexe">:exe</a> &#39;keepjumps command&#39;&#34;
+
+<span>==============================================================================</span>
+8. Jumps                                        <span id="jump-motions">jump-motions</span>
+
+<a href="https://vimhelp.org/insert.txt.html#A">A</a> &#34;jump&#34; <a href="#is">is</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> command that normally moves the cursor several lines away.  If
+you make the cursor &#34;jump&#34; the position of the cursor before the jump <a href="#is">is</a>
+remembered.  You can return to that position with the &#34;<a href="#%27%27">&#39;&#39;</a>&#34; and &#34;<a href="#%60%60">``</a>&#34; commands,
+unless the line containing that position was changed or deleted.  The
+following commands are &#34;jump&#34; commands: &#34;<a href="#%27">&#39;</a>&#34;<a href="#%2C">,</a> &#34;<a href="#%60">`</a>&#34;<a href="#%2C">,</a> &#34;<a href="#G">G</a>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/pattern.txt.html#%2F">/</a>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/pattern.txt.html#%3F">?</a>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/pattern.txt.html#n">n</a>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/pattern.txt.html#N">N</a>&#34;<a href="#%2C">,</a>
+&#34;<a href="#%25">%</a>&#34;<a href="#%2C">,</a> &#34;<a href="#%28">(</a>&#34;<a href="#%2C">,</a> &#34;<a href="#%29">)</a>&#34;<a href="#%2C">,</a> &#34;<a href="#%5B%5B">[[</a>&#34;<a href="#%2C">,</a> &#34;<a href="#%5D%5D">]]</a>&#34;<a href="#%2C">,</a> &#34;<span>{&#34;, &#34;}</span>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/change.txt.html#%3As">:s</a>&#34;<a href="#%2C">,</a> &#34;<a href="https://vimhelp.org/tagsrch.txt.html#%3Atag">:tag</a>&#34;<a href="#%2C">,</a> &#34;<a href="#L">L</a>&#34;<a href="#%2C">,</a> &#34;<a href="#M">M</a>&#34;<a href="#%2C">,</a> &#34;<a href="#H">H</a>&#34; and the
+commands that start editing <a href="https://vimhelp.org/insert.txt.html#a">a</a> new file.
+
+                                                        <span id="CTRL-O">CTRL-O</span>
+<a href="#CTRL-O">CTRL-O</a>                  Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> Older cursor position in jump <a href="https://vimhelp.org/eval.txt.html#list">list</a>
+                        (not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+
+<a href="#%3CTab%3E">&lt;Tab&gt;</a>           or                                      <span id="CTRL-I">CTRL-I</span> <span id="%3CTab%3E">&lt;Tab&gt;</span>
+<a href="#CTRL-I">CTRL-I</a>                  Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> newer cursor position in jump <a href="https://vimhelp.org/eval.txt.html#list">list</a>
+                        (not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+
+                        <span>NOTE:</span> In the <a href="https://vimhelp.org/gui.txt.html#GUI">GUI</a> and in <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/terminal.txt.html#terminal">terminal</a> supporting
+                        <a href="https://vimhelp.org/map.txt.html#modifyOtherKeys">modifyOtherKeys</a><a href="#%2C">,</a> <a href="#CTRL-I">CTRL-I</a> can be mapped separately
+                        from <a href="#%3CTab%3E">&lt;Tab&gt;</a>, on the condition that <a href="#CTRL-I">CTRL-I</a> <a href="#is">is</a>
+                        mapped before <a href="#%3CTab%3E">&lt;Tab&gt;</a>, otherwise the <a href="https://vimhelp.org/map.txt.html#mapping">mapping</a> applies to
+                        both.
+
+                                                        <span id="%3Aju">:ju</span> <span id="%3Ajumps">:jumps</span>
+:ju[mps]                Print the jump <a href="https://vimhelp.org/eval.txt.html#list">list</a> (not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command).
+
+                                                        <span id="%3Acle">:cle</span> <span id="%3Aclearjumps">:clearjumps</span>
+:cle[arjumps]           Clear the jump <a href="https://vimhelp.org/eval.txt.html#list">list</a> of the current window.
+
+                                                        <span id="jumplist">jumplist</span>
+Jumps are remembered in <a href="https://vimhelp.org/insert.txt.html#a">a</a> jump list.  With the <a href="#CTRL-O">CTRL-O</a> and <a href="#CTRL-I">CTRL-I</a> command you
+can <a href="#go">go</a> to cursor positions before older jumps, and back again.  Thus you can
+move up and down the list.  There <a href="#is">is</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> separate jump <a href="https://vimhelp.org/eval.txt.html#list">list</a> for each window.
+The maximum number of entries <a href="#is">is</a> fixed <a href="#at">at</a> 100.
+
+For example, after three jump commands you have this jump list:
+
+<span>    jump line  col file/text </span>
+<span>      3   1    0 some text </span>
+<span>      2  70    0 another line </span>
+<span>      1  1154   23 end. </span>
+<span>   &gt; </span>
+
+The &#34;file/text&#34; column shows the file name, or the text <a href="#at">at</a> the jump if <a href="#it">it</a> <a href="#is">is</a>
+in the current file (an indent <a href="#is">is</a> removed and <a href="https://vimhelp.org/insert.txt.html#a">a</a> long line <a href="#is">is</a> truncated to fit
+in the window).
+
+The marker &#34;<a href="https://vimhelp.org/change.txt.html#%3E">&gt;</a>&#34; indicates the current position in the jumplist.  It may not be
+shown when filtering the <a href="#%3Ajumps">:jumps</a> command using <a href="https://vimhelp.org/various.txt.html#%3Afilter">:filter</a>
+
+You are currently in line 1167.  If you then use the <a href="#CTRL-O">CTRL-O</a> command, the
+cursor <a href="#is">is</a> <a href="https://vimhelp.org/change.txt.html#put">put</a> in line 1154.  This results in:
+
+<span>    jump line  col file/text </span>
+<span>      2   1    0 some text </span>
+<span>      1  70    0 another line </span>
+<span>   &gt;  0  1154   23 end. </span>
+<span>      1  1167    0 foo bar </span>
+
+The pointer will be set <a href="#at">at</a> the last used jump position.  The next <a href="#CTRL-O">CTRL-O</a>
+command will use the entry above it, the next <a href="#CTRL-I">CTRL-I</a> command will use the
+entry below it.  If the pointer <a href="#is">is</a> below the last entry, this indicates that
+you did not use <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#CTRL-I">CTRL-I</a> or <a href="#CTRL-O">CTRL-O</a> before.  In this <a href="https://vimhelp.org/change.txt.html#case">case</a> the <a href="#CTRL-O">CTRL-O</a> command
+will cause the cursor position to be added to the jump list, so you can get
+back to the position before the <a href="#CTRL-O">CTRL-O</a>.  In this <a href="https://vimhelp.org/change.txt.html#case">case</a> this <a href="#is">is</a> line 1167.
+
+With more <a href="#CTRL-O">CTRL-O</a> commands you will <a href="#go">go</a> to lines 70 and 1.  If you use <a href="#CTRL-I">CTRL-I</a>
+you can <a href="#go">go</a> back to 1154 and 1167 again.  <span>Note</span> that the number in the &#34;jump&#34;
+column indicates the <a href="https://vimhelp.org/intro.txt.html#count">count</a> for the <a href="#CTRL-O">CTRL-O</a> or <a href="#CTRL-I">CTRL-I</a> command that takes you to
+this position.
+
+If you use <a href="https://vimhelp.org/insert.txt.html#a">a</a> jump command, the current line number <a href="#is">is</a> inserted <a href="#at">at</a> the <a href="https://vimhelp.org/intro.txt.html#end">end</a> of
+the jump list.  If the same line was already in the jump list, <a href="#it">it</a> <a href="#is">is</a> removed.
+The result <a href="#is">is</a> that when <a href="https://vimhelp.org/repeat.txt.html#repeating">repeating</a> <a href="#CTRL-O">CTRL-O</a> you will get back to old positions
+only once.
+
+When the <a href="#%3Akeepjumps">:keepjumps</a> command modifier <a href="#is">is</a> used, jumps are not stored in the
+jumplist.  Jumps are also not stored in other cases, e.g., in <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/repeat.txt.html#%3Aglobal">:global</a>
+command.  You can explicitly add <a href="https://vimhelp.org/insert.txt.html#a">a</a> jump by setting the <a href="#%27">&#39;</a> <a href="#mark">mark</a> with &#34;<a href="#m%27">m&#39;</a>&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>  <span>Note</span>
+that calling <a href="https://vimhelp.org/builtin.txt.html#setpos%28%29">setpos()</a> does not <a href="https://vimhelp.org/diff.txt.html#do">do</a> this.
+
+After the <a href="#CTRL-O">CTRL-O</a> command that got you into line 1154 you could give another
+jump command (e.g., &#34;<a href="#G">G</a>&#34;).  The jump <a href="https://vimhelp.org/eval.txt.html#list">list</a> would then become:
+
+<span>    jump line  col file/text </span>
+<span>      4   1    0 some text </span>
+<span>      3  70    0 another line </span>
+<span>      2  1167    0 foo bar </span>
+<span>      1  1154   23 end. </span>
+<span>   &gt; </span>
+
+The line numbers will be adjusted for deleted and inserted lines.  This fails
+if you stop editing <a href="https://vimhelp.org/insert.txt.html#a">a</a> file without writing, like with &#34;:n!&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+When you split <a href="https://vimhelp.org/insert.txt.html#a">a</a> window, the <a href="#jumplist">jumplist</a> will be copied to the new window.
+
+If you have included the <a href="#%27">&#39;</a> item in the <a href="https://vimhelp.org/options.txt.html#%27viminfo%27">&#39;viminfo&#39;</a> option the <a href="#jumplist">jumplist</a> will be
+stored in the <a href="https://vimhelp.org/starting.txt.html#viminfo">viminfo</a> file and restored when <a href="https://vimhelp.org/starting.txt.html#starting">starting</a> Vim.
+
+
+<span>CHANGE LIST JUMPS                      </span> <span id="changelist">changelist</span> <span id="change-list-jumps">change-list-jumps</span> <span id="E664">E664</span>
+
+When making <a href="https://vimhelp.org/insert.txt.html#a">a</a> change the cursor position <a href="#is">is</a> remembered.  One position <a href="#is">is</a>
+remembered for every change that can be undone, unless <a href="#it">it</a> <a href="#is">is</a> close to <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+previous change.  Two commands can be used to jump to positions of changes,
+also those that have been undone:
+
+                                                        <span id="g%3B">g;</span> <span id="E662">E662</span>
+<a href="#g%3B">g;</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> older position in change list.
+                        If <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> <a href="#is">is</a> larger than the number of older change
+                        positions <a href="#go">go</a> to the oldest change.
+                        If there <a href="#is">is</a> no older change an error message <a href="#is">is</a> given.
+                        (not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command)
+
+                                                        <span id="g%2C">g,</span> <span id="E663">E663</span>
+<a href="#g%2C">g,</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> newer cursor position in change list.
+                        Just like <a href="#g%3B">g;</a> but in the opposite direction.
+                        (not <a href="https://vimhelp.org/insert.txt.html#a">a</a> motion command)
+
+When using <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/intro.txt.html#count">count</a> you jump <a href="#as">as</a> far back or forward <a href="#as">as</a> possible.  Thus you can
+use &#34;999g;&#34; to <a href="#go">go</a> to the first change for which the position <a href="#is">is</a> still
+remembered.  The number of entries in the change <a href="https://vimhelp.org/eval.txt.html#list">list</a> <a href="#is">is</a> fixed and <a href="#is">is</a> the same
+<a href="#as">as</a> for the <a href="#jumplist">jumplist</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+
+When two undo-able changes are in the same line and <a href="#at">at</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> column position <a href="https://vimhelp.org/various.txt.html#less">less</a>
+than <a href="https://vimhelp.org/options.txt.html#%27textwidth%27">&#39;textwidth&#39;</a> apart only the last one <a href="#is">is</a> remembered.  This avoids that <a href="https://vimhelp.org/insert.txt.html#a">a</a>
+sequence of small changes in <a href="https://vimhelp.org/insert.txt.html#a">a</a> line, for example &#34;xxxxx&#34;<a href="#%2C">,</a> adds many positions
+to the change list.  When <a href="https://vimhelp.org/options.txt.html#%27textwidth%27">&#39;textwidth&#39;</a> <a href="#is">is</a> zero <a href="https://vimhelp.org/options.txt.html#%27wrapmargin%27">&#39;wrapmargin&#39;</a> <a href="#is">is</a> used.  When that
+also isn&#39;t set <a href="https://vimhelp.org/insert.txt.html#a">a</a> fixed number of 79 <a href="#is">is</a> used.  Detail: For the computations
+bytes are used, not characters, to avoid <a href="https://vimhelp.org/insert.txt.html#a">a</a> speed penalty (this only matters
+for <a href="https://vimhelp.org/mbyte.txt.html#multibyte">multibyte</a> encodings).
+
+<span>Note</span> that when text has been inserted or deleted the cursor position might be
+<a href="https://vimhelp.org/insert.txt.html#a">a</a> bit different from the position of the change.  Especially when lines have
+been deleted.
+
+When the <span>:keepjumps</span> command modifier <a href="#is">is</a> used the position of <a href="https://vimhelp.org/insert.txt.html#a">a</a> change <a href="#is">is</a> not
+remembered.
+
+                                                        <span id="%3Achanges">:changes</span>
+<a href="#%3Achanges">:changes</a>                Print the change list.  <a href="https://vimhelp.org/insert.txt.html#A">A</a> &#34;<a href="https://vimhelp.org/change.txt.html#%3E">&gt;</a>&#34; character indicates the
+                        current position.  Just after <a href="https://vimhelp.org/insert.txt.html#a">a</a> change <a href="#it">it</a> <a href="#is">is</a> below the
+                        newest entry, indicating that <span>g;</span> takes you to the
+                        newest entry position.  The first column indicates the
+                        <a href="https://vimhelp.org/intro.txt.html#count">count</a> needed to take you to this position.  Example:
+
+<span>                                change line  col text </span>
+                                    3     9    8 bla bla bla
+                                    2    11   57 foo <a href="#is">is</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#bar">bar</a>
+                                    1    14   54 the latest changed line
+                                <a href="https://vimhelp.org/change.txt.html#%3E">&gt;</a>
+
+                        The <span>3g;</span> command takes you to line 9.  Then the
+                        output of <span>:changes</span> is:
+
+<span>                                change line  col text </span>
+                                <a href="https://vimhelp.org/change.txt.html#%3E">&gt;</a>   <a href="#0">0</a>     9    8 bla bla bla
+                                    1    11   57 foo <a href="#is">is</a> <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="#bar">bar</a>
+                                    2    14   54 the latest changed line
+
+                        Now you can use &#34;<a href="#g%2C">g,</a>&#34; to <a href="#go">go</a> to line 11 and &#34;2g,&#34; to <a href="#go">go</a>
+                        to line 14.
+
+<span>==============================================================================</span>
+9. Various motions                              <span id="various-motions">various-motions</span>
+
+                                                        <span id="%25">%</span>
+<a href="#%25">%</a>                       Find the next item in this line after or under the
+                        cursor and jump to its match. <a href="#inclusive">inclusive</a> motion.
+                        Items can be:
+                        ([{}])          parenthesis or (curly/square) brackets
+                                        (this can be changed with the
+                                        <a href="https://vimhelp.org/options.txt.html#%27matchpairs%27">&#39;matchpairs&#39;</a> option)
+                        <a href="https://vimhelp.org/pattern.txt.html#%2F">/</a>* *<a href="https://vimhelp.org/pattern.txt.html#%2F">/</a>           start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of C-style comment
+                        #if, #ifdef, #else, #elif, #endif
+                                        <a href="https://vimhelp.org/change.txt.html#C">C</a> preprocessor conditionals (when the
+                                        cursor <a href="#is">is</a> on the <a href="https://vimhelp.org/pattern.txt.html#%23">#</a> or no ([{
+                                        <a href="#is">is</a> following)
+                        For other items the matchit <a href="https://vimhelp.org/usr_05.txt.html#plugin">plugin</a> can be used, see
+                        <a href="https://vimhelp.org/usr_05.txt.html#matchit-install">matchit-install</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  This <a href="https://vimhelp.org/usr_05.txt.html#plugin">plugin</a> also helps to skip
+                        matches in comments.
+
+                        When <a href="https://vimhelp.org/options.txt.html#%27cpoptions%27">&#39;cpoptions&#39;</a> contains &#34;<a href="#M">M</a>&#34; <a href="https://vimhelp.org/options.txt.html#cpo-M">cpo-M</a> backslashes
+                        before parens and braces are ignored.  Without &#34;<a href="#M">M</a>&#34; the
+                        number of backslashes matters: an even number doesn&#39;t
+                        match with an odd number.  Thus in &#34;<a href="#%28">(</a> \) <a href="#%29">)</a>&#34; and &#34;\( <a href="#%28">(</a>
+                        \)&#34; the first and last parenthesis match.
+
+                        When the &#39;%&#39; character <a href="#is">is</a> not present in <a href="https://vimhelp.org/options.txt.html#%27cpoptions%27">&#39;cpoptions&#39;</a>
+                        <a href="https://vimhelp.org/options.txt.html#cpo-%25">cpo-%</a><a href="#%2C">,</a> parens and braces inside double <a href="https://vimhelp.org/quotes.txt.html#quotes">quotes</a> are
+                        ignored, unless the number of parens/braces in <a href="https://vimhelp.org/insert.txt.html#a">a</a> line
+                        <a href="#is">is</a> uneven and this line and the previous one does not
+                        <a href="https://vimhelp.org/intro.txt.html#end">end</a> in <a href="https://vimhelp.org/insert.txt.html#a">a</a> backslash.  &#39;(&#39;, &#39;{&#39;, &#39;[&#39;, &#39;]&#39;, &#39;}&#39; and &#39;)&#39;
+                        are also ignored (parens and braces inside single
+                        quotes).  <span>Note</span> that this works fine for C, but not for
+                        Perl, where single <a href="https://vimhelp.org/quotes.txt.html#quotes">quotes</a> are used for strings.
+
+                        Nothing special <a href="#is">is</a> done for matches in comments.  You
+                        can either use the matchit <a href="https://vimhelp.org/usr_05.txt.html#plugin">plugin</a> <a href="https://vimhelp.org/usr_05.txt.html#matchit-install">matchit-install</a> or
+                        <a href="https://vimhelp.org/change.txt.html#put">put</a> <a href="https://vimhelp.org/quotes.txt.html#quotes">quotes</a> around matches.
+
+                        No <a href="https://vimhelp.org/intro.txt.html#count">count</a> <a href="#is">is</a> allowed, <span>{count}</span>% jumps to <a href="https://vimhelp.org/insert.txt.html#a">a</a> line <span>{count}</span>
+                        percentage down the file <a href="#N%25">N%</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  Using &#39;%&#39; on
+                        #if/#else/#endif makes the <a href="https://vimhelp.org/intro.txt.html#movement">movement</a> linewise.
+
+                                                <span id="%5B%28">[(</span>
+<a href="#%5B%28">[(</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> previous unmatched &#39;(&#39;.
+                        <a href="#exclusive">exclusive</a> motion.
+                                                <span id="%5B%7B">[{</span>
+<a href="#%5B%7B">[{</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> previous unmatched &#39;{&#39;.
+                        <a href="#exclusive">exclusive</a> motion.
+                                                <span id="%5D%29">])</span>
+<a href="#%5D%29">])</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> next unmatched &#39;)&#39;.
+                        <a href="#exclusive">exclusive</a> motion.
+                                                <span id="%5D%7D">]}</span>
+<a href="#%5D%7D">]}</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> next unmatched &#39;}&#39;.
+                        <a href="#exclusive">exclusive</a> motion.
+
+The above four commands can be used to <a href="#go">go</a> to the start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the current
+code block.  It <a href="#is">is</a> like doing &#34;<a href="#%25">%</a>&#34; on the &#39;(&#39;, &#39;)&#39;, &#39;{&#39; or &#39;}&#39; <a href="#at">at</a> the other
+<a href="https://vimhelp.org/intro.txt.html#end">end</a> of the code block, but you can <a href="https://vimhelp.org/diff.txt.html#do">do</a> this from anywhere in the code block.
+Very useful for <a href="https://vimhelp.org/change.txt.html#C">C</a> programs.  Example: When standing on &#34;<a href="https://vimhelp.org/change.txt.html#case">case</a> x:&#34;<a href="#%2C">,</a> &#34;<a href="#%5B%7B">[{</a>&#34; will
+bring you back to the switch statement.
+
+                                                <span id="%5Dm">]m</span>
+<a href="#%5Dm">]m</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> next start of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/eval.txt.html#method">method</a> (for Java or
+                        similar structured language).  When not before the
+                        start of <a href="https://vimhelp.org/insert.txt.html#a">a</a> method, jump to the start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the
+                        class.  When no &#39;{&#39; <a href="#is">is</a> found after the cursor, this <a href="#is">is</a>
+                        an error.  <a href="#exclusive">exclusive</a> motion.
+                                                <span id="%5DM">]M</span>
+<a href="#%5DM">]M</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> next <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/eval.txt.html#method">method</a> (for Java or
+                        similar structured language).  When not before the <a href="https://vimhelp.org/intro.txt.html#end">end</a>
+                        of <a href="https://vimhelp.org/insert.txt.html#a">a</a> method, jump to the start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the class.
+                        When no &#39;}&#39; <a href="#is">is</a> found after the cursor, this <a href="#is">is</a> an
+                        error. <a href="#exclusive">exclusive</a> motion.
+                                                <span id="%5Bm">[m</span>
+<a href="#%5Bm">[m</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> previous start of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/eval.txt.html#method">method</a> (for Java or
+                        similar structured language).  When not after the
+                        start of <a href="https://vimhelp.org/insert.txt.html#a">a</a> method, jump to the start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the
+                        class.  When no &#39;{&#39; <a href="#is">is</a> found before the cursor this <a href="#is">is</a>
+                        an error. <a href="#exclusive">exclusive</a> motion.
+                                                <span id="%5BM">[M</span>
+<a href="#%5BM">[M</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> previous <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/eval.txt.html#method">method</a> (for Java or
+                        similar structured language).  When not after the
+                        <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> method, jump to the start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the
+                        class.  When no &#39;}&#39; <a href="#is">is</a> found before the cursor this <a href="#is">is</a>
+                        an error. <a href="#exclusive">exclusive</a> motion.
+
+The above four commands assume that the file contains <a href="https://vimhelp.org/insert.txt.html#a">a</a> class with methods.
+The class definition <a href="#is">is</a> surrounded in &#39;{&#39; and &#39;}&#39;.  Each <a href="https://vimhelp.org/eval.txt.html#method">method</a> in the class
+<a href="#is">is</a> also surrounded with &#39;{&#39; and &#39;}&#39;.  This applies to the Java language.  The
+file looks like this: 
+<span></span>
+<span>        // comment</span>
+<span>        class foo {</span>
+<span>                int method_one() {</span>
+<span>                        body_one();</span>
+<span>                }</span>
+<span>                int method_two() {</span>
+<span>                        body_two();</span>
+<span>                }</span>
+<span>        }</span>
+<span></span>
+[To try this out copy the text and <a href="https://vimhelp.org/change.txt.html#put">put</a> <a href="#it">it</a> in <a href="https://vimhelp.org/insert.txt.html#a">a</a> new buffer, the <a href="https://vimhelp.org/helphelp.txt.html#help">help</a> text above
+confuses the jump commands]
+
+Starting with the cursor on &#34;body_two()&#34;<a href="#%2C">,</a> using &#34;<a href="#%5Bm">[m</a>&#34; will jump to the &#39;{&#39; <a href="#at">at</a>
+the start of &#34;method_two()&#34; (obviously this <a href="#is">is</a> much more useful when the
+<a href="https://vimhelp.org/eval.txt.html#method">method</a> <a href="#is">is</a> long!).  Using &#34;2[m&#34; will jump to the start of &#34;method_one()&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+Using &#34;3[m&#34; will jump to the start of the class.
+
+                                                <span id="%5B%23">[#</span>
+<a href="#%5B%23">[#</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> previous unmatched &#34;#if&#34; or &#34;#else&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <a href="#exclusive">exclusive</a> motion.
+
+                                                <span id="%5D%23">]#</span>
+<a href="#%5D%23">]#</a>                      Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> next unmatched &#34;#else&#34; or &#34;#endif&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <a href="#exclusive">exclusive</a> motion.
+
+These two commands work in <a href="https://vimhelp.org/change.txt.html#C">C</a> programs that contain #if/#else/#endif
+constructs.  It brings you to the start or <a href="https://vimhelp.org/intro.txt.html#end">end</a> of the #if/#else/#endif where
+the current line <a href="#is">is</a> included.  You can then use &#34;<a href="#%25">%</a>&#34; to <a href="#go">go</a> to the matching line.
+
+                                                <span id="%5Bstar">[star</span> <span id="%5B%2F">[/</span>
+<a href="https://vimhelp.org/index.txt.html#%5B">[</a>*  or  <a href="#%5B%2F">[/</a>              Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> previous start of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#C">C</a> comment &#34;<a href="https://vimhelp.org/pattern.txt.html#%2F">/</a>*&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <a href="#exclusive">exclusive</a> motion.
+
+                                                <span id="%5Dstar">]star</span> <span id="%5D%2F">]/</span>
+<a href="https://vimhelp.org/index.txt.html#%5D">]</a>*  or  <a href="#%5D%2F">]/</a>              Go to <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> next <a href="https://vimhelp.org/intro.txt.html#end">end</a> of <a href="https://vimhelp.org/insert.txt.html#a">a</a> <a href="https://vimhelp.org/change.txt.html#C">C</a> comment &#34;*<a href="https://vimhelp.org/pattern.txt.html#%2F">/</a>&#34;<a href="https://vimhelp.org/repeat.txt.html#.">.</a>
+                        <a href="#exclusive">exclusive</a> motion.
+
+
+                                                <span id="H">H</span>
+<a href="#H">H</a>                       To line <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> from top (Home) of <a href="https://vimhelp.org/windows.txt.html#window">window</a> (default:
+                        first line on the window) on the first non-blank
+                        character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  See also <a href="https://vimhelp.org/options.txt.html#%27startofline%27">&#39;startofline&#39;</a> option.
+                        Cursor <a href="#is">is</a> adjusted for <a href="https://vimhelp.org/options.txt.html#%27scrolloff%27">&#39;scrolloff&#39;</a> option, unless an
+                        <a href="#operator">operator</a> <a href="#is">is</a> pending, in which <a href="https://vimhelp.org/change.txt.html#case">case</a> the text may
+                        scroll.  E.g. &#34;yH&#34; yanks from the first visible line
+                        until the cursor line (inclusive).
+
+                                                <span id="M">M</span>
+<a href="#M">M</a>                       To Middle line of window, on the first non-blank
+                        character <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  See also <a href="https://vimhelp.org/options.txt.html#%27startofline%27">&#39;startofline&#39;</a> option.
+
+                                                <span id="L">L</span>
+<a href="#L">L</a>                       To line <a href="https://vimhelp.org/intro.txt.html#%5Bcount%5D">[count]</a> from bottom of <a href="https://vimhelp.org/windows.txt.html#window">window</a> (default: Last
+                        line on the window) on the first non-blank character
+                        <a href="#linewise">linewise</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  See also <a href="https://vimhelp.org/options.txt.html#%27startofline%27">&#39;startofline&#39;</a> option.
+                        Cursor <a href="#is">is</a> adjusted for <a href="https://vimhelp.org/options.txt.html#%27scrolloff%27">&#39;scrolloff&#39;</a> option, unless an
+                        <a href="#operator">operator</a> <a href="#is">is</a> pending, in which <a href="https://vimhelp.org/change.txt.html#case">case</a> the text may
+                        scroll.  E.g. &#34;yL&#34; yanks from the cursor to the last
+                        visible line.
+
+<a href="https://vimhelp.org/visual.txt.html#%3CLeftMouse%3E">&lt;LeftMouse&gt;</a>             Moves to the position on the screen where the mouse
+                        click <a href="#is">is</a> <a href="#exclusive">exclusive</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  See also <a href="https://vimhelp.org/visual.txt.html#%3CLeftMouse%3E">&lt;LeftMouse&gt;</a><a href="https://vimhelp.org/repeat.txt.html#.">.</a>  If the
+                        position <a href="#is">is</a> in <a href="https://vimhelp.org/insert.txt.html#a">a</a> status line, that <a href="https://vimhelp.org/windows.txt.html#window">window</a> <a href="#is">is</a> made the
+                        active <a href="https://vimhelp.org/windows.txt.html#window">window</a> and the cursor <a href="#is">is</a> not moved.
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
+
+</pre><p>
+Quick links:
+<a href="https://vimhelp.org/">help overview</a> ·
+<a href="https://vimhelp.org/quickref.txt.html">quick reference</a> ·
+<a href="https://vimhelp.org/usr_toc.txt.html">user manual toc</a> ·
+<a href="https://vimhelp.org/#reference_toc">reference manual toc</a> ·
+<a href="https://vimhelp.org/vim_faq.txt.html">faq</a>
+</p>
+
+
+
+</div>
