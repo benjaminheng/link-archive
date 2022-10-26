@@ -1,0 +1,527 @@
+---
+url: https://github.com/jwilber/roughViz
+title: 'GitHub - jwilber/roughViz: Reusable JavaScript library for creating sketchy/hand-drawn
+  styled charts in the browser.'
+archived_at: 2022-10-26T18:30:52.968882+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+            <article itemprop="text"><p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz_Title.png"><img src="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz_Title.png" width="350" alt="roughViz.js"/></a><br/>
+<a href="https://badge.fury.io/js/rough-viz" rel="nofollow"><img src="https://camo.githubusercontent.com/659c98b6ff09406bd9258feb1f1bf256a9551bebd6d8fa1778e715cccf0dfbc2/68747470733a2f2f62616467652e667572792e696f2f6a732f726f7567682d76697a2e737667" alt="npm version" data-canonical-src="https://badge.fury.io/js/rough-viz.svg"/></a>
+<a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/7fe933a0e0f46251e9367416c1527bd03e6291e3c598ece15784d43084c64e74/68747470733a2f2f696d672e736869656c64732e696f2f62756e646c6570686f6269612f6d696e2f726f7567682d76697a2f312e302e35"><img src="https://camo.githubusercontent.com/7fe933a0e0f46251e9367416c1527bd03e6291e3c598ece15784d43084c64e74/68747470733a2f2f696d672e736869656c64732e696f2f62756e646c6570686f6269612f6d696e2f726f7567682d76697a2f312e302e35" alt="npm bundle size (version)" data-canonical-src="https://img.shields.io/bundlephobia/min/rough-viz/1.0.5"/></a></p>
+<p dir="auto"><strong>roughViz.js</strong> is a reusable JavaScript library for creating sketchy/hand-drawn styled charts in the browser, based on D3v5, roughjs, and handy.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz.gif"><img src="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz.gif" alt="roughViz.js" data-animated-image=""/></a></p>
+<h3 dir="auto">Why?</h3>
+<p dir="auto">Use these charts where the communication goal is to show intent or generality, and not absolute precision. Or just because they&#39;re fun and look weird.</p>
+<h3 dir="auto">Features</h3>
+<p dir="auto"><strong>Chart Types</strong> (more to come!)</p>
+<ul dir="auto">
+ <li>Bar (<code>roughViz.Bar</code>) <a href="#Bar">API</a>. <a href="https://blockbuilder.org/jwilber/4dc5235f7ea5e51ac1219b3605f5af6a" rel="nofollow">Example</a>.</li>
+<li> Horizontal Bar (<code>roughViz.BarH</code>) <a href="#BarH">API</a>. <a href="https://blockbuilder.org/jwilber/419fa6d878fe6c0f79a28f9fc72d7ec6" rel="nofollow">Example</a>.</li>
+<li> Donut (<code>roughViz.Donut</code>) <a href="#Donut">API</a>. <a href="https://blockbuilder.org/jwilber/e713c03097950d53a8cfde4c23aa292f" rel="nofollow">Example</a>.</li>
+<li> Line (<code>roughViz.Line</code>) <a href="#Line">API</a>. <a href="https://blockbuilder.org/jwilber/ec7cbc374c2dc61b255494511e7d7ac6" rel="nofollow">Example</a>.</li>
+<li> Pie (<code>roughViz.Pie</code>) <a href="#Pie">API</a>. <a href="https://blockbuilder.org/jwilber/d117e0b0864a161bec2d914013ed69da" rel="nofollow">Example</a>.</li>
+<li> Scatter (<code>roughViz.Scatter</code>) <a href="#Scatter">API</a>. <a href="https://blockbuilder.org/jwilber/d02e4381d776fb9a7bcb126d3b32c85b" rel="nofollow">Example</a>.</li>
+ <li> Stacked Bar (<code>roughViz.StackedBar</code>) <a href="#StackedBar">API</a>. <a href="https://blockbuilder.org/jwilber/ee35865631cb805057142568fa5fd090" rel="nofollow">Example</a>.</li>
+ </ul>
+<p dir="auto">Apply the features of <code>roughjs</code> to each chart:</p>
+<p dir="auto"><strong>roughness</strong>:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz_roughnessbars.png"><img src="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz_roughnessbars.png" alt="roughness examples"/></a></p>
+<p dir="auto"><b id="user-content-fillstyle">fillStyle</b>
+<a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/jwilber/random_data/master/rough_fillStyles.png"><img src="https://raw.githubusercontent.com/jwilber/random_data/master/rough_fillStyles.png" alt="fillStyle examples"/></a></p>
+<p dir="auto"><strong>fillWeight</strong>
+<a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz_fillweight.png"><img src="https://raw.githubusercontent.com/jwilber/random_data/master/roughViz_fillweight.png" alt="fillStyle examples"/></a></p>
+<p dir="auto">As well as additional chart-specific options (<a href="#API">see API below</a>)</p>
+<h3 dir="auto">Installation</h3>
+<p dir="auto">Via CDN (expose the <code>roughViz</code> global in <code>html</code>):</p>
+<div dir="auto" data-snippet-clipboard-copy-content="&lt;script src=&#34;https://unpkg.com/rough-viz@1.0.6&#34;&gt;&lt;/script&gt;"><pre><span>&lt;</span><span>script</span> <span>src</span>=&#34;<span>https://unpkg.com/rough-viz@1.0.6</span>&#34;<span>&gt;</span><span>&lt;/</span><span>script</span><span>&gt;</span></pre></div>
+<p dir="auto">Via <code>npm</code>:</p>
+
+<p dir="auto">Want to use with <code>React</code>? <a href="https://github.com/Chris927/react-roughviz">There&#39;s a wrapper!</a>:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="npm install react-roughviz"><pre>npm install react-roughviz</pre></div>
+<p dir="auto">Want to use with <code>Vue</code>? <a href="https://github.com/jolo-dev/vue-roughviz">There&#39;s a wrapper!</a>:</p>
+
+<p dir="auto">Want to use it with <code>Python</code>? <a href="https://github.com/charlesdong1991/py-roughviz">Go crazy</a>:</p>
+
+<h3 dir="auto">How to use</h3>
+<p dir="auto">Create some container elements, one for each chart:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="&lt;!--you can name each id whatever you want --&gt;
+&lt;div id=&#34;viz0&#34;&gt;&lt;/div&gt;
+&lt;div id=&#34;viz1&#34;&gt;&lt;/div&gt;"><pre><span>&lt;!--you can name each id whatever you want --&gt;</span>
+<span>&lt;</span><span>div</span> <span>id</span>=&#34;<span>viz0</span>&#34;<span>&gt;</span><span>&lt;/</span><span>div</span><span>&gt;</span>
+<span>&lt;</span><span>div</span> <span>id</span>=&#34;<span>viz1</span>&#34;<span>&gt;</span><span>&lt;/</span><span>div</span><span>&gt;</span></pre></div>
+<p dir="auto">In the javascript, just create charts, referencing the desired container:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="// create Bar chart from csv file, using default options
+ new roughViz.Bar({
+    element: &#39;#viz0&#39;, // container selection
+    data: &#39;https://raw.githubusercontent.com/jwilber/random_data/master/flavors.csv&#39;,
+    labels: &#39;flavor&#39;,
+    values: &#39;price&#39;
+});
+
+// create Donut chart using defined data &amp; customize plot options
+new roughViz.Donut(
+  {
+    element: &#39;#viz1&#39;,
+    data: {
+      labels: [&#39;North&#39;, &#39;South&#39;, &#39;East&#39;, &#39;West&#39;],
+      values: [10, 5, 8, 3]
+    },
+    title: &#34;Regions&#34;,
+    width: window.innerWidth / 4,
+    roughness: 8,
+    colors: [&#39;red&#39;, &#39;orange&#39;, &#39;blue&#39;, &#39;skyblue&#39;],
+    stroke: &#39;black&#39;,
+    strokeWidth: 3,
+    fillStyle: &#39;cross-hatch&#39;,
+    fillWeight: 3.5,
+  }
+);"><pre><span>// create Bar chart from csv file, using default options</span>
+ <span>new</span> <span>roughViz</span><span>.</span><span>Bar</span><span>(</span><span>{</span>
+    <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span> <span>// container selection</span>
+    <span>data</span>: <span>&#39;https://raw.githubusercontent.com/jwilber/random_data/master/flavors.csv&#39;</span><span>,</span>
+    <span>labels</span>: <span>&#39;flavor&#39;</span><span>,</span>
+    <span>values</span>: <span>&#39;price&#39;</span>
+<span>}</span><span>)</span><span>;</span>
+
+<span>// create Donut chart using defined data &amp; customize plot options</span>
+<span>new</span> <span>roughViz</span><span>.</span><span>Donut</span><span>(</span>
+  <span>{</span>
+    <span>element</span>: <span>&#39;#viz1&#39;</span><span>,</span>
+    <span>data</span>: <span>{</span>
+      <span>labels</span>: <span>[</span><span>&#39;North&#39;</span><span>,</span> <span>&#39;South&#39;</span><span>,</span> <span>&#39;East&#39;</span><span>,</span> <span>&#39;West&#39;</span><span>]</span><span>,</span>
+      <span>values</span>: <span>[</span><span>10</span><span>,</span> <span>5</span><span>,</span> <span>8</span><span>,</span> <span>3</span><span>]</span>
+    <span>}</span><span>,</span>
+    <span>title</span>: <span>&#34;Regions&#34;</span><span>,</span>
+    <span>width</span>: <span>window</span><span>.</span><span>innerWidth</span> <span>/</span> <span>4</span><span>,</span>
+    <span>roughness</span>: <span>8</span><span>,</span>
+    <span>colors</span>: <span>[</span><span>&#39;red&#39;</span><span>,</span> <span>&#39;orange&#39;</span><span>,</span> <span>&#39;blue&#39;</span><span>,</span> <span>&#39;skyblue&#39;</span><span>]</span><span>,</span>
+    <span>stroke</span>: <span>&#39;black&#39;</span><span>,</span>
+    <span>strokeWidth</span>: <span>3</span><span>,</span>
+    <span>fillStyle</span>: <span>&#39;cross-hatch&#39;</span><span>,</span>
+    <span>fillWeight</span>: <span>3.5</span><span>,</span>
+  <span>}</span>
+<span>)</span><span>;</span></pre></div>
+<h2 id="user-content-api" dir="auto">API</h2>
+<h3 dir="auto"><code id="user-content-bar">roughViz.Bar</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>element</code> [string]: Id or class of container element.</p>
+</li>
+<li>
+<p dir="auto"><code>data</code>: Data with which to construct chart.
+Can be either an object or string.</p>
+<ul dir="auto">
+<li>If object: must contain <code>labels</code> and <code>values</code> keys:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Bar({
+   element: &#39;.viz&#39;,
+   data: {labels: [&#39;a&#39;, &#39;b&#39;], values: [10, 20]}
+ })"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Bar</span><span>(</span><span>{</span>
+   <span>element</span>: <span>&#39;.viz&#39;</span><span>,</span>
+   <span>data</span>: <span>{</span><span>labels</span>: <span>[</span><span>&#39;a&#39;</span><span>,</span> <span>&#39;b&#39;</span><span>]</span><span>,</span> <span>values</span>: <span>[</span><span>10</span><span>,</span> <span>20</span><span>]</span><span>}</span>
+ <span>}</span><span>)</span></pre></div>
+<ul dir="auto">
+<li>If string: must be a path/url to a <code>csv</code> or <code>tsv</code>, and you must also specify the <code>labels</code> and <code>values</code> as separate attributes that represent columns in said file:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Bar({
+  element: &#39;#viz0&#39;,
+  data: &#39;stringToDataUrl.csv&#39;,
+  labels: &#39;nameOfLabelsColumn&#39;,
+  values: &#39;nameOfValuesColumn&#39;,
+})"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Bar</span><span>(</span><span>{</span>
+  <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span>
+  <span>data</span>: <span>&#39;stringToDataUrl.csv&#39;</span><span>,</span>
+  <span>labels</span>: <span>&#39;nameOfLabelsColumn&#39;</span><span>,</span>
+  <span>values</span>: <span>&#39;nameOfValuesColumn&#39;</span><span>,</span>
+<span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>axisFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>axisRoughness</code> [number]: Roughness for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>axisStrokeWidth</code> [number]: Stroke-width for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>color</code> [string]: Color for each bar. Default: <code>&#39;skyblue&#39;</code>.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.5</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>highlight</code> [string]: Color for each bar on hover. Default: <code>&#39;coral&#39;</code>.</li>
+<li><code>innerStrokeWidth</code> [number]: Stroke-width for paths inside bars. Default: <code>1</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>labelFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>padding</code> [number]: Padding between bars. Default: <code>0.1</code>.</li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>stroke</code> [string]: Color of bars&#39; stroke. Default: <code>black</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of bars&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>xLabel</code> [string]: Label for x-axis.</li>
+<li><code>yLabel</code> [string]: Label for y-axis.</li>
+</ul>
+<h3 dir="auto"><code id="user-content-barh">roughViz.BarH</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>element</code> [string]: Id or class of container element.</p>
+</li>
+<li>
+<p dir="auto"><code>data</code>: Data with which to construct chart.
+Can be either an object or string.</p>
+<ul dir="auto">
+<li>If object: must contain <code>labels</code> and <code>values</code> keys:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.BarH({
+   element: &#39;.viz&#39;,
+   data: {labels: [&#39;a&#39;, &#39;b&#39;], values: [10, 20]}
+ })"><pre><span>new</span> <span>roughViz</span><span>.</span><span>BarH</span><span>(</span><span>{</span>
+   <span>element</span>: <span>&#39;.viz&#39;</span><span>,</span>
+   <span>data</span>: <span>{</span><span>labels</span>: <span>[</span><span>&#39;a&#39;</span><span>,</span> <span>&#39;b&#39;</span><span>]</span><span>,</span> <span>values</span>: <span>[</span><span>10</span><span>,</span> <span>20</span><span>]</span><span>}</span>
+ <span>}</span><span>)</span></pre></div>
+<ul dir="auto">
+<li>If string: must be a path/url to a <code>csv</code> or <code>tsv</code>, and you must also specify the <code>labels</code> and <code>values</code> as separate attributes that represent columns in said file:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.BarH({
+  element: &#39;#viz0&#39;,
+  data: &#39;stringToDataUrl.csv&#39;,
+  labels: &#39;nameOfLabelsColumn&#39;,
+  values: &#39;nameOfValuesColumn&#39;,
+})"><pre><span>new</span> <span>roughViz</span><span>.</span><span>BarH</span><span>(</span><span>{</span>
+  <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span>
+  <span>data</span>: <span>&#39;stringToDataUrl.csv&#39;</span><span>,</span>
+  <span>labels</span>: <span>&#39;nameOfLabelsColumn&#39;</span><span>,</span>
+  <span>values</span>: <span>&#39;nameOfValuesColumn&#39;</span><span>,</span>
+<span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>axisFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>axisRoughness</code> [number]: Roughness for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>axisStrokeWidth</code> [number]: Stroke-width for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>color</code> [string]: Color for each bar. Default: <code>&#39;skyblue&#39;</code>.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.5</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>highlight</code> [string]: Color for each bar on hover. Default: <code>&#39;coral&#39;</code>.</li>
+<li><code>innerStrokeWidth</code> [number]: Stroke-width for paths inside bars. Default: <code>1</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>labelFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>padding</code> [number]: Padding between bars. Default: <code>0.1</code>.</li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>stroke</code> [string]: Color of bars&#39; stroke. Default: <code>black</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of bars&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>xLabel</code> [string]: Label for x-axis.</li>
+<li><code>yLabel</code> [string]: Label for y-axis.</li>
+</ul>
+<h3 dir="auto"><code id="user-content-donut">roughViz.Donut</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>element</code> [string]: Id or class of container element.</p>
+</li>
+<li>
+<p dir="auto"><code>data</code>: Data with which to construct chart.
+Can be either an object or string.</p>
+<ul dir="auto">
+<li>If object: must contain <code>labels</code> and <code>values</code> keys:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Donut({
+   element: &#39;.viz&#39;,
+   data: {labels: [&#39;a&#39;, &#39;b&#39;], values: [10, 20]}
+ })"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Donut</span><span>(</span><span>{</span>
+   <span>element</span>: <span>&#39;.viz&#39;</span><span>,</span>
+   <span>data</span>: <span>{</span><span>labels</span>: <span>[</span><span>&#39;a&#39;</span><span>,</span> <span>&#39;b&#39;</span><span>]</span><span>,</span> <span>values</span>: <span>[</span><span>10</span><span>,</span> <span>20</span><span>]</span><span>}</span>
+ <span>}</span><span>)</span></pre></div>
+<ul dir="auto">
+<li>If string: must be a path/url to a <code>csv</code>, <code>json</code>, or <code>tsv</code>, and you must also specify the <code>labels</code> and <code>values</code> as separate attributes that represent columns in said file:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Donut({
+  element: &#39;#viz0&#39;,
+  data: &#39;stringToDataUrl.csv&#39;,
+  labels: &#39;nameOfLabelsColumn&#39;,
+  values: &#39;nameOfValuesColumn&#39;,
+})"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Donut</span><span>(</span><span>{</span>
+  <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span>
+  <span>data</span>: <span>&#39;stringToDataUrl.csv&#39;</span><span>,</span>
+  <span>labels</span>: <span>&#39;nameOfLabelsColumn&#39;</span><span>,</span>
+  <span>values</span>: <span>&#39;nameOfValuesColumn&#39;</span><span>,</span>
+<span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>colors</code> [array]: Array of colors for each arc. Default: <code>[&#39;coral&#39;, &#39;skyblue&#39;, &#39;#66c2a5&#39;, &#39;tan&#39;, &#39;#8da0cb&#39;, &#39;#e78ac3&#39;, &#39;#a6d854&#39;, &#39;#ffd92f&#39;, &#39;tan&#39;, &#39;orange&#39;]</code>.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.85</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>highlight</code> [string]: Color for each arc on hover. Default: <code>&#39;coral&#39;</code>.</li>
+<li><code>innerStrokeWidth</code> [number]: Stroke-width for paths inside arcs. Default: <code>0.75</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>legend</code> [boolean]: Whether or not to add legend. Default: <code>&#39;true&#39;</code>.</li>
+<li><code>legendPosition</code> [string]: Position of legend. Should be either <code>&#39;left&#39;</code> or <code>&#39;right&#39;</code>. Default: <code>&#39;right&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>padding</code> [number]: Padding between bars. Default: <code>0.1</code>.</li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of bars&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+</ul>
+<h3 dir="auto"><code id="user-content-line">roughViz.Line</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li><code>element</code> [string]: Id or class of container element.</li>
+<li><code>data</code>: Must be a path/url to a <code>csv</code> or <code>tsv</code>, and you must also specify the each <code>y</code> as separate attributes that represent columns in said file. Each attribute prefaced with <code>y</code> (except <code>yLabel</code>) will receive its own line:
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Line({
+  element: &#39;#viz0&#39;,
+  data: &#39;https://raw.githubusercontent.com/jwilber/random_data/master/profits.csv&#39;,
+  y1: &#39;revenue&#39;,
+  y2: &#39;cost&#39;,
+  y3: &#39;profit&#39;
+})"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Line</span><span>(</span><span>{</span>
+  <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span>
+  <span>data</span>: <span>&#39;https://raw.githubusercontent.com/jwilber/random_data/master/profits.csv&#39;</span><span>,</span>
+  <span>y1</span>: <span>&#39;revenue&#39;</span><span>,</span>
+  <span>y2</span>: <span>&#39;cost&#39;</span><span>,</span>
+  <span>y3</span>: <span>&#39;profit&#39;</span>
+<span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>axisFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>axisRoughness</code> [number]: Roughness for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>axisStrokeWidth</code> [number]: Stroke-width for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>circle</code> [boolean]: Whether or not to add circles to chart. Default: <code>true</code>.</li>
+<li><code>circleRadius</code> [number]: Radius of circles. Default: <code>10</code>.</li>
+<li><code>circleRoughness</code> [number]: Roughness of circles. Default: <code>2</code>.</li>
+<li><code>colors</code> [array or string]: Array of colors for each arc. Default: <code>[&#39;coral&#39;, &#39;skyblue&#39;, &#39;#66c2a5&#39;, &#39;tan&#39;, &#39;#8da0cb&#39;, &#39;#e78ac3&#39;, &#39;#a6d854&#39;, &#39;#ffd92f&#39;, &#39;tan&#39;, &#39;orange&#39;]</code>. If string (e.g. <code>&#39;blue&#39;</code>), all circles will take that color.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.5</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>labelFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>legend</code> [boolean]: Whether or not to add legend. Default: <code>true</code>.</li>
+<li><code>legendPosition</code> [string]: Position of legend. Should be either <code>&#39;left&#39;</code> or <code>&#39;right&#39;</code>. Default: <code>&#39;right&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>stroke</code> [string]: Color of lines&#39; stroke. Default: <code>this.colors</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of lines&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>xLabel</code> [string]: Label for x-axis.</li>
+<li><code>yLabel</code> [string]: Label for y-axis.</li>
+</ul>
+<h3 dir="auto"><code id="user-content-pie">roughViz.Pie</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>element</code> [string]: Id or class of container element.</p>
+</li>
+<li>
+<p dir="auto"><code>data</code>: Data with which to construct chart.
+Can be either an object or string.</p>
+<ul dir="auto">
+<li>If object: must contain <code>labels</code> and <code>values</code> keys:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Pie({
+   element: &#39;.viz&#39;,
+   data: {labels: [&#39;a&#39;, &#39;b&#39;], values: [10, 20]}
+ })"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Pie</span><span>(</span><span>{</span>
+   <span>element</span>: <span>&#39;.viz&#39;</span><span>,</span>
+   <span>data</span>: <span>{</span><span>labels</span>: <span>[</span><span>&#39;a&#39;</span><span>,</span> <span>&#39;b&#39;</span><span>]</span><span>,</span> <span>values</span>: <span>[</span><span>10</span><span>,</span> <span>20</span><span>]</span><span>}</span>
+ <span>}</span><span>)</span></pre></div>
+<ul dir="auto">
+<li>If string: must be a path/url to a <code>csv</code>, <code>json</code>, or <code>tsv</code>, and you must also specify the <code>labels</code> and <code>values</code> as separate attributes that represent columns in said file:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Pie({
+  element: &#39;#viz0&#39;,
+  data: &#39;stringToDataUrl.csv&#39;,
+  labels: &#39;nameOfLabelsColumn&#39;,
+  values: &#39;nameOfValuesColumn&#39;,
+})"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Pie</span><span>(</span><span>{</span>
+  <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span>
+  <span>data</span>: <span>&#39;stringToDataUrl.csv&#39;</span><span>,</span>
+  <span>labels</span>: <span>&#39;nameOfLabelsColumn&#39;</span><span>,</span>
+  <span>values</span>: <span>&#39;nameOfValuesColumn&#39;</span><span>,</span>
+<span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>colors</code> [array]: Array of colors for each arc. Default: <code>[&#39;coral&#39;, &#39;skyblue&#39;, &#39;#66c2a5&#39;, &#39;tan&#39;, &#39;#8da0cb&#39;, &#39;#e78ac3&#39;, &#39;#a6d854&#39;, &#39;#ffd92f&#39;, &#39;tan&#39;, &#39;orange&#39;]</code>.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.85</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>highlight</code> [string]: Color for each arc on hover. Default: <code>&#39;coral&#39;</code>.</li>
+<li><code>innerStrokeWidth</code> [number]: Stroke-width for paths inside arcs. Default: <code>0.75</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>legend</code> [boolean]: Whether or not to add legend. Default: <code>true</code>.</li>
+<li><code>legendPosition</code> [string]: Position of legend. Should be either <code>&#39;left&#39;</code> or <code>&#39;right&#39;</code>. Default: <code>&#39;right&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>padding</code> [number]: Padding between bars. Default: <code>0.1</code>.</li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of bars&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+</ul>
+<h3 dir="auto"><code id="user-content-scatter">roughViz.Scatter</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>element</code> [string]: Id or class of container element.</p>
+</li>
+<li>
+<p dir="auto"><code>data</code>: Data with which to construct chart.
+Can be either an object or string.</p>
+<ul dir="auto">
+<li>If object: must contain <code>x</code> and <code>y</code> keys:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Scatter({
+   element: &#39;.viz&#39;,
+   data: {x: [1, 2, 35], y: [10, 20, 8]}
+ })"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Scatter</span><span>(</span><span>{</span>
+   <span>element</span>: <span>&#39;.viz&#39;</span><span>,</span>
+   <span>data</span>: <span>{</span><span>x</span>: <span>[</span><span>1</span><span>,</span> <span>2</span><span>,</span> <span>35</span><span>]</span><span>,</span> <span>y</span>: <span>[</span><span>10</span><span>,</span> <span>20</span><span>,</span> <span>8</span><span>]</span><span>}</span>
+ <span>}</span><span>)</span></pre></div>
+<ul dir="auto">
+<li>If string: must be a path/url to a <code>csv</code> or <code>tsv</code>, and you must also specify the <code>x</code> and <code>y</code> as separate attributes that represent columns in said file:</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.Scatter({
+  element: &#39;#viz0&#39;,
+  data: &#39;stringToDataUrl.csv&#39;,
+  x: &#39;nameOfLabelsColumn&#39;,
+  y: &#39;nameOfValuesColumn&#39;,
+})"><pre><span>new</span> <span>roughViz</span><span>.</span><span>Scatter</span><span>(</span><span>{</span>
+  <span>element</span>: <span>&#39;#viz0&#39;</span><span>,</span>
+  <span>data</span>: <span>&#39;stringToDataUrl.csv&#39;</span><span>,</span>
+  <span>x</span>: <span>&#39;nameOfLabelsColumn&#39;</span><span>,</span>
+  <span>y</span>: <span>&#39;nameOfValuesColumn&#39;</span><span>,</span>
+<span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>axisFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>axisRoughness</code> [number]: Roughness for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>axisStrokeWidth</code> [number]: Stroke-width for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>colors</code> [array or string]: Array of colors for each arc. Default: <code>[&#39;coral&#39;, &#39;skyblue&#39;, &#39;#66c2a5&#39;, &#39;tan&#39;, &#39;#8da0cb&#39;, &#39;#e78ac3&#39;, &#39;#a6d854&#39;, &#39;#ffd92f&#39;, &#39;tan&#39;, &#39;orange&#39;]</code>. If string (e.g. <code>&#39;blue&#39;</code>), all circles will take that color.</li>
+<li><code>colorVar</code> [string]: If input data is <code>csv</code> or <code>tsv</code>, this should be an ordinal column with which to color points by.
+<code>curbZero</code> [boolean]: Whether or not to force (x, y) axes to (0, 0). Default: <code>false</code>.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.5</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>highlight</code> [string]: Color for each bar on hover. Default: <code>&#39;coral&#39;</code>.</li>
+<li><code>highlightLabel</code> [string]: If input data is <code>csv</code> or <code>tsv</code>, this should be a column representing what value to display on hover. Otherwise, <code>(x, y)</code> values will be shown on hover.</li>
+<li><code>innerStrokeWidth</code> [number]: Stroke-width for paths inside circles. Default: <code>1</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>labelFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>radius</code> [number]: Circle radius. Default: <code>8</code>.</li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>stroke</code> [string]: Color of circles&#39; stroke. Default: <code>black</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of circles&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>xLabel</code> [string]: Label for x-axis.</li>
+<li><code>yLabel</code> [string]: Label for y-axis.</li>
+</ul>
+<h3 dir="auto"><code id="user-content-stackedbar">roughViz.StackedBar</code></h3>
+<p dir="auto">Required</p>
+<ul dir="auto">
+<li>
+<p dir="auto"><code>element</code> [string]: Id or class of container element.</p>
+</li>
+<li>
+<p dir="auto"><code>data</code>: Data with which to construct chart. Should be an object.</p>
+</li>
+<li>
+<p dir="auto"><code>labels</code>: String name of label key in <code>data</code> object.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="new roughViz.StackedBar({
+   element: &#39;#vis0&#39;,
+   data: [
+       {month:&#39;Jan&#39;, A:20, B: 5},
+       {month:&#39;Feb&#39;, A:25, B: 10},    
+   ],
+   labels: &#39;month&#39;,
+ })"><pre><span>new</span> <span>roughViz</span><span>.</span><span>StackedBar</span><span>(</span><span>{</span>
+   <span>element</span>: <span>&#39;#vis0&#39;</span><span>,</span>
+   <span>data</span>: <span>[</span>
+       <span>{</span><span>month</span>:<span>&#39;Jan&#39;</span><span>,</span> <span>A</span>:<span>20</span><span>,</span> <span>B</span>: <span>5</span><span>}</span><span>,</span>
+       <span>{</span><span>month</span>:<span>&#39;Feb&#39;</span><span>,</span> <span>A</span>:<span>25</span><span>,</span> <span>B</span>: <span>10</span><span>}</span><span>,</span>    
+   <span>]</span><span>,</span>
+   <span>labels</span>: <span>&#39;month&#39;</span><span>,</span>
+ <span>}</span><span>)</span></pre></div>
+</li>
+</ul>
+<p dir="auto">Optional</p>
+<ul dir="auto">
+<li><code>axisFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>axisRoughness</code> [number]: Roughness for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>axisStrokeWidth</code> [number]: Stroke-width for x &amp; y axes. Default: <code>0.5</code>.</li>
+<li><code>bowing</code> [number]: Chart bowing. Default: <code>0</code>.</li>
+<li><code>colors</code> [string]: Array of colors for each bar grouping.</li>
+<li><code>fillStyle</code> [string]: Bar fill-style. Should be one of <a href="#fillStyle">fillStyles</a> shown above.</li>
+<li><code>fillWeight</code> [number]: Weight of inner paths&#39; color. Default: <code>0.5</code>.</li>
+<li><code>font</code>: Font-family to use. You can use <code>0</code> or <code>gaegu</code> to use <code>Gaegu</code>, or <code>1</code> or <code>indie flower</code> to use <code>Indie Flower</code>. Or feed it something else. Default: <code>Gaegu</code>.</li>
+<li><code>highlight</code> [string]: Color for each bar on hover. Default: <code>&#39;coral&#39;</code>.</li>
+<li><code>innerStrokeWidth</code> [number]: Stroke-width for paths inside bars. Default: <code>1</code>.</li>
+<li><code>interactive</code> [boolean]: Whether or not chart is interactive. Default: <code>true</code>.</li>
+<li><code>labelFontSize</code> [string]: Font-size for axes&#39; labels. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>margin</code> [object]: Margin object. Default: <code>{top: 50, right: 20, bottom: 70, left: 100}</code></li>
+<li><code>padding</code> [number]: Padding between bars. Default: <code>0.1</code>.</li>
+<li><code>roughness</code> [number]: Roughness level of chart. Default: <code>1</code>.</li>
+<li><code>simplification</code> [number]: Chart simplification. Default <code>0.2</code>.</li>
+<li><code>stroke</code> [string]: Color of bars&#39; stroke. Default: <code>black</code>.</li>
+<li><code>strokeWidth</code> [number]: Size of bars&#39; stroke. Default: <code>1</code>.</li>
+<li><code>title</code> [string]: Chart title. Optional.</li>
+<li><code>titleFontSize</code> [string]: Font-size for chart title. Default: <code>&#39;1rem&#39;</code>.</li>
+<li><code>tooltipFontSize</code> [string]: Font-size for tooltip. Default: <code>&#39;0.95rem&#39;</code>.</li>
+<li><code>xLabel</code> [string]: Label for x-axis.</li>
+<li><code>yLabel</code> [string]: Label for y-axis.</li>
+</ul>
+<h3 dir="auto">Contributors</h3>
+<ul dir="auto">
+<li><a href="https://twitter.com/jdwlbr" rel="nofollow">Jared Wilber</a></li>
+<li><a href="https://github.com/laimonasA">Laimonas Andriejauskas</a></li>
+<li><a href="https://github.com/daveslutzkin">Dave Slutzkin</a></li>
+<li><a href="https://github.com/jolo-dev">JoLo</a></li>
+<li><a href="https://github.com/lucasjwilber">Lucas Wilber</a></li>
+</ul>
+<h3 dir="auto">Acknowledgements</h3>
+<p dir="auto">This library wouldn&#39;t be possible without the following people:</p>
+<ul dir="auto">
+<li><a href="https://twitter.com/mbostock" rel="nofollow">Mike Bostock</a> for <a href="https://d3js.org/" rel="nofollow">D3.js</a>.</li>
+<li><a href="https://twitter.com/preetster" rel="nofollow">Preet Shihn</a> for <a href="https://roughjs.com/" rel="nofollow">rough.js</a>.</li>
+<li><a href="https://www.city.ac.uk/people/academics/jo-wood" rel="nofollow">Jo Wood</a> for <a href="https://www.gicentre.net/software/#/handy/" rel="nofollow">handy</a> processing lib.</li>
+</ul>
+<h3 dir="auto">License</h3>
+<p dir="auto">MIT License</p>
+<p dir="auto">Copyright (c) 2019 Jared Wilber</p>
+<p dir="auto">Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &#34;Software&#34;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p dir="auto">The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p dir="auto">THE SOFTWARE IS PROVIDED &#34;AS IS&#34;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+</article>
+          </div></div>

@@ -1,0 +1,80 @@
+---
+url: https://github.com/t-mart/kill-sticky
+title: 'GitHub - t-mart/kill-sticky: Bookmarklet to remove sticky elements and restore
+  scrolling to web pages!'
+archived_at: 2022-10-26T18:30:48.435567+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+            <article itemprop="text">
+<p dir="auto">A bookmarklet to remove sticky elements and restore scrolling to web pages!</p>
+<h2 dir="auto">Demo</h2>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/t-mart/kill-sticky/blob/master/docs/demo.gif"><img src="https://github.com/t-mart/kill-sticky/raw/master/docs/demo.gif" alt="Demonstration of kill-sticky" data-animated-image=""/></a></p>
+<h2 dir="auto">Background</h2>
+<p dir="auto">Alisdair McDiarmid wrote at his <a href="https://alisdair.mcdiarmid.org/kill-sticky-headers/" rel="nofollow">Kill sticky headers</a>
+bookmarklet page...</p>
+<blockquote>
+<p dir="auto">I hate sticky headers. I want to kill sticky headers.</p>
+</blockquote>
+<p dir="auto">I could not agree more.</p>
+<p dir="auto">But, while McDiarmid&#39;s code has already been immensely helpful to me, I wanted to extend it to also kill of another
+recent trend: marketing modals. They also abuse <code>position: fixed</code> styling and <strong>remove your ability to scroll with
+<code>overflow: hidden</code></strong>. Not cool, man.</p>
+<p dir="auto">And that&#39;s what this extension aims to address:</p>
+<ul dir="auto">
+<li>Delete fixed <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/position" rel="nofollow">position</a> styled elements</li>
+<li>Change hidden <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/overflow" rel="nofollow">overflow</a> styles to <code>auto</code></li>
+</ul>
+<h2 dir="auto">Installation</h2>
+<p dir="auto">Make a new bookmark (on your bookmark bar) with the following URL:</p>
+<div data-snippet-clipboard-copy-content="javascript:(function()%7Bdocument.querySelectorAll(%22body%20*%22).forEach(function(node)%7Bif(%5B%22fixed%22%2C%22sticky%22%5D.includes(getComputedStyle(node).position))%7Bnode.parentNode.removeChild(node)%7D%7D)%3Bdocument.querySelectorAll(%22html%20*%22).forEach(function(node)%7Bvar%20s%3DgetComputedStyle(node)%3Bif(%22hidden%22%3D%3D%3Ds%5B%22overflow%22%5D)%7Bnode.style%5B%22overflow%22%5D%3D%22visible%22%7Dif(%22hidden%22%3D%3D%3Ds%5B%22overflow-x%22%5D)%7Bnode.style%5B%22overflow-x%22%5D%3D%22visible%22%7Dif(%22hidden%22%3D%3D%3Ds%5B%22overflow-y%22%5D)%7Bnode.style%5B%22overflow-y%22%5D%3D%22visible%22%7D%7D)%3Bvar%20htmlNode%3Ddocument.querySelector(%22html%22)%3BhtmlNode.style%5B%22overflow%22%5D%3D%22visible%22%3BhtmlNode.style%5B%22overflow-x%22%5D%3D%22visible%22%3BhtmlNode.style%5B%22overflow-y%22%5D%3D%22visible%22%7D)()%3B%0A"><pre><code>javascript:(function()%7Bdocument.querySelectorAll(%22body%20*%22).forEach(function(node)%7Bif(%5B%22fixed%22%2C%22sticky%22%5D.includes(getComputedStyle(node).position))%7Bnode.parentNode.removeChild(node)%7D%7D)%3Bdocument.querySelectorAll(%22html%20*%22).forEach(function(node)%7Bvar%20s%3DgetComputedStyle(node)%3Bif(%22hidden%22%3D%3D%3Ds%5B%22overflow%22%5D)%7Bnode.style%5B%22overflow%22%5D%3D%22visible%22%7Dif(%22hidden%22%3D%3D%3Ds%5B%22overflow-x%22%5D)%7Bnode.style%5B%22overflow-x%22%5D%3D%22visible%22%7Dif(%22hidden%22%3D%3D%3Ds%5B%22overflow-y%22%5D)%7Bnode.style%5B%22overflow-y%22%5D%3D%22visible%22%7D%7D)%3Bvar%20htmlNode%3Ddocument.querySelector(%22html%22)%3BhtmlNode.style%5B%22overflow%22%5D%3D%22visible%22%3BhtmlNode.style%5B%22overflow-x%22%5D%3D%22visible%22%3BhtmlNode.style%5B%22overflow-y%22%5D%3D%22visible%22%7D)()%3B%0A
+</code></pre></div>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/t-mart/kill-sticky/blob/master/docs/bookmark.gif"><img src="https://github.com/t-mart/kill-sticky/raw/master/docs/bookmark.gif" alt="Installation of kill-sticky" data-animated-image=""/></a></p>
+<h2 dir="auto">Usage</h2>
+<p dir="auto">Every time you see a bothersome fixed position element and/or loss of scrolling functionality, click the bookmark!</p>
+<p dir="auto">This may break the page sometimes, such as deleting nav or causing scrollbars to show up where they shouldn&#39;t. If
+that happens, just reload the page.</p>
+<h2 dir="auto">How the bookmarklet works</h2>
+<ol dir="auto">
+<li>Iterate through all child nodes of <code>body</code>. Delete the node if it is styled with <code>position: fixed</code>.</li>
+<li>Set the style of the <code>html</code> node for <code>overflow: auto</code>.</li>
+</ol>
+<div dir="auto" data-snippet-clipboard-copy-content="    document.querySelectorAll(&#39;body *&#39;).forEach(function(node) {
+        if ([&#39;fixed&#39;, &#39;sticky&#39;].includes(getComputedStyle(node).position))  {
+            node.parentNode.removeChild(node);
+        }
+    });
+
+    document.querySelectorAll(&#39;html *&#39;).forEach(function(node) {
+        var s = getComputedStyle(node);
+        if (&#39;hidden&#39; === s[&#39;overflow&#39;]) { node.style[&#39;overflow&#39;] = &#39;visible&#39;; }
+        if (&#39;hidden&#39; === s[&#39;overflow-x&#39;]) { node.style[&#39;overflow-x&#39;] = &#39;visible&#39;; }
+        if (&#39;hidden&#39; === s[&#39;overflow-y&#39;]) { node.style[&#39;overflow-y&#39;] = &#39;visible&#39;; }
+    });
+
+    var htmlNode = document.querySelector(&#39;html&#39;);
+    htmlNode.style[&#39;overflow&#39;] = &#39;visible&#39;;
+    htmlNode.style[&#39;overflow-x&#39;] = &#39;visible&#39;;
+    htmlNode.style[&#39;overflow-y&#39;] = &#39;visible&#39;;"><pre>    <span>document</span><span>.</span><span>querySelectorAll</span><span>(</span><span>&#39;body *&#39;</span><span>)</span><span>.</span><span>forEach</span><span>(</span><span>function</span><span>(</span><span>node</span><span>)</span> <span>{</span>
+        <span>if</span> <span>(</span><span>[</span><span>&#39;fixed&#39;</span><span>,</span> <span>&#39;sticky&#39;</span><span>]</span><span>.</span><span>includes</span><span>(</span><span>getComputedStyle</span><span>(</span><span>node</span><span>)</span><span>.</span><span>position</span><span>)</span><span>)</span>  <span>{</span>
+            <span>node</span><span>.</span><span>parentNode</span><span>.</span><span>removeChild</span><span>(</span><span>node</span><span>)</span><span>;</span>
+        <span>}</span>
+    <span>}</span><span>)</span><span>;</span>
+
+    <span>document</span><span>.</span><span>querySelectorAll</span><span>(</span><span>&#39;html *&#39;</span><span>)</span><span>.</span><span>forEach</span><span>(</span><span>function</span><span>(</span><span>node</span><span>)</span> <span>{</span>
+        <span>var</span> <span>s</span> <span>=</span> <span>getComputedStyle</span><span>(</span><span>node</span><span>)</span><span>;</span>
+        <span>if</span> <span>(</span><span>&#39;hidden&#39;</span> <span>===</span> <span>s</span><span>[</span><span>&#39;overflow&#39;</span><span>]</span><span>)</span> <span>{</span> <span>node</span><span>.</span><span>style</span><span>[</span><span>&#39;overflow&#39;</span><span>]</span> <span>=</span> <span>&#39;visible&#39;</span><span>;</span> <span>}</span>
+        <span>if</span> <span>(</span><span>&#39;hidden&#39;</span> <span>===</span> <span>s</span><span>[</span><span>&#39;overflow-x&#39;</span><span>]</span><span>)</span> <span>{</span> <span>node</span><span>.</span><span>style</span><span>[</span><span>&#39;overflow-x&#39;</span><span>]</span> <span>=</span> <span>&#39;visible&#39;</span><span>;</span> <span>}</span>
+        <span>if</span> <span>(</span><span>&#39;hidden&#39;</span> <span>===</span> <span>s</span><span>[</span><span>&#39;overflow-y&#39;</span><span>]</span><span>)</span> <span>{</span> <span>node</span><span>.</span><span>style</span><span>[</span><span>&#39;overflow-y&#39;</span><span>]</span> <span>=</span> <span>&#39;visible&#39;</span><span>;</span> <span>}</span>
+    <span>}</span><span>)</span><span>;</span>
+
+    <span>var</span> <span>htmlNode</span> <span>=</span> <span>document</span><span>.</span><span>querySelector</span><span>(</span><span>&#39;html&#39;</span><span>)</span><span>;</span>
+    <span>htmlNode</span><span>.</span><span>style</span><span>[</span><span>&#39;overflow&#39;</span><span>]</span> <span>=</span> <span>&#39;visible&#39;</span><span>;</span>
+    <span>htmlNode</span><span>.</span><span>style</span><span>[</span><span>&#39;overflow-x&#39;</span><span>]</span> <span>=</span> <span>&#39;visible&#39;</span><span>;</span>
+    <span>htmlNode</span><span>.</span><span>style</span><span>[</span><span>&#39;overflow-y&#39;</span><span>]</span> <span>=</span> <span>&#39;visible&#39;</span><span>;</span></pre></div>
+<h2 dir="auto">Building (Only if you want to contribute)</h2>
+<p dir="auto">We&#39;re creating a bookmarklet, so our code needs to be minified and URL encoded.</p>
+<p dir="auto">Run the following the project root directory:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ docker build . -t kill-sticky &amp;&amp; docker run --rm -it -v $(pwd):/kill-sticky kill-sticky"><pre>$ <span>docker build <span>.</span> -t kill-sticky <span>&amp;&amp;</span> docker run --rm -it -v <span><span>$(</span>pwd<span>)</span></span>:/kill-sticky kill-sticky</span></pre></div>
+<p dir="auto"><em>This will update the project README.md with the build version.</em></p>
+</article>
+          </div></div>

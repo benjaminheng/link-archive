@@ -1,0 +1,150 @@
+---
+url: https://github.com/leeoniya/uPlot
+title: "GitHub - leeoniya/uPlot: \U0001F4C8 A small, fast chart for time series, lines,
+  areas, ohlc & bars"
+archived_at: 2022-10-26T18:30:49.375999+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+            <article itemprop="text"><h2 dir="auto"><g-emoji alias="chart_with_upwards_trend" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/1f4c8.png">📈</g-emoji> μPlot</h2>
+<p dir="auto">A small (<a href="https://github.com/leeoniya/uPlot/tree/master/dist/uPlot.iife.min.js">~40 KB min</a>), <a href="#performance">fast</a> chart for time series, lines, areas, ohlc &amp; bars <em>(MIT Licensed)</em></p>
+<hr/>
+<h3 dir="auto">Introduction</h3>
+<p dir="auto">μPlot is a <a href="#performance">fast, memory-efficient</a> <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D" rel="nofollow">Canvas 2D</a>-based chart for plotting <a href="https://en.wikipedia.org/wiki/Time_series" rel="nofollow">time series</a>, lines, areas, ohlc &amp; bars; from a cold start it can create an interactive chart containing 150,000 data points in 135ms, scaling linearly at <a href="https://leeoniya.github.io/uPlot/bench/uPlot-10M.html" rel="nofollow">~25,000 pts/ms</a>. In addition to fast initial render, the zooming and cursor performance is by far the best of any similar charting lib; at ~40 KB, it&#39;s likely the smallest and fastest time series plotter that doesn&#39;t make use of <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=771792" rel="nofollow">context-limited</a> WebGL shaders or WASM, both of which have much higher startup cost and code size.</p>
+<h3 dir="auto">166,650 point bench: <a href="https://leeoniya.github.io/uPlot/bench/uPlot.html" rel="nofollow">https://leeoniya.github.io/uPlot/bench/uPlot.html</a></h3>
+<p dir="auto">However, if you need 60fps performance with massive streaming datasets, uPlot <a href="https://huww98.github.io/TimeChart/docs/performance" rel="nofollow">can only get you so far</a>.
+If you decide to venture into this realm with uPlot, make sure to <a href="#unclog-your-rendering-pipeline">unclog your rendering pipeline</a>.
+WebGL should still be the tool of choice for applications like realtime signal or waveform visualizations:
+See <a href="https://github.com/danchitnis/webgl-plot">danchitnis/webgl-plot</a>, <a href="https://github.com/huww98/TimeChart">huww98/TimeChart</a>, <a href="https://github.com/epezent/implot">epezent/implot</a>, or commercial products like <a href="https://www.arction.com/lightningchart-js/" rel="nofollow">LightningChart®</a>.</p>
+<hr/>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/leeoniya/uPlot/blob/master/uPlot.png"><img src="https://github.com/leeoniya/uPlot/raw/master/uPlot.png" alt="uPlot Chart" title="uPlot Chart"/></a></p>
+<hr/>
+<h3 dir="auto">Features</h3>
+<ul dir="auto">
+<li>Multiple series w/toggle</li>
+<li>Multiple y-axes, scales &amp; grids</li>
+<li>Temporal or numeric x-axis</li>
+<li>Linear, uniform or <a href="https://leeoniya.github.io/uPlot/demos/log-scales.html" rel="nofollow">logarithmic</a> scales</li>
+<li>Line &amp; Area styles (stroke, fill, width, dash)</li>
+<li>Pluggable path renderers <a href="https://leeoniya.github.io/uPlot/demos/line-paths.html" rel="nofollow">linear, spline, stepped, bars</a></li>
+<li>Zoom with auto-rescale</li>
+<li>Legend with live values</li>
+<li>Support for <a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones" rel="nofollow">IANA Time Zone Names</a> &amp; DST</li>
+<li><a href="https://leeoniya.github.io/uPlot/demos/missing-data.html" rel="nofollow">Support for missing data</a></li>
+<li><a href="https://leeoniya.github.io/uPlot/demos/sync-cursor.html" rel="nofollow">Cursor sync for multiple charts</a></li>
+<li><a href="https://leeoniya.github.io/uPlot/demos/focus-cursor.html" rel="nofollow">Focus closest series</a></li>
+<li><a href="https://leeoniya.github.io/uPlot/demos/stream-data.html" rel="nofollow">Data streaming (live update)</a></li>
+<li><a href="https://leeoniya.github.io/uPlot/demos/high-low-bands.html" rel="nofollow">High / Low bands</a></li>
+<li>A lean, consistent, and powerful API with hooks &amp; plugins</li>
+</ul>
+<hr/>
+<h3 dir="auto">Non-Features</h3>
+<p dir="auto">In order to stay lean, fast and focused the following features will not be added:</p>
+<ul dir="auto">
+<li>No data parsing, aggregation, summation or statistical processing - just do it in advance. e.g. <a href="https://simplestatistics.org/" rel="nofollow">https://simplestatistics.org/</a>, <a href="https://www.papaparse.com/" rel="nofollow">https://www.papaparse.com/</a></li>
+<li>No transitions or animations - they&#39;re always pure distractions.</li>
+<li>No collision avoidance for axis tick labels, so may require manual tweaking of spacing metrics if label customization significiantly increases default label widths.</li>
+<li>No stacked series: see <a href="https://everydayanalytics.ca/2014/08/stacked-area-graphs-are-not-your-friend.html" rel="nofollow">&#34;Stacked Area Graphs Are Not Your Friend&#34;</a> and a <a href="https://leeoniya.github.io/uPlot/demos/stacked-series.html" rel="nofollow">horrific demo</a>. While smooth spline interpolation is available, its use is strongly discouraged: <a href="http://www.vizwiz.com/2011/12/when-you-use-smoothed-line-chart-your.html" rel="nofollow">Your data is misrepresented!</a>. Both visualizations are terrible at accurately communicating information.</li>
+<li>No built-in drag scrolling/panning due to ambiguous native zoom/selection behavior. However, this can be added externally via the plugin/hooks API: <a href="https://leeoniya.github.io/uPlot/demos/zoom-wheel.html" rel="nofollow">zoom-wheel</a>, <a href="https://leeoniya.github.io/uPlot/demos/zoom-touch.html" rel="nofollow">zoom-touch</a>.</li>
+</ul>
+<hr/>
+<h3 dir="auto">Documentation (WIP)</h3>
+<p dir="auto">The docs are a perpetual work in progress, it seems.
+Start with <a href="https://github.com/leeoniya/uPlot/tree/master/docs">/docs/README.md</a> for a conceptual overview.
+The full API is further documented via comments in <a href="https://github.com/leeoniya/uPlot/blob/master/dist/uPlot.d.ts">/dist/uPlot.d.ts</a>.
+Additionally, an ever-expanding collection of runnable <a href="https://leeoniya.github.io/uPlot/demos/index.html" rel="nofollow">/demos</a> covers the vast majority of uPlot&#39;s API.</p>
+<hr/>
+<h3 dir="auto">Third-party Integrations</h3>
+<ul dir="auto">
+<li><a href="https://github.com/sohailsomani/uplot_jupyter_widget">Jupyter widget</a> (Sohail Somani)</li>
+<li><a href="https://github.com/skalinichev/uplot-wrappers">React and Vue.js</a> (Sergey Kalinichev)</li>
+</ul>
+<hr/>
+<h3 dir="auto">Performance</h3>
+<p dir="auto">Benchmarks done on this hardware:</p>
+<ul dir="auto">
+<li>Date: 2021-04-24</li>
+<li>Windows 10 x64, Chrome 90.0.4430.85 (64-bit)</li>
+<li>Core i7-8700 @ 3.2GHz, 16GB RAM</li>
+<li>AMD Radeon RX480, 2560x1440 res</li>
+</ul>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/leeoniya/uPlot/blob/master/perf.png"><img src="https://github.com/leeoniya/uPlot/raw/master/perf.png" alt="uPlot Performance" title="uPlot Performance"/></a></p>
+<p dir="auto">Full size: <a href="https://leeoniya.github.io/uPlot/demos/multi-bars.html" rel="nofollow">https://leeoniya.github.io/uPlot/demos/multi-bars.html</a></p>
+<p dir="auto">Raw data: <a href="https://github.com/leeoniya/uPlot/blob/master/bench/results.json">https://github.com/leeoniya/uPlot/blob/master/bench/results.json</a></p>
+<pre>| lib                    | size    | done    | js,rend,paint,sys | heap peak,final | mousemove (10s)     |
+| ---------------------- | ------- | ------- | ----------------- | --------------- | ------------------- |
+| <a href="https://leeoniya.github.io/uPlot/bench/uPlot.html" rel="nofollow">uPlot v1.6.9</a>           |   39 KB |   58 ms |   70   1   1   38 |  20 MB   3 MB   |   65  159   88  103 |
+| <a href="https://leeoniya.github.io/uPlot/bench/ECharts5.html" rel="nofollow">ECharts v5.1.0</a>         |  987 KB |   88 ms |   87   1   1   47 |  55 MB   5 MB   | 1463  284   84  521 |
+| <a href="https://leeoniya.github.io/uPlot/bench/Chart.js3.html" rel="nofollow">Chart.js v3.2.0</a>        |  233 KB |   80 ms |  118   1   1   41 |  34 MB  11 MB   |  725   30   57 1467 |
+| <a href="https://leeoniya.github.io/uPlot/bench/Flot.html" rel="nofollow">Flot v3.0.0</a>            |  494 KB |   91 ms |  118   3   1   55 |  46 MB  16 MB   | ---                 |
+| <a href="https://leeoniya.github.io/uPlot/bench/LightningChart.html" rel="nofollow">LightningChart® v2.2.1</a> | 1000 KB |  --- ms |  178   2   1   42 |  61 MB  22 MB   | 5310   46   43  180 |
+| <a href="https://leeoniya.github.io/uPlot/bench/dygraphs.html" rel="nofollow">dygraphs v2.1.0</a>        |  125 KB |  135 ms |  159   2   1   75 |  99 MB  44 MB   | 1087  162   74  205 |
+| <a href="https://leeoniya.github.io/uPlot/bench/CanvasJS.html" rel="nofollow">CanvasJS v3.2.13</a>       |  482 KB |  241 ms |  271   2   1   66 |  52 MB  26 MB   |  961  256   76  195 |
+| <a href="https://leeoniya.github.io/uPlot/bench/Highcharts.html" rel="nofollow">Highcharts v9.0.1</a>      |  391 KB |  --- ms |  286   4   2   42 | 108 MB  33 MB   |  840  301  132  155 |
+| <a href="https://leeoniya.github.io/uPlot/bench/dvxCharts.html" rel="nofollow">dvxCharts v5.0.0</a>       |  369 KB |  253 ms |  310  18   1   51 |  60 MB  24 MB   |  674  442  148  145 |
+| <a href="https://leeoniya.github.io/uPlot/bench/Plotly.js.html" rel="nofollow">Plotly.js v1.58.4</a>      | 3500 KB |  377 ms |  408   5   1   71 | 199 MB  46 MB   | 1087  114   29   82 |
+| <a href="https://leeoniya.github.io/uPlot/bench/Chart.js2.html" rel="nofollow">Chart.js v2.9.4</a>        |  245 KB |  495 ms |  524   2   1   75 | 103 MB  54 MB   | 8397    5    6 1158 |
+| <a href="https://leeoniya.github.io/uPlot/bench/ECharts4.html" rel="nofollow">ECharts v4.9.0</a>         |  785 KB |  366 ms |  498   1   1  581 | 224 MB  78 MB   | 2265   64   17 7551 |
+| <a href="https://leeoniya.github.io/uPlot/bench/ApexCharts.html" rel="nofollow">ApexCharts v3.26.1</a>     |  478 KB |  --- ms | 1634  22   1   44 | 332 MB  70 MB   | 8611  646   99  154 |
+| <a href="https://leeoniya.github.io/uPlot/bench/ZingChart.html" rel="nofollow">ZingChart v2.9.3</a>       |  857 KB | 2081 ms | 2101   5   1   38 | 191 MB 100 MB   | ---                 |
+| <a href="https://leeoniya.github.io/uPlot/bench/amCharts.html" rel="nofollow">amCharts v4.10.18</a>      | 1200 KB | 5564 ms | 4925  19   6   67 | 695 MB 237 MB   | 1494  336  164  285 |
+</pre>
+<p dir="auto">Normally, all libs are updated to their latest versions before each benchmark round. However, libraries which show significant performance improvements in latest versions will have prior versions shown to encourage migration; this is especially true for still-widely-deployed libs, such as Chart.js v2.9.4, and ECharts v4.9.0. Deployment prevalence is assessed from public npm and CDN download stats for the prior few months.</p>
+<ul dir="auto">
+<li>libs are sorted by their initial, cold-start, render performance (excluding network transfer time to download the lib)</li>
+<li><code>size</code> includes the lib itself plus any dependencies required to render the benchmark, e.g. Moment, jQuery, etc.</li>
+<li>Flot does not make available any minified assets and all their examples use the uncompressed sources; they also use an uncompressed version of jQuery :/</li>
+</ul>
+<p dir="auto">Some libraries provide their own performance demos:</p>
+<ul dir="auto">
+<li><a href="https://echarts.apache.org/next/examples/en/index.html" rel="nofollow">https://echarts.apache.org/next/examples/en/index.html</a></li>
+<li><a href="https://github.com/sveinn-steinarsson/flot-downsample/">https://github.com/sveinn-steinarsson/flot-downsample/</a></li>
+<li><a href="https://dygraphs.com/tests/dygraph-many-points-benchmark.html" rel="nofollow">https://dygraphs.com/tests/dygraph-many-points-benchmark.html</a></li>
+<li><a href="https://www.chartjs.org/docs/latest/general/performance.html" rel="nofollow">https://www.chartjs.org/docs/latest/general/performance.html</a></li>
+<li><a href="https://dash.plotly.com/performance" rel="nofollow">https://dash.plotly.com/performance</a></li>
+<li><a href="https://www.highcharts.com/docs/advanced-chart-features/boost-module" rel="nofollow">https://www.highcharts.com/docs/advanced-chart-features/boost-module</a></li>
+<li><a href="https://danchitnis.github.io/webgl-plot-examples/vanilla/" rel="nofollow">https://danchitnis.github.io/webgl-plot-examples/vanilla/</a></li>
+<li><a href="https://huww98.github.io/TimeChart/docs/performance" rel="nofollow">https://huww98.github.io/TimeChart/docs/performance</a></li>
+<li><a href="https://www.arction.com/lightningchart-js-performance/" rel="nofollow">https://www.arction.com/lightningchart-js-performance/</a></li>
+</ul>
+<p dir="auto">TODO (all of these use SVG, so performance should be similar to Highcharts):</p>
+<ul dir="auto">
+<li>Chartist.js</li>
+<li>d3-based
+<ul dir="auto">
+<li>C3.js</li>
+<li>dc.js</li>
+<li>MetricsGraphics</li>
+<li>rickshaw</li>
+</ul>
+</li>
+</ul>
+<hr/>
+<h3 dir="auto">Unclog your rendering pipeline</h3>
+<p dir="auto">Your browser&#39;s performance is highly dependent on your hardware, operating system, and GPU drivers.</p>
+<p dir="auto">If you&#39;re using a Chromium-based browser, there are some hidden settings that can unlock significant performance improvements for Canvas2D rendering.
+Most of these have to do with where and how the rasterization is performed.</p>
+<p dir="auto">Head over to <a href="https://leeoniya.github.io/uPlot/demos/sine-stream.html" rel="nofollow">https://leeoniya.github.io/uPlot/demos/sine-stream.html</a> and open up Chrome&#39;s DevTools (F12), then toggle the Performance Monitor.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/leeoniya/uPlot/blob/master/img/chrome-perf-monitor.png"><img src="https://github.com/leeoniya/uPlot/raw/master/img/chrome-perf-monitor.png" alt="Chrome DevTools Peformance Monitor" title="Chrome DevTools Peformance Monitor"/></a></p>
+<p dir="auto">For me:</p>
+<ul dir="auto">
+<li>On Windows 10 Desktop, Core i7-8700, 16GB RAM, AMD RX480 GPU, 2048 x 1080 resolution = 57% CPU usage</li>
+<li>On Manjaro Laptop (Arch Linux), AMD Ryzen 7 PRO 5850U, 48GB RAM, AMD Radeon RX Vega 8 (integrated GPU), 4K resolution = <strong>99% CPU usage</strong></li>
+</ul>
+<p dir="auto">If your CPU is close to 100%, it may be rasterizing everything in the same CPU process.</p>
+<p dir="auto">Pop open <code>chrome://gpu</code> and see what&#39;s orange or red.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/leeoniya/uPlot/blob/master/img/chrome-gpu.png"><img src="https://github.com/leeoniya/uPlot/raw/master/img/chrome-gpu.png" alt="Chrome gpu" title="Chrome gpu"/></a></p>
+<p dir="auto">Then open <code>chrome://flags</code> and search for &#34;raster&#34; to see what can be force-enabled.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/leeoniya/uPlot/blob/master/img/chrome-flags.png"><img src="https://github.com/leeoniya/uPlot/raw/master/img/chrome-flags.png" alt="Chrome flags" title="Chrome flags"/></a></p>
+<ul dir="auto">
+<li>On my Manjaro/Ryzen/Integrated GPU setup, force-enabling <code>Canvas out-of-process rasterization</code> resulted in a dramatic framerate improvement.</li>
+<li>On my Windows/i7/Dedicated GPU setup, toggling the same flags moved the work to another process (still good), but did not have a significant framerate impact.</li>
+</ul>
+<p dir="auto">YMMV!</p>
+<hr/>
+<h3 dir="auto">Acknowledgements</h3>
+<ul dir="auto">
+<li>Dan Vanderkam&#39;s <a href="https://github.com/danvk/dygraphs">dygraphs</a> was a big inspiration; in fact, my stale <a href="https://github.com/danvk/dygraphs/pull/948" data-hovercard-type="pull_request" data-hovercard-url="/danvk/dygraphs/pull/948/hovercard">pull request #948</a> was a primary motivator for μPlot&#39;s inception.</li>
+<li>Adam Pearce for <a href="https://github.com/leeoniya/uPlot/issues/15" data-hovercard-type="issue" data-hovercard-url="/leeoniya/uPlot/issues/15/hovercard">#15 - remove redundant lineTo commands</a>.</li>
+</ul>
+</article>
+          </div></div>

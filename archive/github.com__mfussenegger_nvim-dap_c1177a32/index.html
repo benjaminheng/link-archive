@@ -1,0 +1,141 @@
+---
+url: https://github.com/mfussenegger/nvim-dap
+title: 'GitHub - mfussenegger/nvim-dap: Debug Adapter Protocol client implementation
+  for Neovim'
+archived_at: 2022-10-26T18:30:42.489454+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+            <article itemprop="text">
+<p dir="auto"><code>nvim-dap</code> is a Debug Adapter Protocol client implementation for <a href="https://neovim.io/" rel="nofollow">Neovim</a>.
+<code>nvim-dap</code> allows you to:</p>
+<ul dir="auto">
+<li>Launch an application to debug</li>
+<li>Attach to running applications and debug them</li>
+<li>Set breakpoints and step through code</li>
+<li>Inspect the state of the application</li>
+</ul>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/38700/124292938-669a7100-db56-11eb-93b8-77b66994fc8a.gif"><img src="https://user-images.githubusercontent.com/38700/124292938-669a7100-db56-11eb-93b8-77b66994fc8a.gif" alt="demo" data-animated-image=""/></a></p>
+<h2 dir="auto">Installation</h2>
+<ul dir="auto">
+<li>Install nvim-dap like any other Neovim plugin:
+<ul dir="auto">
+<li><code>git clone https://github.com/mfussenegger/nvim-dap.git ~/.config/nvim/pack/plugins/start/nvim-dap</code></li>
+<li>Or with <a href="https://github.com/junegunn/vim-plug">vim-plug</a>: <code>Plug &#39;mfussenegger/nvim-dap&#39;</code></li>
+<li>Or with <a href="https://github.com/wbthomason/packer.nvim">packer.nvim</a>: <code>use &#39;mfussenegger/nvim-dap&#39;</code></li>
+</ul>
+</li>
+<li>Generate the documentation for nvim-dap using <code>:helptags ALL</code> or
+<code>:helptags &lt;PATH-TO-PLUGIN/doc/&gt;</code></li>
+</ul>
+<p dir="auto">Supported Neovim versions:</p>
+<ul dir="auto">
+<li>Latest nightly</li>
+<li>0.8.0 (Recommended)</li>
+<li>0.7.2</li>
+</ul>
+<p dir="auto">You&#39;ll need to install and configure a debug adapter per language. See</p>
+<ul dir="auto">
+<li><a href="https://github.com/mfussenegger/nvim-dap/blob/master/doc/dap.txt">:help dap.txt</a></li>
+<li>the <a href="https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation">Debug-Adapter Installation</a> wiki</li>
+<li><code>:help dap-adapter</code></li>
+<li><code>:help dap-configuration</code></li>
+</ul>
+<h2 dir="auto">Usage</h2>
+<p dir="auto">A typical debug flow consists of:</p>
+<ul dir="auto">
+<li>Setting breakpoints via <code>:lua require&#39;dap&#39;.toggle_breakpoint()</code>.</li>
+<li>Launching debug sessions and resuming execution via <code>:lua require&#39;dap&#39;.continue()</code>.</li>
+<li>Stepping through code via <code>:lua require&#39;dap&#39;.step_over()</code> and <code>:lua require&#39;dap&#39;.step_into()</code>.</li>
+<li>Inspecting the state via the built-in REPL: <code>:lua require&#39;dap&#39;.repl.open()</code>
+or using the widget UI (<code>:help dap-widgets</code>)</li>
+</ul>
+<p dir="auto">See <a href="https://github.com/mfussenegger/nvim-dap/blob/master/doc/dap.txt">:help dap.txt</a>, <code>:help dap-mapping</code> and <code>:help dap-api</code>.</p>
+<h2 dir="auto">Supported languages</h2>
+<p dir="auto">In theory all of the languages for which a debug adapter exists should be
+supported.</p>
+<ul dir="auto">
+<li><a href="https://microsoft.github.io/debug-adapter-protocol/implementors/adapters/" rel="nofollow">Available debug adapters</a></li>
+<li><a href="https://github.com/mfussenegger/nvim-dap/wiki/Debug-Adapter-installation">nvim-dap Debug-Adapter Installation &amp; Configuration</a></li>
+</ul>
+<p dir="auto">The Wiki is community maintained. If you got an adapter working that isn&#39;t
+listed yet, please extend the Wiki.</p>
+<p dir="auto">Some debug adapters have <a href="https://github.com/mfussenegger/nvim-dap/wiki/Extensions#language-specific-extensions">language specific
+extensions</a>.
+Using them over a manual configuration is recommended, as they&#39;re
+usually better maintained.</p>
+<p dir="auto">If the instructions in the wiki for a debug adapter are not working, consider
+that debug adapters may have made changes since the instructions were written.
+You may want to read the release notes of the debug adapters or try with an
+older version. Please update the wiki if you discover outdated examples.</p>
+<h2 dir="auto">Goals</h2>
+<ul dir="auto">
+<li>
+<p dir="auto">Have a basic debugger in Neovim.</p>
+</li>
+<li>
+<p dir="auto">Extensibility and double as a DAP client library. This allows other plugins
+to extend the debugging experience. Either by improving the UI or by making
+it easier to debug parts of an application.</p>
+<ul dir="auto">
+<li>Examples of UI/UX extensions are <a href="https://github.com/theHamsta/nvim-dap-virtual-text">nvim-dap-virtual-text</a> and <a href="https://github.com/rcarriga/nvim-dap-ui">nvim-dap-ui</a></li>
+<li>Examples for language specific extensions include <a href="https://github.com/mfussenegger/nvim-jdtls">nvim-jdtls</a> and <a href="https://github.com/mfussenegger/nvim-dap-python">nvim-dap-python</a></li>
+</ul>
+</li>
+</ul>
+<h2 dir="auto">Extensions</h2>
+<p dir="auto">All known extensions are listed in the <a href="https://github.com/mfussenegger/nvim-dap/wiki/Extensions">Wiki</a>. The wiki is community
+maintained. Please add new extensions if you built one or if you discovered one
+that&#39;s not listed.</p>
+<h2 dir="auto">Non-Goals</h2>
+<ul dir="auto">
+<li>
+<p dir="auto">Debug adapter installations are out of scope. It&#39;s not the business of an
+editor plugin to re-invent a package manager. Use your system package
+manager. Use Nix. Use Ansible.</p>
+</li>
+<li>
+<p dir="auto"><a href="https://github.com/nvim-lua/wishlist/issues/37#issuecomment-1023363686" data-hovercard-type="issue" data-hovercard-url="/nvim-lua/wishlist/issues/37/hovercard">nvim-dapconfig</a></p>
+</li>
+<li>
+<p dir="auto">Vim support. It&#39;s not going to happen. Use <a href="https://github.com/puremourning/vimspector">vimspector</a> instead.</p>
+</li>
+</ul>
+<h2 dir="auto">Alternatives</h2>
+<ul dir="auto">
+<li><a href="https://github.com/puremourning/vimspector">vimspector</a></li>
+</ul>
+<h2 dir="auto">Contributing</h2>
+<p dir="auto">Contributions are welcome:</p>
+<ul dir="auto">
+<li>Give concrete feedback about usability.</li>
+<li>Triage issues. Many of the problems people encounter are debug
+adapter specific.</li>
+<li>Improve upstream debug adapter documentation to make them more editor
+agnostic.</li>
+<li>Improve the Wiki. But please refrain from turning it into comprehensive debug
+adapter documentation that should go upstream.</li>
+<li>Write extensions.</li>
+</ul>
+<p dir="auto">Before making direct code contributions, please create a discussion or issue to
+clarify whether the change is in scope of the nvim-dap core.</p>
+<p dir="auto">Please keep pull requests focused and don&#39;t change multiple things at the same
+time.</p>
+<h2 dir="auto">Features</h2>
+<ul>
+<li> launch debug adapter</li>
+<li> attach to debug adapter</li>
+<li> toggle breakpoints</li>
+<li> breakpoints with conditions</li>
+<li> logpoints</li>
+<li> set exception breakpoints</li>
+<li> step over, step into, step out</li>
+<li> step back, reverse continue</li>
+<li> Goto</li>
+<li> restart</li>
+<li> stop</li>
+<li> pause</li>
+<li> evaluate expressions</li>
+<li> REPL (incl. commands to show threads, frames and scopes)</li>
+</ul>
+</article>
+          </div></div>

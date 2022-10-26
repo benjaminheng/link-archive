@@ -1,0 +1,284 @@
+---
+url: https://github.com/rcarriga/nvim-dap-ui
+title: 'GitHub - rcarriga/nvim-dap-ui: A UI for nvim-dap'
+archived_at: 2022-10-26T18:30:43.200725+08:00
+---
+<div id="readability-page-1" class="page"><div data-target="readme-toc.content">
+            <article itemprop="text">
+<h2 dir="auto">Introduction</h2>
+<p dir="auto">A UI for <a href="https://github.com/mfussenegger/nvim-dap">nvim-dap</a> which provides a
+good out of the box configuration.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/191198389-a1321363-c0f1-4ff1-b663-ab1350d2b393.png"><img src="https://user-images.githubusercontent.com/24252670/191198389-a1321363-c0f1-4ff1-b663-ab1350d2b393.png" alt="preview"/></a></p>
+<h2 dir="auto">Installation</h2>
+<p dir="auto">Install with your favourite package manager alongside nvim-dap</p>
+<p dir="auto"><a href="https://github.com/Shougo/dein.vim"><strong>dein</strong></a>:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="call dein#add(&#34;mfussenegger/nvim-dap&#34;)
+call dein#add(&#34;rcarriga/nvim-dap-ui&#34;)"><pre><span>call</span> <span>dein#add</span>(<span><span>&#34;</span>mfussenegger/nvim-dap<span>&#34;</span></span>)
+<span>call</span> <span>dein#add</span>(<span><span>&#34;</span>rcarriga/nvim-dap-ui<span>&#34;</span></span>)</pre></div>
+<p dir="auto"><a href="https://github.com/junegunn/vim-plug"><strong>vim-plug</strong></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="Plug &#39;mfussenegger/nvim-dap&#39;
+Plug &#39;rcarriga/nvim-dap-ui&#39;"><pre>Plug <span><span>&#39;</span>mfussenegger/nvim-dap<span>&#39;</span></span>
+Plug <span><span>&#39;</span>rcarriga/nvim-dap-ui<span>&#39;</span></span></pre></div>
+<p dir="auto"><a href="https://github.com/wbthomason/packer.nvim">packer.nvim</a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="use { &#34;rcarriga/nvim-dap-ui&#34;, requires = {&#34;mfussenegger/nvim-dap&#34;} }"><pre><span>use</span> { <span><span>&#34;</span>rcarriga/nvim-dap-ui<span>&#34;</span></span>, requires <span>=</span> {<span><span>&#34;</span>mfussenegger/nvim-dap<span>&#34;</span></span>} }</pre></div>
+<h2 dir="auto">Configuration</h2>
+<p dir="auto">nvim-dap-ui is built on the idea of &#34;elements&#34;. These elements are windows
+which provide different features.</p>
+<p dir="auto">The UI is split between a sidebar which sits on the side of the screen, and a
+tray which sits on the bottom of the screen by default. Both of these can
+contain any of the available elements and the position of each can be changed
+to any side of the screen.</p>
+<p dir="auto">Elements can also be displayed temporarily in a floating window.</p>
+<p dir="auto">You can supply an object to the <code>require(&#34;dapui&#34;).setup()</code> function to
+configure the elements.</p>
+<p dir="auto">Default settings:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="require(&#34;dapui&#34;).setup({
+  icons = { expanded = &#34;▾&#34;, collapsed = &#34;▸&#34;, current_frame = &#34;▸&#34; },
+  mappings = {
+    -- Use a table to apply multiple mappings
+    expand = { &#34;&lt;CR&gt;&#34;, &#34;&lt;2-LeftMouse&gt;&#34; },
+    open = &#34;o&#34;,
+    remove = &#34;d&#34;,
+    edit = &#34;e&#34;,
+    repl = &#34;r&#34;,
+    toggle = &#34;t&#34;,
+  },
+  -- Expand lines larger than the window
+  -- Requires &gt;= 0.7
+  expand_lines = vim.fn.has(&#34;nvim-0.7&#34;) == 1,
+  -- Layouts define sections of the screen to place windows.
+  -- The position can be &#34;left&#34;, &#34;right&#34;, &#34;top&#34; or &#34;bottom&#34;.
+  -- The size specifies the height/width depending on position. It can be an Int
+  -- or a Float. Integer specifies height/width directly (i.e. 20 lines/columns) while
+  -- Float value specifies percentage (i.e. 0.3 - 30% of available lines/columns)
+  -- Elements are the elements shown in the layout (in order).
+  -- Layouts are opened in order so that earlier layouts take priority in window sizing.
+  layouts = {
+    {
+      elements = {
+      -- Elements can be strings or table with id and size keys.
+        { id = &#34;scopes&#34;, size = 0.25 },
+        &#34;breakpoints&#34;,
+        &#34;stacks&#34;,
+        &#34;watches&#34;,
+      },
+      size = 40, -- 40 columns
+      position = &#34;left&#34;,
+    },
+    {
+      elements = {
+        &#34;repl&#34;,
+        &#34;console&#34;,
+      },
+      size = 0.25, -- 25% of total lines
+      position = &#34;bottom&#34;,
+    },
+  },
+  controls = {
+    -- Requires Neovim nightly (or 0.8 when released)
+    enabled = true,
+    -- Display controls in this element
+    element = &#34;repl&#34;,
+    icons = {
+      pause = &#34;&#34;,
+      play = &#34;&#34;,
+      step_into = &#34;&#34;,
+      step_over = &#34;&#34;,
+      step_out = &#34;&#34;,
+      step_back = &#34;&#34;,
+      run_last = &#34;↻&#34;,
+      terminate = &#34;□&#34;,
+    },
+  },
+  floating = {
+    max_height = nil, -- These can be integers or a float between 0 and 1.
+    max_width = nil, -- Floats will be treated as percentage of your screen.
+    border = &#34;single&#34;, -- Border style. Can be &#34;single&#34;, &#34;double&#34; or &#34;rounded&#34;
+    mappings = {
+      close = { &#34;q&#34;, &#34;&lt;Esc&gt;&#34; },
+    },
+  },
+  windows = { indent = 1 },
+  render = {
+    max_type_length = nil, -- Can be integer or nil.
+    max_value_lines = 100, -- Can be integer or nil.
+  }
+})"><pre><span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>setup</span>({
+  icons <span>=</span> { expanded <span>=</span> <span><span>&#34;</span>▾<span>&#34;</span></span>, collapsed <span>=</span> <span><span>&#34;</span>▸<span>&#34;</span></span>, current_frame <span>=</span> <span><span>&#34;</span>▸<span>&#34;</span></span> },
+  mappings <span>=</span> {
+    <span><span>--</span> Use a table to apply multiple mappings</span>
+    expand <span>=</span> { <span><span>&#34;</span>&lt;CR&gt;<span>&#34;</span></span>, <span><span>&#34;</span>&lt;2-LeftMouse&gt;<span>&#34;</span></span> },
+    open <span>=</span> <span><span>&#34;</span>o<span>&#34;</span></span>,
+    remove <span>=</span> <span><span>&#34;</span>d<span>&#34;</span></span>,
+    edit <span>=</span> <span><span>&#34;</span>e<span>&#34;</span></span>,
+    repl <span>=</span> <span><span>&#34;</span>r<span>&#34;</span></span>,
+    toggle <span>=</span> <span><span>&#34;</span>t<span>&#34;</span></span>,
+  },
+  <span><span>--</span> Expand lines larger than the window</span>
+  <span><span>--</span> Requires &gt;= 0.7</span>
+  expand_lines <span>=</span> vim.<span>fn</span>.<span>has</span>(<span><span>&#34;</span>nvim-0.7<span>&#34;</span></span>) <span>==</span> <span>1</span>,
+  <span><span>--</span> Layouts define sections of the screen to place windows.</span>
+  <span><span>--</span> The position can be &#34;left&#34;, &#34;right&#34;, &#34;top&#34; or &#34;bottom&#34;.</span>
+  <span><span>--</span> The size specifies the height/width depending on position. It can be an Int</span>
+  <span><span>--</span> or a Float. Integer specifies height/width directly (i.e. 20 lines/columns) while</span>
+  <span><span>--</span> Float value specifies percentage (i.e. 0.3 - 30% of available lines/columns)</span>
+  <span><span>--</span> Elements are the elements shown in the layout (in order).</span>
+  <span><span>--</span> Layouts are opened in order so that earlier layouts take priority in window sizing.</span>
+  layouts <span>=</span> {
+    {
+      elements <span>=</span> {
+      <span><span>--</span> Elements can be strings or table with id and size keys.</span>
+        { id <span>=</span> <span><span>&#34;</span>scopes<span>&#34;</span></span>, size <span>=</span> <span>0.25</span> },
+        <span><span>&#34;</span>breakpoints<span>&#34;</span></span>,
+        <span><span>&#34;</span>stacks<span>&#34;</span></span>,
+        <span><span>&#34;</span>watches<span>&#34;</span></span>,
+      },
+      size <span>=</span> <span>40</span>, <span><span>--</span> 40 columns</span>
+      position <span>=</span> <span><span>&#34;</span>left<span>&#34;</span></span>,
+    },
+    {
+      elements <span>=</span> {
+        <span><span>&#34;</span>repl<span>&#34;</span></span>,
+        <span><span>&#34;</span>console<span>&#34;</span></span>,
+      },
+      size <span>=</span> <span>0.25</span>, <span><span>--</span> 25% of total lines</span>
+      position <span>=</span> <span><span>&#34;</span>bottom<span>&#34;</span></span>,
+    },
+  },
+  controls <span>=</span> {
+    <span><span>--</span> Requires Neovim nightly (or 0.8 when released)</span>
+    enabled <span>=</span> <span>true</span>,
+    <span><span>--</span> Display controls in this element</span>
+    element <span>=</span> <span><span>&#34;</span>repl<span>&#34;</span></span>,
+    icons <span>=</span> {
+      pause <span>=</span> <span><span>&#34;</span><span>&#34;</span></span>,
+      play <span>=</span> <span><span>&#34;</span><span>&#34;</span></span>,
+      step_into <span>=</span> <span><span>&#34;</span><span>&#34;</span></span>,
+      step_over <span>=</span> <span><span>&#34;</span><span>&#34;</span></span>,
+      step_out <span>=</span> <span><span>&#34;</span><span>&#34;</span></span>,
+      step_back <span>=</span> <span><span>&#34;</span><span>&#34;</span></span>,
+      run_last <span>=</span> <span><span>&#34;</span>↻<span>&#34;</span></span>,
+      terminate <span>=</span> <span><span>&#34;</span>□<span>&#34;</span></span>,
+    },
+  },
+  floating <span>=</span> {
+    max_height <span>=</span> <span>nil</span>, <span><span>--</span> These can be integers or a float between 0 and 1.</span>
+    max_width <span>=</span> <span>nil</span>, <span><span>--</span> Floats will be treated as percentage of your screen.</span>
+    border <span>=</span> <span><span>&#34;</span>single<span>&#34;</span></span>, <span><span>--</span> Border style. Can be &#34;single&#34;, &#34;double&#34; or &#34;rounded&#34;</span>
+    mappings <span>=</span> {
+      close <span>=</span> { <span><span>&#34;</span>q<span>&#34;</span></span>, <span><span>&#34;</span>&lt;Esc&gt;<span>&#34;</span></span> },
+    },
+  },
+  windows <span>=</span> { indent <span>=</span> <span>1</span> },
+  render <span>=</span> {
+    max_type_length <span>=</span> <span>nil</span>, <span><span>--</span> Can be integer or nil.</span>
+    max_value_lines <span>=</span> <span>100</span>, <span><span>--</span> Can be integer or nil.</span>
+  }
+})</pre></div>
+<h3 dir="auto">Variable Scopes</h3>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/126842891-c5175f13-5eb7-4d0a-9dae-620c4d31448a.png"><img src="https://user-images.githubusercontent.com/24252670/126842891-c5175f13-5eb7-4d0a-9dae-620c4d31448a.png" alt="image"/></a></p>
+<p dir="auto">Element ID: <code>scopes</code></p>
+<p dir="auto">Displays the available scopes and variables within them.</p>
+<p dir="auto">Mappings:</p>
+<ul dir="auto">
+<li><code>edit</code>: Edit the value of a variable</li>
+<li><code>expand</code>: Toggle showing any children of variable.</li>
+<li><code>repl</code>: Send variable to REPL</li>
+</ul>
+<h3 dir="auto">Threads and Stack Frames</h3>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/126843106-5dce09dc-49d0-4aaa-ba98-fd8f17b31414.png"><img src="https://user-images.githubusercontent.com/24252670/126843106-5dce09dc-49d0-4aaa-ba98-fd8f17b31414.png" alt="image"/></a></p>
+<p dir="auto">Element ID: <code>stacks</code></p>
+<p dir="auto">Displays the running threads and their stack frames.</p>
+<p dir="auto">Mappings:</p>
+<ul dir="auto">
+<li><code>open</code>: Jump to a place within the stack frame.</li>
+<li><code>toggle</code>: Toggle displaying <a href="https://microsoft.github.io/debug-adapter-protocol/specification#Types_StackFrame" rel="nofollow">subtle</a> frames</li>
+</ul>
+<h3 dir="auto">Watch Expressions</h3>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/126843390-4e1575d8-9d7d-4f43-8680-094cfe9eae63.png"><img src="https://user-images.githubusercontent.com/24252670/126843390-4e1575d8-9d7d-4f43-8680-094cfe9eae63.png" alt="image"/></a></p>
+<p dir="auto">Element ID: <code>watches</code></p>
+<p dir="auto">Allows creation of expressions to watch the value of in the context of the
+current frame.
+This uses a prompt buffer for input. To enter a new expression, just enter
+insert mode and you will see a prompt appear. Press enter to submit</p>
+<p dir="auto">Mappings:</p>
+<ul dir="auto">
+<li><code>expand</code>: Toggle showing the children of an expression.</li>
+<li><code>remove</code>: Remove the watched expression.</li>
+<li><code>edit</code>: Edit an expression or set the value of a child variable.</li>
+<li><code>repl</code>: Send expression to REPL</li>
+</ul>
+<h3 dir="auto">Breakpoints</h3>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/126843577-361645e4-6265-40eb-86dc-d6607512a15e.png"><img src="https://user-images.githubusercontent.com/24252670/126843577-361645e4-6265-40eb-86dc-d6607512a15e.png" alt="image"/></a></p>
+<p dir="auto">Element ID: <code>breakpoints</code></p>
+<p dir="auto">List all breakpoints currently set.</p>
+<p dir="auto">Mappings:</p>
+<ul dir="auto">
+<li><code>open</code>: Jump to the location the breakpoint is set</li>
+<li><code>toggle</code>: Enable/disable the selected breakpoint</li>
+</ul>
+<h3 dir="auto">REPL</h3>
+<p dir="auto">Element ID: <code>repl</code></p>
+<p dir="auto">The REPL provided by nvim-dap.</p>
+<h3 dir="auto">Console</h3>
+<p dir="auto">Element ID: <code>console</code></p>
+<p dir="auto">The console window used by nvim-dap for the integrated terminal.</p>
+<h2 dir="auto">Usage</h2>
+<p dir="auto">To get started simply call the setup method on startup, optionally providing
+custom settings.</p>
+
+<p dir="auto">You can open, close and toggle the windows with corresponding functions:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="require(&#34;dapui&#34;).open()
+require(&#34;dapui&#34;).close()
+require(&#34;dapui&#34;).toggle()"><pre><span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>open</span>()
+<span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>close</span>()
+<span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>toggle</span>()</pre></div>
+<p dir="auto">Each of the functions optionally takes either <code>&#34;sidebar&#34;</code> or <code>&#34;tray&#34;</code> as an
+argument to only change the specified component.</p>
+<p dir="auto">You can use nvim-dap events to open and close the windows automatically (<code>:help dap-extensions</code>)</p>
+<div dir="auto" data-snippet-clipboard-copy-content="local dap, dapui = require(&#34;dap&#34;), require(&#34;dapui&#34;)
+dap.listeners.after.event_initialized[&#34;dapui_config&#34;] = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated[&#34;dapui_config&#34;] = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited[&#34;dapui_config&#34;] = function()
+  dapui.close()
+end"><pre><span>local</span> dap, dapui <span>=</span> <span>require</span>(<span><span>&#34;</span>dap<span>&#34;</span></span>), <span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>)
+dap.<span>listeners</span>.<span>after</span>.<span>event_initialized</span>[<span><span>&#34;</span>dapui_config<span>&#34;</span></span>] <span>=</span> <span>function</span>()
+  dapui.<span>open</span>()
+<span>end</span>
+dap.<span>listeners</span>.<span>before</span>.<span>event_terminated</span>[<span><span>&#34;</span>dapui_config<span>&#34;</span></span>] <span>=</span> <span>function</span>()
+  dapui.<span>close</span>()
+<span>end</span>
+dap.<span>listeners</span>.<span>before</span>.<span>event_exited</span>[<span><span>&#34;</span>dapui_config<span>&#34;</span></span>] <span>=</span> <span>function</span>()
+  dapui.<span>close</span>()
+<span>end</span></pre></div>
+<h3 dir="auto">Floating Elements</h3>
+<p dir="auto">For elements that are not opened in the tray or sidebar, you can open them in a
+floating window.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/126844102-8789effb-4276-4599-afe6-a074b019c38d.png"><img src="https://user-images.githubusercontent.com/24252670/126844102-8789effb-4276-4599-afe6-a074b019c38d.png" alt="image"/></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="require(&#34;dapui&#34;).float_element(&lt;element ID&gt;, &lt;optional settings&gt;)"><pre><span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>float_element</span>(<span>&lt;</span>element ID<span>&gt;</span>, <span>&lt;</span>optional settings<span>&gt;</span>)</pre></div>
+<p dir="auto">If you do not provide an element ID, you will be queried to select one.</p>
+<p dir="auto">The optional settings can included the following keys:</p>
+<ul dir="auto">
+<li><code>width: number</code> Width of the window</li>
+<li><code>height: number</code> Height of the window</li>
+<li><code>enter: boolean</code> Enter the floating window</li>
+</ul>
+<p dir="auto">Call the same function again while the window is open and the cursor will jump
+to the floating window. The REPL will automatically jump to the floating
+window on open.</p>
+<h3 dir="auto">Evaluate Expression</h3>
+<p dir="auto">For a one time expression evaluation, you can call a hover window to show a value</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://user-images.githubusercontent.com/24252670/126844454-691d691c-4550-46fe-89dc-25e1e9681545.png"><img src="https://user-images.githubusercontent.com/24252670/126844454-691d691c-4550-46fe-89dc-25e1e9681545.png" alt="image"/></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="require(&#34;dapui&#34;).eval(&lt;expression&gt;)"><pre><span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>eval</span>(<span>&lt;</span>expression<span>&gt;</span>)</pre></div>
+<p dir="auto">If an expression is not provided it will use the word under the cursor, or if in
+visual mode, the currently highlighted text.
+You can define a visual mapping like so</p>
+<div dir="auto" data-snippet-clipboard-copy-content="vnoremap &lt;M-k&gt; &lt;Cmd&gt;lua require(&#34;dapui&#34;).eval()&lt;CR&gt;"><pre><span>vnoremap</span> <span>&lt;M-k&gt;</span> <span>&lt;Cmd&gt;</span><span>lua</span> <span>require</span>(<span><span>&#34;</span>dapui<span>&#34;</span></span>).<span>eval</span>()<span>&lt;CR&gt;</span></pre></div>
+<p dir="auto">Call the same function again while the window is open to jump to the eval window.</p>
+<p dir="auto">The same mappings as the variables element apply within the hover window.</p>
+</article>
+          </div></div>

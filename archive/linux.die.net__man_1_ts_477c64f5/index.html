@@ -1,0 +1,40 @@
+---
+url: https://linux.die.net/man/1/ts
+title: 'ts(1): timestamp input - Linux man page'
+archived_at: 2022-10-26T18:28:35.545481+08:00
+---
+<div id="readability-page-1" class="page"><div id="content">
+
+
+
+
+<h2>Name</h2>
+
+<p>ts - timestamp input
+</p><h2>Synopsis</h2>
+
+<p>ts [-r] [format]
+</p><h2>Description</h2>
+
+
+
+<p>ts adds a timestamp to the beginning of each line of input.
+</p><p>The optional format parameter controls how the timestamp is formatted, as used by <b><a href="https://linux.die.net/man/3/strftime">strftime</a></b>(3). The default format is &#34;%b <tt>%d %H:</tt>%M:%S&#34;. In
+addition to the regular strftime conversion specifications, &#34;%.S&#34; is expanded to fractional seconds (ie, &#34;30.00001&#34;).
+</p><p>If the -r switch is passed, it instead converts existing timestamps in the input to relative times, such as &#34;15m5s ago&#34;. Many common timestamp formats are
+supported. Note that the Time::Duration and Date::Parse perl modules are required for this mode to work. Currently,A converting localized dates is not
+supported.
+</p><p>If both -r and a format is passed, the existing timestamps are converted to the specified format.
+</p><h2>Environment</h2>
+
+<p>The standard <small>TZ</small> environment variable controls what time zone dates are assumed to be in, if a timezone is not specified as part of the
+date.
+</p><h2>Author</h2>
+
+<p>Copyright 2006 by Joey Hess &lt;<a href="mailto:joey@kitenet.net">joey@kitenet.net</a>&gt;
+</p><p>Licensed under the <small>GNU GPL</small> .
+
+
+</p><h2>Referenced By</h2>
+<p><b><a href="https://linux.die.net/man/1/tsget" rel="nofollow">tsget</a></b>(1)
+</p></div></div>

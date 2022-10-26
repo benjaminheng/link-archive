@@ -1,0 +1,35 @@
+---
+url: https://www.mongodb.com/docs/v5.0/tutorial/transparent-huge-pages/
+title: Disable Transparent Huge Pages (THP)
+archived_at: 2022-10-26T18:30:18.113661+08:00
+---
+<div id="readability-page-1" class="page"><div><p><a href="https://www.mongodb.com/docs/" target="_blank" rel="noopener noreferrer"><span>Docs Home</span></a><span> → </span><a href="https://www.mongodb.com/docs/v5.0/">MongoDB Manual</a></p><section><p>Transparent Huge Pages (THP) is a Linux memory management system
+that reduces the overhead of Translation Lookaside Buffer (TLB) lookups
+on machines with large amounts of memory by using larger memory pages.</p><p>However, database workloads often perform poorly with THP enabled,
+because they tend to have sparse rather than contiguous memory access
+patterns. When running MongoDB on Linux, THP should be disabled for
+best performance.</p><p>To ensure that THP is disabled before <a href="https://www.mongodb.com/docs/v5.0/reference/program/mongod/#mongodb-binary-bin.mongod"><code>mongod</code></a> starts,
+you should create a service file for your platform&#39;s initialization
+system that disables THP at boot. Instructions are provided below for
+both the <strong>systemd</strong> and the <strong>System V init</strong> initialization systems.</p><p>Additionally, for <span tabindex="0">RHEL</span> / CentOS
+systems that make use of <code>ktune</code> and <code>tuned</code> performance profiles,
+you must create a custom <code>tuned</code> profile as well.</p><section><p>To create a service file that disables THP, you will use the
+built-in initialization system for your platform. Recent versions
+of Linux tend to use <strong>systemd</strong> (which uses the <code>systemctl</code> command),
+while older versions of Linux tend to use <strong>System V init</strong> (which uses
+the <code>service</code> command). Refer to the documentation for your operating
+system for more information.</p><p>Use the initialization system appropriate for your platform:</p></section><section><div role="note"><p><h2>Important</h2></p><div><p>If using <code>tuned</code> or <code>ktune</code>, you must also perform the steps in
+this section after creating the service file above.</p></div></div><p><code>tuned</code> and <code>ktune</code> are dynamic kernel tuning tools that can affect
+the transparent huge pages setting on your system. If you are using
+<code>tuned</code> / <code>ktune</code> on your <span tabindex="0">RHEL</span>
+/ CentOS system while running <code>mongod</code>, you must create a custom
+<code>tuned</code> profile to ensure that THP remains disabled.</p><div><section><p>Create a new profile from an existing profile by copying the
+relevant directory. This example uses the
+<code>virtual-guest</code> profile as the base, and uses
+<code>virtual-guest-no-thp</code> as the new profile:</p><div><pre tabindex="-1"><code><p>sudo cp -r /etc/tune-profiles/virtual-guest /etc/tune-profiles/virtual-guest-no-thp</p></code></pre></div></section><section><p>Edit <code>/etc/tune-profiles/virtual-guest-no-thp/ktune.sh</code>
+and change the <code>set_transparent_hugepages</code> setting to the
+following:</p><div><pre tabindex="-1"><code><p>set_transparent_hugepages never</p></code></pre></div></section><section><p>Enable the new profile:</p><div><pre tabindex="-1"><code><p>sudo tuned-adm profile virtual-guest-no-thp</p></code></pre></div></section></div><div><section><p>Create a new directory to hold the custom <code>tuned</code> profile.
+This example inherits from the existing <code>virtual-guest</code>
+profile, and uses <code>virtual-guest-no-thp</code> as the new profile:</p><div><pre tabindex="-1"><code><p>sudo mkdir /etc/tuned/virtual-guest-no-thp</p></code></pre></div></section><section><p>Create and edit <code>/etc/tuned/virtual-guest-no-thp/tuned.conf</code> so that it contains the
+following:</p><div><pre tabindex="-1"><code><table><tbody><tr><td><span>[main]</span></td></tr><tr><td><span>include</span>=virtual-guest</td></tr><tr><td></td></tr><tr><td><span>[vm]</span></td></tr><tr><td><span>transparent_hugepages</span>=never</td></tr></tbody></table></code></pre></div><p>This example inherits from the existing <code>virtual-guest</code>
+profile. Select the profile most appropriate for your system.</p></section><section><p>Enable the new profile:</p><div><pre tabindex="-1"><code><p>sudo tuned-adm profile virtual-guest-no-thp</p></code></pre></div></section></div></section></section></div></div>

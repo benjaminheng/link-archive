@@ -1,0 +1,997 @@
+---
+url: https://vega.github.io/vega-lite/examples/
+title: Example Gallery
+archived_at: 2022-10-26T18:30:52.317894+08:00
+---
+<div id="readability-page-1" class="page"><div>
+  
+  
+   <p>This page shows example specifications for different types of graphics. To see example code for embedding visualizations in a webpage, please read the <a href="https://vega.github.io/vega-lite/usage/embed.html">embed documentation</a>.</p>
+
+
+<ul id="markdown-toc">
+  <li>
+<a href="#single-view-plots" id="markdown-toc-single-view-plots">Single-View Plots</a>    <ul>
+      <li><a href="#bar-charts" id="markdown-toc-bar-charts">Bar Charts</a></li>
+      <li><a href="#histograms-density-plots-and-dot-plots" id="markdown-toc-histograms-density-plots-and-dot-plots">Histograms, Density Plots, and Dot Plots</a></li>
+      <li><a href="#scatter--strip-plots" id="markdown-toc-scatter--strip-plots">Scatter &amp; Strip Plots</a></li>
+      <li><a href="#line-charts" id="markdown-toc-line-charts">Line Charts</a></li>
+      <li><a href="#area-charts--streamgraphs" id="markdown-toc-area-charts--streamgraphs">Area Charts &amp; Streamgraphs</a></li>
+      <li><a href="#table-based-plots" id="markdown-toc-table-based-plots">Table-based Plots</a></li>
+      <li><a href="#circular-plots" id="markdown-toc-circular-plots">Circular Plots</a></li>
+      <li><a href="#advanced-calculations" id="markdown-toc-advanced-calculations">Advanced Calculations</a></li>
+    </ul>
+  </li>
+  <li>
+<a href="#composite-marks" id="markdown-toc-composite-marks">Composite Marks</a>    <ul>
+      <li><a href="#error-bars--error-bands" id="markdown-toc-error-bars--error-bands">Error Bars &amp; Error Bands</a></li>
+      <li><a href="#box-plots" id="markdown-toc-box-plots">Box Plots</a></li>
+    </ul>
+  </li>
+  <li>
+<a href="#layered-plots" id="markdown-toc-layered-plots">Layered Plots</a>    <ul>
+      <li><a href="#labeling--annotation" id="markdown-toc-labeling--annotation">Labeling &amp; Annotation</a></li>
+      <li><a href="#other-layered-plots" id="markdown-toc-other-layered-plots">Other Layered Plots</a></li>
+    </ul>
+  </li>
+  <li>
+<a href="#multi-view-displays" id="markdown-toc-multi-view-displays">Multi-View Displays</a>    <ul>
+      <li><a href="#faceting-trellis-plot--small-multiples" id="markdown-toc-faceting-trellis-plot--small-multiples">Faceting (Trellis Plot / Small Multiples)</a></li>
+      <li><a href="#repeat--concatenation" id="markdown-toc-repeat--concatenation">Repeat &amp; Concatenation</a></li>
+    </ul>
+  </li>
+  <li><a href="#maps-geographic-displays" id="markdown-toc-maps-geographic-displays">Maps (Geographic Displays)</a></li>
+  <li>
+<a href="#interactive" id="markdown-toc-interactive">Interactive</a>    <ul>
+      <li><a href="#interactive-charts" id="markdown-toc-interactive-charts">Interactive Charts</a></li>
+      <li><a href="#interactive-multi-view-displays" id="markdown-toc-interactive-multi-view-displays">Interactive Multi-View Displays</a></li>
+    </ul>
+  </li>
+  <li><a href="#community-examples" id="markdown-toc-community-examples">Community Examples</a></li>
+</ul>
+
+<h2 id="single-view-plots">Single-View Plots</h2>
+
+<h3 id="bar-charts">Bar Charts</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/bar.html">
+  <span></span>
+  <span>Simple Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_size_responsive.html">
+  <span></span>
+  <span>Responsive Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_aggregate.html">
+  <span></span>
+  <span>Aggregate Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_aggregate_sort_by_encoding.html">
+  <span></span>
+  <span>Aggregate Bar Chart (Sorted)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_grouped.html">
+  <span></span>
+  <span>Grouped Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_grouped_repeated.html">
+  <span></span>
+  <span>Grouped Bar Chart (Multiple Measure with Repeat)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_bar_weather.html">
+  <span></span>
+  <span>Stacked Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_bar_count_corner_radius_mark.html">
+  <span></span>
+  <span>Stacked Bar Chart with Rounded Corners</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_bar_h.html">
+  <span></span>
+  <span>Horizontal Stacked Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_bar_normalize.html">
+  <span></span>
+  <span>Normalized (Percentage) Stacked Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_bar_h_normalized_labeled.html">
+  <span></span>
+  <span>Normalized (Percentage) Stacked Bar Chart With Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_gantt.html">
+  <span></span>
+  <span>Gantt Chart (Ranged Bar Marks)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_color_disabled_scale.html">
+  <span></span>
+  <span>A Bar Chart Encoding Color Names in the Data</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_layered_transparent.html">
+  <span></span>
+  <span>Layered Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_diverging_stack_population_pyramid.html">
+  <span></span>
+  <span>Diverging Stacked Bar Chart (Population Pyramid)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_diverging_stack_transform.html">
+  <span></span>
+  <span>Diverging Stacked Bar Chart (with Neutral Parts)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_bar_labels.html">
+  <span></span>
+  <span>Bar Chart with Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_bar_labels_grey.html">
+  <span></span>
+  <span>Bar Chart with Label Overlays</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_month_temporal_initial.html">
+  <span></span>
+  <span>Bar Chart showing Initials of Month Names</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_negative.html">
+  <span></span>
+  <span>Bar Chart with Negative Values and a Zero-Baseline</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_negative_horizontal_label.html">
+  <span></span>
+  <span>Horizontal Bar Chart with Negative Values and Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_axis_space_saving.html">
+  <span></span>
+  <span>Bar Chart with a Spacing-Saving Y-Axis</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_heatlane.html">
+  <span></span>
+  <span>Heat Lane Chart</span>
+</a>
+</span></p>
+
+<h3 id="histograms-density-plots-and-dot-plots">Histograms, Density Plots, and Dot Plots</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/histogram.html">
+  <span></span>
+  <span>Histogram</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_binned_data.html">
+  <span></span>
+  <span>Histogram (from Binned Data)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/histogram_log.html">
+  <span></span>
+  <span>Log-scaled Histogram</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/histogram_nonlinear.html">
+  <span></span>
+  <span>Non-linear Histogram</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/histogram_rel_freq.html">
+  <span></span>
+  <span>Relative Frequency Histogram</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_density.html">
+  <span></span>
+  <span>Density Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_density_stacked.html">
+  <span></span>
+  <span>Stacked Density Estimates</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_binned.html">
+  <span></span>
+  <span>2D Histogram Scatterplot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/rect_binned_heatmap.html">
+  <span></span>
+  <span>2D Histogram Heatmap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_cumulative_freq.html">
+  <span></span>
+  <span>Cumulative Frequency Distribution</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_cumulative_histogram.html">
+  <span></span>
+  <span>Layered Histogram and Cumulative Histogram</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_wilkinson_dotplot.html">
+  <span></span>
+  <span>Wilkinson Dot Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/isotype_bar_chart.html">
+  <span></span>
+  <span>Isotype Dot Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/isotype_bar_chart_emoji.html">
+  <span></span>
+  <span>Isotype Dot Plot with Emoji</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_percent_of_total.html">
+  <span></span>
+  <span>Relative Bar Chart (Calculate Percentage of Total)</span>
+</a>
+</span></p>
+
+<h3 id="scatter--strip-plots">Scatter &amp; Strip Plots</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/point_2d.html">
+  <span></span>
+  <span>Scatterplot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/tick_dot.html">
+  <span></span>
+  <span>1D Strip Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/tick_strip.html">
+  <span></span>
+  <span>Strip Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_color_with_shape.html">
+  <span></span>
+  <span>Colored Scatterplot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_binned.html">
+  <span></span>
+  <span>2D Histogram Scatterplot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_bubble.html">
+  <span></span>
+  <span>Bubble Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_invalid_color.html">
+  <span></span>
+  <span>Scatterplot with Null Values in Grey</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle.html">
+  <span></span>
+  <span>Scatterplot with Filled Circles</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_bubble_health_income.html">
+  <span></span>
+  <span>Bubble Plot (Gapminder)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_natural_disasters.html">
+  <span></span>
+  <span>Bubble Plot (Natural Disasters)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/text_scatterplot_colored.html">
+  <span></span>
+  <span>Scatter Plot with Text Marks</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/scatter_image.html">
+  <span></span>
+  <span>Image-based Scatter Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_custom_tick_labels.html">
+  <span></span>
+  <span>Strip plot with custom axis tick labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_offset_random.html">
+  <span></span>
+  <span>Dot Plot with Jittering</span>
+</a>
+</span></p>
+
+<h3 id="line-charts">Line Charts</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/line.html">
+  <span></span>
+  <span>Line Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_overlay.html">
+  <span></span>
+  <span>Line Chart with Point Markers</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_overlay_stroked.html">
+  <span></span>
+  <span>Line Chart with Stroked Point Markers</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_color.html">
+  <span></span>
+  <span>Multi Series Line Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/repeat_layer.html">
+  <span></span>
+  <span>Multi Series Line Chart with Repeat Operator</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_color_halo.html">
+  <span></span>
+  <span>Multi Series Line Chart with Halo Stroke</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_slope.html">
+  <span></span>
+  <span>Slope Graph</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_step.html">
+  <span></span>
+  <span>Step Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_monotone.html">
+  <span></span>
+  <span>Line Chart with Monotone Interpolation</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_conditional_axis.html">
+  <span></span>
+  <span>Line Chart with Conditional Axis Properties</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/connected_scatterplot.html">
+  <span></span>
+  <span>Connected Scatterplot (Lines with Custom Paths)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_bump.html">
+  <span></span>
+  <span>Bump Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trail_color.html">
+  <span></span>
+  <span>Line Chart with Varying Size (using the trail mark)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trail_comet.html">
+  <span></span>
+  <span>A comet chart showing changes between between two states</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_skip_invalid_mid_overlay.html">
+  <span></span>
+  <span>Line Chart with Markers and Invalid Values</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_co2_concentration.html">
+  <span></span>
+  <span>Carbon Dioxide in the Atmosphere</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/window_rank.html">
+  <span></span>
+  <span>Line Charts Showing Ranks Over Time</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/sequence_line_fold.html">
+  <span></span>
+  <span>Drawing Sine and Cosine Curves with the Sequence Generator</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_strokedash.html">
+  <span></span>
+  <span>Line chart with varying stroke dash</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/line_dashed_part.html">
+  <span></span>
+  <span>Line chart with a dashed part</span>
+</a>
+</span></p>
+
+<h3 id="area-charts--streamgraphs">Area Charts &amp; Streamgraphs</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/area.html">
+  <span></span>
+  <span>Area Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_gradient.html">
+  <span></span>
+  <span>Area Chart with Gradient</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_overlay.html">
+  <span></span>
+  <span>Area Chart with Overlaying Lines and Point Markers</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_area.html">
+  <span></span>
+  <span>Stacked Area Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_area_normalize.html">
+  <span></span>
+  <span>Normalized Stacked Area Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/stacked_area_stream.html">
+  <span></span>
+  <span>Streamgraph</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_horizon.html">
+  <span></span>
+  <span>Horizon Graph</span>
+</a>
+</span></p>
+
+<h3 id="table-based-plots">Table-based Plots</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/rect_heatmap.html">
+  <span></span>
+  <span>Table Heatmap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/rect_heatmap_weather.html">
+  <span></span>
+  <span>Annual Weather Heatmap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/rect_binned_heatmap.html">
+  <span></span>
+  <span>2D Histogram Heatmap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/circle_github_punchcard.html">
+  <span></span>
+  <span>Table Bubble Plot (Github Punch Card)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_text_heatmap.html">
+  <span></span>
+  <span>Heatmap with Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/rect_lasagna.html">
+  <span></span>
+  <span>Lasagna Plot (Dense Time-Series Heatmap)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/rect_mosaic_labelled_with_offset.html">
+  <span></span>
+  <span>Mosaic Chart with Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_angle_windvector.html">
+  <span></span>
+  <span>Wind Vector Map</span>
+</a>
+</span></p>
+
+<h3 id="circular-plots">Circular Plots</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/arc_pie.html">
+  <span></span>
+  <span>Pie Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/arc_pie_normalize_tooltip.html">
+  <span></span>
+  <span>Pie Chart with percentage_tooltip</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/arc_donut.html">
+  <span></span>
+  <span>Donut Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_arc_label.html">
+  <span></span>
+  <span>Pie Chart with Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/arc_radial.html">
+  <span></span>
+  <span>Radial Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/arc_pie_pyramid.html">
+  <span></span>
+  <span>Pyramid Pie Chart</span>
+</a>
+</span></p>
+
+<h3 id="advanced-calculations">Advanced Calculations</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/bar_percent_of_total.html">
+  <span></span>
+  <span>Relative Bar Chart (Calculate Percentage of Total)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/joinaggregate_mean_difference.html">
+  <span></span>
+  <span>Calculate Difference from Average</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/joinaggregate_mean_difference_by_year.html">
+  <span></span>
+  <span>Calculate Difference from Annual Average</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/joinaggregate_residual_graph.html">
+  <span></span>
+  <span>Calculate Residuals</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/window_rank.html">
+  <span></span>
+  <span>Line Charts Showing Ranks Over Time</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/waterfall_chart.html">
+  <span></span>
+  <span>Waterfall Chart of Monthly Profit and Loss</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/window_top_k.html">
+  <span></span>
+  <span>Filtering Top-K Items</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/window_top_k_others.html">
+  <span></span>
+  <span>Top-K Plot with “Others”</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/lookup.html">
+  <span></span>
+  <span>Using the lookup transform to combine data</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_cumulative_freq.html">
+  <span></span>
+  <span>Cumulative Frequency Distribution</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_cumulative_histogram.html">
+  <span></span>
+  <span>Layered Histogram and Cumulative Histogram</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/parallel_coordinate.html">
+  <span></span>
+  <span>Parallel Coordinate Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_argmax.html">
+  <span></span>
+  <span>Bar Chart Showing Argmax Value</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_mean_point_raw.html">
+  <span></span>
+  <span>Layering Averages over Raw Values</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_rolling_mean_point_raw.html">
+  <span></span>
+  <span>Layering Rolling Averages over Raw Values</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_window.html">
+  <span></span>
+  <span>Line Chart to Show Benchmarking Results</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_quantile_quantile.html">
+  <span></span>
+  <span>Quantile-Quantile Plot (QQ Plot)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_point_line_regression.html">
+  <span></span>
+  <span>Linear Regression</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_point_line_loess.html">
+  <span></span>
+  <span>Loess Regression</span>
+</a>
+</span></p>
+
+<h2 id="composite-marks">Composite Marks</h2>
+
+<h3 id="error-bars--error-bands">Error Bars &amp; Error Bands</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/layer_point_errorbar_ci.html">
+  <span></span>
+  <span>Error Bars Showing Confidence Interval</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_point_errorbar_stdev.html">
+  <span></span>
+  <span>Error Bars Showing Standard Deviation</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_errorband_ci.html">
+  <span></span>
+  <span>Line Chart with Confidence Interval Band</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_scatter_errorband_1D_stdev_global_mean.html">
+  <span></span>
+  <span>Scatterplot with Mean and Standard Deviation Overlay</span>
+</a>
+</span></p>
+
+<h3 id="box-plots">Box Plots</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/boxplot_minmax_2D_vertical.html">
+  <span></span>
+  <span>Box Plot with Min/Max Whiskers</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/boxplot_2D_vertical.html">
+  <span></span>
+  <span>Tukey Box Plot (1.5 IQR)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/boxplot_preaggregated.html">
+  <span></span>
+  <span>Box Plot with Pre-Calculated Summaries</span>
+</a>
+</span></p>
+
+<h2 id="layered-plots">Layered Plots</h2>
+
+<h3 id="labeling--annotation">Labeling &amp; Annotation</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/layer_bar_labels.html">
+  <span></span>
+  <span>Simple Bar Chart with Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_bar_fruit.html">
+  <span></span>
+  <span>Simple Bar Chart with Labels and Emojis</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_text_heatmap.html">
+  <span></span>
+  <span>Layering text over heatmap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_co2_concentration.html">
+  <span></span>
+  <span>Carbon Dioxide in the Atmosphere</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_bar_annotations.html">
+  <span></span>
+  <span>Bar Chart Highlighting Values beyond a Threshold</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_precipitation_mean.html">
+  <span></span>
+  <span>Mean overlay over precipitation chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_histogram_global_mean.html">
+  <span></span>
+  <span>Histogram with a Global Mean Overlay</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_falkensee.html">
+  <span></span>
+  <span>Line Chart with Highlighted Rectangles</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_mean_point_raw.html">
+  <span></span>
+  <span>Layering Averages over Raw Values</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_line_rolling_mean_point_raw.html">
+  <span></span>
+  <span>Layering Rolling Averages over Raw Values</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_likert.html">
+  <span></span>
+  <span>Distributions and Medians of Likert Scale Ratings</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/concat_layer_voyager_result.html">
+  <span></span>
+  <span>Comparative Likert Scale Ratings</span>
+</a>
+</span></p>
+
+<h3 id="other-layered-plots">Other Layered Plots</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/layer_candlestick.html">
+  <span></span>
+  <span>Candlestick Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_ranged_dot.html">
+  <span></span>
+  <span>Ranged Dot Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/facet_bullet.html">
+  <span></span>
+  <span>Bullet Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/layer_dual_axis.html">
+  <span></span>
+  <span>Layered Plot with Dual-Axis</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_horizon.html">
+  <span></span>
+  <span>Horizon Graph</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_layered_weather.html">
+  <span></span>
+  <span>Weekly Weather Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/wheat_wages.html">
+  <span></span>
+  <span>Wheat and Wages Example</span>
+</a>
+</span></p>
+
+<h2 id="multi-view-displays">Multi-View Displays</h2>
+
+<h3 id="faceting-trellis-plot--small-multiples">Faceting (Trellis Plot / Small Multiples)</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/trellis_bar.html">
+  <span></span>
+  <span>Trellis Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_stacked_bar.html">
+  <span></span>
+  <span>Trellis Stacked Bar Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_scatter.html">
+  <span></span>
+  <span>Trellis Scatter Plot (wrapped)</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_bar_histogram.html">
+  <span></span>
+  <span>Trellis Histograms</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_anscombe.html">
+  <span></span>
+  <span>Trellis Scatter Plot Showing Anscombe’s Quartet</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_barley.html">
+  <span></span>
+  <span>Becker’s Barley Trellis Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_area.html">
+  <span></span>
+  <span>Trellis Area</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/trellis_area_seattle.html">
+  <span></span>
+  <span>Trellis Area Plot Showing Annual Temperatures in Seattle</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/area_density_facet.html">
+  <span></span>
+  <span>Faceted Density Plot</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/facet_grid_bar.html">
+  <span></span>
+  <span>Compact Trellis Grid of Bar Charts</span>
+</a>
+</span></p>
+
+<h3 id="repeat--concatenation">Repeat &amp; Concatenation</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/repeat_layer.html">
+  <span></span>
+  <span>Repeat and Layer to Show Different Movie Measures</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/vconcat_weather.html">
+  <span></span>
+  <span>Vertical Concatenation</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/repeat_histogram.html">
+  <span></span>
+  <span>Horizontally Repeated Charts</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_splom.html">
+  <span></span>
+  <span>Interactive Scatterplot Matrix</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/concat_marginal_histograms.html">
+  <span></span>
+  <span>Marginal Histograms</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/concat_bar_scales_discretize.html">
+  <span></span>
+  <span>Discretizing scales</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/nested_concat_align.html">
+  <span></span>
+  <span>Nested View Concatenation Aligned with Axis <code>minExtent</code></span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/concat_population_pyramid.html">
+  <span></span>
+  <span>Population Pyramid</span>
+</a>
+</span></p>
+
+<h2 id="maps-geographic-displays">Maps (Geographic Displays)</h2>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/geo_choropleth.html">
+  <span></span>
+  <span>Choropleth of Unemployment Rate per County</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_circle.html">
+  <span></span>
+  <span>One Dot per Zipcode in the U.S.</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_layer.html">
+  <span></span>
+  <span>One Dot per Airport in the U.S. Overlayed on Geoshape</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_rule.html">
+  <span></span>
+  <span>Rules (line segments) Connecting SEA to every Airport Reachable via Direct Flights</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_repeat.html">
+  <span></span>
+  <span>Three Choropleths Representing Disjoint Data from the Same Table</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_text.html">
+  <span></span>
+  <span>U.S. State Capitals Overlayed on a Map of U.S.</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_line.html">
+  <span></span>
+  <span>Line between Airports in the U.S.</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_trellis.html">
+  <span></span>
+  <span>Income in the U.S. by State, Faceted over Income Brackets</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_layer_line_london.html">
+  <span></span>
+  <span>London Tube Lines</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/geo_params_projections.html">
+  <span></span>
+  <span>Projection explorer</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_geo_earthquakes.html">
+  <span></span>
+  <span>Earthquakes Example</span>
+</a>
+</span></p>
+
+<h2 id="interactive">Interactive</h2>
+
+<h3 id="interactive-charts">Interactive Charts</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/interactive_bar_select_highlight.html">
+  <span></span>
+  <span>Bar Chart with Highlighting on Hover and Selection on Click</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_histogram_full_height_hover.html">
+  <span></span>
+  <span>Histogram with Full-Height Hover Targets for Tooltip</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_legend.html">
+  <span></span>
+  <span>Interactive Legend</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/point_href.html">
+  <span></span>
+  <span>Scatterplot with External Links and Tooltips</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_brush.html">
+  <span></span>
+  <span>Rectangular Brush</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_area_brush.html">
+  <span></span>
+  <span>Area Chart with Rectangular Brush</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_paintbrush.html">
+  <span></span>
+  <span>Paintbrush Highlight</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/selection_translate_scatterplot_drag.html">
+  <span></span>
+  <span>Scatterplot Pan &amp; Zoom</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_query_widgets.html">
+  <span></span>
+  <span>Query Widgets</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/selection_layer_bar_month.html">
+  <span></span>
+  <span>Interactive Average</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_line_hover.html">
+  <span></span>
+  <span>Multi Series Line Chart with an Interactive Line Highlight</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_line_point_hover.html">
+  <span></span>
+  <span>Multi Series Line Chart with an Interactive Point Highlight</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_multi_line_label.html">
+  <span></span>
+  <span>Multi Series Line Chart with Labels</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_multi_line_pivot_tooltip.html">
+  <span></span>
+  <span>Multi Series Line Chart with Tooltip</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_multi_line_tooltip.html">
+  <span></span>
+  <span>Multi Series Line Chart with Tooltip</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/isotype_grid.html">
+  <span></span>
+  <span>Isotype Grid</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/brush_table.html">
+  <span></span>
+  <span>Brushing Scatter Plot to show data on a table</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/selection_heatmap.html">
+  <span></span>
+  <span>Selectable Heatmap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/bar_count_minimap.html">
+  <span></span>
+  <span>Bar Chart with a Minimap</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_index_chart.html">
+  <span></span>
+  <span>Interactive Index Chart</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_bin_extent.html">
+  <span></span>
+  <span>Focus + Context - Smooth Histogram Zooming</span>
+</a>
+</span></p>
+
+<h3 id="interactive-multi-view-displays">Interactive Multi-View Displays</h3>
+
+<p><span><a href="https://vega.github.io/vega-lite/examples/interactive_overview_detail.html">
+  <span></span>
+  <span>Overview and Detail</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_layered_crossfilter.html">
+  <span></span>
+  <span>Crossfilter</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_splom.html">
+  <span></span>
+  <span>Interactive Scatterplot Matrix</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_concat_layer.html">
+  <span></span>
+  <span>Interactive Dashboard with Cross Highlight</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_seattle_weather.html">
+  <span></span>
+  <span>Seattle Weather Exploration</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/airport_connections.html">
+  <span></span>
+  <span>Connections among Major U.S. Airports.</span>
+</a>
+<a href="https://vega.github.io/vega-lite/examples/interactive_global_development.html">
+  <span></span>
+  <span>An interactive scatter plot of global health statistics by country and year.</span>
+</a>
+</span></p>
+
+<h2 id="community-examples">Community Examples</h2>
+
+<p>Here we list great examples of Vega-Lite visualizations that were created by the community. Please help us expand this gallery by <a href="https://bl.ocks.org/domoritz/455e1c7872c4b38a58b90df0c3d7b1b9">forking our example block</a> and sending us a <a href="https://github.com/vega/vega-lite/edit/master/site/examples/index.md">pull request</a> with your example added to this list.</p>
+
+<ul>
+  <li>Many visualizations in the book <a href="https://makingdatavisual.github.io/figurelist.html">Making Data Visual</a> by Danyel Fisher and Miriah Meyer are made with Vega-Lite</li>
+  <li>
+<a href="https://bl.ocks.org/domoritz/f5abc519dd990bfcbc3f20f634658364">Grouped Bar Chart</a> by <a href="https://github.com/churtado">@churtado</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/digi0ps/3691287ab4033509e988d67c932fca47">Bar Chart with Negative Values</a> by <a href="https://github.com/digi0ps">@digi0ps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/amitkaps/fe4238e716db53930b2f1a70d3401701">Multi Line Highlight</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/g3o2/a6c539eacfb0b99eaf01e4f20b9f2897">Slope graph</a> by <a href="https://github.com/g3o2">@g3o2</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/amitkaps/abfa7157d4366cc43cbbba55353d35d8">Scatter Nearest Rule</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/amitkaps/a484b94a7e1e0705c5ec865ba31f463c">Scatter Brush Rule</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/amitkaps/d6648bd8ddb1c1e3706d7530126d1e2b">Unit Chart Rectangular</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/amitkaps/cdc7dacd8f7d9f2a9cff4b10d3279b86">Unit Chart Stacked</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/amitkaps/67bd6dcb2af300a2b76f1e2351c1afdc">Unit Chart Small Multiple</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/g3o2/bd4362574137061c243a2994ba648fb8">Dot-dash plot</a> by <a href="https://github.com/g3o2">@g3o2</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/domoritz/bef687de0e2dba1f522f674c260ac17f">Cumulative Wikipedia Donations</a> by <a href="https://github.com/domoritz">@domoritz</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/domoritz/4e3289f9266fb3ef7e9baa201060361b">CO2 Concentration in the Atmosphere</a> by <a href="https://github.com/domoritz">@domoritz</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/pratapvardhan/00800a4981d43a84efdba0c4cf8ee2e1">Horizontal Stacked Bar Chart with Labels</a> by <a href="https://github.com/pratapvardhan">@pratapvardhan</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/jakevdp/1643ebb6853e76c32e47a969f415f3ea">Interactive stacked time-series</a> by <a href="https://github.com/jakevdp">@jakevdp</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/jakevdp/b511d09ed4e2797234bd6236d7b428f7">Bicycle Count Time-series with Dynamic Scale</a> by <a href="https://github.com/jakevdp">@jakevdp</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/domoritz/81008b55ae2e2649eb42f600440f87d2">Vega-Lite downloads</a> by <a href="https://github.com/domoritz">@domoritz</a>
+</li>
+  <li>
+<a href="https://bl.ocks.org/italo-batista/5f93b3c9f87dffcf01bb489d90f60652/ef01271c72c57dc940bb357019be1c6cdf9eb51a">Waterfall Chart</a> by <a href="https://github.com/italo-batista">@italo-batista</a>
+</li>
+  <li>
+<a href="https://medium.com/enigma-engineering/exploring-new-york-city-event-permits-with-vega-lite-f83178ff9a8d">Bar, Small Multiple, Heatmap, Gantt Charts: Exploring NYC Event Permits</a> by <a href="https://twitter.com/hydrosquall">@hydrosquall</a>
+</li>
+  <li>
+<a href="https://beta.observablehq.com/@amitkaps/image-pixel-render-with-vega-lite">Image Pixel Render</a> by <a href="https://github.com/amitkaps">@amitkaps</a>
+</li>
+  <li>
+<a href="https://beta.observablehq.com/@manzt/top-k-plot-with-others-vega-lite-example">Top-K Plot with Others</a> by <a href="https://github.com/manzt">@manzt</a>
+</li>
+  <li>
+<a href="https://www.trafforddatalab.io/interactive_graphics_companion/">Trafford Data Lab’s Vega-Lite graphics companion</a> by <a href="https://github.com/trafforddatalab">@trafforddatalab</a>
+</li>
+  <li>
+<a href="https://observablehq.com/@alhenry/international-flight-map">International Flight Map</a> by <a href="https://twitter.com/maha_albert">@alhenry</a>
+</li>
+  <li>
+<a href="https://github.com/aezarebski/vegacookbook">BBC Visual and Data Journalism cookbook port to Vega-Lite</a> by <a href="https://github.com/aezarebski">@aezarebski</a>
+</li>
+  <li>
+<a href="https://observablehq.com/@jlmborges/vega-lite-car_sales">Car Registrations in Portugal - 3 plots with cross-filtering</a> by <a href="https://observablehq.com/@jlmborges">@jlborges</a>
+</li>
+  <li>
+<a href="https://observablehq.com/@jlmborges/rank-plot_vega-lite">An interactive Rank-Plot</a> by <a href="https://observablehq.com/@jlmborges">@jlborges</a>
+</li>
+  <li>
+<a href="https://paginas.fe.up.pt/~jlborges/vis/cars_dashboard/db.html">An interactive Dashboard</a> by <a href="https://observablehq.com/@jlmborges">@jlborges</a>
+</li>
+</ul>
+
+</div></div>

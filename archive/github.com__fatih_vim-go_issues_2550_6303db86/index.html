@@ -1,0 +1,261 @@
+---
+url: https://github.com/fatih/vim-go/issues/2550#issuecomment-815576448
+title: 'Reinitialize gopls · Issue #2550 · fatih/vim-go'
+archived_at: 2022-10-26T18:30:43.79205+08:00
+---
+<div id="readability-page-1" class="page"><div data-hpc="">
+      <div data-gid="MDU6SXNzdWU1MTE1NzYxODU=" data-url="/fatih/vim-go/issues/2550/partials/body?issue=2550" data-channel="eyJjIjoiaXNzdWU6NTExNTc2MTg1IiwidCI6MTY2Njc4MDI0M30=--4da80ae9b27815fb08dc99822beb67008baa60b903ce14550604754520799655">
+
+  <p><a data-hovercard-type="user" data-hovercard-url="/users/mnarrell/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/mnarrell"><img src="https://avatars.githubusercontent.com/u/189127?s=80&amp;v=4" width="40" height="40" alt="@mnarrell"/></a>
+
+</p>
+
+  <div data-body-version="3e8cd2b26229e61a442d1a956b849047ae5a2d3e834b30cdde5fa073d56d97e3" id="issue-511576185">
+
+        <task-lists disabled="" sortable="">
+<div>
+          <p dir="auto">I apologize for opening an issue for this, but I was unsure how to ask a question.</p>
+<p dir="auto">Is there a method for restarting or reinitializing gopls?  Often I get into a state where goals is unhappy, either from switching complex branches, or some error in another package.  I can resolve this by simply restarting vim, but I&#39;d prefer a different approach.</p>
+<p dir="auto">If there is a better way to ask questions to this community, please let me know.</p>
+      </div>
+</task-lists>
+
+
+              </div>
+
+</div>
+
+
+      <div>
+    
+
+
+      <div data-gid="MDEyOklzc3VlQ29tbWVudDU0NTkyMzUwNQ==" data-url="/fatih/vim-go/comments/MDEyOklzc3VlQ29tbWVudDU0NTkyMzUwNQ==/partials/timeline_issue_comment">
+
+  <p><a data-hovercard-type="user" data-hovercard-url="/users/bhcleek/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/bhcleek"><img src="https://avatars.githubusercontent.com/u/1958864?s=80&amp;v=4" width="40" height="40" alt="@bhcleek"/></a>
+
+</p>
+
+
+  <div data-body-version="a7c707c7fbfa974e3edd1c6ac5ef9cf3b672bb207279429c08aa7b3a29a800b5" id="issuecomment-545923505">
+      <div>
+  <p>
+
+    <details>
+        <summary data-view-component="true">    <span>
+      <span><svg aria-label="Show options" role="img" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true">
+    <path d="M8 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM1.5 9a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm13 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+</svg></span>
+    </span>
+</summary>  
+
+      <details-menu src="" preload="">
+          <clipboard-copy aria-label="Copy link" for="issuecomment-545923505-permalink" role="menuitem" data-view-component="true">
+    
+            Copy link
+
+</clipboard-copy>      </details-menu>
+    </details>
+  </p>
+
+  <p><span aria-label="This user has been invited to collaborate on the vim-go repository." data-view-component="true">
+    Collaborator
+</span>
+
+    
+
+  </p>
+
+  <h3>
+
+
+    
+
+    <strong>
+        <a show_full_name="false" data-hovercard-type="user" data-hovercard-url="/users/bhcleek/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/bhcleek">bhcleek</a>
+  
+
+    </strong>
+
+    
+
+    commented
+
+
+      <a href="#issuecomment-545923505" id="issuecomment-545923505-permalink"><relative-time datetime="2019-10-24T13:41:20Z">Oct 24, 2019</relative-time></a>
+
+    
+  </h3>
+</div>
+
+
+      <div>
+
+        <task-lists disabled="" sortable="">
+<div>
+          <p dir="auto">Thanks for asking the question, <a data-hovercard-type="user" data-hovercard-url="/users/mnarrell/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/mnarrell">@mnarrell</a>. Switching branches without restarting Vim will put you in a bad state with <code>gopls</code> right now, but that won&#39;t always be true. I definitely recommend exiting Vim before switching branches. However, if you have problems with <code>gopls</code> because of some error in a package, please create issue in <a href="https://github.com/golang/go/issues">https://github.com/golang/go/issues</a> so the maintainers can address the root cause.</p>
+<p dir="auto">There is not a command to explicitly restart <code>gopls</code>, but you do have options (ordered from most to least preferred):</p>
+<ul dir="auto">
+<li>execute <code>GoBuildTags</code> with any argument (e.g. <code>:GoBuildTags &#39;&#39;</code> to reset build tags or with a comma separated list of the build tags you want to use) to cause <code>gopls</code> to be reconfigured. I suspect this may be enough to fix the issues you&#39;re seeing.</li>
+<li>execute <code>GoUpdateBinaries gopls</code> to reinstall <code>gopls</code>; that will cause <code>gopls</code> to be restarted by vim-go.</li>
+<li>execute <code>call go#lsp#Restart()</code>.</li>
+<li>execute <code>call go#lsp#Exit()</code> this isn&#39;t much better than just killing <code>gopls</code>.</li>
+</ul>
+<p dir="auto">Honestly, those last two functions may change in the future and aren&#39;t currently intended for users to call explicitly.</p>
+      </div>
+</task-lists>
+
+
+        <div data-view-component="true">
+  <form data-turbo="false" action="/fatih/vim-go/reactions" accept-charset="UTF-8" method="post">
+    
+    <div>
+          <tool-tip for="reactions--reaction_button_component-75ce1f" data-direction="n" data-type="description" data-view-component="true">beastoin, hodbn, 8tomat8, Mentioum, cristoper, JohnStarich, wangtiga, LumaKernel, fewstera, cposture, and 3 more reacted with thumbs up emoji</tool-tip>
+          </div>
+</form>
+</div>      </div>
+
+          </div>
+
+</div>
+
+
+      <div data-gid="MDEyOklzc3VlQ29tbWVudDU0NTk0NTEzMw==" data-url="/fatih/vim-go/comments/MDEyOklzc3VlQ29tbWVudDU0NTk0NTEzMw==/partials/timeline_issue_comment">
+
+  <p><a data-hovercard-type="user" data-hovercard-url="/users/mnarrell/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/mnarrell"><img src="https://avatars.githubusercontent.com/u/189127?s=80&amp;v=4" width="40" height="40" alt="@mnarrell"/></a>
+
+</p>
+
+
+  <div data-body-version="5c746f7322b07a74293c4b9c43117a6a7fb4d63de8f7c52360ae2478c7c83132" id="issuecomment-545945133">
+
+        <task-lists disabled="" sortable="">
+<div>
+          <p>Thanks Billie, you’re doing great work.</p>
+<span><a href="#">…</a></span><div>
+<p>On Thu, Oct 24, 2019 at 7:41 AM Billie Cleek ***@***.***&gt; wrote:
+ Thanks for asking the question, <a href="https://github.com/mnarrell">@mnarrell</a> &lt;<a href="https://github.com/mnarrell">https://github.com/mnarrell</a>&gt;.
+ Switching branches without restarting Vim will put you in a bad state with
+ gopls right now, but that won&#39;t always be true. I definitely recommend
+ exiting Vim before switching branches. However, if you have problems with
+ gopls because of some error in a package, please create issue in
+ <a href="https://github.com/golang/go/issues">https://github.com/golang/go/issues</a> so the maintainers can address the
+ root cause.
+
+ There is not a command to explicitly restart gopls, but you do have
+ options (ordered from most to least preferred):
+
+    - execute GoBuildTags with any argument (e.g. :GoBuildTags &#39;&#39; to reset
+    build tags or with a comma separated list of the build tags you want to
+    use) to cause gopls to be reconfigured. I suspect this may be enough
+    to fix the issues you&#39;re seeing.
+    - execute GoUpdateBinaries gopls to reinstall gopls; that will cause
+    gopls to be restarted by vim-go.
+    - execute call go#lsp#Restart().
+    - execute call go#lsp#Exit() this isn&#39;t much better than just killing
+    gopls.
+
+ Honestly, those last two functions may change in the future and aren&#39;t
+ currently intended for users to call explicitly.
+
+ —
+ You are receiving this because you were mentioned.
+ Reply to this email directly, view it on GitHub
+ &lt;<a data-error-text="Failed to load title" data-id="511576185" data-permission-text="Title is private" data-url="https://github.com/fatih/vim-go/issues/2550" href="https://github.com/fatih/vim-go/issues/2550">#2550</a>?email_source=notifications&amp;email_token=AABOFR5PEP5SXXFDLUN5JELQQGQYDA5CNFSM4JEKNPNKYY3PNVWWK3TUL52HS4DFVREXG43VMVBW63LNMVXHJKTDN5WW2ZLOORPWSZGOECFCDMI#issuecomment-545923505&gt;,
+ or unsubscribe
+ &lt;<a href="https://github.com/notifications/unsubscribe-auth/AABOFR2TKP2HWVXFHNMC2WDQQGQYDANCNFSM4JEKNPNA">https://github.com/notifications/unsubscribe-auth/AABOFR2TKP2HWVXFHNMC2WDQQGQYDANCNFSM4JEKNPNA</a>&gt;
+ .
+</p>
+
+</div>
+      </div>
+</task-lists>
+
+
+              </div>
+
+</div>
+
+
+      
+
+      <div data-gid="MDEyOklzc3VlQ29tbWVudDU5NTE1Njg1OA==" data-url="/fatih/vim-go/comments/MDEyOklzc3VlQ29tbWVudDU5NTE1Njg1OA==/partials/timeline_issue_comment">
+
+  <p><a data-hovercard-type="user" data-hovercard-url="/users/beastoin/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/beastoin"><img src="https://avatars.githubusercontent.com/u/4256921?s=80&amp;u=58c0fa484efab3f8faaf9f8ecc205758ab3e0b5b&amp;v=4" width="40" height="40" alt="@beastoin"/></a>
+
+</p>
+
+
+  <div data-body-version="8c0f3f379bfefb7f162811929161490b800f592066d736321f822235911fb339" id="issuecomment-595156858">
+
+        <task-lists disabled="" sortable="">
+<div>
+          <p dir="auto">Thanks <a data-hovercard-type="user" data-hovercard-url="/users/bhcleek/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/bhcleek">@bhcleek</a> , just using map to call <code>call go#lsp#Exit()</code> manually when needed</p>
+      </div>
+</task-lists>
+
+
+              </div>
+
+</div>
+
+
+      <div data-gid="MDEyOklzc3VlQ29tbWVudDgxNTU3NjQ0OA==" data-url="/fatih/vim-go/comments/MDEyOklzc3VlQ29tbWVudDgxNTU3NjQ0OA==/partials/timeline_issue_comment">
+
+  <p><a data-hovercard-type="user" data-hovercard-url="/users/wangtiga/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/wangtiga"><img src="https://avatars.githubusercontent.com/u/39767032?s=80&amp;v=4" width="40" height="40" alt="@wangtiga"/></a>
+
+</p>
+
+
+  <div data-body-version="5b3a6a6cb8beb970c1f1024130d71ad8f81848389894a8b333e2a745106ca7b8" id="issuecomment-815576448">
+
+        <task-lists disabled="" sortable="">
+<div>
+          <div dir="auto" data-snippet-clipboard-copy-content="&#34; vim-go: no identifier found
+&#34; vim-go: no object found for ident AddAllMemberId: no object found
+
+:GoBuildTags &#39;&#39;"><pre><span><span>&#34;</span> vim-go: no identifier found</span>
+<span><span>&#34;</span></span> vim-go: no object found <span>for</span> ident AddAllMemberId: no object found
+
+:GoBuildTags <span><span>&#39;</span><span>&#39;</span></span></pre></div>
+<p dir="auto">This resolved my problem. Thank you so much.</p>
+      </div>
+</task-lists>
+
+
+              </div>
+
+</div>
+
+
+      <div data-gid="IC_kwDOAROeYM49CX3l" data-url="/fatih/vim-go/comments/IC_kwDOAROeYM49CX3l/partials/timeline_issue_comment">
+
+  <p><a data-hovercard-type="user" data-hovercard-url="/users/jinleileiking/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/jinleileiking"><img src="https://avatars.githubusercontent.com/u/93968?s=80&amp;v=4" width="40" height="40" alt="@jinleileiking"/></a>
+
+</p>
+
+
+  <div data-body-version="3db3786672ab3dff477e3b0cb3247877bcc326bc9949806424dbeb9662296953" id="issuecomment-1024032229">
+
+        <task-lists disabled="" sortable="">
+<div>
+          <p dir="auto">This should be in <code>:help vim-go</code></p>
+      </div>
+</task-lists>
+
+
+              </div>
+
+</div>
+
+
+
+
+
+
+  
+  
+</div>
+
+
+  </div></div>

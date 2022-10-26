@@ -1,0 +1,112 @@
+---
+url: https://everydayanalytics.ca/2014/08/stacked-area-graphs-are-not-your-friend.html
+title: Stacked Area Graphs Are Not Your Friend
+archived_at: 2022-10-26T18:29:55.883388+08:00
+---
+<div id="readability-page-1" class="page"><div id="content">
+	<main id="main" role="main">
+		
+<article id="post-28">
+	
+
+	
+	
+	<div>
+		<p>Stacked area graphs are not your friend. Seriously. I want to make this abundantly clear.</p>
+<p>I’m going to expound on some of the work of Stephen Few here and lay out what stacked area graphs are, why they are a poor type of data visualization, and what are some good alternatives.</p>
+<h4>What is a stacked area graph?</h4>
+<p>A stacked area graph depicts a quantitative variable against another quantitative variable (usually time as the independent variable, <i>i.e. </i>on the<i> </i>x-axis), broken up across more than one categorical variables (or into different “data series” in MS Excel’s parlance) which make up the whole. The different shaded areas are stacked on top of one another, so that the height of each shaded area represents the value for each particular categorical variable, and the total height is their sum.</p>
+
+<p>For example, you can depict a quantity of interest, Y, across four groups, creatively entitled A, B, C, and D, with the combined height being the total:</p>
+
+<table>
+<tbody>
+<tr>
+<td><a href="http://4.bp.blogspot.com/-xSshftxR5Tc/U-YiI7X8uQI/AAAAAAAABzA/srl4lz3Bu_E/s1600/stacked+area.png" data-slb-active="1" data-slb-asset="344938575" data-slb-group="28"><img src="https://4.bp.blogspot.com/-xSshftxR5Tc/U-YiI7X8uQI/AAAAAAAABzA/srl4lz3Bu_E/s1600/stacked+area.png" height="464" width="640"/></a></td>
+</tr>
+<tr>
+<td>Pretty, no?</td>
+</tr>
+</tbody>
+</table>
+<p>So what’s wrong with that? A good looking graph right? Shows all the relevant quantities as well as their total in the same figure. Maybe. Let’s look in detail at some of the problems with interpreting this type of graph.</p>
+
+<h4>Shortcomings of Stacked Area Graphs</h4>
+<p>The problem with stacked area graphs is that of baselining. When we compare multiple lines in a line graph which are comparing from the same baseline which is the value of the y-axis where it intersects the x.</p>
+
+<p>With a stacked area graph, it is easy to accurately interpret both the relative values (as graphs are not meant to read off exact values – that is a job for tables) as well as the overall trending of the total across all four groups.</p>
+
+<p>It is also easy to interpret this for the data which happens to be at the bottom of the “stack” as it has the x-axis as its base (in this case, the value for Group A).</p>
+
+
+<div><p>The problem arises for the stacked areas. Their baselines are the curve of the top of the areas below. Ideally one should be able to interpret each individual series by its height, but unfortunately this is not usually the case – most interpret the curve of the top of the area as indicating quantity (as one would in a line graph). Because these lines follow the baseline of those below, they make it appear that those above have the same characteristics as below.</p>
+<p>For instance, in the example graph I produced above, it can be easy to think there are very well-defined peaks in all the series around Jan 9 and Jan 22. This is because of the effect just mentioned. Look at the same graph if I selectively shuffle the order of the stacking of the areas:</p>
+<p><a href="http://2.bp.blogspot.com/-xSshftxR5Tc/U-YiI7X8uQI/AAAAAAAABzE/HpvETRvXTAs/s1600/stacked%2Barea.png" data-slb-active="1" data-slb-asset="1816704281" data-slb-group="28"><img src="https://2.bp.blogspot.com/-xSshftxR5Tc/U-YiI7X8uQI/AAAAAAAABzE/HpvETRvXTAs/s1600/stacked%2Barea.png" width="40%"/></a><a href="http://3.bp.blogspot.com/-0OTRww9g6P0/U-Y4OFhSqdI/AAAAAAAABzc/4j-m7le8Q1U/s1600/stacked%2Barea%2B2.png" data-slb-active="1" data-slb-asset="1391303400" data-slb-group="28"><img src="https://3.bp.blogspot.com/-0OTRww9g6P0/U-Y4OFhSqdI/AAAAAAAABzc/4j-m7le8Q1U/s1600/stacked%2Barea%2B2.png" width="40%"/></a></p>
+
+
+<p>While we still see those peaks at the times mentioned because those are the peaks for the total, but look at the series for Group D (in purple). Do you still feel the same about how it fluctuates between the dates of the 8th and the 22nd as you did before, in the first figure?</p>
+<p>Because of the inclination to interpret the top of the area as quantity, interpreting the trend in the different areas of a stacked area graph is usually quite difficult.</p>
+<h4>Alternative Approaches</h4>
+</div>
+<p>So what is the optimal alternative approach? What should you use instead of a stacked area graph? Data visualization expert <a href="http://www.perceptualedge.com/about.php" target="_blank">Stephen Few</a> recommends individual line charts, with an additional line in a stark color (black) for the total. I’ve created that below for our example:</p>
+
+<p><a href="http://2.bp.blogspot.com/-yyNC_r_iJds/U-Y5mE5xqAI/AAAAAAAABzk/xCU7wBcNuss/s1600/lines+and+total.png" data-slb-active="1" data-slb-asset="189700616" data-slb-group="28"><img src="https://2.bp.blogspot.com/-yyNC_r_iJds/U-Y5mE5xqAI/AAAAAAAABzk/xCU7wBcNuss/s1600/lines+and+total.png" height="464" width="640"/></a></p>
+
+<div><p>You can see that the overall trend line of the total follows the top of the stacked area graph (it is unchanged) but the individual series look quite different, and while a bit noisy, it is easier to pick out their individual trending behaviors.</p>
+<p>When the graph gets a bit noisy like this it might also be a good idea to thin the lines.</p>
+<p><a href="http://4.bp.blogspot.com/-qqhod5Sjac0/U-Y6xQqkcjI/AAAAAAAABzs/B_rPnP9LIkw/s1600/lines+and+total+2.png" data-slb-active="1" data-slb-asset="736022506" data-slb-group="28"><img src="https://4.bp.blogspot.com/-qqhod5Sjac0/U-Y6xQqkcjI/AAAAAAAABzs/B_rPnP9LIkw/s1600/lines+and+total+2.png" height="464" width="640"/></a></p>
+<p>Okay, that’s better. But as the number of values of the categorical variable increases the graph is going to get increasingly noisy. What do we do in those cases?</p>
+<p>Well, as I often have to remind myself, nowhere does it say that you have to tell your story all in one graph. There’s nothing stopping us from breaking up this one graph into smaller individual graphs, one for each and also the total. The disadvantage here is that it’s not as easy to compare between the different groups, however we can make it easier by using the same axis scaling for the graphs for each individual group.</p>
+<p><a href="http://3.bp.blogspot.com/-ccPfwgdWjCY/U-ZBnIcJCGI/AAAAAAAAB0E/i5dsPfOFlVs/s1600/total+line+1.png" data-slb-active="1" data-slb-asset="718680875" data-slb-group="28"><img src="https://3.bp.blogspot.com/-ccPfwgdWjCY/U-ZBnIcJCGI/AAAAAAAAB0E/i5dsPfOFlVs/s1600/total+line+1.png" width="40%"/></a><a href="http://4.bp.blogspot.com/-PmAeu7iMtnw/U-ZBsI3VWII/AAAAAAAAB0M/TkKqHOIs7tA/s1600/trellis+1.png" data-slb-active="1" data-slb-asset="1417587605" data-slb-group="28"><img src="https://4.bp.blogspot.com/-PmAeu7iMtnw/U-ZBsI3VWII/AAAAAAAAB0M/TkKqHOIs7tA/s1600/trellis+1.png" width="40%"/></a></p>
+<p>Here there were an odd number of graphs so I chose to keep the graph for the total larger (giving it emphasis) and maintain their original aspect ratios. You could just as easily make a panel of 6 with equal sizes if you had a different number of graphs, or put them all in tall or wide graphic in a column or row.</p>
+<p>Also, now that each individual graph depicts the value for a different group, we don’t need the colours on the figures on the right anymore; that information is in each individual plot title. So we can ditch the color. I’ll keep the total black to differentiate between the total and the value for individual group.</p>
+<p><a href="http://3.bp.blogspot.com/-ccPfwgdWjCY/U-ZBnIcJCGI/AAAAAAAAB0E/i5dsPfOFlVs/s1600/total+line+1.png" data-slb-active="1" data-slb-asset="718680875" data-slb-group="28"><img src="https://3.bp.blogspot.com/-ccPfwgdWjCY/U-ZBnIcJCGI/AAAAAAAAB0E/i5dsPfOFlVs/s1600/total+line+1.png" width="40%"/></a><a href="http://1.bp.blogspot.com/-TUuGE35Ligc/U-ZDcdFztsI/AAAAAAAAB0Y/RsmzNI84bAQ/s1600/trellis+2.png" data-slb-active="1" data-slb-asset="1549104447" data-slb-group="28"><img src="https://1.bp.blogspot.com/-TUuGE35Ligc/U-ZDcdFztsI/AAAAAAAAB0Y/RsmzNI84bAQ/s1600/trellis+2.png" width="40%"/></a></p>
+<p>As the number of values for the categorical variable gets very large you go from multiple figures into true <a href="http://en.wikipedia.org/wiki/Small_multiple" target="_blank">small multiple</a> (trellis plot) territory, like in the figure below:</p>
+<p><a href="http://3.bp.blogspot.com/-1AzBNUg0EFA/U-ZEbCqpvgI/AAAAAAAAB0g/20SZrP0ipz0/s1600/ed.png" data-slb-active="1" data-slb-asset="603820719" data-slb-group="28"><img src="https://3.bp.blogspot.com/-1AzBNUg0EFA/U-ZEbCqpvgI/AAAAAAAAB0g/20SZrP0ipz0/s1600/ed.png" height="640" width="564"/></a></p>
+<p>Another option, if you have the benefit of more dynamic visualization tools available, would be to use interactivity and gray out series in the background, such as in this amazing visualization of housing prices from the <a href="http://www.nytimes.com/interactive/2014/01/23/business/case-shiller-slider.html?_r=0" target="_blank">New York Times</a>:</p>
+<table>
+<tbody>
+<tr>
+<td><a href="http://www.nytimes.com/interactive/2014/01/23/business/case-shiller-slider.html"><img src="https://4.bp.blogspot.com/-00BcjWLrqy0/U-ZFjcPUsJI/AAAAAAAAB0o/Sd1J6xweR9I/s1600/nytimes+viz.png" height="220" width="400"/></a></td>
+</tr>
+<tr>
+<td>Click me for dataviz goodness.</td>
+</tr>
+</tbody>
+</table>
+<p>So what do stacked area graphs have going for them over the approaches I laid out above? The one thing that all the alternatives I laid out do not allow as easily is the comparison of the <i>relative proportions of the whole</i>.</p>
+
+<p>However, this can also be accomplished by using relative quantities, that is, calculating the percentages of each categorical variable and plotting those, as below. </p>
+<div>
+<p><a href="http://3.bp.blogspot.com/-omV9LcuVLIY/U-ZICWEMBFI/AAAAAAAAB1A/icAHsZ_2Xcg/s1600/line%2Bpercent%2Bof%2Btotal.png" data-slb-active="1" data-slb-asset="1661465664" data-slb-group="28"><img src="https://3.bp.blogspot.com/-omV9LcuVLIY/U-ZICWEMBFI/AAAAAAAAB1A/icAHsZ_2Xcg/s1600/line%2Bpercent%2Bof%2Btotal.png" height="464" width="640"/></a></p>
+</div>
+
+
+<p>This approach also does not suffer from the aforementioned baseline issue, which is the case for proportional stacked area graphs (where the top of the y-axis is 100%). These types of figures are also best avoided.</p>
+
+<p>Attempts to address the fundamental issue with stacked area graphs have been made with a different type of visualization, <a href="http://en.wikipedia.org/wiki/Streamgraph" target="_blank">the streamgraph</a>, however I believe this type of visualization introduces more additional problems in interpretation than it solves.</p>
+
+<h4>Concluding Remarks</h4>
+<p>Though I do like to put together some thoughts on data visualization practice occasionally, it is not my intent to be overly critical of poor visualization choices, as, now that I think about it, <a href="https://www.everydayanalytics.ca/2014/02/in-critique-of-slopegraphs.html" target="_blank">my other post</a> was also framed somewhat negatively.</p>
+
+<div><p>In data visualization, there is no ‘right’ answer; only some visualization techniques that display the data better than others. Different ways of visualizing the data have different strengths and weaknesses; the goal here is to apply critical thought to different types of visualization, so that we may be informed about making good visualization choices in order to best represent that data so that it is not misinterpreted due to our perceptual biases.</p>
+<p>In my opinion, and my experience working with data visualization, you are almost always better served by the simpler, more minimalistic types of visualizations (the fundamental three being the bar chart, line graph and scatterplot) than more complicated ones. This has been an example of that, as stacked area graphs are really just a combination of area graphs, which are, in turn, an extension of the line graph.</p></div>
+
+<div><p>Though the stacked area graph allows depiction of a total quantity as well as the proportions across a categorical variable making up its whole, I think this quality is not of sufficient benefit given the issues it introduces, as I have noted here. This is especially the case as there are other types of visualizations which accomplish the same goals without as much room for misinterpretation.</p>
+<h4>References</h4>
+</div>
+</div>
+<p>Few, Stephen. <i>Quantitative Displays for Combining Time-Series and Part-to-Whole Relationships.</i></p>
+
+	</div>
+
+	
+</article>
+
+
+
+	
+	</main>
+
+	
+</div></div>
