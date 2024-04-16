@@ -1,0 +1,606 @@
+---
+url: https://github.com/BurntSushi/erd
+title: 'GitHub - BurntSushi/erd: Translates a plain text description of a relational
+  database schema to a graphical entity-relationship diagram.'
+archived_at: 2024-04-17T01:12:21.831157994+08:00
+---
+<div id="readability-page-1" class="page"><div data-hpc="true"><article itemprop="text"><p dir="auto"><a href="https://travis-ci.org/BurntSushi/erd" rel="nofollow"><img src="https://camo.githubusercontent.com/d47d27f38785cb8095c85e1d4b15ddc3e0ceed45daf6314d0fad96902b5083ad/68747470733a2f2f7472617669732d63692e6f72672f4275726e7453757368692f6572642e7376673f6272616e63683d6d6173746572" alt="Build Status" data-canonical-src="https://travis-ci.org/BurntSushi/erd.svg?branch=master"/></a>
+<a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/8bd56cacb5b6b042f5d62ca9fac392d37a87974ad95303055b953026aef3152e/68747470733a2f2f696d672e736869656c64732e696f2f6861636b6167652f762f6572642e737667"><img src="https://camo.githubusercontent.com/8bd56cacb5b6b042f5d62ca9fac392d37a87974ad95303055b953026aef3152e/68747470733a2f2f696d672e736869656c64732e696f2f6861636b6167652f762f6572642e737667" alt="Hackage" data-canonical-src="https://img.shields.io/hackage/v/erd.svg"/></a></p>
+<p dir="auto">This utility takes a plain text description of entities, their attributes and
+the relationships between entities and produces a visual diagram modeling the
+description. The visualization is produced by using Dot with GraphViz. There
+are limited options for specifying color and font information. Also, <code>erd</code> can
+output graphs in a variety of formats, including but not limited to: pdf, svg,
+eps, png, jpg, plain text and dot.</p>
+<p dir="auto">Here&#39;s an example of the output produced by <code>erd</code> (click on it for a larger PNG
+version):</p>
+<p dir="auto"><a href="https://raw.githubusercontent.com/BurntSushi/erd/master/examples/nfldb.png" rel="nofollow"><img src="https://raw.githubusercontent.com/BurntSushi/erd/master/examples/nfldb.png" alt="ER diagram for nfldb"/></a></p>
+<p dir="auto">The <a href="https://github.com/BurntSushi/erd/blob/master/examples/nfldb.er">corresponding <code>er</code> file is in the <code>examples</code>
+directory</a>.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Installation</h3><a id="user-content-installation" aria-label="Permalink: Installation" href="#installation"></a></p>
+<p dir="auto"><code>erd</code> requires <a href="https://www.graphviz.org/download/" rel="nofollow">GraphViz</a>, and one of:</p>
+<ul dir="auto">
+<li><a href="http://docs.haskellstack.org/en/stable/README/" rel="nofollow">Stack</a></li>
+<li><a href="https://www.haskell.org/downloads/" rel="nofollow">Haskell toolchain</a></li>
+</ul>
+<p dir="auto">All of these are available for Windows, Mac and Linux.</p>
+<p dir="auto"><h4 tabindex="-1" dir="auto">MacPorts</h4><a id="user-content-macports" aria-label="Permalink: MacPorts" href="#macports"></a></p>
+<p dir="auto"><code>erd</code> is available in MacPorts as a one-shot install (GraphViz will be set up correctly for you):</p>
+
+<p dir="auto"><h4 tabindex="-1" dir="auto">Docker</h4><a id="user-content-docker" aria-label="Permalink: Docker" href="#docker"></a></p>
+<div data-snippet-clipboard-copy-content="docker run -i ghcr.io/burntsushi/erd:latest &lt; examples/nfldb.er &gt;| out.pdf"><pre><code>docker run -i ghcr.io/burntsushi/erd:latest &lt; examples/nfldb.er &gt;| out.pdf
+</code></pre></div>
+<p dir="auto"><a href="https://github.com/BurntSushi/erd/pkgs/container/erd">All available tags</a>.</p>
+<p dir="auto"><h5 tabindex="-1" dir="auto">Local Docker build</h5><a id="user-content-local-docker-build" aria-label="Permalink: Local Docker build" href="#local-docker-build"></a></p>
+<p dir="auto">An example command to use <em>erd</em> in a <em>docker</em> container, once this repository is successfully cloned.</p>
+<div data-snippet-clipboard-copy-content="erdtag=&#34;0.2.1.0&#34;; cd erd &amp;&amp; docker build -t erd:$erdtag . &amp;&amp; docker run -it erd:$erdtag &#34;--help&#34;"><pre><code>erdtag=&#34;0.2.1.0&#34;; cd erd &amp;&amp; docker build -t erd:$erdtag . &amp;&amp; docker run -it erd:$erdtag &#34;--help&#34;
+</code></pre></div>
+<p dir="auto">Where:</p>
+<ul dir="auto">
+<li>you shall specify your <em>erdtag</em>, that will help identifying the docker image to be created;</li>
+<li>instead of using <code>--help</code> invoke <em>erd</em> the way you need to i.e.:
+<div data-snippet-clipboard-copy-content="docker run -i erd:$erdtag &#34;--dot-entity&#34; &lt; examples/nfldb.er &gt; out.pdf"><pre><code>docker run -i erd:$erdtag &#34;--dot-entity&#34; &lt; examples/nfldb.er &gt; out.pdf
+</code></pre></div>
+</li>
+</ul>
+<p dir="auto"><h4 tabindex="-1" dir="auto">Stack</h4><a id="user-content-stack" aria-label="Permalink: Stack" href="#stack"></a></p>
+<p dir="auto">Install the <a href="http://docs.haskellstack.org/en/stable/README/" rel="nofollow">Stack</a> build tool,
+and build from source:</p>
+<div data-snippet-clipboard-copy-content="git clone git://github.com/BurntSushi/erd
+cd erd
+stack install"><pre><code>git clone git://github.com/BurntSushi/erd
+cd erd
+stack install
+</code></pre></div>
+<p dir="auto"><code>stack install</code> will put the binary into Stack&#39;s standard binary
+installation path.  Unless you&#39;ve overridden it, that&#39;s <code>~/.local/bin</code>
+on Unix and OS X, <code>%APPDATA%\local\bin</code> on Windows.</p>
+<p dir="auto"><h4 tabindex="-1" dir="auto">Haskell Platform</h4><a id="user-content-haskell-platform" aria-label="Permalink: Haskell Platform" href="#haskell-platform"></a></p>
+<blockquote>
+<p dir="auto"><em>NB OSX users</em>: for text formatting of keys (bold and italics) you may need to reinstall <code>graphviz</code> with <code>pango</code> support:</p>
+</blockquote>
+<div data-snippet-clipboard-copy-content="# OSX only
+brew install graphviz"><pre><code># OSX only
+brew install graphviz
+</code></pre></div>
+<p dir="auto"><a href="https://gitlab.com/graphviz/graphviz/issues/1636" rel="nofollow">The issue 1636</a> explains what needs to be performed in details to find out whether <em>pango</em> support is enabled and how to make it happen in case it wasn&#39;t.</p>
+<p dir="auto"><a href="https://hackage.haskell.org/package/erd" rel="nofollow">erd is on hackage</a>, so you can install
+it with cabal (which is included with the Haskell platform):</p>
+
+<p dir="auto">Alternatively, you can clone this repository and build from source:</p>
+<div data-snippet-clipboard-copy-content="git clone git://github.com/BurntSushi/erd
+cd erd
+cabal new-configure
+cabal new-build
+# binary is now under ./dist-newstyle/build/"><pre><code>git clone git://github.com/BurntSushi/erd
+cd erd
+cabal new-configure
+cabal new-build
+# binary is now under ./dist-newstyle/build/
+</code></pre></div>
+<p dir="auto">Usage information is available with <code>erd --help</code>.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Building statically linked executable</h3><a id="user-content-building-statically-linked-executable" aria-label="Permalink: Building statically linked executable" href="#building-statically-linked-executable"></a></p>
+<p dir="auto">In case one wishes to have a statically linked <code>erd</code> as a result, this is
+possible to have by executing <code>build-static_by-nix.sh</code>: which requires the
+<a href="https://nixos.org/nix/" rel="nofollow">nix</a> package manager to be installed on the building
+machine. NixOS itself is not a requirement.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Quick example</h3><a id="user-content-quick-example" aria-label="Permalink: Quick example" href="#quick-example"></a></p>
+<p dir="auto">Before describing the ER file, let&#39;s try making an ER diagram from a small
+example:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ curl &#39;https://raw.githubusercontent.com/BurntSushi/erd/master/examples/simple.er&#39; &gt; simple.er
+$ cat simple.er
+# Entities are declared in &#39;[&#39; ... &#39;]&#39;. All attributes after the entity header
+# up until the end of the file (or the next entity declaration) correspond
+# to this entity.
+[Person]
+*name
+height
+weight
+`birth date`
++birth_place_id
+
+[`Birth Place`]
+*id
+`birth city`
+&#39;birth state&#39;
+&#34;birth country&#34;
+
+# Each relationship must be between exactly two entities, which need not
+# be distinct. Each entity in the relationship has exactly one of four
+# possible cardinalities:
+#
+# Cardinality    Syntax
+# 0 or 1         ?
+# exactly 1      1
+# 0 or more      *
+# 1 or more      +
+Person *--1 `Birth Place`
+$ erd -i simple.er -o simple.pdf"><pre>$ curl <span><span>&#39;</span>https://raw.githubusercontent.com/BurntSushi/erd/master/examples/simple.er<span>&#39;</span></span> <span>&gt;</span> simple.er
+$ cat simple.er
+<span><span>#</span> Entities are declared in &#39;[&#39; ... &#39;]&#39;. All attributes after the entity header</span>
+<span><span>#</span> up until the end of the file (or the next entity declaration) correspond</span>
+<span><span>#</span> to this entity.</span>
+[Person]
+<span>*</span>name
+height
+weight
+<span><span>`</span>birth date<span>`</span></span>
++birth_place_id
+
+[<span><span>`</span>Birth Place<span>`</span></span>]
+<span>*</span>id
+<span><span>`</span>birth city<span>`</span></span>
+<span><span>&#39;</span>birth state<span>&#39;</span></span>
+<span><span>&#34;</span>birth country<span>&#34;</span></span>
+
+<span><span>#</span> Each relationship must be between exactly two entities, which need not</span>
+<span><span>#</span> be distinct. Each entity in the relationship has exactly one of four</span>
+<span><span>#</span> possible cardinalities:</span>
+<span><span>#</span></span>
+<span><span>#</span> Cardinality    Syntax</span>
+<span><span>#</span> 0 or 1         ?</span>
+<span><span>#</span> exactly 1      1</span>
+<span><span>#</span> 0 or more      *</span>
+<span><span>#</span> 1 or more      +</span>
+Person <span>*</span>--1 <span><span>`</span>Birth Place<span>`</span></span>
+$ erd -i simple.er -o simple.pdf</pre></div>
+<p dir="auto">The PDF should now contain a graph that looks like this:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/BurntSushi/erd/master/examples/simple.png"><img src="https://raw.githubusercontent.com/BurntSushi/erd/master/examples/simple.png" alt="Simple erd example graph"/></a></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Available command-line options</h3><a id="user-content-available-command-line-options" aria-label="Permalink: Available command-line options" href="#available-command-line-options"></a></p>
+<table>
+<thead>
+<tr>
+<th>Short</th>
+<th>Long</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-c[FILE]</td>
+<td>--config[=FILE]</td>
+<td>Configuration file.</td>
+</tr>
+<tr>
+<td>-i FILE</td>
+<td>--input=FILE</td>
+<td>When set, input will be read from the given file. Otherwise, stdin will be used.</td>
+</tr>
+<tr>
+<td>-o FILE</td>
+<td>--output=FILE</td>
+<td>When set, output will be written to the given file. Otherwise, stdout will be used. If given and if --fmt is omitted, then the format will be guessed from the file extension.</td>
+</tr>
+<tr>
+<td>-f FMT</td>
+<td>--fmt=FMT</td>
+<td>Force the output format to one of: bmp, dot, eps, gif, jpg, pdf, plain, png, ps, ps2, svg, tiff.</td>
+</tr>
+<tr>
+<td>-e EDGE</td>
+<td>--edge=EDGE</td>
+<td>Select one type of edge: compound, noedge, ortho, poly, spline.</td>
+</tr>
+<tr>
+<td>-d</td>
+<td>--dot-entity</td>
+<td>When set, output will consist of regular dot tables instead of HTML tables. Formatting will be disabled.</td>
+</tr>
+<tr>
+<td>-p PATTERN</td>
+<td>--edge-pattern=PATTERN</td>
+<td>Select one of the edge patterns: dashed, dotted, solid.</td>
+</tr>
+<tr>
+<td>-n NOTATION</td>
+<td>--notation=NOTATION</td>
+<td>Select a notation style for cardinalities of relations: ie, uml.</td>
+</tr>
+<tr>
+<td>-h</td>
+<td>--help</td>
+<td>Show this usage message.</td>
+</tr>
+</tbody>
+</table>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Formatting defined in configuration file</h3><a id="user-content-formatting-defined-in-configuration-file" aria-label="Permalink: Formatting defined in configuration file" href="#formatting-defined-in-configuration-file"></a></p>
+<p dir="auto"><code>erd</code> may be invoked using the <em>-c</em> or <em>--config</em> argument</p>
+<ul dir="auto">
+<li>
+<p dir="auto">without a provided configuration file it will try to read the file
+<em>~/.erd.yaml</em> which is the path of the configuration file to store formatting
+settings of any resulted graph. In case the file <em>~/.erd.yaml</em> does not exists
+<code>erd</code> will print the default content of this file to stdout which you can
+inspect and/or redirect appropriately, e.g.: <code>erd -c -i ./examples/nfldb.er -o ./nfldb.pdf 1 &gt; ~/.erd.yaml</code> .</p>
+</li>
+<li>
+<p dir="auto">with a provided configuration file erd will use that instead of <em>~/.erd.yaml</em>.
+For instance: <code>erd -c./myconfig.yaml -i ./examples/nfldb.er -o ./nfldb.pdf</code>
+.</p>
+</li>
+</ul>
+<p dir="auto">The configuration file in commented sections do contain the supported formatting
+options, so you can use one of the listed ones.</p>
+<p dir="auto">The default content of the configuration file would be only shown when
+<em>~/.erd.yaml</em> does not exist.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">The <code>er</code> file format</h3><a id="user-content-the-er-file-format" aria-label="Permalink: The er file format" href="#the-er-file-format"></a></p>
+<p dir="auto">The <code>er</code> format allows one to describe a relational schema in terms of its
+entities (tables), attributes (columns) and relationships between entities (0
+or 1, exactly 1, 0 or more and 1 or more).</p>
+<p dir="auto">Entities are declared inside <code>[</code> and <code>]</code>. For example, this declares the entity
+<code>Person</code> with no attributes:</p>
+
+<p dir="auto">Attributes for an entity are then listed after its corresponding entity&#39;s
+declaration. Each attribute should be on its own line. The following adds the
+<code>name</code> and <code>height</code> attributes to the <code>Person</code> entity:</p>
+
+<p dir="auto">Entity names and attributes may contain spaces and mostly any character,
+except ASCII control characters like carriage return and line feed,
+if quoted with backticks, simple quotes or double quotes:</p>
+<div data-snippet-clipboard-copy-content="[`Birth Place`]
+*id
+`birth city`
+&#39;birth state&#39;
+&#34;birth country&#34;"><pre><code>[`Birth Place`]
+*id
+`birth city`
+&#39;birth state&#39;
+&#34;birth country&#34;
+</code></pre></div>
+<p dir="auto">Any number of attributes may be declared as a primary key for its entity by
+prefixing the attribute with a <code>*</code>. Similarly, an attribute may be declared
+as a foreign key by prefixing the attribute with a <code>+</code>:</p>
+<div data-snippet-clipboard-copy-content="[Person]
+*name
++birth_place_id"><pre><code>[Person]
+*name
++birth_place_id
+</code></pre></div>
+<p dir="auto">An attribute may be <em>both</em> a primary key and a foreign key by prefixing the
+name with a <code>*</code> and a <code>+</code> in any order. Note that primary keys are underlined
+while foreign keys are italicized.</p>
+<p dir="auto">Relationships can also be declared <em>anywhere in an ER file</em>. Every relationship
+includes exactly two entities (the two entities may be the same, for
+self-relationships). Each entity in a relationship <strong>must</strong> have exactly one of
+four cardinalities:</p>
+<div data-snippet-clipboard-copy-content="Cardinality    Syntax
+0 or 1         ?
+exactly 1      1
+0 or more      *
+1 or more      +"><pre><code>Cardinality    Syntax
+0 or 1         ?
+exactly 1      1
+0 or more      *
+1 or more      +
+</code></pre></div>
+<p dir="auto">So for example, the following defines a relationship between <code>Person</code> and
+<code>Birth Place</code> that reads &#34;every person has exactly one birth place&#34;:</p>
+<div data-snippet-clipboard-copy-content="Person *--1 `Birth Place`"><pre><code>Person *--1 `Birth Place`
+</code></pre></div>
+<p dir="auto">And here&#39;s another example that can be read as, &#34;every platinum album has one
+or more artists, but not every artist has a platinum album&#34;:</p>
+<div data-snippet-clipboard-copy-content="Artist +--? PlatinumAlbums"><pre><code>Artist +--? PlatinumAlbums
+</code></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Fonts, colors, labels, ...</h3><a id="user-content-fonts-colors-labels-" aria-label="Permalink: Fonts, colors, labels, ..." href="#fonts-colors-labels-"></a></p>
+<p dir="auto">The <code>er</code> format also has limited support for customizing the appearance of your
+ER diagram. For example, the following will show the entity with a background
+color of <code>#ececfc</code> and a font size of <code>20</code>:</p>
+<div data-snippet-clipboard-copy-content="[Person] {bgcolor: &#34;#ececfc&#34;, size: &#34;20&#34;}
+name
+height
+weight"><pre><code>[Person] {bgcolor: &#34;#ececfc&#34;, size: &#34;20&#34;}
+name
+height
+weight
+</code></pre></div>
+<p dir="auto">Which looks like:</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://raw.githubusercontent.com/BurntSushi/erd/master/examples/bgcolor.png"><img src="https://raw.githubusercontent.com/BurntSushi/erd/master/examples/bgcolor.png" alt="example of changing background color"/></a></p>
+<p dir="auto">Alternatively, you can specify the background color of every entity with a
+special directive at the top of the file:</p>
+<div data-snippet-clipboard-copy-content="entity {bgcolor: &#34;#ececfc&#34;, size: &#34;20&#34;}
+
+[Person]
+name
+height
+weight
+
+[`Birth Place`]
+place"><pre><code>entity {bgcolor: &#34;#ececfc&#34;, size: &#34;20&#34;}
+
+[Person]
+name
+height
+weight
+
+[`Birth Place`]
+place
+</code></pre></div>
+<p dir="auto">There are three other directives: <code>title</code>, <code>header</code> and <code>relationship</code>. The
+<code>title</code> directive allows one to specify a title for the graph and provide
+options for formatting it. The <code>header</code> directive allows one to customize the
+formatting of every entity header. And similarly for <code>relationship</code>. Note that
+global options are overwritten by local options.</p>
+<p dir="auto">Note that directives <strong>must come before anything else in an ER file</strong>.</p>
+<p dir="auto">Here&#39;s an example depicting the first schema shown at the top of this README
+(note that this is auto-generated by
+<a href="https://github.com/BurntSushi/nfldb/blob/master/scripts/nfldb-write-erd">nfldb-write-erd</a>):</p>
+<div data-snippet-clipboard-copy-content="title {label: &#34;nfldb Entity-Relationship diagram (condensed)&#34;, size: &#34;20&#34;}
+
+# Entities
+
+[player] {bgcolor: &#34;#d0e0d0&#34;}
+  *player_id {label: &#34;varchar, not null&#34;}
+  full_name {label: &#34;varchar, null&#34;}
+  team {label: &#34;varchar, not null&#34;}
+  position {label: &#34;player_pos, not null&#34;}
+  status {label: &#34;player_status, not null&#34;}
+
+[team] {bgcolor: &#34;#d0e0d0&#34;}
+  *team_id {label: &#34;varchar, not null&#34;}
+  city {label: &#34;varchar, not null&#34;}
+  name {label: &#34;varchar, not null&#34;}
+
+[game] {bgcolor: &#34;#ececfc&#34;}
+  *gsis_id {label: &#34;gameid, not null&#34;}
+  start_time {label: &#34;utctime, not null&#34;}
+  week {label: &#34;usmallint, not null&#34;}
+  season_year {label: &#34;usmallint, not null&#34;}
+  season_type {label: &#34;season_phase, not null&#34;}
+  finished {label: &#34;boolean, not null&#34;}
+  home_team {label: &#34;varchar, not null&#34;}
+  home_score {label: &#34;usmallint, not null&#34;}
+  away_team {label: &#34;varchar, not null&#34;}
+  away_score {label: &#34;usmallint, not null&#34;}
+
+[drive] {bgcolor: &#34;#ececfc&#34;}
+  *+gsis_id {label: &#34;gameid, not null&#34;}
+  *drive_id {label: &#34;usmallint, not null&#34;}
+  start_field {label: &#34;field_pos, null&#34;}
+  start_time {label: &#34;game_time, not null&#34;}
+  end_field {label: &#34;field_pos, null&#34;}
+  end_time {label: &#34;game_time, not null&#34;}
+  pos_team {label: &#34;varchar, not null&#34;}
+  pos_time {label: &#34;pos_period, null&#34;}
+
+[play] {bgcolor: &#34;#ececfc&#34;}
+  *+gsis_id {label: &#34;gameid, not null&#34;}
+  *+drive_id {label: &#34;usmallint, not null&#34;}
+  *play_id {label: &#34;usmallint, not null&#34;}
+  time {label: &#34;game_time, not null&#34;}
+  pos_team {label: &#34;varchar, not null&#34;}
+  yardline {label: &#34;field_pos, null&#34;}
+  down {label: &#34;smallint, null&#34;}
+  yards_to_go {label: &#34;smallint, null&#34;}
+
+[play_player] {bgcolor: &#34;#ececfc&#34;}
+  *+gsis_id {label: &#34;gameid, not null&#34;}
+  *+drive_id {label: &#34;usmallint, not null&#34;}
+  *+play_id {label: &#34;usmallint, not null&#34;}
+  *+player_id {label: &#34;varchar, not null&#34;}
+  team {label: &#34;varchar, not null&#34;}
+
+[meta] {bgcolor: &#34;#fcecec&#34;}
+  version {label: &#34;smallint, null&#34;}
+  season_type {label: &#34;season_phase, null&#34;}
+  season_year {label: &#34;usmallint, null&#34;}
+  week {label: &#34;usmallint, null&#34;}
+
+# Relationships
+
+player      *--1 team
+game        *--1 team {label: &#34;home&#34;}
+game        *--1 team {label: &#34;away&#34;}
+drive       *--1 team
+play        *--1 team
+play_player *--1 team
+
+game        1--* drive
+game        1--* play
+game        1--* play_player
+
+drive       1--* play
+drive       1--* play_player
+
+play        1--* play_player
+
+player      1--* play_player"><pre><code>title {label: &#34;nfldb Entity-Relationship diagram (condensed)&#34;, size: &#34;20&#34;}
+
+# Entities
+
+[player] {bgcolor: &#34;#d0e0d0&#34;}
+  *player_id {label: &#34;varchar, not null&#34;}
+  full_name {label: &#34;varchar, null&#34;}
+  team {label: &#34;varchar, not null&#34;}
+  position {label: &#34;player_pos, not null&#34;}
+  status {label: &#34;player_status, not null&#34;}
+
+[team] {bgcolor: &#34;#d0e0d0&#34;}
+  *team_id {label: &#34;varchar, not null&#34;}
+  city {label: &#34;varchar, not null&#34;}
+  name {label: &#34;varchar, not null&#34;}
+
+[game] {bgcolor: &#34;#ececfc&#34;}
+  *gsis_id {label: &#34;gameid, not null&#34;}
+  start_time {label: &#34;utctime, not null&#34;}
+  week {label: &#34;usmallint, not null&#34;}
+  season_year {label: &#34;usmallint, not null&#34;}
+  season_type {label: &#34;season_phase, not null&#34;}
+  finished {label: &#34;boolean, not null&#34;}
+  home_team {label: &#34;varchar, not null&#34;}
+  home_score {label: &#34;usmallint, not null&#34;}
+  away_team {label: &#34;varchar, not null&#34;}
+  away_score {label: &#34;usmallint, not null&#34;}
+
+[drive] {bgcolor: &#34;#ececfc&#34;}
+  *+gsis_id {label: &#34;gameid, not null&#34;}
+  *drive_id {label: &#34;usmallint, not null&#34;}
+  start_field {label: &#34;field_pos, null&#34;}
+  start_time {label: &#34;game_time, not null&#34;}
+  end_field {label: &#34;field_pos, null&#34;}
+  end_time {label: &#34;game_time, not null&#34;}
+  pos_team {label: &#34;varchar, not null&#34;}
+  pos_time {label: &#34;pos_period, null&#34;}
+
+[play] {bgcolor: &#34;#ececfc&#34;}
+  *+gsis_id {label: &#34;gameid, not null&#34;}
+  *+drive_id {label: &#34;usmallint, not null&#34;}
+  *play_id {label: &#34;usmallint, not null&#34;}
+  time {label: &#34;game_time, not null&#34;}
+  pos_team {label: &#34;varchar, not null&#34;}
+  yardline {label: &#34;field_pos, null&#34;}
+  down {label: &#34;smallint, null&#34;}
+  yards_to_go {label: &#34;smallint, null&#34;}
+
+[play_player] {bgcolor: &#34;#ececfc&#34;}
+  *+gsis_id {label: &#34;gameid, not null&#34;}
+  *+drive_id {label: &#34;usmallint, not null&#34;}
+  *+play_id {label: &#34;usmallint, not null&#34;}
+  *+player_id {label: &#34;varchar, not null&#34;}
+  team {label: &#34;varchar, not null&#34;}
+
+[meta] {bgcolor: &#34;#fcecec&#34;}
+  version {label: &#34;smallint, null&#34;}
+  season_type {label: &#34;season_phase, null&#34;}
+  season_year {label: &#34;usmallint, null&#34;}
+  week {label: &#34;usmallint, null&#34;}
+
+# Relationships
+
+player      *--1 team
+game        *--1 team {label: &#34;home&#34;}
+game        *--1 team {label: &#34;away&#34;}
+drive       *--1 team
+play        *--1 team
+play_player *--1 team
+
+game        1--* drive
+game        1--* play
+game        1--* play_player
+
+drive       1--* play
+drive       1--* play_player
+
+play        1--* play_player
+
+player      1--* play_player
+</code></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">All formatting options</h3><a id="user-content-all-formatting-options" aria-label="Permalink: All formatting options" href="#all-formatting-options"></a></p>
+<p dir="auto"><code>erd</code> only exposes a subset of formatting options made available by GraphViz.
+I&#39;m not entirely opposed to expanding this list if there&#39;s a compelling reason
+to do so, but I&#39;d prefer to keep it small and simple.</p>
+<p dir="auto">Note that not all options are applicable on all items. For example, a title
+cannot have a background color (it will just be ignored by GraphViz).</p>
+<p dir="auto">Colors can be specified in hexadecimal notation prefixed with a <code>#</code>, e.g.,
+<code>#3366ff</code> or they may be <a href="https://hackage.haskell.org/package/graphviz-2999.20.1.0/docs/Data-GraphViz-Attributes-Colors-X11.html#t:X11Color" rel="nofollow">written as their English
+names</a>.</p>
+<ul dir="auto">
+<li><strong>label</strong> A plain text string used to label the item. For entity names and
+attributes, a label is shown next to the name in square brackets. For
+relationships, a label is drawn near the center of the edge. For the special
+<code>title</code> directive, the label corresponds to the graph title.</li>
+<li><strong>color</strong> Specifies the font color. Valid everywhere.</li>
+<li><strong>bgcolor</strong> Specifies the background color. Only valid for entities and
+attributes.</li>
+<li><strong>size</strong> Specifies the font size. Valid everywhere.</li>
+<li><strong>font</strong> Specifies the font. Valid everywhere. See <a href="https://www.graphviz.org/doc/info/attrs.html#d:fontname" rel="nofollow">this</a> for information about fonts in GraphViz. TL;DR: Stick with one of the following:
+<code>Times-Roman</code>, <code>Helvetica</code> or <code>Courier</code>.</li>
+<li><strong>border-color</strong> Border color. Only works for entities or attributes.</li>
+<li><strong>border</strong> Border size in pixels. Only works for entities and attributes.</li>
+</ul>
+<p dir="auto">Formatting options are always specified as key-value pairs in curly braces,
+where the opening curly brace starts on the same line as the
+entity/attribute/relationship/directive. The option name precedes a colon and
+the option value comes after the colon in double quotes (even for integer
+values). The value is then preceded by either a comma or an ending curly brace.
+Also note that trailing commas are allowed and that options may be specified
+over more than one line. For example, the following is a valid <code>er</code> file:</p>
+<div data-snippet-clipboard-copy-content="[Person]
+  name {
+    label: &#34;string&#34;,
+    color: &#34;#3366ff&#34;, # i like bright blue
+  }
+  weight {
+    label: &#34;int&#34;,}"><pre><code>[Person]
+  name {
+    label: &#34;string&#34;,
+    color: &#34;#3366ff&#34;, # i like bright blue
+  }
+  weight {
+    label: &#34;int&#34;,}
+</code></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Philosophy</h3><a id="user-content-philosophy" aria-label="Permalink: Philosophy" href="#philosophy"></a></p>
+<p dir="auto">I don&#39;t intend for <code>erd</code> to have a large feature set with a lot of options for
+customizing the appearance of ER diagrams. <code>erd</code> should produce diagrams that
+are &#34;good enough&#34; from simple plain text descriptions without a lot of
+complexity. <code>erd</code> will implicitly trust GraphViz to &#34;do the right thing&#34;
+without a lot of fiddling with its options.</p>
+<p dir="auto">If you have more exotic needs, then I suggest that either <code>erd</code> is not the
+right tool, <em>or</em> you could use <code>erd</code> to output an <code>er</code> file as a <code>dot</code> file.
+You can then customize it further manually or using some other tool.</p>
+<p dir="auto">You can output a <code>dot</code> file using the <code>--fmt</code> option or by simply using it as
+a file extension:</p>
+<div data-snippet-clipboard-copy-content="erd -i something.er -o something.dot"><pre><code>erd -i something.er -o something.dot
+</code></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Similar software</h3><a id="user-content-similar-software" aria-label="Permalink: Similar software" href="#similar-software"></a></p>
+<p dir="auto">The format of the <code>er</code> file is inspired by the file format used by the project
+<a href="https://github.com/slopjong/Erwiz">erwiz</a> (which looks abandoned). The <code>er</code>
+format is a bit more lightweight, but its general structure is similar.</p>
+<p dir="auto">Similar software that translates a plain text description of a relational
+schema to a graphical visualization (the list may be incomplete and some of
+the listed projects are no longer maintained):</p>
+<ul dir="auto">
+<li>C#
+<ul dir="auto">
+<li><a href="https://github.com/frolic06/erd-dotnet">erd-dotnet</a></li>
+</ul>
+</li>
+<li>Go
+<ul dir="auto">
+<li><a href="https://github.com/kaishuu0123/erd-go/">erd-go</a></li>
+<li><a href="https://github.com/unok/erdm">erdm</a></li>
+<li><a href="https://github.com/k-kawa/erd">erd</a></li>
+</ul>
+</li>
+<li>Java
+<ul dir="auto">
+<li><a href="https://github.com/slopjong/Erwiz">erwiz</a></li>
+<li><a href="https://github.com/plantuml/plantuml">PlantUML</a>&#39;s
+<a href="https://plantuml.com/ie-diagram" rel="nofollow">ERD syntax</a></li>
+</ul>
+</li>
+<li>JavaScript
+<ul dir="auto">
+<li><a href="https://github.com/dosaki/t2erd">t2erd</a></li>
+<li><a href="https://github.com/mermaid-js/mermaid">mermaid</a>&#39;s
+<a href="https://mermaid-js.github.io/mermaid/#/entityRelationshipDiagram" rel="nofollow">ERD syntax</a></li>
+</ul>
+</li>
+<li>Python
+<ul dir="auto">
+<li><a href="https://github.com/ehne/ERDot">ERDot</a></li>
+</ul>
+</li>
+<li>Ruby
+<ul dir="auto">
+<li><a href="https://github.com/japgolly/text_to_diagram">text_to_diagram</a></li>
+</ul>
+</li>
+<li>Rust
+<ul dir="auto">
+<li><a href="https://github.com/davechallis/erd-rs">erd-rs</a></li>
+</ul>
+</li>
+<li>Proprietary, web-based tools:
+<ul dir="auto">
+<li><a href="https://dbdiagram.io/d" rel="nofollow">dbdiagram.io</a></li>
+<li><a href="https://app.quickdatabasediagrams.com/#/" rel="nofollow">quickdatabasediagrams.com</a></li>
+</ul>
+</li>
+</ul>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Text editor support</h3><a id="user-content-text-editor-support" aria-label="Permalink: Text editor support" href="#text-editor-support"></a></p>
+<ul dir="auto">
+<li><a href="https://github.com/flniu/er.vim">Vim syntax file</a> for the <code>er</code> file format.</li>
+<li><a href="https://github.com/kaishuu0123/vscode-erd">Visual Studio Code ERD preview</a></li>
+<li><a href="https://github.com/mikkel-ol/vsc-er-syntax-highlighting">Visual Studio Code syntax highlighting</a></li>
+</ul>
+</article></div></div>

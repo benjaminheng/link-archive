@@ -1,0 +1,269 @@
+---
+url: https://github.com/segmentio/ksuid
+title: 'GitHub - segmentio/ksuid: K-Sortable Globally Unique IDs'
+archived_at: 2024-04-17T01:12:30.368658555+08:00
+---
+<div id="readability-page-1" class="page"><div data-hpc="true"><article itemprop="text">
+<p dir="auto">ksuid is an efficient, comprehensive, battle-tested Go library for
+generating and parsing a specific kind of globally unique identifier
+called a <em>KSUID</em>. This library serves as its reference implementation.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Install</h2><a id="user-content-install" aria-label="Permalink: Install" href="#install"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="go get -u github.com/segmentio/ksuid"><pre>go get -u github.com/segmentio/ksuid</pre></div>
+<p dir="auto"><h2 tabindex="-1" dir="auto">What is a KSUID?</h2><a id="user-content-what-is-a-ksuid" aria-label="Permalink: What is a KSUID?" href="#what-is-a-ksuid"></a></p>
+<p dir="auto">KSUID is for K-Sortable Unique IDentifier. It is a kind of globally
+unique identifier similar to a <a href="https://en.wikipedia.org/wiki/Universally_unique_identifier" rel="nofollow">RFC 4122 UUID</a>, built from the ground-up to be &#34;naturally&#34;
+sorted by generation timestamp without any special type-aware logic.</p>
+<p dir="auto">In short, running a set of KSUIDs through the UNIX <code>sort</code> command will result
+in a list ordered by generation time.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Why use KSUIDs?</h2><a id="user-content-why-use-ksuids" aria-label="Permalink: Why use KSUIDs?" href="#why-use-ksuids"></a></p>
+<p dir="auto">There are numerous methods for generating unique identifiers, so why KSUID?</p>
+<ol dir="auto">
+<li>Naturally ordered by generation time</li>
+<li>Collision-free, coordination-free, dependency-free</li>
+<li>Highly portable representations</li>
+</ol>
+<p dir="auto">Even if only one of these properties are important to you, KSUID is a great
+choice! :) Many projects chose to use KSUIDs <em>just</em> because the text
+representation is copy-and-paste friendly.</p>
+<p dir="auto">For a follow up read on the topic: <a href="https://segment.com/blog/a-brief-history-of-the-uuid/" rel="nofollow">A brief history of UUID</a></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">1. Naturally Ordered By Generation Time</h3><a id="user-content-1-naturally-ordered-by-generation-time" aria-label="Permalink: 1. Naturally Ordered By Generation Time" href="#1-naturally-ordered-by-generation-time"></a></p>
+<p dir="auto">Unlike the more ubiquitous UUIDv4, a KSUID contains a timestamp component
+that allows them to be loosely sorted by generation time. This is not a strong
+guarantee (an invariant) as it depends on wall clocks, but is still incredibly
+useful in practice. Both the binary and text representations will sort by
+creation time without any special sorting logic.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">2. Collision-free, Coordination-free, Dependency-free</h3><a id="user-content-2-collision-free-coordination-free-dependency-free" aria-label="Permalink: 2. Collision-free, Coordination-free, Dependency-free" href="#2-collision-free-coordination-free-dependency-free"></a></p>
+<p dir="auto">While RFC 4122 UUIDv1s <em>do</em> include a time component, there aren&#39;t enough
+bytes of randomness to provide strong protection against collisions
+(duplicates). With such a low amount of entropy, it is feasible for a
+malicious party to guess generated IDs, creating a problem for systems whose
+security is, implicitly or explicitly, sensitive to an adversary guessing
+identifiers.</p>
+<p dir="auto">To fit into a 64-bit number space, <a href="https://blog.twitter.com/2010/announcing-snowflake" rel="nofollow">Snowflake IDs</a>
+and its derivatives require coordination to avoid collisions, which
+significantly increases the deployment complexity and operational burden.</p>
+<p dir="auto">A KSUID includes 128 bits of pseudorandom data (&#34;entropy&#34;). This number space
+is 64 times larger than the 122 bits used by the well-accepted RFC 4122 UUIDv4
+standard. The additional timestamp component can be considered &#34;bonus entropy&#34;
+which further decreases the probability of collisions, to the point of physical
+infeasibility in any practical implementation.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">3. Highly Portable Representations</h3><a id="user-content-3-highly-portable-representations" aria-label="Permalink: 3. Highly Portable Representations" href="#3-highly-portable-representations"></a></p>
+<p dir="auto">The text <em>and</em> binary representations are lexicographically sortable, which
+allows them to be dropped into systems which do not natively support KSUIDs
+and retain their time-ordered property.</p>
+<p dir="auto">The text representation is an alphanumeric base62 encoding, so it &#34;fits&#34;
+anywhere alphanumeric strings are accepted. No delimiters are used, so
+stringified KSUIDs won&#39;t be inadvertently truncated or tokenized when
+interpreted by software that is designed for human-readable text, a common
+problem for the text representation of RFC 4122 UUIDs.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">How do KSUIDs work?</h2><a id="user-content-how-do-ksuids-work" aria-label="Permalink: How do KSUIDs work?" href="#how-do-ksuids-work"></a></p>
+<p dir="auto">Binary KSUIDs are 20-bytes: a 32-bit unsigned integer UTC timestamp and
+a 128-bit randomly generated payload. The timestamp uses big-endian
+encoding, to support lexicographic sorting. The timestamp epoch is adjusted
+to May 13th, 2014, providing over 100 years of life. The payload is
+generated by a cryptographically-strong pseudorandom number generator.</p>
+<p dir="auto">The text representation is always 27 characters, encoded in alphanumeric
+base62 that will lexicographically sort by timestamp.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">High Performance</h2><a id="user-content-high-performance" aria-label="Permalink: High Performance" href="#high-performance"></a></p>
+<p dir="auto">This library is designed to be used in code paths that are performance
+critical. Its code has been tuned to eliminate all non-essential
+overhead. The <code>KSUID</code> type is derived from a fixed-size array, which
+eliminates the additional reference chasing and allocation involved in
+a variable-width type.</p>
+<p dir="auto">The API provides an interface for use in code paths which are sensitive
+to allocation. For example, the <code>Append</code> method can be used to parse the
+text representation and replace the contents of a <code>KSUID</code> value
+without additional heap allocation.</p>
+<p dir="auto">All public package level &#34;pure&#34; functions are concurrency-safe, protected
+by a global mutex. For hot loops that generate a large amount of KSUIDs
+from a single Goroutine, the <code>Sequence</code> type is provided to elide the
+potential contention.</p>
+<p dir="auto">By default, out of an abundance of caution, the cryptographically-secure
+PRNG is used to generate the random bits of a KSUID. This can be relaxed
+in extremely performance-critical code using the included <code>FastRander</code>
+type. <code>FastRander</code> uses the standard PRNG with a seed generated by the
+cryptographically-secure PRNG.</p>
+<p dir="auto"><em><em>NOTE:</em> While there is no evidence that <code>FastRander</code> will increase the
+probability of a collision, it shouldn&#39;t be used in scenarios where
+uniqueness is important to security, as there is an increased chance
+the generated IDs can be predicted by an adversary.</em></p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Battle Tested</h2><a id="user-content-battle-tested" aria-label="Permalink: Battle Tested" href="#battle-tested"></a></p>
+<p dir="auto">This code has been used in production at Segment for several years,
+across a diverse array of projects. Trillions upon trillions of
+KSUIDs have been generated in some of Segment&#39;s most
+performance-critical, large-scale distributed systems.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Plays Well With Others</h2><a id="user-content-plays-well-with-others" aria-label="Permalink: Plays Well With Others" href="#plays-well-with-others"></a></p>
+<p dir="auto">Designed to be integrated with other libraries, the <code>KSUID</code> type
+implements many standard library interfaces, including:</p>
+<ul dir="auto">
+<li><code>Stringer</code></li>
+<li><code>database/sql.Scanner</code> and <code>database/sql/driver.Valuer</code></li>
+<li><code>encoding.BinaryMarshal</code> and <code>encoding.BinaryUnmarshal</code></li>
+<li><code>encoding.TextMarshal</code> and <code>encoding.TextUnmarshal</code>
+(<code>encoding/json</code> friendly!)</li>
+</ul>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Command Line Tool</h2><a id="user-content-command-line-tool" aria-label="Permalink: Command Line Tool" href="#command-line-tool"></a></p>
+<p dir="auto">This package comes with a command-line tool <code>ksuid</code>, useful for
+generating KSUIDs as well as inspecting the internal components of
+existing KSUIDs. Machine-friendly output is provided for scripting
+use cases.</p>
+<p dir="auto">Given a Go build environment, it can be installed with the command:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ go install github.com/segmentio/ksuid/cmd/ksuid"><pre>$ go install github.com/segmentio/ksuid/cmd/ksuid</pre></div>
+<p dir="auto"><h2 tabindex="-1" dir="auto">CLI Usage Examples</h2><a id="user-content-cli-usage-examples" aria-label="Permalink: CLI Usage Examples" href="#cli-usage-examples"></a></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Generate a KSUID</h3><a id="user-content-generate-a-ksuid" aria-label="Permalink: Generate a KSUID" href="#generate-a-ksuid"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid
+0ujsswThIGTUYm2K8FjOOfXtY1K"><pre>$ ksuid
+0ujsswThIGTUYm2K8FjOOfXtY1K</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Generate 4 KSUIDs</h3><a id="user-content-generate-4-ksuids" aria-label="Permalink: Generate 4 KSUIDs" href="#generate-4-ksuids"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid -n 4
+0ujsszwN8NRY24YaXiTIE2VWDTS
+0ujsswThIGTUYm2K8FjOOfXtY1K
+0ujssxh0cECutqzMgbtXSGnjorm
+0ujsszgFvbiEr7CDgE3z8MAUPFt"><pre>$ ksuid -n 4
+0ujsszwN8NRY24YaXiTIE2VWDTS
+0ujsswThIGTUYm2K8FjOOfXtY1K
+0ujssxh0cECutqzMgbtXSGnjorm
+0ujsszgFvbiEr7CDgE3z8MAUPFt</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Inspect the components of a KSUID</h3><a id="user-content-inspect-the-components-of-a-ksuid" aria-label="Permalink: Inspect the components of a KSUID" href="#inspect-the-components-of-a-ksuid"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid -f inspect 0ujtsYcgvSTl8PAuAdqWYSMnLOv
+
+REPRESENTATION:
+
+  String: 0ujtsYcgvSTl8PAuAdqWYSMnLOv
+     Raw: 0669F7EFB5A1CD34B5F99D1154FB6853345C9735
+
+COMPONENTS:
+
+       Time: 2017-10-09 21:00:47 -0700 PDT
+  Timestamp: 107608047
+    Payload: B5A1CD34B5F99D1154FB6853345C9735"><pre>$ ksuid -f inspect 0ujtsYcgvSTl8PAuAdqWYSMnLOv
+
+REPRESENTATION:
+
+  String: 0ujtsYcgvSTl8PAuAdqWYSMnLOv
+     Raw: 0669F7EFB5A1CD34B5F99D1154FB6853345C9735
+
+COMPONENTS:
+
+       Time: 2017-10-09 21:00:47 -0700 PDT
+  Timestamp: 107608047
+    Payload: B5A1CD34B5F99D1154FB6853345C9735</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Generate a KSUID and inspect its components</h3><a id="user-content-generate-a-ksuid-and-inspect-its-components" aria-label="Permalink: Generate a KSUID and inspect its components" href="#generate-a-ksuid-and-inspect-its-components"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid -f inspect
+
+REPRESENTATION:
+
+  String: 0ujzPyRiIAffKhBux4PvQdDqMHY
+     Raw: 066A029C73FC1AA3B2446246D6E89FCD909E8FE8
+
+COMPONENTS:
+
+       Time: 2017-10-09 21:46:20 -0700 PDT
+  Timestamp: 107610780
+    Payload: 73FC1AA3B2446246D6E89FCD909E8FE8
+"><pre>$ ksuid -f inspect
+
+REPRESENTATION:
+
+  String: 0ujzPyRiIAffKhBux4PvQdDqMHY
+     Raw: 066A029C73FC1AA3B2446246D6E89FCD909E8FE8
+
+COMPONENTS:
+
+       Time: 2017-10-09 21:46:20 -0700 PDT
+  Timestamp: 107610780
+    Payload: 73FC1AA3B2446246D6E89FCD909E8FE8
+</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Inspect a KSUID with template formatted inspection output</h3><a id="user-content-inspect-a-ksuid-with-template-formatted-inspection-output" aria-label="Permalink: Inspect a KSUID with template formatted inspection output" href="#inspect-a-ksuid-with-template-formatted-inspection-output"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid -f template -t &#39;{{ .Time }}: {{ .Payload }}&#39; 0ujtsYcgvSTl8PAuAdqWYSMnLOv
+2017-10-09 21:00:47 -0700 PDT: B5A1CD34B5F99D1154FB6853345C9735"><pre>$ ksuid -f template -t <span><span>&#39;</span>{{ .Time }}: {{ .Payload }}<span>&#39;</span></span> 0ujtsYcgvSTl8PAuAdqWYSMnLOv
+2017-10-09 21:00:47 -0700 PDT: B5A1CD34B5F99D1154FB6853345C9735</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Inspect multiple KSUIDs with template formatted output</h3><a id="user-content-inspect-multiple-ksuids-with-template-formatted-output" aria-label="Permalink: Inspect multiple KSUIDs with template formatted output" href="#inspect-multiple-ksuids-with-template-formatted-output"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid -f template -t &#39;{{ .Time }}: {{ .Payload }}&#39; $(ksuid -n 4)
+2017-10-09 21:05:37 -0700 PDT: 304102BC687E087CC3A811F21D113CCF
+2017-10-09 21:05:37 -0700 PDT: EAF0B240A9BFA55E079D887120D962F0
+2017-10-09 21:05:37 -0700 PDT: DF0761769909ABB0C7BB9D66F79FC041
+2017-10-09 21:05:37 -0700 PDT: 1A8F0E3D0BDEB84A5FAD702876F46543"><pre>$ ksuid -f template -t <span><span>&#39;</span>{{ .Time }}: {{ .Payload }}<span>&#39;</span></span> <span><span>$(</span>ksuid -n 4<span>)</span></span>
+2017-10-09 21:05:37 -0700 PDT: 304102BC687E087CC3A811F21D113CCF
+2017-10-09 21:05:37 -0700 PDT: EAF0B240A9BFA55E079D887120D962F0
+2017-10-09 21:05:37 -0700 PDT: DF0761769909ABB0C7BB9D66F79FC041
+2017-10-09 21:05:37 -0700 PDT: 1A8F0E3D0BDEB84A5FAD702876F46543</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Generate KSUIDs and output JSON using template formatting</h3><a id="user-content-generate-ksuids-and-output-json-using-template-formatting" aria-label="Permalink: Generate KSUIDs and output JSON using template formatting" href="#generate-ksuids-and-output-json-using-template-formatting"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ ksuid -f template -t &#39;{ &#34;timestamp&#34;: &#34;{{ .Timestamp }}&#34;, &#34;payload&#34;: &#34;{{ .Payload }}&#34;, &#34;ksuid&#34;: &#34;{{.String}}&#34;}&#39; -n 4
+{ &#34;timestamp&#34;: &#34;107611700&#34;, &#34;payload&#34;: &#34;9850EEEC191BF4FF26F99315CE43B0C8&#34;, &#34;ksuid&#34;: &#34;0uk1Hbc9dQ9pxyTqJ93IUrfhdGq&#34;}
+{ &#34;timestamp&#34;: &#34;107611700&#34;, &#34;payload&#34;: &#34;CC55072555316F45B8CA2D2979D3ED0A&#34;, &#34;ksuid&#34;: &#34;0uk1HdCJ6hUZKDgcxhpJwUl5ZEI&#34;}
+{ &#34;timestamp&#34;: &#34;107611700&#34;, &#34;payload&#34;: &#34;BA1C205D6177F0992D15EE606AE32238&#34;, &#34;ksuid&#34;: &#34;0uk1HcdvF0p8C20KtTfdRSB9XIm&#34;}
+{ &#34;timestamp&#34;: &#34;107611700&#34;, &#34;payload&#34;: &#34;67517BA309EA62AE7991B27BB6F2FCAC&#34;, &#34;ksuid&#34;: &#34;0uk1Ha7hGJ1Q9Xbnkt0yZgNwg3g&#34;}"><pre>$ ksuid -f template -t <span><span>&#39;</span>{ &#34;timestamp&#34;: &#34;{{ .Timestamp }}&#34;, &#34;payload&#34;: &#34;{{ .Payload }}&#34;, &#34;ksuid&#34;: &#34;{{.String}}&#34;}<span>&#39;</span></span> -n 4
+{ <span><span>&#34;</span>timestamp<span>&#34;</span></span>: <span><span>&#34;</span>107611700<span>&#34;</span></span>, <span><span>&#34;</span>payload<span>&#34;</span></span>: <span><span>&#34;</span>9850EEEC191BF4FF26F99315CE43B0C8<span>&#34;</span></span>, <span><span>&#34;</span>ksuid<span>&#34;</span></span>: <span><span>&#34;</span>0uk1Hbc9dQ9pxyTqJ93IUrfhdGq<span>&#34;</span></span>}
+{ <span><span>&#34;</span>timestamp<span>&#34;</span></span>: <span><span>&#34;</span>107611700<span>&#34;</span></span>, <span><span>&#34;</span>payload<span>&#34;</span></span>: <span><span>&#34;</span>CC55072555316F45B8CA2D2979D3ED0A<span>&#34;</span></span>, <span><span>&#34;</span>ksuid<span>&#34;</span></span>: <span><span>&#34;</span>0uk1HdCJ6hUZKDgcxhpJwUl5ZEI<span>&#34;</span></span>}
+{ <span><span>&#34;</span>timestamp<span>&#34;</span></span>: <span><span>&#34;</span>107611700<span>&#34;</span></span>, <span><span>&#34;</span>payload<span>&#34;</span></span>: <span><span>&#34;</span>BA1C205D6177F0992D15EE606AE32238<span>&#34;</span></span>, <span><span>&#34;</span>ksuid<span>&#34;</span></span>: <span><span>&#34;</span>0uk1HcdvF0p8C20KtTfdRSB9XIm<span>&#34;</span></span>}
+{ <span><span>&#34;</span>timestamp<span>&#34;</span></span>: <span><span>&#34;</span>107611700<span>&#34;</span></span>, <span><span>&#34;</span>payload<span>&#34;</span></span>: <span><span>&#34;</span>67517BA309EA62AE7991B27BB6F2FCAC<span>&#34;</span></span>, <span><span>&#34;</span>ksuid<span>&#34;</span></span>: <span><span>&#34;</span>0uk1Ha7hGJ1Q9Xbnkt0yZgNwg3g<span>&#34;</span></span>}</pre></div>
+<p dir="auto"><h2 tabindex="-1" dir="auto">OrNil functions</h2><a id="user-content-ornil-functions" aria-label="Permalink: OrNil functions" href="#ornil-functions"></a></p>
+<p dir="auto">There are times when you are sure your ksuid is correct. But you need to get it from bytes or string and pass it
+it&#39;s to the structure. For this, there are OrNil functions that return ksuid.Nil on error and can be called
+directly in the structure.</p>
+<p dir="auto"><strong>Functions:</strong></p>
+<ul dir="auto">
+<li><code>ParseOrNil()</code></li>
+<li><code>FromPartsOrNil()</code></li>
+<li><code>FromBytesOrNil()</code></li>
+</ul>
+<p dir="auto">An example of using the function without OrNil:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="func getPosts(before, after []byte) {
+	b, err := ksuid.FromBytes(before)
+	if err != nil {
+		// handle error
+	}
+
+	a, err := ksuid.FromBytes(after)
+	if err != nil {
+		// handle error
+	}
+
+	sortOptions := SortOptions{Before: b, After: a}
+}"><pre><span>func</span> <span>getPosts</span>(<span>before</span>, <span>after</span> []<span>byte</span>) {
+	<span>b</span>, <span>err</span> <span>:=</span> <span>ksuid</span>.<span>FromBytes</span>(<span>before</span>)
+	<span>if</span> <span>err</span> <span>!=</span> <span>nil</span> {
+		<span>// handle error</span>
+	}
+
+	<span>a</span>, <span>err</span> <span>:=</span> <span>ksuid</span>.<span>FromBytes</span>(<span>after</span>)
+	<span>if</span> <span>err</span> <span>!=</span> <span>nil</span> {
+		<span>// handle error</span>
+	}
+
+	<span>sortOptions</span> <span>:=</span> <span>SortOptions</span>{<span>Before</span>: <span>b</span>, <span>After</span>: <span>a</span>}
+}</pre></div>
+<p dir="auto">It is much more convenient to do it like this:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="func getPosts(before, after []byte) {
+	sortOptions := SortOptions{
+		Before: ksuid.FromBytesOrNil(before),
+		After:  ksuid.FromBytesOrNil(after),
+	}
+}"><pre><span>func</span> <span>getPosts</span>(<span>before</span>, <span>after</span> []<span>byte</span>) {
+	<span>sortOptions</span> <span>:=</span> <span>SortOptions</span>{
+		<span>Before</span>: <span>ksuid</span>.<span>FromBytesOrNil</span>(<span>before</span>),
+		<span>After</span>:  <span>ksuid</span>.<span>FromBytesOrNil</span>(<span>after</span>),
+	}
+}</pre></div>
+<p dir="auto">OrNil functions are also used in many other libraries:</p>
+<ul dir="auto">
+<li><a href="https://github.com/satori/go.uuid">satori/go.uuid</a></li>
+<li><a href="https://github.com/oklog/ulid">oklog/ulid</a> (panic)</li>
+</ul>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Implementations for other languages</h2><a id="user-content-implementations-for-other-languages" aria-label="Permalink: Implementations for other languages" href="#implementations-for-other-languages"></a></p>
+<ul dir="auto">
+<li>Python: <a href="https://github.com/svixhq/python-ksuid/">svix-ksuid</a></li>
+<li>Python: <a href="https://github.com/timonwong/cyksuid">cyksuid</a></li>
+<li>Ruby: <a href="https://github.com/michaelherold/ksuid-ruby">ksuid-ruby</a></li>
+<li>Java: <a href="https://github.com/ksuid/ksuid">ksuid</a></li>
+<li>Java: <a href="https://github.com/f4b6a3/ksuid-creator">ksuid-creator</a></li>
+<li>Rust: <a href="https://github.com/svix/rust-ksuid">svix-ksuid</a></li>
+<li>dotNet: <a href="https://github.com/JoyMoe/Ksuid.Net">Ksuid.Net</a></li>
+<li>dotnet: <a href="https://github.com/steve-warren/ksuid">KsuidDotNet</a></li>
+<li>Erlang: <a href="https://github.com/exograd/erl-ksuid">erl-ksuid</a></li>
+<li>Zig: <a href="https://github.com/toffaletti/zig-ksuid">zig-ksuid</a></li>
+</ul>
+<p dir="auto"><h2 tabindex="-1" dir="auto">License</h2><a id="user-content-license" aria-label="Permalink: License" href="#license"></a></p>
+<p dir="auto">ksuid source code is available under an MIT <a href="https://github.com/segmentio/ksuid/blob/master/LICENSE.md">License</a>.</p>
+</article></div></div>

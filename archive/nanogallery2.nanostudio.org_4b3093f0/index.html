@@ -1,0 +1,175 @@
+---
+url: https://nanogallery2.nanostudio.org/
+title: modern photo / video gallery and lightbox [javascript library]
+archived_at: 2024-04-17T01:12:12.643510574+08:00
+---
+<div id="readability-page-1" class="page"><div>
+<h2>nanogallery2 - get started</h2>
+<p>
+Use one of these HTML templates for quickly building a gallery with lightbox from scratch.
+</p>
+<p>
+<b>Get the script:</b>
+<br/>
+</p><p>
+      Download it from <a href="https://github.com/nanostudio-org/nanogallery2/releases" target="_blank">Github</a>
+<br/>
+      Or install from NPM: <code>npm install nanogallery2</code>
+<br/>
+      Or use nanogallery from a CDN:
+<a href="https://cdnjs.com/libraries/nanogallery2" target="_blank">CDNJS</a>
+<a href="https://www.jsdelivr.com/package/npm/nanogallery2" target="_blank">JSDELIVER</a>
+<a href="https://unpkg.com/nanogallery2/dist/" target="_blank">UNPKG</a>
+</p>
+
+<p>
+<b>Include jQuery:</b>
+<br/>
+</p><p>
+      The jQuery library needs to be included before jquery.nanogallery2.min.js file.
+<br/>
+      Include jQuery only once per page.
+<br/>
+      Compatibility issue: do not use jQuery v3.0/v3.1 because of a jQuery regression (<a href="" target="_blank">described here</a>).
+</p>
+
+<p>
+<b>Full working HTML template:</b>
+</p>
+<h3>
+
+</h3>
+<div id="init_markup">
+<p>No javascript required. Options are configured with the <code>data-nanogallery2</code> attribute.</p>
+<pre><code>
+    &lt;html&gt;
+        &lt;head&gt;
+            &lt;meta name=&#34;viewport&#34; content=&#34;user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1&#34;&gt;          
+            
+            <span>&lt;!-- jQuery --&gt;</span>
+            &lt;script src=&#34;https://cdn.jsdelivr.net/npm/<a href="https://nanogallery2.nanostudio.org/cdn-cgi/l/email-protection" data-cfemail="016b707464737841322f322f30">[email protected]</a>/dist/jquery.min.js&#34; type=&#34;text/javascript&#34;&gt;&lt;/script&gt;
+          
+            <span>&lt;!-- nanogallery2 --&gt;</span>
+            &lt;link  href=&#34;https://cdn.jsdelivr.net/npm/nanogallery2@3/dist/css/nanogallery2.min.css&#34; rel=&#34;stylesheet&#34; type=&#34;text/css&#34;&gt;
+            &lt;script  type=&#34;text/javascript&#34; src=&#34;https://cdn.jsdelivr.net/npm/nanogallery2@3/dist/jquery.nanogallery2.min.js&#34;&gt;&lt;/script&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+        
+              &lt;h1&gt;gallery made with nanogallery2&lt;/h1&gt;
+
+              <span>&lt;!-- ### start of the gallery definition ### --&gt;</span>
+              &lt;div id=&#34;nanogallery2&#34;
+              
+                  <span>&lt;!-- gallery settings --&gt;</span>
+                  data-nanogallery2 = &#39;{
+                        &#34;thumbnailHeight&#34;:  150,
+                        &#34;thumbnailWidth&#34;:   150,
+                        &#34;itemsBaseURL&#34;:     &#34;https://nanogallery2.nanostudio.org/samples/&#34;
+                      }&#39; &gt;
+                      
+                  <span>&lt;!-- gallery content --&gt;</span>
+                  &lt;a href = &#34;berlin1.jpg&#34;   data-ngThumb = &#34;berlin1_t.jpg&#34; &gt; Berlin 1 &lt;/a&gt;
+                  &lt;a href = &#34;berlin2.jpg&#34;   data-ngThumb = &#34;berlin2_t.jpg&#34; &gt; Berlin 2 &lt;/a&gt;
+                  &lt;a href = &#34;berlin3.jpg&#34;   data-ngThumb = &#34;berlin2_t.jpg&#34; &gt; Berlin 3 &lt;/a&gt;
+              &lt;/div&gt;
+              <span>&lt;!-- ### end of the gallery definition ### --&gt;</span>
+            
+          &lt;/body&gt;
+      &lt;/html&gt;
+          </code></pre>
+</div>
+<div id="init_js">
+<pre><code>
+    &lt;html&gt;
+        &lt;head&gt;
+            &lt;meta name=&#34;viewport&#34; content=&#34;user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1&#34;&gt;          
+            
+            <span>&lt;!-- jQuery --&gt;</span>
+            &lt;script src=&#34;https://cdn.jsdelivr.net/npm/<a href="https://nanogallery2.nanostudio.org/cdn-cgi/l/email-protection" data-cfemail="660c171303141f265548554857">[email protected]</a>/dist/jquery.min.js&#34; type=&#34;text/javascript&#34;&gt;&lt;/script&gt;
+          
+            <span>&lt;!-- nanogallery2 --&gt;</span>
+            &lt;link  href=&#34;https://cdn.jsdelivr.net/npm/nanogallery2@3/dist/css/nanogallery2.min.css&#34; rel=&#34;stylesheet&#34; type=&#34;text/css&#34;&gt;
+            &lt;script  type=&#34;text/javascript&#34; src=&#34;https://cdn.jsdelivr.net/npm/nanogallery2@3/dist/jquery.nanogallery2.min.js&#34;&gt;&lt;/script&gt;
+        &lt;/head&gt;
+        &lt;body&gt;
+        
+              &lt;h1&gt;gallery made with nanogallery2&lt;/h1&gt;
+
+              <span>&lt;!-- ### position of the gallery ### --&gt;</span>
+              &lt;div id=&#34;nanogallery2&#34;&gt;gallery_made_with_nanogallery2&lt;/div&gt;
+            
+              &lt;script&gt;
+                 jQuery(document).ready(function () {
+
+                    jQuery(&#34;#nanogallery2&#34;).nanogallery2( {
+                        <span>// ### gallery settings ### </span>
+                        thumbnailHeight:  150,
+                        thumbnailWidth:   150,
+                        itemsBaseURL:     &#39;https://nanogallery2.nanostudio.org/samples/&#39;,
+                        
+                        <span>// ### gallery content ### </span>
+                        items: [
+                            { src: &#39;berlin1.jpg&#39;, srct: &#39;berlin1_t.jpg&#39;, title: &#39;Berlin 1&#39; },
+                            { src: &#39;berlin2.jpg&#39;, srct: &#39;berlin2_t.jpg&#39;, title: &#39;Berlin 2&#39; },
+                            { src: &#39;berlin3.jpg&#39;, srct: &#39;berlin3_t.jpg&#39;, title: &#39;Berlin 3&#39; }
+                          ]
+                      });
+                  });
+              &lt;/script&gt;
+
+          &lt;/body&gt;
+      &lt;/html&gt;
+          </code></pre>
+</div>
+</div><div>
+<h2>What next ?</h2>
+<p>
+As you see, it is really easy to integrate nanogallery2 into your website. So here are your next steps:
+</p>
+</div><div>
+<div>
+<h3>
+User guide
+</h3>
+<div>
+<p>
+Learn how to build, configure and customize your gallery and lightbox.
+</p><p>
+<a href="https://nanogallery2.nanostudio.org/documentation.html">   <b> Read</b>   </a></p></div>
+</div>
+<div>
+<h3>
+Content source
+</h3>
+<div>
+<p>
+See how to define the content (photos / videos) of your gallery and lightbox.
+</p><p>
+<a href="https://nanogallery2.nanostudio.org/datasource.html">   <b> Read</b>   </a></p></div>
+</div>
+<div>
+<h3>
+API
+</h3>
+<div>
+<p>
+Extend and manage nanogallery2 with javascript.
+</p><p>
+<a href="https://nanogallery2.nanostudio.org/api.html">   <b> Read</b>   </a></p></div>
+</div>
+<div>
+<h3>
+Need help?
+</h3>
+<div>
+<p>
+Share your technical questions with the community. For problems, please include an example demonstrating it.
+</p><p>
+<a href="https://github.com/nanostudio-org/nanogallery2/issues" target="_blank">   <b>   Github</b>   </a></p></div>
+</div>
+</div><div>
+<h2>nanogallery2 licensing</h2>
+<div><p>
+clear and simple : GPLv3 license
+</p></div>
+</div></div>

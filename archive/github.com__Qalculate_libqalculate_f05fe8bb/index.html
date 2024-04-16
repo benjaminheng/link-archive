@@ -1,0 +1,247 @@
+---
+url: https://github.com/Qalculate/libqalculate
+title: 'GitHub - Qalculate/libqalculate: Qalculate! library and CLI'
+archived_at: 2024-04-17T01:12:22.503266237+08:00
+---
+<div id="readability-page-1" class="page"><div data-hpc="true"><article itemprop="text">
+<p dir="auto">Qalculate! library and CLI</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/d697f1798684bfa34c5692f1d3d28b68cdb75dd6aabffe705a9213c5111c9b5b/687474703a2f2f71616c63756c6174652e6769746875622e696f2f696d616765732f71616c632e706e67"><img src="https://camo.githubusercontent.com/d697f1798684bfa34c5692f1d3d28b68cdb75dd6aabffe705a9213c5111c9b5b/687474703a2f2f71616c63756c6174652e6769746875622e696f2f696d616765732f71616c632e706e67" alt="Image of qalc" data-canonical-src="http://qalculate.github.io/images/qalc.png"/></a></p>
+<p dir="auto">Qalculate! is a multi-purpose cross-platform desktop calculator. It is simple to use but provides power and versatility normally reserved for complicated math packages, as well as useful tools for everyday needs (such as currency conversion and percent calculation). Features include a large library of customizable functions, unit calculations and conversion, symbolic calculations (including integrals and equations), arbitrary precision, uncertainty propagation, interval arithmetic, plotting, and a user-friendly interface (GTK+, Qt, and CLI).</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Requirements</h2><a id="user-content-requirements" aria-label="Permalink: Requirements" href="#requirements"></a></p>
+<ul dir="auto">
+<li>GMP and MPFR</li>
+<li>libxml2</li>
+<li>libcurl, icu, gettext (recommended)</li>
+<li>iconv, readline (recommended for CLI)</li>
+<li>Gnuplot (optional)</li>
+<li>doxygen (for compilation of git version)</li>
+</ul>
+<p dir="auto">For Linux distributions which provide separate development packages, these must be installed for all the required libraries (e.g. libmpfr-dev) before compilation.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Installation</h2><a id="user-content-installation" aria-label="Permalink: Installation" href="#installation"></a></p>
+<p dir="auto">Instructions and download links for installers, binaries packages, and the source code of released versions of Qalculate! are available at <a href="https://qalculate.github.io/downloads.html" rel="nofollow">https://qalculate.github.io/downloads.html</a>.</p>
+<p dir="auto">In a terminal window in the top source code directory run</p>
+<ul dir="auto">
+<li><code>./autogen.sh</code> <em>(not required if using a release source tarball, only if using the git version)</em></li>
+<li><code>./configure</code></li>
+<li><code>make</code></li>
+<li><code>make install</code> <em>(as root, e.g. <code>sudo make install</code>)</em></li>
+<li><code>ldconfig</code> <em>(if necessary, as root)</em></li>
+</ul>
+<p dir="auto">If libqalculate is installed in /usr/local (default) you may need to add /usr/local/lib to the library path of the system (add /usr/local/lib to a file under /etc/ld.so.conf.d/ and run ldconfig).</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">API Documentation</h2><a id="user-content-api-documentation" aria-label="Permalink: API Documentation" href="#api-documentation"></a></p>
+<p dir="auto">The API documentation is included in the package and is installed in $docdir/libqalculate/html (usually /usr/share/doc/libqalculate/html). It is generated when running autogen.sh.</p>
+<p dir="auto">It is also available online at <a href="http://qalculate.github.io/reference/index.html" rel="nofollow">http://qalculate.github.io/reference/index.html</a>.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Using the CLI program &#39;qalc&#39;</h2><a id="user-content-using-the-cli-program-qalc" aria-label="Permalink: Using the CLI program &#39;qalc&#39;" href="#using-the-cli-program-qalc"></a></p>
+<p dir="auto">To calculate a single expression from the command line (non-interactive mode) enter
+<code>qalc mathematical expression</code> <em>(e.g. qalc 5+2)</em></p>
+<p dir="auto"><code>qalc --help</code> shows information about command line options in non-interactive mode.</p>
+<p dir="auto">If you run <code>qalc</code> without any mathematical expression the program will start in interactive mode, where you can enter multiple expressions with history and completion, manipulate the result and change settings. Type <code>help</code> in interactive mode for more information.</p>
+<p dir="auto">A man page is also available (shown using the command <code>man qalc</code>, or online at <a href="https://qalculate.github.io/manual/qalc.html" rel="nofollow">https://qalculate.github.io/manual/qalc.html</a>).</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Other Applications</h2><a id="user-content-other-applications" aria-label="Permalink: Other Applications" href="#other-applications"></a></p>
+<p dir="auto">The main user interfaces for libqalculate are
+qalculate-gtk (<a href="https://github.com/Qalculate/qalculate-gtk">https://github.com/Qalculate/qalculate-gtk</a>) and
+qalculate-qt (<a href="https://github.com/Qalculate/qalculate-qt">https://github.com/Qalculate/qalculate-qt</a>).</p>
+<p dir="auto">Other software using libqalculate include</p>
+<ul dir="auto">
+<li>KDE Plasma Workspace (<a href="https://www.kde.org/workspaces/plasmadesktop/" rel="nofollow">https://www.kde.org/workspaces/plasmadesktop/</a>)</li>
+<li>Cantor (<a href="http://kde.org/applications/education/cantor/" rel="nofollow">http://kde.org/applications/education/cantor/</a>)</li>
+<li>Step (<a href="http://kde.org/applications/education/step/" rel="nofollow">http://kde.org/applications/education/step/</a>)</li>
+<li>Qalculate widget for KDE Plasma (<a href="https://store.kde.org/p/1155946/" rel="nofollow">https://store.kde.org/p/1155946/</a>)</li>
+</ul>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Features</h2><a id="user-content-features" aria-label="Permalink: Features" href="#features"></a></p>
+<ul dir="auto">
+<li>Calculation and parsing:
+<ul dir="auto">
+<li>Basic operations and operators: + - * / mod ^ E () &amp;&amp; || ! &lt; &gt; &gt;= &lt;= != ~ &amp; | &lt;&lt; &gt;&gt; xor</li>
+<li>Fault-tolerant parsing of strings: log 5 / 2 .5 (3) + (2( 3 +5 = ln(5) / (2.5 * 3) + 2 * (3 + 5)</li>
+<li>Expressions may contain any combination of numbers, functions, units, variables, vectors and matrices, and dates</li>
+<li>Supports complex and infinite numbers</li>
+<li>Propagation of uncertainty</li>
+<li>Interval arithmetic (for determination of the number of significant digits or direct calculation with intervals of numbers)</li>
+<li>Supports all common number bases, as well as negative and non-integer radices, sexagesimal numbers, time format, and roman numerals</li>
+<li>Ability to disable functions, variables, units or unknown variables for less confusion: e.g. when you do not want (a+b)^2 to mean (are+barn)^2 but (&#34;a&#34;+&#34;b&#34;)^2</li>
+<li>Controllable implicit multiplication</li>
+<li>Matrices and vectors, and related operations (determinants etc.)</li>
+<li>Verbose error messages</li>
+<li>Arbitrary precision</li>
+<li>RPN mode</li>
+</ul>
+</li>
+<li>Result display:
+<ul dir="auto">
+<li>Supports all common number bases, as well as negative and non-integer radices, sexagesimal numbers, time format, and roman numerals</li>
+<li>Many customization options: precision, max/min decimals, complex form, multiplication sign, etc.</li>
+<li>Exact or approximate: sqrt(32) returns 4 * sqrt(2) or 5.66</li>
+<li>Simple and mixed fractions: 4 / 6 * 2 = 1.333... = 4/3 = 1 + 1/3</li>
+</ul>
+</li>
+<li>Symbolic calculation:
+<ul dir="auto">
+<li>E.g. (x + y)^2 = x^2 + 2xy + y^2; 4 &#34;apples&#34; + 3 &#34;oranges&#34;</li>
+<li>Factorization and simplification</li>
+<li>Differentiation and integration</li>
+<li>Can solve most equations and inequalities</li>
+<li>Customizable assumptions give different results (e.g. ln(2x) = ln(2) + ln(x) if x is assumed positive)</li>
+</ul>
+</li>
+<li>Functions:
+<ul dir="auto">
+<li>Hundreds of flexible functions: trigonometry, exponents and logarithms, combinatorics, geometry, calculus, statistics, finance, time and date, etc.</li>
+<li>Can easily be created, edited and saved to a standard XML file</li>
+</ul>
+</li>
+<li>Units:
+<ul dir="auto">
+<li>Supports all SI units and prefixes (including binary), as well as imperial and other unit systems</li>
+<li>Automatic conversion: ft + yd + m = 2.2192 m</li>
+<li>Explicit conversion: 5 m/s to mi/h = 11.18 miles/hour</li>
+<li>Smart conversion: automatically converts 5 kg*m/s^2 to 5 N</li>
+<li>Currency conversion with retrieval of daily exchange rates</li>
+<li>Different name forms: abbreviation, singular, plural (m, meter, meters)</li>
+<li>Can easily be created, edited and saved to a standard XML file</li>
+</ul>
+</li>
+<li>Variables and constants:
+<ul dir="auto">
+<li>Basic constants: pi, e, etc.</li>
+<li>Lots of physical constants (with or without units) and properties of chemical element</li>
+<li>CSV file import and export</li>
+<li>Can easily be created, edited and saved to a standard XML file</li>
+<li>Flexible - may contain simple numbers, units, or whole expressions</li>
+<li>Data sets with objects and associated properties in database-like structure</li>
+</ul>
+</li>
+<li>Plotting:
+<ul dir="auto">
+<li>Uses Gnuplot</li>
+<li>Can plot functions or data (matrices and vectors)</li>
+<li>Ability to save plot to PNG image, postscript, etc.</li>
+<li>Several customization options</li>
+</ul>
+</li>
+<li>and more...</li>
+</ul>
+<p dir="auto"><em>For more details about the syntax, and available functions, units, and variables, please consult the manual (<a href="https://qalculate.github.io/manual/" rel="nofollow">https://qalculate.github.io/manual/</a>)</em></p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Examples (expressions)</h2><a id="user-content-examples-expressions" aria-label="Permalink: Examples (expressions)" href="#examples-expressions"></a></p>
+<p dir="auto"><em>Note that semicolon can be replaced with comma in function arguments, if comma is not used as decimal or thousands separator.</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Basic functions and operators</h3><a id="user-content-basic-functions-and-operators" aria-label="Permalink: Basic functions and operators" href="#basic-functions-and-operators"></a></p>
+<p dir="auto">sqrt 4 <em>= sqrt(4) = 4^(0.5) = 4^(1/2) = 2</em></p>
+<p dir="auto">sqrt(25; 16; 9; 4) <em>= [5  4  3  2]</em></p>
+<p dir="auto">sqrt(32) <em>= 4 × √(2) (in exact mode)</em></p>
+<p dir="auto">cbrt(−27) <em>= root(-27; 3) = −3 (real root)</em></p>
+<p dir="auto">(−27)^(1/3) <em>≈ 1.5 + 2.5980762i (principal root)</em></p>
+<p dir="auto">ln 25 <em>= log(25; e) ≈ 3.2188758</em></p>
+<p dir="auto">log2(4)/log10(100) <em>= log(4; 2)/log(100; 10) = 1</em></p>
+<p dir="auto">5! <em>= 1 × 2 × 3 × 4 × 5 = 120</em></p>
+<p dir="auto">5\2 <em>= 5//2 = trunc(5 / 2) = 2 (integer division)</em></p>
+<p dir="auto">5 mod 3 <em>= mod(5; 3) = 2</em></p>
+<p dir="auto">52 to factors <em>= 2^2 × 13</em></p>
+<p dir="auto">25/4 × 3/5 to fraction <em>= 3 + 3/4</em></p>
+<p dir="auto">gcd(63; 27) <em>= 9</em></p>
+<p dir="auto">sin(pi/2) − cos(pi) <em>= sin(90 deg) − cos(180 deg) = 2</em></p>
+<p dir="auto">sum(x; 1; 5) <em>= 1 + 2 + 3 + 4 + 5 = 15</em></p>
+<p dir="auto">sum(\i^2+sin(\i); 1; 5; \i) <em>= 1^2 + sin(1) + 2^2 + sin(2) + ... ≈ 55.176162</em></p>
+<p dir="auto">product(x; 1; 5) <em>= 1 × 2 × 3 × 4 × 5 = 120</em></p>
+<p dir="auto">var1:=5 <em>(stores value 5 in variable var1)</em>
+var1 × 2 <em>= 10</em></p>
+<p dir="auto">5^2 #this is a comment <em>= 25</em></p>
+<p dir="auto">sinh(0.5) where sinh()=cosh() <em>= cosh(0.5) ≈ 1.1276260</em></p>
+<p dir="auto">plot(x^2; −5; 5) <em>(plots the function y=x^2 from -5 to 5)</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Units</h3><a id="user-content-units" aria-label="Permalink: Units" href="#units"></a></p>
+<p dir="auto">5 dm3 to L <em>= 5 dm^3 to L = 5 L</em></p>
+<p dir="auto">20 miles / 2h to km/h <em>= 16.09344 km/h</em></p>
+<p dir="auto">1.74 to ft <em>= 1.74 m to ft ≈ 5 ft + 8.5039370 in</em></p>
+<p dir="auto">1.74 m to -ft <em>≈ 5.7086614 ft</em></p>
+<p dir="auto">100 lbf × 60 mph to hp <em>≈ 16 hp</em></p>
+<p dir="auto">50 Ω × 2 A <em>= 100 V</em></p>
+<p dir="auto">50 Ω × 2 A to base <em>= 100 kg·m²/(s³·A)</em></p>
+<p dir="auto">10 N / 5 Pa <em>= (10 N)/(5 Pa) = 2 m²</em></p>
+<p dir="auto">5 m/s to s/m <em>= 0.2 s/m</em></p>
+<p dir="auto">500 € − 20% to $ <em>≈ $451.04</em></p>
+<p dir="auto">500 megabit/s × 2 h to b?byte <em>≈ 419.09516 gibibytes</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Physical constants</h3><a id="user-content-physical-constants" aria-label="Permalink: Physical constants" href="#physical-constants"></a></p>
+<p dir="auto">k_e / G × a_0 <em>= (coulombs_constant / newtonian_constant) × bohr_radius ≈ 7.126e9 kg·H·m^−1</em></p>
+<p dir="auto">ℎ / (λ_C × c) <em>= planck ∕ (compton_wavelength × speed_of_light) ≈ 9.1093837e-31 kg</em></p>
+<p dir="auto">5 ns × rydberg to c <em>≈ 6.0793194E-8c</em></p>
+<p dir="auto">atom(Hg; weight) + atom(C; weight) × 4 to g <em>≈ 4.129e-22 g</em></p>
+<p dir="auto">(G × planet(earth; mass) × planet(mars; mass))/(54.6e6 km)^2 <em>≈ 8.58e16 N (gravitational attraction between earth and mars)</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Uncertainty and interval arithmetic</h3><a id="user-content-uncertainty-and-interval-arithmetic" aria-label="Permalink: Uncertainty and interval arithmetic" href="#uncertainty-and-interval-arithmetic"></a></p>
+<p dir="auto"><em>&#34;±&#34; can be replaced with &#34;+/-&#34;; result with interval arithmetic activated is shown in parenthesis</em></p>
+<p dir="auto">sin(5±0.2)^2/2±0.3 <em>≈ 0.460±0.088 (0.46±0.12)</em></p>
+<p dir="auto">(2±0.02 J)/(523±5 W) <em>≈ 3.824±0.053 ms (3.825±0.075 ms)</em></p>
+<p dir="auto">interval(−2; 5)^2 <em>≈ intervall(−8.2500000; 12.750000) (intervall(0; 25))</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Algebra</h3><a id="user-content-algebra" aria-label="Permalink: Algebra" href="#algebra"></a></p>
+<p dir="auto">(5x^2 + 2)/(x − 3) <em>= 5x + 15 + 47/(x − 3)</em></p>
+<p dir="auto">(\a + \b)(\a − \b) <em>= (&#34;a&#34; + &#34;b&#34;)(&#34;a&#34; − &#34;b&#34;) = &#39;a&#39;^2 − &#39;b&#39;^2</em></p>
+<p dir="auto">(x + 2)(x − 3)^3 <em>= x^4 − 7x^3 + 9x^2 + 27x − 54</em></p>
+<p dir="auto">factorize x^4 − 7x^3 + 9x^2 + 27x − 54 <em>= x^4 − 7x^3 + 9x^2 + 27x − 54 to factors = (x + 2)(x − 3)^3</em></p>
+<p dir="auto">cos(x)+3y^2 where x=pi and y=2 <em>= 11</em></p>
+<p dir="auto">gcd(25x; 5x^2) <em>= 5x</em></p>
+<p dir="auto">1/(x^2+2x−3) to partial fraction <em>= 1/(4x − 4) − 1/(4x + 12)</em></p>
+<p dir="auto">x+x^2+4 = 16
+<em>= (x = 3 or x = −4)</em></p>
+<p dir="auto">x^2/(5 m) − hypot(x; 4 m) = 2 m where x &gt; 0
+<em>= (x ≈ 7.1340411 m)</em></p>
+<p dir="auto">cylinder(20cm; x) = 20L <em>(calculates the height of a 20 L cylinder with radius of 20 cm)</em>
+<em>= (x = (1 / (2π)) m)</em>
+<em>= (x ≈ 16 cm)</em></p>
+<p dir="auto">asin(sqrt(x)) = 0.2
+<em>= (x = sin(0.2)^2)</em>
+<em>= (x ≈ 0.039469503)</em></p>
+<p dir="auto">x^2 &gt; 25x
+<em>= (x &gt; 25 or x &lt; 0)</em></p>
+<p dir="auto">solve(x = y+ln(y); y) <em>= lambertw(e^x)</em></p>
+<p dir="auto">solve2(5x=2y^2; sqrt(y)=2; x; y) <em>= 32/5</em></p>
+<p dir="auto">multisolve([5x=2y+32, y=2z, z=2x]; [x, y, z]) <em>= [−32/3  −128/3  −64/3]</em></p>
+<p dir="auto">dsolve(diff(y; x) − 2y = 4x; 5) <em>= 6e^(2x) − 2x − 1</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Calculus</h3><a id="user-content-calculus" aria-label="Permalink: Calculus" href="#calculus"></a></p>
+<p dir="auto">diff(6x^2) <em>= 12x</em></p>
+<p dir="auto">diff(sinh(x^2)/(5x) + 3xy/sqrt(x)) <em>= (2/5) × cosh(x^2) − sinh(x^2)/(5x^2) + (3y)/(2 × √(x))</em></p>
+<p dir="auto">integrate(6x^2) <em>= 2x^3 + C</em></p>
+<p dir="auto">integrate(6x^2; 1; 5) <em>= 248</em></p>
+<p dir="auto">integrate(sinh(x^2)/(5x) + 3xy/sqrt(x)) <em>= 2x × √(x) × y + Shi(x^2) / 10 + C</em></p>
+<p dir="auto">integrate(sinh(x^2)/(5x) + 3xy/sqrt(x); 1; 2) <em>≈ 3.6568542y + 0.87600760</em></p>
+<p dir="auto">limit(ln(1 + 4x)/(3^x − 1); 0) <em>= 4 / ln(3)</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Matrices and vectors</h3><a id="user-content-matrices-and-vectors" aria-label="Permalink: Matrices and vectors" href="#matrices-and-vectors"></a></p>
+<p dir="auto">[1, 2, 3; 4, 5, 6] <em>= ((1; 2; 3); (4; 5; 6)) = [1  2  3; 4  5  6] (2×3 matrix)</em></p>
+<p dir="auto">1...5 = (1:5) = (1:1:5) = <em>[1  2  3  4  5]</em></p>
+<p dir="auto">(1; 2; 3) × 2 − 2 <em>= [(1 × 2 − 2), (2 × 2 − 2), (3 × 2 − 2)] = [0  2  4]</em></p>
+<p dir="auto">[1 2 3].[4 5 6] = dot([1 2 3]; [4 5 6]) <em>= 32 (dot product)</em></p>
+<p dir="auto">cross([1 2 3]; [4 5 6]) <em>= [−3 6 −3] (cross product)</em></p>
+<p dir="auto">[1 2 3; 4 5 6].×[7 8 9; 10 11 12] <em>= hadamard([1 2 3; 4 5 6]; [7 8 9; 10 11 12]) = [7  16  27; 40  55  72] (hadamard product)</em></p>
+<p dir="auto">[1 2 3; 4 5 6] × [7 8; 9 10; 11 12] <em>= [58  64; 139  154] (matrix multiplication)</em></p>
+<p dir="auto">[1 2; 3 4]^-1 <em>= inverse([1 2; 3 4]) = [−2  1; 1.5  −0.5]</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Statistics</h3><a id="user-content-statistics" aria-label="Permalink: Statistics" href="#statistics"></a></p>
+<p dir="auto">mean(5; 6; 4; 2; 3; 7) <em>= 4.5</em></p>
+<p dir="auto">stdev(5; 6; 4; 2; 3; 7) <em>≈ 1.87</em></p>
+<p dir="auto">quartile([5 6 4 2 3 7]; 1) <em>= percentile((5; 6; 4; 2; 3; 7); 25) ≈ 2.9166667</em></p>
+<p dir="auto">normdist(7; 5) <em>≈ 0.053990967</em></p>
+<p dir="auto">spearman(column(load(test.csv); 1); column(load(test.csv); 2)) <em>≈ −0.33737388 (depends on the data in the CSV file)</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Time and date</h3><a id="user-content-time-and-date" aria-label="Permalink: Time and date" href="#time-and-date"></a></p>
+<p dir="auto">10:31 + 8:30 to time <em>= 19:01</em></p>
+<p dir="auto">10h 31min + 8h 30min to time <em>= 19:01</em></p>
+<p dir="auto">now to utc <em>= &#34;2020-07-10T07:50:40Z&#34;</em></p>
+<p dir="auto">&#34;2020-07-10T07:50CET&#34; to utc+8 <em>= &#34;2020-07-10T14:50:00+08:00&#34;</em></p>
+<p dir="auto">&#34;2020-05-20&#34; + 523d <em>= addDays(2020-05-20; 523) = &#34;2021-10-25&#34;</em></p>
+<p dir="auto">today − 5 days <em>= &#34;2020-07-05&#34;</em></p>
+<p dir="auto">&#34;2020-10-05&#34; − today <em>= days(today; 2020-10-05) = 87 d</em></p>
+<p dir="auto">timestamp(2020-05-20) <em>= 1 589 925 600</em></p>
+<p dir="auto">stamptodate(1 589 925 600) <em>= &#34;2020-05-20T00:00:00&#34;</em></p>
+<p dir="auto">&#34;2020-05-20&#34; to calendars <em>(returns date in Hebrew, Islamic, Persian, Indian, Chinese, Julian, Coptic, and Ethiopian calendars)</em></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Number bases</h3><a id="user-content-number-bases" aria-label="Permalink: Number bases" href="#number-bases"></a></p>
+<p dir="auto">52 to bin <em>= 0011 0100</em></p>
+<p dir="auto">52 to bin16 <em>= 0000 0000 0011 0100</em></p>
+<p dir="auto">52 to oct <em>= 064</em></p>
+<p dir="auto">52 to hex <em>= 0x34</em></p>
+<p dir="auto">0x34 = hex(34) <em>= base(34; 16) = 52</em></p>
+<p dir="auto">523&lt;&lt;2&amp;250 to bin <em>= 0010 1000</em></p>
+<p dir="auto">52.345 to float <em>≈ 0100 0010 0101 0001 0110 0001 0100 1000</em></p>
+<p dir="auto">float(01000010010100010110000101001000) <em>= 1715241/32768 ≈ 52.345001</em></p>
+<p dir="auto">floatError(52.345) <em>≈ 1.2207031e-6</em></p>
+<p dir="auto">52.34 to sexa <em>= 52°20′24″</em></p>
+<p dir="auto">1978 to roman <em>= MCMLXXVIII</em></p>
+<p dir="auto">52 to base 32 <em>= 1K</em></p>
+<p dir="auto">sqrt(32) to base sqrt(2) <em>≈ 100000</em></p>
+<p dir="auto">0xD8 to unicode <em>= Ø</em></p>
+<p dir="auto">code(Ø) to hex <em>= 0xD8</em></p>
+</article></div></div>

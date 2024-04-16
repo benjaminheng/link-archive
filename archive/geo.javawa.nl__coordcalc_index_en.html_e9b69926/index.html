@@ -1,0 +1,59 @@
+---
+url: https://geo.javawa.nl/coordcalc/index_en.html
+title: Calculating with coordinates
+archived_at: 2024-04-17T01:11:58.241731594+08:00
+---
+<div id="readability-page-1" class="page"><div id="help">
+<p>˟</p><p>These calculations are based on <a href="http://geographiclib.sourceforge.net/" target="_blank">GeographicLib</a>, resulting in a very high accuracy; even on long distances.<br/>
+Calculations are performed along a <a href="http://en.wikipedia.org/wiki/Great_circle" target="_blank">great circle</a>, the shortest distance over the earth&#39;s surface. This results in curved lines on the map, which can be clearly seen on long distances.</p><p>The lines and circles can sometimes have a strange appearance; this is the case when the borders of the visible map are exceeded (the earth is a slightly flattened sphere; sometimes the shortest path runs via the poles or the &#34;rear&#34;). You can get a correct display of the lines and circles on a 3D projection of the earth by clicking the button &#34;Show 3D&#34;. This option is available only if your browser and video card support <a href="http://get.webgl.org" target="_blank">WebGL</a>.</p><p>You can put a moveable marker on the map with the button &#34;User marker&#34;; the coordinates are shown right above it.</p>
+
+<p>The calculations will be executed automatically after you change a value in a input box and press enter or when you select another input box.</p>
+
+<p>Using the buttons <img src="https://geo.javawa.nl/coordcalc/images/rotleft.png" width="21" height="18"/> and <img src="https://geo.javawa.nl/coordcalc/images/rotright.png" width="21" height="18"/> you can reduce/increase the angles/bearings in steps of 1 degree. Holding the shift key increments of 10 degrees are used.<br/>
+The same applies to distances with the buttons <img src="https://geo.javawa.nl/coordcalc/images/min.png" width="20" height="20"/> and <img src="https://geo.javawa.nl/coordcalc/images/plus.png" width="20" height="20"/>; holding the shift key increments by 10, holding the alt key 100 and holding both 1000.</p>
+
+<p>The (corner) points from the input can be moved on the map with the mouse; the results are updated continuously. If your computer lacks power you can uncheck &#34;Update continuously&#34; in the settings; this way the calculations are executed after you are finished moving a point.</p><p>You can select the units for the display of calculated coordinates (see below), of calculated  distances ((kilo)meters, feet/miles or nautical miles) and of calculated bearings (degrees (°) or <a href="http://en.wikipedia.org/wiki/Grad_%28angle%29" target="_blank">gradians (gon)</a>). You can also select the unit when entering distances and bearings or angles.</p>
+
+<p>This tool supports coordinates in several different notations:</p>
+<table>
+<tbody><tr><td colspan="2">WGS84 coordinates:</td><td><b>example</b></td></tr>
+<tr><td> </td><td>decimal</td><td>52.09495,5.13393</td></tr>
+<tr><td> </td><td>degrees</td><td>N 52.09495° E 5.13393°</td></tr>
+<tr><td> </td><td>degrees and minutes</td><td>N 52° 05.697&#39; E 005° 08.036&#39;</td></tr>
+<tr><td> </td><td>degrees, minutes and seconds</td><td>N 52° 5&#39; 41.8&#34; E 005° 8&#39; 2.1&#34;</td></tr>
+<tr><td colspan="2">Universal Transverse Mercator:</td><td>31U 646177 5773747</td></tr>
+<tr><td colspan="2">Dutch Grid:</td><td>137644,456329</td></tr>
+</tbody></table>
+<p>The tool recognizes the used notation automatically. The examples all relate to the same point.</p>
+
+<p>Read more info about the properties of triangles (centroid, orthocenter, circumscribed circle, inscribed circle) <a href="http://en.wikipedia.org/wiki/Triangle" target="_blank">here</a>.</p>
+
+<p><b>Explanation option 14 &amp; 15: Triangulation</b></p>
+
+<p>Figure 1:  The coordinates of points A and B are known; those of point P aren&#39;t. Measure the angles between the lines AP and AB (angle α) and between the lines BA and BP (angle β). Using <a href="http://en.wikipedia.org/wiki/Triangulation" target="_blank">triangulation</a> you can determine the coordinates of point P.</p>
+<p>Figure 2: Standing at the observer position P with unknown coordinates you can see three points with known coordinates: A, B and C. Measure the angles between the lines PA and PB (angle α) and between the lines PB and PC (angle β). Now you can determine the coordinates of point P with the theory behind the <a href="http://en.wikipedia.org/wiki/Snellius%E2%80%93Pothenot_problem" target="_blank">Snellius-Pothenot problem</a>.</p>
+<p><img src="https://geo.javawa.nl/coordcalc/images/triang.png" width="424" height="261" alt="Triangulation"/></p>
+
+<p><b>Explanation option 17: Distance to horizon</b></p>
+
+<p>Here you can enter your position and eye level. When you don&#39;t want to know the distance to the horizon on ground level, but instead the distance to where you can still see an object, enter the height of the object too.</p>
+<p>The earth isn&#39;t a perfect sphere; it is flattened at the poles. Because of this the distance to the horizon in north/south direction is smaller than the distance in west/east direction.</p>
+<p>The tool calculates the distance over ground to the horizon. The straight line distance is almost the same when using small heights; when using greater heights it will be larger (but still neglectable in proportion to the total distance).</p>
+<p>Because light is refracted by the atmosphere, the observed horizon will be further away than the true horizon. This effect is highly dependent on the differences in temperature above the surface of the earth, and it&#39;s impossible to calculate the distance to the observed horizon exactly with this tool. The calculations use the factor 7/6 for the radius of the earth as a rule of thumb.<br/>
+(see also the article <a href="http://mintaka.sdsu.edu/GF/explain/atmos_refr/horizon.html" target="_blank">Distance to the Horizon</a>. Contrary to this article this tool does take into account the flattening of the earth)</p>
+<p>The blue circle is the true horizon; the green one is the observed horizon.</p><div>
+<p><img src="https://geo.javawa.nl/layout/paypal.png" width="100" height="32" alt="PayPal logo"/></p></div></div><div id="settings"><p>Display calculated coordinates:<br/>
+</p><p>Display calculated distances:<br/>
+<span> (kilo)metres</span> <span> feet/miles</span> <span> nautical miles</span></p>
+<p>Display calculated bearings:<br/>
+<span> degrees (°)</span> <span> decimal degrees (gon)</span></p>
+
+<p>Round to:
+</p>
+<p>Map:<br/> <span id="e8"></span>
+ <span id="e5"></span>
+ <span id="e6"></span>
+<span> <span id="e7"></span></span>
+</p>
+<p> Update continuously</p>
+<p>Line width: <span id="widthNum"></span></p><p><a href="https://geo.javawa.nl/coordcalc/mobi_en.html">Mobile version</a></p></div></div>

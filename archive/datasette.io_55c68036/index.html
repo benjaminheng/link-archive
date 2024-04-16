@@ -1,0 +1,334 @@
+---
+url: https://datasette.io/
+title: Datasette
+archived_at: 2024-04-17T01:12:06.611630662+08:00
+---
+<div id="readability-page-1" class="page"><div>
+        <h2>Latest news <a href="https://datasette.io/content/feed.atom" title="Atom feed"><svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 256 256">
+          <defs>
+          <linearGradient id="a" x1=".1" x2=".9" y1=".1" y2=".9">
+              <stop offset="0" stop-color="#E3702D"></stop>
+              <stop offset=".1" stop-color="#EA7D31"></stop>
+              <stop offset=".4" stop-color="#F69537"></stop>
+              <stop offset=".5" stop-color="#FB9E3A"></stop>
+              <stop offset=".7" stop-color="#EA7C31"></stop>
+              <stop offset=".9" stop-color="#DE642B"></stop>
+              <stop offset="1" stop-color="#D95B29"></stop>
+          </linearGradient>
+      </defs>
+      <rect width="256" height="256" fill="#CC5D15" rx="55" ry="55"></rect>
+      <rect width="246" height="246" x="5" y="5" fill="#F49C52" rx="50" ry="50"></rect>
+      <rect width="236" height="236" x="10" y="10" fill="url(#a)" rx="47" ry="47"></rect>
+      <circle cx="68" cy="189" r="24" fill="#FFF"></circle>
+      <path fill="#FFF" d="M160 213h-34a82 82 0 0 0-82-82V97a116 116 0 0 1 116 116z"></path>
+      <path fill="#FFF" d="M184 213A140 140 0 0 0 44 73V38a175 175 0 0 1 175 175z"></path>
+          </svg></a></h2>
+        
+        
+          
+            <h3>18th February 2024 <a href="https://datasette.io/news/2024-02-18">#</a></h3>
+            
+          
+          <p><a href="https://docs.datasette.io/en/latest/changelog.html#a10-2024-02-17" rel="nofollow">Datasette 1.0a10</a> is a focused alpha that changes some internal details about how Datasette handles transactions. The <code>datasette.execute_write_fn()</code> internal method now wraps the function in a database transaction unless you pass <code>transaction=False</code>.</p>
+        
+          
+            <h3>16th February 2024 <a href="https://datasette.io/news/2024-02-16">#</a></h3>
+            
+          
+          <p><a href="https://docs.datasette.io/en/latest/changelog.html#a9-2024-02-16" rel="nofollow">Datasette 1.0a9</a> adds basic alter table support to the JSON API, tweaks how permissions works and introduces some new plugin debugging utilities.</p>
+        
+          
+            <h3>7th February 2024 <a href="https://datasette.io/news/2024-02-07">#</a></h3>
+            
+          
+          <p><a href="https://docs.datasette.io/en/1.0a8/changelog.html#a8-2024-02-07" rel="nofollow">Datasette 1.0a8</a> introduces several new plugin hooks, a JavaScript plugin system and moves plugin configuration from <code>metadata.yaml</code> to <code>datasette.yaml</code>. Read more about the release in <a href="https://simonwillison.net/2024/Feb/7/datasette-1a8/" rel="nofollow">the annotated release notes for 1.0a8</a>.</p>
+        
+          
+            <h3>1st December 2023 <a href="https://datasette.io/news/2023-12-01">#</a></h3>
+            
+          
+          
+        
+          
+            <h3>30th November 2023 <a href="https://datasette.io/news/2023-11-30">#</a></h3>
+            
+          
+          <p><a href="https://datasette.io/plugins/datasette-comments" rel="nofollow">datasette-comments</a> is a new plugin by Alex Garcia which adds collaborative commenting to Datasette. Alex built the plugin for Datasette Cloud, but it&#39;s also available as an open source package for people who are hosting their own Datasette instances. See <a href="https://www.datasette.cloud/blog/2023/datasette-comments/" rel="nofollow">Annotate and explore your data with datasette-comments</a> on the Datasette Cloud blog for more details.</p>
+        
+          
+            <h3>22nd August 2023 <a href="https://datasette.io/news/2023-08-22">#</a></h3>
+            
+          
+          <p><a href="https://docs.datasette.io/en/1.0a4/changelog.html#a4-2023-08-21" rel="nofollow">Datasette 1.0a4</a> has a fix for a security vulnerability in the Datasette 1.0 alpha series: the API explorer interface exposed the names of private databases and tables in public instances that were protected by a plugin such as <a href="https://datasette.io/plugins/datasette-auth-passwords" rel="nofollow">datasette-auth-passwords</a>, though not the actual content of those tables. See the <a href="https://github.com/simonw/datasette/security/advisories/GHSA-7ch3-7pp7-7cpq" rel="nofollow">security advisory</a> for more details and workarounds for if you can&#39;t upgrade immediately. The <a href="https://datasette.substack.com/p/datasette-cloud-and-the-datasette" rel="nofollow">latest edition of the Datasette Newsletter</a> also talks about this issue.</p>
+        
+          
+            <h3>15th August 2023 <a href="https://datasette.io/news/2023-08-15">#</a></h3>
+            
+          
+          
+        
+          
+            <h3>9th August 2023 <a href="https://datasette.io/news/2023-08-09">#</a></h3>
+            
+          
+          <p><a href="https://docs.datasette.io/en/latest/changelog.html#a3-2023-08-09" rel="nofollow">Datasette 1.0a3</a> is an alpha release of Datasette that previews the new default JSON API design that’s coming in version 1.0 - the single most significant change planned for that 1.0 release.</p>
+        
+          
+            <h3>1st July 2023 <a href="https://datasette.io/news/2023-07-01">#</a></h3>
+            
+          
+          <p>New tutorial: <a href="https://datasette.io/tutorials/data-analysis" rel="nofollow">Data analysis with SQLite and Python</a>. This tutorial, originally presented at PyCon 2023, includes a 2h45m video and an extensive handout that should be useful with or without the video. Topics covered include Python&#39;s <code>sqlite3</code> module, <code>sqlite-utils</code>, Datasette, Datasette Lite, advanced SQL patterns and more.</p>
+        
+          
+            <h3>24th March 2023 <a href="https://datasette.io/news/2023-03-24">#</a></h3>
+            
+          
+          <p><a href="https://simonwillison.net/2023/Mar/24/datasette-chatgpt-plugin/" rel="nofollow">I built a ChatGPT plugin to answer questions about data hosted in Datasette</a> describes a new experimental Datasette plugin to enable people to query data hosted in a Datasette interface via ChatGPT, asking human language questions that are automatically converted to SQL and used to generate a readable response.</p>
+        
+          
+            <h3>23rd February 2023 <a href="https://datasette.io/news/2023-02-23">#</a></h3>
+            
+          
+          
+        
+          
+            <h3>28th January 2023 <a href="https://datasette.io/news/2023-01-28">#</a></h3>
+            
+          
+          <p><a href="https://datasette.io/examples" rel="nofollow">Examples of sites built using Datasette</a> now includes screenshots of Datasette deployments that illustrate a variety of problems that can be addressed using Datasette and its plugins.</p>
+        
+          
+            <h3>13th January 2023 <a href="https://datasette.io/news/2023-01-13">#</a></h3>
+            
+          
+          
+        
+          
+            <h3>9th January 2023 <a href="https://datasette.io/news/2023-01-09">#</a></h3>
+            
+          
+          
+        
+          
+            <h3>15th December 2022 <a href="https://datasette.io/news/2022-12-15">#</a></h3>
+            
+          
+          
+        
+        <p><a href="https://datasette.io/news">All news</a></p>
+      </div><div>
+        <h2>Latest releases</h2>
+        
+        
+          
+            <h3>12th April 2024</h3>
+            
+          
+          <h4><a href="https://github.com/simonw/datasette-cors/releases/tag/1.0.1">datasette-cors 1.0.1</a>
+            
+              <span> - Datasette plugin for configuring CORS headers</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Upgrade to <code>asgi_cors&gt;=1.0.1</code> to address a bug that could cause duplicate CORS headers. <a href="https://github.com/simonw/asgi-cors/issues/13" rel="nofollow">#13</a></li>
+</ul></div>
+            
+        
+          
+            <h3>10th April 2024</h3>
+            
+          
+          <h4><a href="https://github.com/datasette/datasette-enrichments-gpt/releases/tag/0.4">datasette-enrichments-gpt 0.4</a>
+            
+              <span> - Datasette enrichment for analyzing row data using OpenAI&#39;s GPT models</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Now uses the newly released <code>gpt-4-turbo</code> model, which also handles image inputs. <a href="https://github.com/datasette/datasette-enrichments-gpt/issues/8" rel="nofollow">#8</a></li>
+</ul></div>
+            
+        
+          
+            <h3>9th April 2024</h3>
+            
+          
+          <h4><a href="https://github.com/simonw/datasette-public/releases/tag/0.2.3">datasette-public 0.2.3</a>
+            
+              <span> - Make specific Datasette tables visible to the public</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Added description to menu items for Datasette 1.0. <a href="https://github.com/simonw/datasette-public/issues/7" rel="nofollow">#7</a></li>
+</ul></div>
+            
+        
+          
+          <h4><a href="https://github.com/datasette/datasette-enrichments/releases/tag/0.3.2">datasette-enrichments 0.3.2</a>
+            
+              <span> - Tools for running enrichments against data stored in Datasette</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Handle case where no enrichments plugins are installed. <a href="https://github.com/datasette/datasette-enrichments/issues/43" rel="nofollow">#43</a></li>
+<li>Added description to the menu items.</li>
+</ul></div>
+            
+        
+          
+          <h4><a href="https://github.com/datasette/datasette-extract/releases/tag/0.1a4">datasette-extract 0.1a4</a>
+            
+              <span> - Import unstructured data (text and images) into structured tables</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>This plugin now uses the general availability <code>gpt-4-turbo</code> model, which adds structured function support to GPT-4 Vision. <a href="https://github.com/datasette/datasette-extract/issues/19" rel="nofollow">#19</a></li>
+<li>If an error occurs during an extraction operation it is now displayed on the progress page. <a href="https://github.com/datasette/datasette-extract/issues/10" rel="nofollow">#10</a></li>
+<li>Table and database action menu items now have better copy. <a href="https://github.com/datasette/datasette-extract/issues/20" rel="nofollow">#20</a></li>
+</ul></div>
+            
+        
+          
+            <h3>8th April 2024</h3>
+            
+          
+          <h4><a href="https://github.com/simonw/datasette-cors/releases/tag/1.0">datasette-cors 1.0</a>
+            
+              <span> - Datasette plugin for configuring CORS headers</span>
+              
+            </h4>
+            
+              <div><ul>
+<li><code>headers</code> option for setting <code>access-control-allow-headers</code>. <a href="https://github.com/simonw/datasette-cors/issues/5" rel="nofollow">#5</a></li>
+<li><code>methods</code> option for setting <code>access-control-allow-methods</code>.</li>
+<li><code>max_age</code> option for setting <code>access-control-max-age</code>.</li>
+<li>Now tested against Datasette 1.0 as well as Datasette &lt;1.0.</li>
+</ul></div>
+            
+        
+          
+            <h3>5th April 2024</h3>
+            
+          
+          <h4><a href="https://github.com/datasette/datasette-enrichments-quickjs/releases/tag/0.1a2">datasette-enrichments-quickjs 0.1a2</a>
+            
+              <span> - Enrich data with a custom JavaScript function</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>JavaScript functions can now return an object of key/value pairs, and columns will be created for each of those returned values. <a href="https://github.com/datasette/datasette-enrichments-quickjs/issues/5" rel="nofollow">#5</a></li>
+</ul></div>
+            
+        
+          
+          <h4><a href="https://github.com/simonw/s3-credentials/releases/tag/0.16.1">s3-credentials 0.16.1</a>
+            
+              <span> - A tool for creating credentials for accessing S3 buckets</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Fixed documentation bug. <a href="https://s3-credentials.readthedocs.io/" rel="nofollow">s3-credentials.readthedocs.io</a> should now show the most recent stable release documentation.</li>
+</ul></div>
+            
+        
+          
+          <h4><a href="https://github.com/simonw/s3-credentials/releases/tag/0.16">s3-credentials 0.16</a>
+            </h4>
+            
+              <div><ul>
+<li>New command: <code>s3-credentials debug-bucket bucket-name</code>. <a href="https://github.com/simonw/s3-credentials/issues/86" rel="nofollow">#86</a></li>
+<li>Fixed bug where calling <code>s3-credentials create bucket-name --create-bucket --public</code> did not make the contents of the bucket available to the public. <a href="https://github.com/simonw/s3-credentials/issues/88" rel="nofollow">#88</a></li>
+<li><code>s3-credentials list-bucket bucket-name --urls</code> option. <a href="https://github.com/simonw/s3-credentials/issues/89" rel="nofollow">#89</a></li>
+</ul></div>
+            
+        
+          
+            <h3>19th March 2024</h3>
+            
+          
+          <h4><a href="https://github.com/datasette/datasette-enrichments/releases/tag/0.3.1">datasette-enrichments 0.3.1</a>
+            
+              <span> - Tools for running enrichments against data stored in Datasette</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Fix for a bug where the row action menu did not work correctly for tables with primary keys starting with an underscore. <a href="https://github.com/datasette/datasette-enrichments/issues/42" rel="nofollow">#42</a></li>
+</ul></div>
+            
+        
+          
+            <h3>18th March 2024</h3>
+            
+          
+          <h4><a href="https://github.com/simonw/datasette-write/releases/tag/0.3.2">datasette-write 0.3.2</a>
+            
+              <span> - Datasette plugin providing a UI for writing to a database</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Removed unnecessary <code>print()</code> debug statement.</li>
+</ul></div>
+            
+        
+          
+            <h3>17th March 2024</h3>
+            
+          
+          <h4><a href="https://github.com/datasette/datasette-enrichments/releases/tag/0.3">datasette-enrichments 0.3</a>
+            
+              <span> - Tools for running enrichments against data stored in Datasette</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Now adds an &#34;Enrich this row&#34; row action menu item on <a href="https://docs.datasette.io/en/latest/changelog.html#a13-2024-03-12" rel="nofollow">Datasette 1.0a13</a> and higher. <a href="https://github.com/datasette/datasette-enrichments/issues/41" rel="nofollow">#41</a></li>
+</ul></div>
+            
+        
+          
+            <h3>16th March 2024</h3>
+            
+          
+          <h4><a href="https://github.com/simonw/datasette-packages/releases/tag/0.2.1">datasette-packages 0.2.1</a>
+            
+              <span> - Show a list of currently installed Python packages</span>
+              
+            </h4>
+            
+              <div><ul>
+<li>Switch from <code>pkg_resources</code> to <code>importlib.metadata</code> to fix a deprecation warning. Dropped support for Python 3.7. <a href="https://github.com/simonw/datasette-packages/issues/6" rel="nofollow">#6</a></li>
+</ul></div>
+            
+        
+          
+          <h4><a href="https://github.com/datasette/datasette-export-database/releases/tag/0.2.1">datasette-export-database 0.2.1</a>
+            </h4>
+            
+              <div><ul>
+<li>Temporary files created for the user to download are now deleted after the download finishes, and any stale ones are cleared out when Datasette first starts running. <a href="https://github.com/datasette/datasette-export-database/issues/5" rel="nofollow">#5</a></li>
+</ul></div>
+            
+        
+          
+            <h3>15th March 2024</h3>
+            
+          
+          <h4><a href="https://github.com/datasette/datasette-export-database/releases/tag/0.2">datasette-export-database 0.2</a>
+            </h4>
+            
+              <div><ul>
+<li>Database action menu now shows the size of the database in the menu item description. <a href="https://github.com/datasette/datasette-export-database/issues/3" rel="nofollow">#3</a></li>
+<li>Confirm that signed URL token is from the same user based on their <code>csrftoken</code> cookie. <a href="https://github.com/datasette/datasette-export-database/issues/4" rel="nofollow">#4</a></li>
+</ul></div>
+            
+        
+        <p><a href="https://datasette.io/content/recent_releases">All releases</a></p>
+      </div></div>

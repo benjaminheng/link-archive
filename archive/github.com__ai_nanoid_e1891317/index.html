@@ -1,0 +1,363 @@
+---
+url: https://github.com/ai/nanoid
+title: 'GitHub - ai/nanoid: A tiny (124 bytes), secure, URL-friendly, unique string
+  ID generator for JavaScript'
+archived_at: 2024-04-17T01:12:29.717502236+08:00
+---
+<div id="readability-page-1" class="page"><div data-hpc="true"><article itemprop="text">
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/1217981e015858c201536e6f7822e1fc30ab66c4060462da9e80f65e701893bd/68747470733a2f2f61692e6769746875622e696f2f6e616e6f69642f6c6f676f2e737667"><img src="https://camo.githubusercontent.com/1217981e015858c201536e6f7822e1fc30ab66c4060462da9e80f65e701893bd/68747470733a2f2f61692e6769746875622e696f2f6e616e6f69642f6c6f676f2e737667" alt="Nano ID logo by Anton Lovchikov" width="180" height="94" data-canonical-src="https://ai.github.io/nanoid/logo.svg"/></a></p>
+<p dir="auto"><strong>English</strong> | <a href="https://github.com/ai/nanoid/blob/main/README.ru.md">Русский</a> | <a href="https://github.com/ai/nanoid/blob/main/README.zh-CN.md">简体中文</a> | <a href="https://github.com/ai/nanoid/blob/main/README.id-ID.md">Bahasa Indonesia</a></p>
+<p dir="auto">A tiny, secure, URL-friendly, unique string ID generator for JavaScript.</p>
+<blockquote>
+<p dir="auto">“An amazing level of senseless perfectionism,
+which is simply impossible not to respect.”</p>
+</blockquote>
+<ul dir="auto">
+<li><strong>Small.</strong> 116 bytes (minified and brotlied). No dependencies.
+<a href="https://github.com/ai/size-limit">Size Limit</a> controls the size.</li>
+<li><strong>Safe.</strong> It uses hardware random generator. Can be used in clusters.</li>
+<li><strong>Short IDs.</strong> It uses a larger alphabet than UUID (<code>A-Za-z0-9_-</code>).
+So ID size was reduced from 36 to 21 symbols.</li>
+<li><strong>Portable.</strong> Nano ID was ported
+to over <a href="https://github.com/ai/nanoid/blob/main/README.md#other-programming-languages">20 programming languages</a>.</li>
+</ul>
+<div dir="auto" data-snippet-clipboard-copy-content="import { nanoid } from &#39;nanoid&#39;
+model.id = nanoid() //=&gt; &#34;V1StGXR8_Z5jdHi6B-myT&#34;"><pre><span>import</span> <span>{</span> <span>nanoid</span> <span>}</span> <span>from</span> <span>&#39;nanoid&#39;</span>
+<span>model</span><span>.</span><span>id</span> <span>=</span> <span>nanoid</span><span>(</span><span>)</span> <span>//=&gt; &#34;V1StGXR8_Z5jdHi6B-myT&#34;</span></pre></div>
+<hr/>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/ab8914aebb40d03301075b5b1b8cf3e62e857fc4226e19d20f55980fb012cc64/68747470733a2f2f63646e2e6576696c6d61727469616e732e636f6d2f6261646765732f6c6f676f2d6e6f2d6c6162656c2e737667"><img src="https://camo.githubusercontent.com/ab8914aebb40d03301075b5b1b8cf3e62e857fc4226e19d20f55980fb012cc64/68747470733a2f2f63646e2e6576696c6d61727469616e732e636f6d2f6261646765732f6c6f676f2d6e6f2d6c6162656c2e737667" alt="" width="22" height="16" data-canonical-src="https://cdn.evilmartians.com/badges/logo-no-label.svg"/></a>  Made in <b><a href="https://evilmartians.com/devtools?utm_source=nanoid&amp;utm_campaign=devtools-button&amp;utm_medium=github" rel="nofollow">Evil Martians</a></b>, product consulting for <b>developer tools</b>.</p>
+<hr/>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Table of Contents</h2><a id="user-content-table-of-contents" aria-label="Permalink: Table of Contents" href="#table-of-contents"></a></p>
+<ul dir="auto">
+<li><a href="#comparison-with-uuid">Comparison with UUID</a></li>
+<li><a href="#benchmark">Benchmark</a></li>
+<li><a href="#security">Security</a></li>
+<li><a href="#install">Install</a></li>
+<li><a href="#api">API</a>
+<ul dir="auto">
+<li><a href="#blocking">Blocking</a></li>
+<li><a href="#non-secure">Non-Secure</a></li>
+<li><a href="#custom-alphabet-or-size">Custom Alphabet or Size</a></li>
+<li><a href="#custom-random-bytes-generator">Custom Random Bytes Generator</a></li>
+</ul>
+</li>
+<li><a href="#usage">Usage</a>
+<ul dir="auto">
+<li><a href="#react">React</a></li>
+<li><a href="#react-native">React Native</a></li>
+<li><a href="#pouchdb-and-couchdb">PouchDB and CouchDB</a></li>
+<li><a href="#web-workers">Web Workers</a></li>
+<li><a href="#cli">CLI</a></li>
+<li><a href="#other-programming-languages">Other Programming Languages</a></li>
+</ul>
+</li>
+<li><a href="#tools">Tools</a></li>
+</ul>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Comparison with UUID</h2><a id="user-content-comparison-with-uuid" aria-label="Permalink: Comparison with UUID" href="#comparison-with-uuid"></a></p>
+<p dir="auto">Nano ID is quite comparable to UUID v4 (random-based).
+It has a similar number of random bits in the ID
+(126 in Nano ID and 122 in UUID), so it has a similar collision probability:</p>
+<blockquote>
+<p dir="auto">For there to be a one in a billion chance of duplication,
+103 trillion version 4 IDs must be generated.</p>
+</blockquote>
+<p dir="auto">There are two main differences between Nano ID and UUID v4:</p>
+<ol dir="auto">
+<li>Nano ID uses a bigger alphabet, so a similar number of random bits
+are packed in just 21 symbols instead of 36.</li>
+<li>Nano ID code is <strong>4 times smaller</strong> than <code>uuid/v4</code> package:
+130 bytes instead of 423.</li>
+</ol>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Benchmark</h2><a id="user-content-benchmark" aria-label="Permalink: Benchmark" href="#benchmark"></a></p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ node ./test/benchmark.js
+crypto.randomUUID         28,398,328 ops/sec
+uuid v4                   10,254,199 ops/sec
+@napi-rs/uuid             15,110,625 ops/sec
+uid/secure                10,388,842 ops/sec
+@lukeed/uuid               8,914,507 ops/sec
+nanoid                     7,484,029 ops/sec
+customAlphabet             4,867,017 ops/sec
+nanoid for browser           609,426 ops/sec
+secure-random-string         539,080 ops/sec
+uid-safe.sync                533,944 ops/sec
+shortid                       59,609 ops/sec
+
+Non-secure:
+uid                       95,579,977 ops/sec
+nanoid/non-secure          3,999,766 ops/sec
+rndm                       3,981,914 ops/sec"><pre>$ node <span>.</span><span></span>/test/benchmark<span>.</span><span>js</span>
+crypto<span>.</span><span>randomUUID</span>         <span>28</span><span>,</span><span>398</span><span>,</span><span>328</span> ops/sec
+uuid v4                   <span>10</span><span>,</span><span>254</span><span>,</span><span>199</span> ops/sec
+@napi-rs/uuid             <span>15</span><span>,</span><span>110</span><span>,</span><span>625</span> ops/sec
+uid/secure                <span>10</span><span>,</span><span>388</span><span>,</span><span>842</span> ops/sec
+@lukeed/uuid               <span>8</span><span>,</span><span>914</span><span>,</span><span>507</span> ops/sec
+nanoid                     <span>7</span><span>,</span><span>484</span><span>,</span><span>029</span> ops/sec
+customAlphabet             <span>4</span><span>,</span><span>867</span><span>,</span><span>017</span> ops/sec
+nanoid <span>for</span> browser           <span>609</span><span>,</span><span>426</span> ops/sec
+secure-random-string         <span>539</span><span>,</span><span>080</span> ops/sec
+uid-safe<span>.</span>sync                <span>533</span><span>,</span><span>944</span> ops/sec
+shortid                       <span>59</span><span>,</span><span>609</span> ops/sec
+
+<span>Non</span>-secure<span>:</span>
+uid                       <span>95</span><span>,</span><span>579</span><span>,</span><span>977</span> ops/sec
+nanoid/non-secure          <span>3</span><span>,</span><span>999</span><span>,</span><span>766</span> ops/sec
+rndm                       <span>3</span><span>,</span><span>981</span><span>,</span><span>914</span> ops/sec</pre></div>
+<p dir="auto">Test configuration: Framework 13 7840U, Fedora 39, Node.js 21.6.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Security</h2><a id="user-content-security" aria-label="Permalink: Security" href="#security"></a></p>
+<p dir="auto"><em>See a good article about random generators theory:
+<a href="https://gist.github.com/joepie91/7105003c3b26e65efcea63f3db82dfba">Secure random values (in Node.js)</a></em></p>
+<ul dir="auto">
+<li>
+<p dir="auto"><strong>Unpredictability.</strong> Instead of using the unsafe <code>Math.random()</code>, Nano ID
+uses the <code>crypto</code> module in Node.js and the Web Crypto API in browsers.
+These modules use unpredictable hardware random generator.</p>
+</li>
+<li>
+<p dir="auto"><strong>Uniformity.</strong> <code>random % alphabet</code> is a popular mistake to make when coding
+an ID generator. The distribution will not be even; there will be a lower
+chance for some symbols to appear compared to others. So, it will reduce
+the number of tries when brute-forcing. Nano ID uses a <a href="https://github.com/ai/nanoid/blob/main/index.js">better algorithm</a>
+and is tested for uniformity.</p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/ai/nanoid/blob/main/img/distribution.png"><img src="https://github.com/ai/nanoid/raw/main/img/distribution.png" alt="Nano ID uniformity" width="340" height="135"/></a></p>
+</li>
+<li>
+<p dir="auto"><strong>Well-documented:</strong> all Nano ID hacks are documented. See comments
+in <a href="https://github.com/ai/nanoid/blob/main/index.js">the source</a>.</p>
+</li>
+<li>
+<p dir="auto"><strong>Vulnerabilities:</strong> to report a security vulnerability, please use
+the <a href="https://tidelift.com/security" rel="nofollow">Tidelift security contact</a>.
+Tidelift will coordinate the fix and disclosure.</p>
+</li>
+</ul>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Install</h2><a id="user-content-install" aria-label="Permalink: Install" href="#install"></a></p>
+
+<p dir="auto">Nano ID 5 works only with ESM projects, in tests or Node.js scripts.
+For CommonJS you need Nano ID 3.x (we still support it):</p>
+
+<p dir="auto">For quick hacks, you can load Nano ID from CDN. Though, it is not recommended
+to be used in production because of the lower loading performance.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { nanoid } from &#39;https://cdn.jsdelivr.net/npm/nanoid/nanoid.js&#39;"><pre><span>import</span> <span>{</span> <span>nanoid</span> <span>}</span> <span>from</span> <span>&#39;https://cdn.jsdelivr.net/npm/nanoid/nanoid.js&#39;</span></pre></div>
+<p dir="auto"><h2 tabindex="-1" dir="auto">API</h2><a id="user-content-api" aria-label="Permalink: API" href="#api"></a></p>
+<p dir="auto">Nano ID has 2 APIs: normal and non-secure.</p>
+<p dir="auto">By default, Nano ID uses URL-friendly symbols (<code>A-Za-z0-9_-</code>) and returns an ID
+with 21 characters (to have a collision probability similar to UUID v4).</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Blocking</h3><a id="user-content-blocking" aria-label="Permalink: Blocking" href="#blocking"></a></p>
+<p dir="auto">The safe and easiest way to use Nano ID.</p>
+<p dir="auto">In rare cases could block CPU from other work while noise collection
+for hardware random generator.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { nanoid } from &#39;nanoid&#39;
+model.id = nanoid() //=&gt; &#34;V1StGXR8_Z5jdHi6B-myT&#34;"><pre><span>import</span> <span>{</span> <span>nanoid</span> <span>}</span> <span>from</span> <span>&#39;nanoid&#39;</span>
+<span>model</span><span>.</span><span>id</span> <span>=</span> <span>nanoid</span><span>(</span><span>)</span> <span>//=&gt; &#34;V1StGXR8_Z5jdHi6B-myT&#34;</span></pre></div>
+<p dir="auto">If you want to reduce the ID size (and increase collisions probability),
+you can pass the size as an argument.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="nanoid(10) //=&gt; &#34;IRFa-VaY2b&#34;"><pre><span>nanoid</span><span>(</span><span>10</span><span>)</span> <span>//=&gt; &#34;IRFa-VaY2b&#34;</span></pre></div>
+<p dir="auto">Don’t forget to check the safety of your ID size
+in our <a href="https://zelark.github.io/nano-id-cc/" rel="nofollow">ID collision probability</a> calculator.</p>
+<p dir="auto">You can also use a <a href="#custom-alphabet-or-size">custom alphabet</a>
+or a <a href="#custom-random-bytes-generator">random generator</a>.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Non-Secure</h3><a id="user-content-non-secure" aria-label="Permalink: Non-Secure" href="#non-secure"></a></p>
+<p dir="auto">By default, Nano ID uses hardware random bytes generation for security
+and low collision probability. If you are not so concerned with security,
+you can use it for environments without hardware random generators.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { nanoid } from &#39;nanoid/non-secure&#39;
+const id = nanoid() //=&gt; &#34;Uakgb_J5m9g-0JDMbcJqLJ&#34;"><pre><span>import</span> <span>{</span> <span>nanoid</span> <span>}</span> <span>from</span> <span>&#39;nanoid/non-secure&#39;</span>
+<span>const</span> <span>id</span> <span>=</span> <span>nanoid</span><span>(</span><span>)</span> <span>//=&gt; &#34;Uakgb_J5m9g-0JDMbcJqLJ&#34;</span></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Custom Alphabet or Size</h3><a id="user-content-custom-alphabet-or-size" aria-label="Permalink: Custom Alphabet or Size" href="#custom-alphabet-or-size"></a></p>
+<p dir="auto"><code>customAlphabet</code> returns a function that allows you to create <code>nanoid</code>
+with your own alphabet and ID size.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { customAlphabet } from &#39;nanoid&#39;
+const nanoid = customAlphabet(&#39;1234567890abcdef&#39;, 10)
+model.id = nanoid() //=&gt; &#34;4f90d13a42&#34;"><pre><span>import</span> <span>{</span> <span>customAlphabet</span> <span>}</span> <span>from</span> <span>&#39;nanoid&#39;</span>
+<span>const</span> <span>nanoid</span> <span>=</span> <span>customAlphabet</span><span>(</span><span>&#39;1234567890abcdef&#39;</span><span>,</span> <span>10</span><span>)</span>
+<span>model</span><span>.</span><span>id</span> <span>=</span> <span>nanoid</span><span>(</span><span>)</span> <span>//=&gt; &#34;4f90d13a42&#34;</span></pre></div>
+<div dir="auto" data-snippet-clipboard-copy-content="import { customAlphabet } from &#39;nanoid/non-secure&#39;
+const nanoid = customAlphabet(&#39;1234567890abcdef&#39;, 10)
+user.id = nanoid()"><pre><span>import</span> <span>{</span> <span>customAlphabet</span> <span>}</span> <span>from</span> <span>&#39;nanoid/non-secure&#39;</span>
+<span>const</span> <span>nanoid</span> <span>=</span> <span>customAlphabet</span><span>(</span><span>&#39;1234567890abcdef&#39;</span><span>,</span> <span>10</span><span>)</span>
+<span>user</span><span>.</span><span>id</span> <span>=</span> <span>nanoid</span><span>(</span><span>)</span></pre></div>
+<p dir="auto">Check the safety of your custom alphabet and ID size in our
+<a href="https://zelark.github.io/nano-id-cc/" rel="nofollow">ID collision probability</a> calculator. For more alphabets, check out the options
+in <a href="https://github.com/CyberAP/nanoid-dictionary"><code>nanoid-dictionary</code></a>.</p>
+<p dir="auto">Alphabet must contain 256 symbols or less.
+Otherwise, the security of the internal generator algorithm is not guaranteed.</p>
+<p dir="auto">In addition to setting a default size, you can change the ID size when calling
+the function:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { customAlphabet } from &#39;nanoid&#39;
+const nanoid = customAlphabet(&#39;1234567890abcdef&#39;, 10)
+model.id = nanoid(5) //=&gt; &#34;f01a2&#34;"><pre><span>import</span> <span>{</span> <span>customAlphabet</span> <span>}</span> <span>from</span> <span>&#39;nanoid&#39;</span>
+<span>const</span> <span>nanoid</span> <span>=</span> <span>customAlphabet</span><span>(</span><span>&#39;1234567890abcdef&#39;</span><span>,</span> <span>10</span><span>)</span>
+<span>model</span><span>.</span><span>id</span> <span>=</span> <span>nanoid</span><span>(</span><span>5</span><span>)</span> <span>//=&gt; &#34;f01a2&#34;</span></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Custom Random Bytes Generator</h3><a id="user-content-custom-random-bytes-generator" aria-label="Permalink: Custom Random Bytes Generator" href="#custom-random-bytes-generator"></a></p>
+<p dir="auto"><code>customRandom</code> allows you to create a <code>nanoid</code> and replace alphabet
+and the default random bytes generator.</p>
+<p dir="auto">In this example, a seed-based generator is used:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { customRandom } from &#39;nanoid&#39;
+
+const rng = seedrandom(seed)
+const nanoid = customRandom(&#39;abcdef&#39;, 10, size =&gt; {
+  return (new Uint8Array(size)).map(() =&gt; 256 * rng())
+})
+
+nanoid() //=&gt; &#34;fbaefaadeb&#34;"><pre><span>import</span> <span>{</span> <span>customRandom</span> <span>}</span> <span>from</span> <span>&#39;nanoid&#39;</span>
+
+<span>const</span> <span>rng</span> <span>=</span> <span>seedrandom</span><span>(</span><span>seed</span><span>)</span>
+<span>const</span> <span>nanoid</span> <span>=</span> <span>customRandom</span><span>(</span><span>&#39;abcdef&#39;</span><span>,</span> <span>10</span><span>,</span> <span>size</span> <span>=&gt;</span> <span>{</span>
+  <span>return</span> <span>(</span><span>new</span> <span>Uint8Array</span><span>(</span><span>size</span><span>)</span><span>)</span><span>.</span><span>map</span><span>(</span><span>(</span><span>)</span> <span>=&gt;</span> <span>256</span> <span>*</span> <span>rng</span><span>(</span><span>)</span><span>)</span>
+<span>}</span><span>)</span>
+
+<span>nanoid</span><span>(</span><span>)</span> <span>//=&gt; &#34;fbaefaadeb&#34;</span></pre></div>
+<p dir="auto"><code>random</code> callback must accept the array size and return an array
+with random numbers.</p>
+<p dir="auto">If you want to use the same URL-friendly symbols with <code>customRandom</code>,
+you can get the default alphabet using the <code>urlAlphabet</code>.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="const { customRandom, urlAlphabet } = require(&#39;nanoid&#39;)
+const nanoid = customRandom(urlAlphabet, 10, random)"><pre><span>const</span> <span>{</span> customRandom<span>,</span> urlAlphabet <span>}</span> <span>=</span> <span>require</span><span>(</span><span>&#39;nanoid&#39;</span><span>)</span>
+<span>const</span> <span>nanoid</span> <span>=</span> <span>customRandom</span><span>(</span><span>urlAlphabet</span><span>,</span> <span>10</span><span>,</span> <span>random</span><span>)</span></pre></div>
+<p dir="auto">Note, that between Nano ID versions we may change random generator
+call sequence. If you are using seed-based generators, we do not guarantee
+the same result.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Usage</h2><a id="user-content-usage" aria-label="Permalink: Usage" href="#usage"></a></p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">React</h3><a id="user-content-react" aria-label="Permalink: React" href="#react"></a></p>
+<p dir="auto">There’s no correct way to use Nano ID for React <code>key</code> prop
+since it should be consistent among renders.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="function Todos({todos}) {
+  return (
+    &lt;ul&gt;
+      {todos.map(todo =&gt; (
+        &lt;li key={nanoid()}&gt; /* DON’T DO IT */
+          {todo.text}
+        &lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  )
+}"><pre><span>function</span> <span>Todos</span><span>(</span><span>{</span>todos<span>}</span><span>)</span> <span>{</span>
+  <span>return</span> <span>(</span>
+    <span>&lt;</span><span>ul</span><span>&gt;</span>
+      <span>{</span><span>todos</span><span>.</span><span>map</span><span>(</span><span>todo</span> <span>=&gt;</span> <span>(</span>
+        <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>nanoid</span><span>(</span><span>)</span><span>}</span><span>&gt;</span> /* DON’T DO IT */
+          <span>{</span><span>todo</span><span>.</span><span>text</span><span>}</span>
+        <span>&lt;</span><span>/</span><span>li</span><span>&gt;</span>
+      <span>)</span><span>)</span><span>}</span>
+    <span>&lt;</span><span>/</span><span>ul</span><span>&gt;</span>
+  <span>)</span>
+<span>}</span></pre></div>
+<p dir="auto">You should rather try to reach for stable ID inside your list item.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="const todoItems = todos.map((todo) =&gt;
+  &lt;li key={todo.id}&gt;
+    {todo.text}
+  &lt;/li&gt;
+)"><pre><span>const</span> <span>todoItems</span> <span>=</span> <span>todos</span><span>.</span><span>map</span><span>(</span><span>(</span><span>todo</span><span>)</span> <span>=&gt;</span>
+  <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>todo</span><span>.</span><span>id</span><span>}</span><span>&gt;</span>
+    <span>{</span><span>todo</span><span>.</span><span>text</span><span>}</span>
+  <span>&lt;</span><span>/</span><span>li</span><span>&gt;</span>
+<span>)</span></pre></div>
+<p dir="auto">In case you don’t have stable IDs you&#39;d rather use index as <code>key</code>
+instead of <code>nanoid()</code>:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="const todoItems = todos.map((text, index) =&gt;
+  &lt;li key={index}&gt; /* Still not recommended but preferred over nanoid().
+                      Only do this if items have no stable IDs. */
+    {text}
+  &lt;/li&gt;
+)"><pre><span>const</span> <span>todoItems</span> <span>=</span> <span>todos</span><span>.</span><span>map</span><span>(</span><span>(</span><span>text</span><span>,</span> <span>index</span><span>)</span> <span>=&gt;</span>
+  <span>&lt;</span><span>li</span> <span>key</span><span>=</span><span>{</span><span>index</span><span>}</span><span>&gt;</span> /* Still not recommended but preferred over nanoid().
+                      Only do this if items have no stable IDs. */
+    <span>{</span><span>text</span><span>}</span>
+  <span>&lt;</span><span>/</span><span>li</span><span>&gt;</span>
+<span>)</span></pre></div>
+<p dir="auto">In case you just need random IDs to link elements like labels
+and input fields together, <a href="https://reactjs.org/docs/hooks-reference.html#useid" rel="nofollow"><code>useId</code></a> is recommended.
+That hook was added in React 18.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">React Native</h3><a id="user-content-react-native" aria-label="Permalink: React Native" href="#react-native"></a></p>
+<p dir="auto">React Native does not have built-in random generator. The following polyfill
+works for plain React Native and Expo starting with <code>39.x</code>.</p>
+<ol dir="auto">
+<li>Check <a href="https://github.com/LinusU/react-native-get-random-values"><code>react-native-get-random-values</code></a> docs and install it.</li>
+<li>Import it before Nano ID.</li>
+</ol>
+<div dir="auto" data-snippet-clipboard-copy-content="import &#39;react-native-get-random-values&#39;
+import { nanoid } from &#39;nanoid&#39;"><pre><span>import</span> <span>&#39;react-native-get-random-values&#39;</span>
+<span>import</span> <span>{</span> <span>nanoid</span> <span>}</span> <span>from</span> <span>&#39;nanoid&#39;</span></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">PouchDB and CouchDB</h3><a id="user-content-pouchdb-and-couchdb" aria-label="Permalink: PouchDB and CouchDB" href="#pouchdb-and-couchdb"></a></p>
+<p dir="auto">In PouchDB and CouchDB, IDs can’t start with an underscore <code>_</code>.
+A prefix is required to prevent this issue, as Nano ID might use a <code>_</code>
+at the start of the ID by default.</p>
+<p dir="auto">Override the default ID with the following option:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="db.put({
+  _id: &#39;id&#39; + nanoid(),
+  …
+})"><pre><span>db</span><span>.</span><span>put</span><span>(</span><span>{</span>
+  <span>_id</span>: <span>&#39;id&#39;</span> <span>+</span> <span>nanoid</span><span>(</span><span>)</span><span>,</span>
+  …
+<span>}</span><span>)</span></pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Web Workers</h3><a id="user-content-web-workers" aria-label="Permalink: Web Workers" href="#web-workers"></a></p>
+<p dir="auto">Web Workers do not have access to a secure random generator.</p>
+<p dir="auto">Security is important in IDs when IDs should be unpredictable.
+For instance, in &#34;access by URL&#34; link generation.
+If you do not need unpredictable IDs, but you need to use Web Workers,
+you can use the non‑secure ID generator.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="import { nanoid } from &#39;nanoid/non-secure&#39;
+nanoid() //=&gt; &#34;Uakgb_J5m9g-0JDMbcJqLJ&#34;"><pre><span>import</span> <span>{</span> <span>nanoid</span> <span>}</span> <span>from</span> <span>&#39;nanoid/non-secure&#39;</span>
+<span>nanoid</span><span>(</span><span>)</span> <span>//=&gt; &#34;Uakgb_J5m9g-0JDMbcJqLJ&#34;</span></pre></div>
+<p dir="auto">Note: non-secure IDs are more prone to collision attacks.</p>
+<p dir="auto"><h3 tabindex="-1" dir="auto">CLI</h3><a id="user-content-cli" aria-label="Permalink: CLI" href="#cli"></a></p>
+<p dir="auto">You can get unique ID in terminal by calling <code>npx nanoid</code>. You need only
+Node.js in the system. You do not need Nano ID to be installed anywhere.</p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ npx nanoid
+npx: installed 1 in 0.63s
+LZfXLFzPPR4NNrgjlWDxn"><pre>$ npx nanoid
+npx: installed 1 <span>in</span> 0.63s
+LZfXLFzPPR4NNrgjlWDxn</pre></div>
+<p dir="auto">Size of generated ID can be specified with <code>--size</code> (or <code>-s</code>) option:</p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ npx nanoid --size 10
+L3til0JS4z"><pre>$ npx nanoid --size 10
+L3til0JS4z</pre></div>
+<p dir="auto">Custom alphabet can be specified with <code>--alphabet</code> (or <code>-a</code>) option
+(note that in this case <code>--size</code> is required):</p>
+<div dir="auto" data-snippet-clipboard-copy-content="$ npx nanoid --alphabet abc --size 15
+bccbcabaabaccab"><pre>$ npx nanoid --alphabet abc --size 15
+bccbcabaabaccab</pre></div>
+<p dir="auto"><h3 tabindex="-1" dir="auto">Other Programming Languages</h3><a id="user-content-other-programming-languages" aria-label="Permalink: Other Programming Languages" href="#other-programming-languages"></a></p>
+<p dir="auto">Nano ID was ported to many languages. You can use these ports to have
+the same ID generator on the client and server side.</p>
+<ul dir="auto">
+<li><a href="https://github.com/codeyu/nanoid-net">C#</a></li>
+<li><a href="https://github.com/mcmikecreations/nanoid_cpp">C++</a></li>
+<li><a href="https://github.com/zelark/nano-id">Clojure and ClojureScript</a></li>
+<li><a href="https://github.com/JamoCA/cfml-nanoid">ColdFusion/CFML</a></li>
+<li><a href="https://github.com/mamantoha/nanoid.cr">Crystal</a></li>
+<li><a href="https://github.com/pd4d10/nanoid-dart">Dart &amp; Flutter</a></li>
+<li><a href="https://github.com/ianfabs/nanoid">Deno</a></li>
+<li><a href="https://github.com/railsmechanic/nanoid">Elixir</a></li>
+<li><a href="https://github.com/matoous/go-nanoid">Go</a></li>
+<li><a href="https://github.com/MichelBoucey/NanoID">Haskell</a></li>
+<li><a href="https://github.com/flashultra/uuid">Haxe</a></li>
+<li><a href="https://sr.ht/~statianzo/janet-nanoid/" rel="nofollow">Janet</a></li>
+<li><a href="https://github.com/aventrix/jnanoid">Java</a></li>
+<li><a href="https://github.com/viascom/nanoid-kotlin">Kotlin</a></li>
+<li><a href="https://github.com/viascom/nanoid-mysql-mariadb">MySQL/MariaDB</a></li>
+<li><a href="https://github.com/icyphox/nanoid.nim">Nim</a></li>
+<li><a href="https://github.com/routineco/ocaml-nanoid">OCaml</a></li>
+<li><a href="https://github.com/tkzwtks/Nanoid-perl">Perl</a></li>
+<li><a href="https://github.com/hidehalo/nanoid-php">PHP</a></li>
+<li><a href="https://github.com/puyuan/py-nanoid">Python</a>
+with <a href="https://pypi.org/project/nanoid-dictionary" rel="nofollow">dictionaries</a></li>
+<li>Postgres <a href="https://github.com/spa5k/uids-postgres">Extension</a>
+and <a href="https://github.com/viascom/nanoid-postgres">Native Function</a></li>
+<li><a href="https://github.com/hrbrmstr/nanoid">R</a> (with dictionaries)</li>
+<li><a href="https://github.com/radeno/nanoid.rb">Ruby</a></li>
+<li><a href="https://github.com/nikolay-govorov/nanoid">Rust</a></li>
+<li><a href="https://github.com/antiflasher/NanoID">Swift</a></li>
+<li><a href="https://share.unison-lang.org/latest/namespaces/hojberg/nanoid" rel="nofollow">Unison</a></li>
+<li><a href="https://github.com/invipal/nanoid">V</a></li>
+<li><a href="https://github.com/SasLuca/zig-nanoid">Zig</a></li>
+</ul>
+<p dir="auto">For other environments, <a href="#cli">CLI</a> is available to generate IDs from a command line.</p>
+<p dir="auto"><h2 tabindex="-1" dir="auto">Tools</h2><a id="user-content-tools" aria-label="Permalink: Tools" href="#tools"></a></p>
+<ul dir="auto">
+<li><a href="https://zelark.github.io/nano-id-cc/" rel="nofollow">ID size calculator</a> shows collision probability when adjusting
+the ID alphabet or size.</li>
+<li><a href="https://github.com/CyberAP/nanoid-dictionary"><code>nanoid-dictionary</code></a> with popular alphabets to use with <a href="#custom-alphabet-or-size"><code>customAlphabet</code></a>.</li>
+<li><a href="https://github.com/y-gagar1n/nanoid-good"><code>nanoid-good</code></a> to be sure that your ID doesn’t contain any obscene words.</li>
+</ul>
+</article></div></div>

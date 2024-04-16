@@ -1,0 +1,152 @@
+---
+url: https://hmarr.com/blog/how-stdbuf-works/
+title: How stdbuf works • Harry Marr
+archived_at: 2024-04-17T01:12:18.062053907+08:00
+---
+<div id="readability-page-1" class="page"><div>
+      
+
+
+<main>
+  <article>
+    <header>
+      
+      <time datetime="2022-11-11">2022-11-11</time>
+    </header>
+    <p><a href="https://linux.die.net/man/1/stdbuf"><code>stdbuf(1)</code></a> is a little command line utility that changes how a program buffers its standard input or output streams. It sometimes doesn’t work as expected, so I became curious about what was going on under the hood.</p>
+<h2>A quick stdbuf primer</h2>
+<p>I mostly use stdbuf to flip a program’s stdout stream to be line buffered so I can see its output more quickly. It’s common for stdout to use a fixed-sized buffer (commonly 8192 bytes) by default, but to be line buffered if a TTY is being used (meaning the buffer will be flushed when a line terminator character is encountered). That’s the default behaviour you get from <a href="https://github.com/bminor/glibc/blob/19934d629ee22bbd332f04da4320e4f624c9560c/libio/filedoalloc.c#L89-L94">glibc</a>. And it’s not a bad default—it gives you quick feedback when running a program interactively, but avoids unnecessary syscalls otherwise.</p>
+<p>However, there are times when stdout buffering can be a nuisance. Consider the following program that prints “tick” once a second for 3 seconds:</p>
+<pre><code><span>// tick.c</span>
+<span><span>#</span><span>include</span> <span>&lt;stdio.h&gt;</span></span>
+<span><span>#</span><span>include</span> <span>&lt;unistd.h&gt;</span></span>
+
+<span>int</span> <span>main</span><span>(</span><span>)</span> <span>{</span>
+    <span>for</span> <span>(</span><span>int</span> i <span>=</span> <span>0</span><span>;</span> i <span>&lt;</span> <span>3</span><span>;</span> i<span>++</span><span>)</span> <span>{</span>
+        <span>printf</span><span>(</span><span>&#34;tick\n&#34;</span><span>)</span><span>;</span>
+        <span>sleep</span><span>(</span><span>1</span><span>)</span><span>;</span>
+    <span>}</span>
+<span>}</span></code></pre>
+<p>If you redirect its output to a file and look at the contents of that file every second, you can see that the file remains empty until the program terminates:</p>
+<pre><code><span><span>$</span> <span>gcc <span>-o</span> tick tick.c</span></span>
+<span><span>$</span> <span>./tick <span>&gt;</span> out <span>&amp;</span> <span>bash</span> <span>-c</span> <span>&#39;for i in {1..4}; do wc -l out; sleep 1; done&#39;</span></span></span>
+<span>[1] 3758
+0 out
+0 out
+0 out
+3 out
+</span></code></pre>
+<p>That’s because the output is getting caught in the default stdout buffer set up by libc. But if you run the program with <code>stdbuf -oL</code> (<code>o</code> for the std<strong>o</strong>ut stream, and <code>L</code> for <strong>l</strong>ine buffered), the output is visible right away after each line is printed:</p>
+<pre><code><span><span>$</span> <span>stdbuf <span>-oL</span> ./tick <span>&gt;</span> out <span>&amp;</span> <span>bash</span> <span>-c</span> <span>&#39;for i in {1..4}; do wc -l out; sleep 1; done&#39;</span></span></span>
+<span>[1] 3768
+1 out
+2 out
+3 out
+3 out
+</span></code></pre>
+<h2>But how does stdbuf make another program change its behaviour?</h2>
+<p>Given that stdout is often automatically set to line buffered mode when using a TTY, I had assumed that stdbuf would trick the program it runs into thinking its output was a TTY. It turns out that’s not the case.</p>
+<p>So what <em>does</em> it do? In short, it uses <code>LD_PRELOAD</code> to inject a sneaky shared library into the program that changes the buffering mode of the stream when the program starts up. Here’s a quick walk through the code in stdbuf that makes that happen.</p>
+<h2>The buffering mode is set in a special environment variable</h2>
+<p>After parsing the command line options, stdbuf starts out by setting an environment variables for each stream that declares the buffering mode you want. So, if you’d asked for stdout to be line buffered, it’d set <code>_STDBUF_O=L</code> (<code>O</code> for std<strong>o</strong>ut, and <code>L</code> for <strong>l</strong>ine buffered). Here’s the relevant code (<a href="https://github.com/wertarbyte/coreutils/blob/f70c7b785b93dd436788d34827b209453157a6f2/src/stdbuf.c#L252-L284">source</a>):</p>
+<pre><code><span>if</span> <span>(</span><span>*</span>stdbuf<span>[</span>i<span>]</span><span>.</span>optarg <span>==</span> <span>&#39;L&#39;</span><span>)</span>
+  ret <span>=</span> <span>asprintf</span> <span>(</span><span>&amp;</span>var<span>,</span> <span>&#34;%s%c=L&#34;</span><span>,</span> <span>&#34;_STDBUF_&#34;</span><span>,</span>
+                  <span>toupper</span> <span>(</span>stdbuf<span>[</span>i<span>]</span><span>.</span>optc<span>)</span><span>)</span><span>;</span>
+<span>else</span>
+  ret <span>=</span> <span>asprintf</span> <span>(</span><span>&amp;</span>var<span>,</span> <span>&#34;%s%c=%&#34;</span> PRIuMAX<span>,</span> <span>&#34;_STDBUF_&#34;</span><span>,</span>
+                  <span>toupper</span> <span>(</span>stdbuf<span>[</span>i<span>]</span><span>.</span>optc<span>)</span><span>,</span>
+                  <span>(</span><span>uintmax_t</span><span>)</span> stdbuf<span>[</span>i<span>]</span><span>.</span>size<span>)</span><span>;</span>
+<span>if</span> <span>(</span>ret <span>&lt;</span> <span>0</span><span>)</span>
+  <span>xalloc_die</span> <span>(</span><span>)</span><span>;</span>
+
+<span>if</span> <span>(</span><span>putenv</span> <span>(</span>var<span>)</span> <span>!=</span> <span>0</span><span>)</span>
+  <span>{</span>
+    <span>error</span> <span>(</span>EXIT_CANCELED<span>,</span> errno<span>,</span>
+            <span>_</span><span>(</span><span>&#34;failed to update the environment with %s&#34;</span><span>)</span><span>,</span>
+            <span>quote</span> <span>(</span>var<span>)</span><span>)</span><span>;</span>
+  <span>}</span></code></pre>
+<p>The environment variable’s name is <code>_STDBUF_</code> followed the first letter of the stream name, and the value is set to <code>L</code> for line buffering or a number of bytes for block buffering. In case <code>asprintf</code> looks unfamiliar, it’s just a variation of <code>sprintf</code> that automatically allocates memory for you. <code>putenv</code>, as the name suggests, adds that variable to the environment. Later on, when the program you passed to the stdbuf commaned is executed, it will inherit these environment variables, which is how it knows which buffering mode to activate.</p>
+<h2><code>LD_PRELOAD</code> is set to inject a shared library</h2>
+<p>Next, stdbuf sets another environment variable: <code>LD_PRELOAD</code>. It’s set to the path to a shared library called <code>libstdbuf.so</code>, which comes bundled with stdbuf.</p>
+<p><code>LD_PRELOAD</code> tells the Linux dynamic linker to load a given shared library when a program is run. So it’s basically a way of injecting a dynamic library into a given program. (You can do this on macOS too, but using <code>DYLD_INSERT_LIBRARIES</code> instead of <code>LD_PRELOAD</code>.) Here’s where stdbuf does that (<a href="https://github.com/wertarbyte/coreutils/blob/f70c7b785b93dd436788d34827b209453157a6f2/src/stdbuf.c#L189-L250">source</a>):</p>
+<pre><code><span>if</span> <span>(</span>old_libs<span>)</span>
+  ret <span>=</span> <span>asprintf</span> <span>(</span><span>&amp;</span>LD_PRELOAD<span>,</span> <span>&#34;LD_PRELOAD=%s:%s&#34;</span><span>,</span> old_libs<span>,</span> libstdbuf<span>)</span><span>;</span>
+<span>else</span>
+  ret <span>=</span> <span>asprintf</span> <span>(</span><span>&amp;</span>LD_PRELOAD<span>,</span> <span>&#34;LD_PRELOAD=%s&#34;</span><span>,</span> libstdbuf<span>)</span><span>;</span>
+
+<span>if</span> <span>(</span>ret <span>&lt;</span> <span>0</span><span>)</span>
+  <span>xalloc_die</span> <span>(</span><span>)</span><span>;</span>
+
+<span>free</span> <span>(</span>libstdbuf<span>)</span><span>;</span>
+
+ret <span>=</span> <span>putenv</span> <span>(</span>LD_PRELOAD<span>)</span><span>;</span></code></pre>
+<h2>The program is run by calling <code>exec(3)</code></h2>
+<p>With those environment variables set, stdbuf runs the program that was provided as a command line argument with <code>execvp(3)</code> (<a href="https://github.com/wertarbyte/coreutils/blob/master/src/stdbuf.c#L362-L368">source</a>):</p>
+<pre><code><span>execvp</span> <span>(</span><span>*</span>argv<span>,</span> argv<span>)</span><span>;</span>
+
+<span>{</span>
+  <span>int</span> exit_status <span>=</span> <span>(</span>errno <span>==</span> ENOENT <span>?</span> EXIT_ENOENT <span>:</span> EXIT_CANNOT_INVOKE<span>)</span><span>;</span>
+  <span>error</span> <span>(</span><span>0</span><span>,</span> errno<span>,</span> <span>_</span><span>(</span><span>&#34;failed to run command %s&#34;</span><span>)</span><span>,</span> <span>quote</span> <span>(</span>argv<span>[</span><span>0</span><span>]</span><span>)</span><span>)</span><span>;</span>
+  <span>exit</span> <span>(</span>exit_status<span>)</span><span>;</span>
+<span>}</span></code></pre>
+<h2><code>libstdbuf.so</code> wakes up and sets the buffering mode</h2>
+<p>Now that the stdbuf process has been replaced by the executable you asked stdbuf to run, the <code>libstdbuf.so</code> shared library is loaded. We can verify that with <code>strace(1)</code>:</p>
+<pre><code><span><span>$</span> <span><span>strace</span> <span>-e</span> execve,openat stdbuf <span>-oL</span> ./tick <span><span>2</span>&gt;</span><span>&amp;1</span> <span>|</span> <span>grep</span> <span>-E</span> <span>&#39;execve|libstdbuf&#39;</span></span></span>
+<span>execve(&#34;/usr/bin/stdbuf&#34;, [&#34;stdbuf&#34;, &#34;-oL&#34;, &#34;./tick&#34;], 0xffffffd714c0 /* 23 vars */) = 0
+execve(&#34;./tick&#34;, [&#34;./tick&#34;], 0xaaab07cd7260 /* 25 vars */) = 0
+openat(AT_FDCWD, &#34;/usr/libexec/coreutils/libstdbuf.so&#34;, O_RDONLY|O_CLOEXEC) = 3
+</span></code></pre>
+<p><code>libstdbuf.so</code> contains a constructor function that’s run when the library is loaded. It reads those <code>_STDBUF_{E,I,O}</code> environment variables to figure out which modes to set. The <code>__attribute__ ((constructor))</code> bit is the GCC-specific syntax for declaring a dynamic library constructor function (<a href="https://github.com/wertarbyte/coreutils/blob/f70c7b785b93dd436788d34827b209453157a6f2/src/libstdbuf.c#L130-L142">source</a>):</p>
+<pre><code><span>__attribute__</span> <span>(</span><span>(</span>constructor<span>)</span><span>)</span> <span>static</span> <span>void</span>
+<span>stdbuf</span> <span>(</span><span>void</span><span>)</span>
+<span>{</span>
+  <span>char</span> <span>*</span>e_mode <span>=</span> <span>getenv</span> <span>(</span><span>&#34;_STDBUF_E&#34;</span><span>)</span><span>;</span>
+  <span>char</span> <span>*</span>i_mode <span>=</span> <span>getenv</span> <span>(</span><span>&#34;_STDBUF_I&#34;</span><span>)</span><span>;</span>
+  <span>char</span> <span>*</span>o_mode <span>=</span> <span>getenv</span> <span>(</span><span>&#34;_STDBUF_O&#34;</span><span>)</span><span>;</span>
+  <span>if</span> <span>(</span>e_mode<span>)</span> <span>/* Do first so can write errors to stderr  */</span>
+    <span>apply_mode</span> <span>(</span><span>stderr</span><span>,</span> e_mode<span>)</span><span>;</span>
+  <span>if</span> <span>(</span>i_mode<span>)</span>
+    <span>apply_mode</span> <span>(</span><span>stdin</span><span>,</span> i_mode<span>)</span><span>;</span>
+  <span>if</span> <span>(</span>o_mode<span>)</span>
+    <span>apply_mode</span> <span>(</span><span>stdout</span><span>,</span> o_mode<span>)</span><span>;</span>
+<span>}</span></code></pre>
+<p>Then it sets the mode on the stream with a call to <code>setvbuf(3)</code> (<a href="https://github.com/wertarbyte/coreutils/blob/f70c7b785b93dd436788d34827b209453157a6f2/src/libstdbuf.c#L85-L128">source</a>):</p>
+<pre><code><span>if</span> <span>(</span><span>setvbuf</span> <span>(</span>stream<span>,</span> buf<span>,</span> setvbuf_mode<span>,</span> size<span>)</span> <span>!=</span> <span>0</span><span>)</span>
+  <span>{</span>
+    <span>fprintf</span> <span>(</span><span>stderr</span><span>,</span> <span>_</span><span>(</span><span>&#34;could not set buffering of %s to mode %s\n&#34;</span><span>)</span><span>,</span>
+              <span>fileno_to_name</span> <span>(</span><span>fileno</span> <span>(</span>stream<span>)</span><span>)</span><span>,</span> mode<span>)</span><span>;</span>
+    <span>free</span> <span>(</span>buf<span>)</span><span>;</span>
+  <span>}</span></code></pre>
+<p>And that’s it! All the <code>stdbuf(1)</code> program really does is set some environment variables then call <code>execvp(3)</code>. So we can actually get the same behaviour by setting those environment variables ourselves:</p>
+<pre><code><span><span>$</span> <span><span>LD_PRELOAD</span><span>=</span>/usr/libexec/coreutils/libstdbuf.so <span>\</span>
+<span>&gt;</span> <span>_STDBUF_O</span><span>=</span><span>1</span> <span>\</span>
+<span>&gt;</span> ./tick <span>&gt;</span> out <span>&amp;</span> <span>bash</span> <span>-c</span> <span>&#39;for i in {1..4}; do wc -l out; sleep 1; done&#39;</span></span></span>
+<span>[1] 10362
+0 out
+1 out
+2 out
+3 out
+</span></code></pre>
+<h2>Why this doesn’t always work</h2>
+<p>This trick of calling <code>setvbuf(3)</code> in a shared library constructor works well in some cases, but there are several situations that it can’t handle:</p>
+<ol>
+<li>If the program sets the buffering mode itself by calling <code>setvbuf(3)</code> or <code>setbuf(3)</code>, all the hard work <code>libstdbuf.so</code> did will be undone.</li>
+<li>If the program buffers output via some other mechanism (e.g. by allocating its own buffer and only calling <code>write(3)</code> when it’s full), this approach won’t work at all.</li>
+<li>If the program doens’t use libc for standard IO, calling <code>setvbuf(3)</code> won’t have any effect. For instance Go doesn’t use libc for IO, so stdbuf won’t affect most Go programs.</li>
+</ol>
+<p>If you hit one of those cases and don’t mind installing a separate package, there is actually another utility called <code>unbuffer</code> that takes a different approach. It creates a pty and attaches it to stdout to trick the program into thinking it’s running in interactive mode, which often flips stdout to being line buffered mode automatically.</p>
+<h2>Epilogue</h2>
+<p>I couldn’t wrap this little adventure up without including the absolute best part of the stdbuf codebase: the command line option parsing (<a href="https://github.com/wertarbyte/coreutils/blob/f70c7b785b93dd436788d34827b209453157a6f2/src/stdbuf.c#L304-L309">source</a>):</p>
+<pre><code><span>switch</span> <span>(</span>c<span>)</span>
+  <span>{</span>
+  <span>/* Old McDonald had a farm ei...  */</span>
+  <span>case</span> <span>&#39;e&#39;</span><span>:</span>
+  <span>case</span> <span>&#39;i&#39;</span><span>:</span>
+  <span>case</span> <span>&#39;o&#39;</span><span>:</span></code></pre>
+
+  </article>
+</main>
+
+
+
+    </div></div>
