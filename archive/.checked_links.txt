@@ -12,6 +12,7 @@ app.ilograph.com__demo.ilograph.Ilograph_Request_56301e20
 bike.shimano.com__en-EU_product_component_shimano105-r7000_FH-R7000.html_cb7f17ba
 bikeraceinfo.com__tech_bottom-brackets.html_c0b88e9a
 biketourjapan.com__cycling-lake-biwa-japans-largest-lake_4ae3fac8
+blackember.com_7c422668
 blog.datawrapper.de__beautifulcolors_01c771f7
 blog.getpelican.com_0fae925c
 blog.timescale.com__blog_what-are-traces-and-how-sql-yes-sql-and-opentelemetry-can-help-us-get-more-_3260c785
@@ -84,6 +85,7 @@ getwaves.io_ba822b48
 gist.github.com__rgreenjr_3637525_e9d96a38
 git-scm.com__book_en_v2_Git-Tools-Rewriting-History_39c9e67b
 git-scm.com__book_en_v2_Git-Tools-Rewriting-History_8a806382
+github.com__BoboTiG_ebook-reader-dict_releases_tag_en_441ec930
 github.com__BurntSushi_erd_bffc6c99
 github.com__IdreesInc_Monocraft_7908652a
 github.com__Qalculate_libqalculate_f05fe8bb
@@ -118,6 +120,7 @@ github.com__junegunn_fzf_7c881fd1
 github.com__jwilber_roughViz_fe2b55cc
 github.com__koalaman_shellcheck_25c21cf5
 github.com__koreader_koreader_8001043f
+github.com__koreader_koreader_wiki_User-patches_49c59ee2
 github.com__leeoniya_uPlot_e6a9c105
 github.com__mfussenegger_nvim-dap_c1177a32
 github.com__mozilla_readability_0922cead
@@ -334,6 +337,7 @@ www.2ndquadrant.com__en_blog_on-the-impact-of-full-page-writes_46cc8d41
 www.2ndquadrant.com__en_blog_postgresql-10-identity-columns_2906f37c
 www.8bitdo.com__sn30-pro-plus_c93c2d0e
 www.8bitdo.com__wireless-usb-adapter_eafa42e5
+www.alphaoneniner.com_aa9d25e0
 www.babelsiemreap.com_b58ac655
 www.bbc.com__news_uk-england-london-54048546_366f62d9
 www.bike-components.de__en_Shimano_Deore-BR-T610-V-Brake-Set-p83063_355135fa
@@ -471,6 +475,7 @@ www.reddit.com__r_bodyweightfitness_comments_ek0j4h_when_just_get_started_feels_
 www.reddit.com__r_bodyweightfitness_comments_nns5an_how_to_periodize_your_bodyweight_strength_cc79a2a1
 www.reddit.com__r_climbing_comments_gegy44_a_throwback_to_better_days_longboats_and_fpoc8t6_f3668cfd
 www.reddit.com__r_crafts_comments_q8zxax_we_have_our_first_big_event_today_i_made_so_many_8e6266b2
+www.reddit.com__r_fermentation_comments_q3z46v_concerned_about_fermenting_garlic_in_honey_hfwaz9x_e748cbc7
 www.reddit.com__r_london_comments_mkyd07_two_guys_tried_to_target_and_mug_me_on_the_tube_bf6d029f
 www.reddit.com__r_london_comments_moutvr_nearly_got_mugged_on_the_piccadilly_line_take_my_3351a243
 www.reddit.com__r_longboardingDISTANCE_comments_xcczh0_ldpump_setup_questions_for_enthusiastsexperts_df4d4b63
@@ -522,6 +527,8 @@ www.visidata.org__docs_join_67c36692
 www.visualcapitalist.com__cp_big-tech-revenue-profit-by-company_1745a558
 www.wolftoothcomponents.com__pages_how-to-measure-bolt-circle-diameter-bcd_8bd52f63
 www.xda-developers.com__safetynet-hardware-attestation-feature-here-to-stay_320abf6b
+www.yamatomichi.com__products_yamatomichi-sacoche_0e8979dd
+www.yamatomichi.com_b6d6c6c6
 www.youtube.com__channel_UC5jRwTUqG15l-BcqQHbVFtA_videos_e5f0ae4c
 www.youtube.com__watch-v--yZtOL7cFCYt-1596s_3ed2c7a5
 www.youtube.com__watch-v-0gWOiqPAZDw_c6ebf372
