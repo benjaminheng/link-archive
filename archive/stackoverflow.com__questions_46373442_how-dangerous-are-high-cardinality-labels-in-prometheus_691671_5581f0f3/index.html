@@ -1,0 +1,17 @@
+---
+url: https://stackoverflow.com/questions/46373442/how-dangerous-are-high-cardinality-labels-in-prometheus/69167162#69167162
+title: How dangerous are high-cardinality labels in Prometheus?
+archived_at: 2024-07-16T21:43:31.970006955+08:00
+---
+<div id="readability-page-1" class="page"><div itemprop="text">
+                
+<p>I&#39;m considering exporting some metrics to Prometheus, and I&#39;m getting nervous about what I&#39;m planning to do.</p>
+
+<p>My system consists of a workflow engine, and I&#39;d like to track some metrics for each step in the workflow. This seems reasonable, with a gauge metric called <code>wfengine_step_duration_seconds</code>. My issue is that there are many thousands of steps across all my workflows.</p>
+
+<p>According to the documentation <a href="https://prometheus.io/docs/practices/instrumentation/#use-labels" rel="noreferrer">here</a>, I&#39;m not supposed to programmatically generate any part of the name. That precludes, then, the use of names such as <code>wfengine_step1_duration_seconds</code> and <code>wfengine_step2_duration_seconds</code>, because the step names are programmatic (they change from time to time).</p>
+
+<p>The solution, then is a label for the step names. This also presents a problem, though, because the documentation <a href="https://prometheus.io/docs/practices/instrumentation/#do-not-overuse-labels" rel="noreferrer">here</a> and <a href="https://prometheus.io/docs/practices/naming/#labels" rel="noreferrer">here</a> cautions quite strongly against using labels with high cardinality. Specifically, they recommend keeping &#34;the cardinality of your metrics below 10&#34;, and for cardinality over 100, &#34;investigate alternate solutions such as reducing the number of dimensions or moving the analysis away from monitoring&#34;.</p>
+
+<p>I&#39;m looking at a number of label values in the low thousands (1,000 to 10,000). Given that the number of metrics otherwise won&#39;t be extremely large, is this an appropriate usage of Prometheus, or should I limit myself to more generic metrics, such as a single aggregated step duration instead of individual duration for each step?</p>
+    </div></div>
