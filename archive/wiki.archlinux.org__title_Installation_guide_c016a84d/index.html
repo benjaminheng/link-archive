@@ -1,0 +1,312 @@
+---
+url: https://wiki.archlinux.org/title/Installation_guide
+title: Installation guide - ArchWiki
+archived_at: 2025-02-13T00:25:05.032003658+08:00
+---
+<div id="readability-page-1" class="page"><div lang="en" dir="ltr" id="mw-content-text"><p>This document is a guide for installing <a href="https://wiki.archlinux.org/title/Arch_Linux" title="Arch Linux">Arch Linux</a> using the live system booted from an installation medium made from an official installation image. The installation medium provides accessibility features which are described on the page <a href="https://wiki.archlinux.org/title/Install_Arch_Linux_with_accessibility_options" title="Install Arch Linux with accessibility options">Install Arch Linux with accessibility options</a>. For alternative means of installation, see <a href="https://wiki.archlinux.org/title/Category:Installation_process" title="Category:Installation process">Category:Installation process</a>.
+</p><p>Before installing, it would be advised to view the <a href="https://wiki.archlinux.org/title/FAQ" title="FAQ">FAQ</a>. For conventions used in this document, see <a href="https://wiki.archlinux.org/title/Help:Reading" title="Help:Reading">Help:Reading</a>. In particular, code examples may contain placeholders (formatted in <code><i>italics</i></code>) that must be replaced manually.
+</p><p>This guide is kept concise and you are advised to follow the instructions in the presented order per section. For more detailed instructions, see the respective <a href="https://wiki.archlinux.org/title/ArchWiki" title="ArchWiki">ArchWiki</a> articles or the various programs&#39; <a href="https://wiki.archlinux.org/title/Man_page" title="Man page">man pages</a>, both linked from this guide. For interactive help, the <a href="https://wiki.archlinux.org/title/IRC_channel" title="IRC channel">IRC channel</a> and the <a rel="nofollow" href="https://bbs.archlinux.org/">forums</a> are also available.
+</p><p>Arch Linux should run on any <a href="https://en.wikipedia.org/wiki/X86-64" title="wikipedia:X86-64">x86_64</a>-compatible machine with a minimum of 512 MiB RAM, though more memory is needed to boot the live system for installation.<a rel="nofollow" href="https://lists.archlinux.org/archives/list/arch-releng@lists.archlinux.org/message/D5HSGOFTPGYI6IZUEB3ZNAX4D3F3ID37/">[1]</a> A basic installation should take less than 2 GiB of disk space. As the installation process needs to retrieve packages from a remote repository, this guide assumes a working internet connection is available.
+</p>
+<meta property="mw:PageProp/toc"/>
+<h2><span id="Pre-installation">Pre-installation</span></h2>
+<h3><span id="Acquire_an_installation_image">Acquire an installation image</span></h3>
+<p>Visit the <a rel="nofollow" href="https://archlinux.org/download/">Download</a> page and, depending on how you want to boot, acquire the ISO file or a netboot image, and the respective PGP signature.
+</p>
+<h3><span id="Verify_signature">Verify signature</span></h3>
+<p>It is recommended to verify the image signature before use, especially when downloading from an <i>HTTP mirror</i>, where downloads are generally prone to be intercepted to <a rel="nofollow" href="https://www2.cs.arizona.edu/stork/packagemanagersecurity/attacks-on-package-managers.html">serve malicious images</a>. 
+</p><p>On a system with <a href="https://wiki.archlinux.org/title/GnuPG" title="GnuPG">GnuPG</a> installed, do this by downloading the <i>ISO PGP signature</i> (<a rel="nofollow" href="https://archlinux.org/download/#checksums">under Checksums in the page Download</a>) to the ISO directory, and <a href="https://wiki.archlinux.org/title/GnuPG#Verify_a_signature" title="GnuPG">verifying</a> it with: 
+</p>
+<pre>$ gpg --keyserver-options auto-key-retrieve --verify archlinux-<i>version</i>-x86_64.iso.sig
+</pre>
+<p>Alternatively, from an existing Arch Linux installation run:
+</p>
+<pre>$ pacman-key -v archlinux-<i>version</i>-x86_64.iso.sig
+</pre>
+<div><p><strong>Note:</strong></p><ul><li>The signature itself could be manipulated if it is downloaded from a mirror site, instead of from <a rel="nofollow" href="https://archlinux.org/download/">archlinux.org</a> as above. In this case, ensure that the public key, which is used to decode the signature, is signed by another, trustworthy key. The <code>gpg</code> command will output the fingerprint of the public key.</li>
+<li>Another method to verify the authenticity of the signature is to ensure that the public key&#39;s fingerprint is identical to the key fingerprint of the <a rel="nofollow" href="https://archlinux.org/people/developers/">Arch Linux developer</a> who signed the ISO-file. See <a href="https://en.wikipedia.org/wiki/Public-key_cryptography" title="wikipedia:Public-key cryptography">Wikipedia:Public-key cryptography</a> for more information on the public-key process to authenticate keys.</li></ul>
+</div>
+<h3><span id="Prepare_an_installation_medium">Prepare an installation medium</span></h3>
+<p>The ISO can be supplied to the target machine via a <a href="https://wiki.archlinux.org/title/USB_flash_installation_medium" title="USB flash installation medium">USB flash drive</a>, an <a href="https://wiki.archlinux.org/title/Optical_disc_drive#Burning" title="Optical disc drive">optical disc</a> or a network with <a href="https://wiki.archlinux.org/title/PXE" title="PXE">PXE</a>: follow the appropriate article to prepare yourself an installation medium from the ISO file.
+</p><p>For the netboot image, follow <a href="https://wiki.archlinux.org/title/Netboot#Boot_from_a_USB_flash_drive" title="Netboot">Netboot#Boot from a USB flash drive</a> to prepare a USB flash drive for UEFI booting.
+</p>
+<h3><span id="Boot_the_live_environment">Boot the live environment</span></h3>
+<p><strong>Note:</strong> Arch Linux installation images do not support Secure Boot. You will need to <a href="https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface/Secure_Boot#Disabling_Secure_Boot" title="Unified Extensible Firmware Interface/Secure Boot">disable Secure Boot</a> to boot the installation medium. If desired, <a href="https://wiki.archlinux.org/title/Secure_Boot" title="Secure Boot">Secure Boot</a> can be set up after completing the installation.</p>
+<ol><li>Point the current boot device to the one which has the Arch Linux installation medium. Typically it is achieved by pressing a key during the <a href="https://en.wikipedia.org/wiki/Power-on_self_test" title="wikipedia:Power-on self test">POST</a> phase, as indicated on the splash screen. Refer to your motherboard&#39;s manual for details.</li>
+<li>When the installation medium&#39;s boot loader menu appears,
+<ul><li>if you used the ISO, select <i>Arch Linux install medium</i> and press <code>Enter</code> to enter the installation environment.</li>
+<li>if you used the Netboot image, choose a geographically close mirror from <i>Mirror</i> menu, then select <i>Boot Arch Linux</i> and press <code>Enter</code>. <div><p><strong>Tip:</strong></p><ul><li>The ISO uses <a href="https://wiki.archlinux.org/title/Systemd-boot" title="Systemd-boot">systemd-boot</a> for UEFI and <a href="https://wiki.archlinux.org/title/Syslinux" title="Syslinux">syslinux</a> for BIOS booting. Use respectively <code>e</code> or <code>Tab</code> to enter the <a href="https://wiki.archlinux.org/title/Kernel_parameters#Boot_loader_configuration" title="Kernel parameters">boot parameters</a>. The Netboot image uses iPXE and the boot parameters can be specified in the <i>Boot options</i> menu. See <a rel="nofollow" href="https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio-archiso/blob/master/docs/README.bootparams">README.bootparams</a> for a list.</li>
+<li>A common example of manually defined boot parameter would be the font size. For better readability on HiDPI screens—when they are not already recognized as such—using <code>fbcon=font:TER16x32</code> can help. See <a href="https://wiki.archlinux.org/title/HiDPI#Linux_console_(tty)" title="HiDPI">HiDPI#Linux console (tty)</a> for a detailed explanation.</li></ul></div></li></ul></li>
+<li></li>
+<li>You will be logged in on the first <a href="https://en.wikipedia.org/wiki/Virtual_console" title="wikipedia:Virtual console">virtual console</a> as the root user, and presented with a <a href="https://wiki.archlinux.org/title/Zsh" title="Zsh">Zsh</a> shell prompt.</li></ol>
+<p>To switch to a different console—for example, to view this guide with <a rel="nofollow" href="https://lynx.invisible-island.net/lynx_help/Lynx_users_guide.html">Lynx</a> alongside the installation—use the <code>Alt+<i>arrow</i></code> <a href="https://wiki.archlinux.org/title/Keyboard_shortcuts" title="Keyboard shortcuts">shortcut</a>. To <a href="https://wiki.archlinux.org/title/Textedit" title="Textedit">edit</a> configuration files, <span title="$ man 1 mcedit"><a rel="nofollow" href="https://man.archlinux.org/man/mcedit.1">mcedit(1)</a></span>, <a href="https://wiki.archlinux.org/title/Nano#Usage" title="Nano">nano</a> and <a href="https://wiki.archlinux.org/title/Vim#Usage" title="Vim">vim</a> are available. See <a rel="nofollow" href="https://geo.mirror.pkgbuild.com/iso/latest/arch/pkglist.x86_64.txt">pkglist.x86_64.txt</a> for a list of the packages included in the installation medium.
+</p>
+<h3><span id="Set_the_console_keyboard_layout_and_font">Set the console keyboard layout and font</span></h3>
+<p>The default <a href="https://wiki.archlinux.org/title/Console_keymap" title="Console keymap">console keymap</a> is <a href="https://en.wikipedia.org/wiki/File:KB_United_States-NoAltGr.svg" title="wikipedia:File:KB United States-NoAltGr.svg">US</a>. Available layouts can be listed with:
+</p>
+<pre># localectl list-keymaps
+</pre>
+<p>To set the keyboard layout, pass its name to <span title="$ man 1 loadkeys"><a rel="nofollow" href="https://man.archlinux.org/man/loadkeys.1">loadkeys(1)</a></span>. For example, to set a <a href="https://en.wikipedia.org/wiki/File:KB_Germany.svg" title="wikipedia:File:KB Germany.svg">German</a> keyboard layout:
+</p>
+<pre># loadkeys de-latin1
+</pre>
+<p><a href="https://wiki.archlinux.org/title/Console_fonts" title="Console fonts">Console fonts</a> are located in <code>/usr/share/kbd/consolefonts/</code> and can likewise be set with <span title="$ man 8 setfont"><a rel="nofollow" href="https://man.archlinux.org/man/setfont.8">setfont(8)</a></span> omitting the path and file extension. For example, to use one of the largest fonts suitable for <a href="https://wiki.archlinux.org/title/HiDPI#Linux_console_(tty)" title="HiDPI">HiDPI screens</a>, run:
+</p>
+<pre># setfont ter-132b
+</pre>
+<h3><span id="Verify_the_boot_mode">Verify the boot mode</span></h3>
+<p>To verify the boot mode, check the UEFI bitness:
+</p>
+<pre># cat /sys/firmware/efi/fw_platform_size
+</pre>
+<p>If the command returns <code>64</code>, then the system is booted in UEFI mode and has a 64-bit x64 UEFI. If the command returns <code>32</code>, then the system is booted in UEFI mode and has a 32-bit IA32 UEFI; while this is supported, it will limit the boot loader choice to systemd-boot and GRUB. If the file does not exist, the system may be booted in <a href="https://en.wikipedia.org/wiki/BIOS" title="wikipedia:BIOS">BIOS</a> (or <a href="https://en.wikipedia.org/wiki/Compatibility_Support_Module" title="wikipedia:Compatibility Support Module">CSM</a>) mode. If the system did not boot in the mode you desired (UEFI vs BIOS), refer to your motherboard&#39;s manual.
+</p>
+<h3><span id="Connect_to_the_internet">Connect to the internet</span></h3>
+<p>To set up a network connection in the live environment, go through the following steps:
+</p>
+<ol><li>Ensure your <a href="https://wiki.archlinux.org/title/Network_interface" title="Network interface">network interface</a> is listed and enabled, for example with <span title="$ man 8 ip-link"><a rel="nofollow" href="https://man.archlinux.org/man/ip-link.8">ip-link(8)</a></span>: <pre># ip link</pre></li>
+<li>For wireless and WWAN, make sure the card is not blocked with <a href="https://wiki.archlinux.org/title/Rfkill" title="Rfkill">rfkill</a>.</li>
+<li>Connect to the network:
+<ul><li>Ethernet—plug in the cable.</li>
+<li>Wi-Fi—authenticate to the wireless network using <a href="https://wiki.archlinux.org/title/Iwctl" title="Iwctl">iwctl</a>.</li>
+<li>Mobile broadband modem—connect to the mobile network with the <a href="https://wiki.archlinux.org/title/Mmcli" title="Mmcli">mmcli</a> utility.</li></ul></li>
+<li>Configure your network connection:
+<ul><li><a href="https://wiki.archlinux.org/title/DHCP" title="DHCP">DHCP</a>: dynamic IP address and DNS server assignment (provided by <a href="https://wiki.archlinux.org/title/Systemd-networkd" title="Systemd-networkd">systemd-networkd</a> and <a href="https://wiki.archlinux.org/title/Systemd-resolved" title="Systemd-resolved">systemd-resolved</a>) should work out of the box for Ethernet, WLAN, and WWAN network interfaces.</li>
+<li>Static IP address: follow <a href="https://wiki.archlinux.org/title/Network_configuration#Static_IP_address" title="Network configuration">Network configuration#Static IP address</a>.</li></ul></li>
+<li>The connection may be verified with <a href="https://wiki.archlinux.org/title/Ping" title="Ping">ping</a>: <pre># ping archlinux.org</pre></li></ol>
+
+<h3><span id="Update_the_system_clock">Update the system clock</span></h3>
+<p>In the live environment <a href="https://wiki.archlinux.org/title/Systemd-timesyncd" title="Systemd-timesyncd">systemd-timesyncd</a> is enabled by default and time will be synced automatically once a connection to the internet is established.
+</p><p>Use <span title="$ man 1 timedatectl"><a rel="nofollow" href="https://man.archlinux.org/man/timedatectl.1">timedatectl(1)</a></span> to ensure the system clock is synchronized:
+</p>
+<pre># timedatectl
+</pre>
+<h3><span id="Partition_the_disks">Partition the disks</span></h3>
+<p>When recognized by the live system, disks are assigned to a <a href="https://wiki.archlinux.org/title/Block_device" title="Block device">block device</a> such as <code>/dev/sda</code>, <code>/dev/nvme0n1</code> or <code>/dev/mmcblk0</code>. To identify these devices, use <a href="https://wiki.archlinux.org/title/Lsblk" title="Lsblk">lsblk</a> or <i>fdisk</i>.
+</p>
+<pre># fdisk -l
+</pre>
+<p>Results ending in <code>rom</code>, <code>loop</code> or <code>airootfs</code> may be ignored. <code>mmcblk*</code> devices ending in <code>rpbm</code>, <code>boot0</code> and <code>boot1</code> can be ignored.
+</p>
+
+<p><strong>Tip:</strong> Check that your NVMe drives and Advanced Format hard disk drives are using the <a href="https://wiki.archlinux.org/title/Advanced_Format" title="Advanced Format">optimal logical sector size</a> before partitioning.</p>
+<p>The following <a href="https://wiki.archlinux.org/title/Partition" title="Partition">partitions</a> are <b>required</b> for a chosen device:
+</p>
+<ul><li>One partition for the <a href="https://en.wikipedia.org/wiki/Root_directory" title="wikipedia:Root directory">root directory</a> <code>/</code>.</li>
+<li>For booting in <a href="https://wiki.archlinux.org/title/UEFI" title="UEFI">UEFI</a> mode: an <a href="https://wiki.archlinux.org/title/EFI_system_partition" title="EFI system partition">EFI system partition</a>.</li></ul>
+<p>Use a <a href="https://wiki.archlinux.org/title/Partitioning#Partitioning_tools" title="Partitioning">partitioning tool</a> like <a href="https://wiki.archlinux.org/title/Fdisk" title="Fdisk">fdisk</a> to modify partition tables. For example:
+</p>
+<pre># fdisk <i>/dev/the_disk_to_be_partitioned</i>
+</pre>
+<div><p><strong>Note:</strong></p><ul><li>Take time to plan a long-term partitioning scheme to avoid risky and complicated conversion or re-partitioning procedures in the future.</li>
+<li>If you want to create any stacked block devices for <a href="https://wiki.archlinux.org/title/Install_Arch_Linux_on_LVM" title="Install Arch Linux on LVM">LVM</a>, <a href="https://wiki.archlinux.org/title/Dm-crypt" title="Dm-crypt">system encryption</a> or <a href="https://wiki.archlinux.org/title/RAID" title="RAID">RAID</a>, do it now.</li>
+<li>If the disk from which you want to boot <a href="https://wiki.archlinux.org/title/EFI_system_partition#Check_for_an_existing_partition" title="EFI system partition">already has an EFI system partition</a>, do not create another one, but use the existing partition instead.</li>
+<li><a href="https://wiki.archlinux.org/title/Swap" title="Swap">Swap</a> space can be set on a <a href="https://wiki.archlinux.org/title/Swap_file" title="Swap file">swap file</a> for file systems supporting it. Alternatively, disk based swap can be avoided entirely by setting up <a href="https://wiki.archlinux.org/title/Zram#Usage_as_swap" title="Zram">swap on zram</a> after installing the system.</li></ul>
+</div>
+<h4><span id="Example_layouts">Example layouts</span></h4>
+<table>
+<caption>UEFI with <a href="https://wiki.archlinux.org/title/GPT" title="GPT">GPT</a>
+</caption>
+<tbody><tr>
+<th>Mount point on the installed system
+</th>
+<th>Partition
+</th>
+<th><a href="https://en.wikipedia.org/wiki/GUID_Partition_Table#Partition_type_GUIDs" title="wikipedia:GUID Partition Table">Partition type</a>
+</th>
+<th>Suggested size
+</th></tr>
+<tr>
+<td><code>/boot</code><sup>1</sup>
+</td>
+<td><code>/dev/<i>efi_system_partition</i></code>
+</td>
+<td><a href="https://wiki.archlinux.org/title/EFI_system_partition" title="EFI system partition">EFI system partition</a>
+</td>
+<td>1 GiB
+</td></tr>
+<tr>
+<td><code>[SWAP]</code>
+</td>
+<td><code>/dev/<i>swap_partition</i></code>
+</td>
+<td>Linux swap
+</td>
+<td>At least 4 GiB
+</td></tr>
+<tr>
+<td><code>/</code>
+</td>
+<td><code>/dev/<i>root_partition</i></code>
+</td>
+<td>Linux x86-64 root (/)
+</td>
+<td>Remainder of the device. At least 23–32 GiB.
+</td></tr></tbody></table>
+<ol><li><a href="https://wiki.archlinux.org/title/EFI_system_partition#Typical_mount_points" title="EFI system partition">Other mount points</a>, such as <code>/efi</code>, are possible, provided that the used boot loader is capable of loading the kernel and initramfs images from the root volume. See the warning in <a href="https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader" title="Arch boot process">Arch boot process#Boot loader</a>.</li></ol>
+<table>
+<caption>BIOS with <a href="https://wiki.archlinux.org/title/MBR" title="MBR">MBR</a>
+</caption>
+<tbody><tr>
+<th>Mount point on the installed system
+</th>
+<th>Partition
+</th>
+<th><a href="https://en.wikipedia.org/wiki/Partition_type" title="wikipedia:Partition type">Partition type</a>
+</th>
+<th>Suggested size
+</th></tr>
+<tr>
+<td><code>[SWAP]</code>
+</td>
+<td><code>/dev/<i>swap_partition</i></code>
+</td>
+<td>Linux swap
+</td>
+<td>At least 4 GiB
+</td></tr>
+<tr>
+<td><code>/</code>
+</td>
+<td><code>/dev/<i>root_partition</i></code>
+</td>
+<td>Linux
+</td>
+<td>Remainder of the device. At least 23–32 GiB.
+</td></tr></tbody></table>
+<p>See also <a href="https://wiki.archlinux.org/title/Partitioning#Example_layouts" title="Partitioning">Partitioning#Example layouts</a>.
+</p>
+<h3><span id="Format_the_partitions">Format the partitions</span></h3>
+<p>Once the partitions have been created, each newly created partition must be formatted with an appropriate <a href="https://wiki.archlinux.org/title/File_system" title="File system">file system</a>. See <a href="https://wiki.archlinux.org/title/File_systems#Create_a_file_system" title="File systems">File systems#Create a file system</a> for details.
+</p><p>For example, to create an <a href="https://wiki.archlinux.org/title/Ext4" title="Ext4">Ext4</a> file system on <code>/dev/<i>root_partition</i></code>, run:
+</p>
+<pre># mkfs.ext4 /dev/<i>root_partition</i>
+</pre>
+<p>If you created a partition for <a href="https://wiki.archlinux.org/title/Swap" title="Swap">swap</a>, initialize it with <span title="$ man 8 mkswap"><a rel="nofollow" href="https://man.archlinux.org/man/mkswap.8">mkswap(8)</a></span>:
+</p>
+<pre># mkswap /dev/<i>swap_partition</i>
+</pre>
+<p><strong>Note:</strong> For stacked block devices replace <code>/dev/<i>*_partition</i></code> with the appropriate block device path.</p>
+<p>If you created an EFI system partition, <a href="https://wiki.archlinux.org/title/EFI_system_partition#Format_the_partition" title="EFI system partition">format it</a> to FAT32 using <span title="$ man 8 mkfs.fat"><a rel="nofollow" href="https://man.archlinux.org/man/mkfs.fat.8">mkfs.fat(8)</a></span>.
+</p>
+<p><strong>Warning:</strong> Only format the EFI system partition if you created it during the partitioning step. If there already was an EFI system partition on disk beforehand, reformatting it can destroy the boot loaders of other installed operating systems.</p>
+<pre># mkfs.fat -F 32 /dev/<i>efi_system_partition</i>
+</pre>
+<h3><span id="Mount_the_file_systems">Mount the file systems</span></h3>
+<p><a href="https://wiki.archlinux.org/title/Mount" title="Mount">Mount</a> the root volume to <code>/mnt</code>. For example, if the root volume is <code>/dev/<i>root_partition</i></code>:
+</p>
+<pre># mount /dev/<i>root_partition</i> /mnt
+</pre>
+<p>Create any remaining mount points under <code>/mnt</code> (such as <code>/mnt/boot</code> for <code>/boot</code>) and mount the volumes in their corresponding hierarchical order.
+</p>
+<p><strong>Tip:</strong> Run <span title="$ man 8 mount"><a rel="nofollow" href="https://man.archlinux.org/man/mount.8">mount(8)</a></span> with the <code>--mkdir</code> option to create the specified mount point. Alternatively, create it using <span title="$ man 1 mkdir"><a rel="nofollow" href="https://man.archlinux.org/man/mkdir.1">mkdir(1)</a></span> beforehand.</p>
+<p>For UEFI systems, mount the EFI system partition:
+</p>
+<pre># mount --mkdir /dev/<i>efi_system_partition</i> /mnt/boot
+</pre>
+<p>If you created a <a href="https://wiki.archlinux.org/title/Swap" title="Swap">swap</a> volume, enable it with <span title="$ man 8 swapon"><a rel="nofollow" href="https://man.archlinux.org/man/swapon.8">swapon(8)</a></span>:
+</p>
+<pre># swapon /dev/<i>swap_partition</i>
+</pre>
+<p><span title="$ man 8 genfstab"><a rel="nofollow" href="https://man.archlinux.org/man/genfstab.8">genfstab(8)</a></span> will later detect mounted file systems and swap space.
+</p>
+<h2><span id="Installation">Installation</span></h2>
+<h3><span id="Select_the_mirrors">Select the mirrors</span></h3>
+<p>Packages to be installed must be downloaded from <a href="https://wiki.archlinux.org/title/Mirrors" title="Mirrors">mirror servers</a>, which are defined in <code>/etc/pacman.d/mirrorlist</code>. On the live system, after connecting to the internet, <a href="https://wiki.archlinux.org/title/Reflector" title="Reflector">reflector</a> updates the mirror list by choosing 20 most recently synchronized HTTPS mirrors and sorting them by download rate.
+</p><p>The higher a mirror is placed in the list, the more priority it is given when downloading a package. You may want to inspect the file to see if it is satisfactory. If it is not, <a href="https://wiki.archlinux.org/title/Textedit" title="Textedit">edit</a> the file accordingly, and move the geographically closest mirrors to the top of the list, although other criteria should be taken into account.
+</p><p>This file will later be copied to the new system by <i>pacstrap</i>, so it is worth getting right.
+</p>
+<h3><span id="Install_essential_packages">Install essential packages</span></h3>
+<p><strong>Note:</strong> No software or configuration (except for <code>/etc/pacman.d/mirrorlist</code>) gets carried over from the live environment to the installed system.</p>
+<p>Use the <span title="$ man 8 pacstrap"><a rel="nofollow" href="https://man.archlinux.org/man/pacstrap.8">pacstrap(8)</a></span> script to install the <span><a rel="nofollow" href="https://archlinux.org/packages/?name=base">base</a></span> package, Linux <a href="https://wiki.archlinux.org/title/Kernel" title="Kernel">kernel</a> and firmware for common hardware:
+</p>
+<pre># pacstrap -K /mnt base linux linux-firmware
+</pre>
+<div><p><strong>Tip:</strong></p><ul><li>You can substitute <span><a rel="nofollow" href="https://archlinux.org/packages/?name=linux">linux</a></span> with a <a href="https://wiki.archlinux.org/title/Kernel" title="Kernel">kernel</a> package of your choice, or you could omit it entirely when installing in a <a href="https://en.wikipedia.org/wiki/Container_(virtualization)" title="wikipedia:Container (virtualization)">container</a>.</li>
+<li>You could omit the installation of the firmware package when installing in a virtual machine or container.</li></ul>
+</div>
+<p>The <span><a rel="nofollow" href="https://archlinux.org/packages/?name=base">base</a></span> package does not include all tools from the live installation, so installing more packages may be necessary for a fully functional base system. To install other packages or package groups, append the names to the <i>pacstrap</i> command above (space separated) or use <a href="https://wiki.archlinux.org/title/Pacman" title="Pacman">pacman</a> to <a href="https://wiki.archlinux.org/title/Install" title="Install">install</a> them while <a href="#Chroot">chrooted into the new system</a>. In particular, consider installing:
+</p>
+<ul><li>CPU <a href="https://wiki.archlinux.org/title/Microcode" title="Microcode">microcode</a> updates—<span><a rel="nofollow" href="https://archlinux.org/packages/?name=amd-ucode">amd-ucode</a></span> or <span><a rel="nofollow" href="https://archlinux.org/packages/?name=intel-ucode">intel-ucode</a></span>—for hardware bug and security fixes,</li>
+<li><a href="https://wiki.archlinux.org/title/File_systems" title="File systems">userspace utilities for file systems</a> that will be used on the system—for the purposes of e.g. file system creation and <a href="https://wiki.archlinux.org/title/Fsck" title="Fsck">fsck</a>,</li>
+<li>utilities for accessing and managing <a href="https://wiki.archlinux.org/title/RAID#Installation" title="RAID">RAID</a> or <a href="https://wiki.archlinux.org/title/LVM#Installation" title="LVM">LVM</a> if they will be used on the system,</li>
+<li>specific firmware for other devices not included in <span><a rel="nofollow" href="https://archlinux.org/packages/?name=linux-firmware">linux-firmware</a></span> (e.g. <span><a rel="nofollow" href="https://archlinux.org/packages/?name=sof-firmware">sof-firmware</a></span> for <a href="https://wiki.archlinux.org/title/Advanced_Linux_Sound_Architecture#Firmware" title="Advanced Linux Sound Architecture">onboard audio</a>, <span><a rel="nofollow" href="https://archlinux.org/packages/?name=linux-firmware-marvell">linux-firmware-marvell</a></span> for Marvell wireless and any of the multiple firmware packages for <a href="https://wiki.archlinux.org/title/Broadcom_wireless" title="Broadcom wireless">Broadcom wireless</a>),</li>
+<li>software necessary for <a href="https://wiki.archlinux.org/title/Networking" title="Networking">networking</a> (e.g. <a href="https://wiki.archlinux.org/title/Network_configuration#Network_managers" title="Network configuration">a network manager or a standalone DHCP client</a>, <a href="https://wiki.archlinux.org/title/Network_configuration/Wireless#Authentication" title="Network configuration/Wireless">authentication software</a> for Wi-Fi, <a href="https://wiki.archlinux.org/title/ModemManager" title="ModemManager">ModemManager</a> for mobile broadband connections),</li>
+<li>a <a href="https://wiki.archlinux.org/title/List_of_applications/Documents#Console" title="List of applications/Documents">console text editor</a> (e.g <a href="https://wiki.archlinux.org/title/Nano" title="Nano">nano</a>) to allow editing configuration files from the console,</li>
+<li>packages for accessing documentation in <a href="https://wiki.archlinux.org/title/Man" title="Man">man</a> and <a href="https://wiki.archlinux.org/title/Info" title="Info">info</a> pages: <span><a rel="nofollow" href="https://archlinux.org/packages/?name=man-db">man-db</a></span>, <span><a rel="nofollow" href="https://archlinux.org/packages/?name=man-pages">man-pages</a></span> and <span><a rel="nofollow" href="https://archlinux.org/packages/?name=texinfo">texinfo</a></span>.</li></ul>
+<p>For comparison, packages available in the live system can be found in <a rel="nofollow" href="https://geo.mirror.pkgbuild.com/iso/latest/arch/pkglist.x86_64.txt">pkglist.x86_64.txt</a>.
+</p>
+<h2><span id="Configure_the_system">Configure the system</span></h2>
+<h3><span id="Fstab">Fstab</span></h3>
+<p>Generate an <a href="https://wiki.archlinux.org/title/Fstab" title="Fstab">fstab</a> file (use <code>-U</code> or <code>-L</code> to define by <a href="https://wiki.archlinux.org/title/UUID" title="UUID">UUID</a> or labels, respectively):
+</p>
+<pre># genfstab -U /mnt &gt;&gt; /mnt/etc/fstab
+</pre>
+<p>Check the resulting <code>/mnt/etc/fstab</code> file, and <a href="https://wiki.archlinux.org/title/Textedit" title="Textedit">edit</a> it in case of errors.
+</p>
+<h3><span id="Chroot">Chroot</span></h3>
+<p><a href="https://wiki.archlinux.org/title/Change_root" title="Change root">Change root</a> into the new system:
+</p>
+<pre># arch-chroot /mnt
+</pre>
+<h3><span id="Time">Time</span></h3>
+<p>Set the <a href="https://wiki.archlinux.org/title/Time_zone" title="Time zone">time zone</a>:
+</p>
+<pre># ln -sf /usr/share/zoneinfo/<i>Region</i>/<i>City</i> /etc/localtime
+</pre>
+<p>Run <span title="$ man 8 hwclock"><a rel="nofollow" href="https://man.archlinux.org/man/hwclock.8">hwclock(8)</a></span> to generate <code>/etc/adjtime</code>:
+</p>
+<pre># hwclock --systohc
+</pre>
+<p>This command assumes the hardware clock is set to <a href="https://en.wikipedia.org/wiki/UTC" title="wikipedia:UTC">UTC</a>. See <a href="https://wiki.archlinux.org/title/System_time#Time_standard" title="System time">System time#Time standard</a> for details.
+</p><p>To prevent clock drift and ensure accurate time, set up <a href="https://wiki.archlinux.org/title/Time_synchronization" title="Time synchronization">time synchronization</a> using a <a href="https://en.wikipedia.org/wiki/Network_Time_Protocol" title="wikipedia:Network Time Protocol">Network Time Protocol</a> (NTP) client such as <a href="https://wiki.archlinux.org/title/Systemd-timesyncd" title="Systemd-timesyncd">systemd-timesyncd</a>.
+</p>
+<h3><span id="Localization">Localization</span></h3>
+<p><a href="https://wiki.archlinux.org/title/Textedit" title="Textedit">Edit</a> <code>/etc/locale.gen</code> and uncomment <code>en_US.UTF-8 UTF-8</code> and other needed UTF-8 <a href="https://wiki.archlinux.org/title/Locale" title="Locale">locales</a>. Generate the locales by running:
+</p>
+<pre># locale-gen
+</pre>
+<p><a href="https://wiki.archlinux.org/title/Create" title="Create">Create</a> the <span title="$ man 5 locale.conf"><a rel="nofollow" href="https://man.archlinux.org/man/locale.conf.5">locale.conf(5)</a></span> file, and <a href="https://wiki.archlinux.org/title/Locale#Setting_the_system_locale" title="Locale">set the LANG variable</a> accordingly:
+</p>
+<pre>/etc/locale.conf</pre>
+<pre>LANG=<i>en_US.UTF-8</i></pre>
+<p>If you <a href="#Set_the_console_keyboard_layout_and_font">set the console keyboard layout</a>, make the changes persistent in <span title="$ man 5 vconsole.conf"><a rel="nofollow" href="https://man.archlinux.org/man/vconsole.conf.5">vconsole.conf(5)</a></span>:
+</p>
+<pre>/etc/vconsole.conf</pre>
+<pre>KEYMAP=<i>de-latin1</i></pre>
+<h3><span id="Network_configuration">Network configuration</span></h3>
+<p><a href="https://wiki.archlinux.org/title/Create" title="Create">Create</a> the <a href="https://wiki.archlinux.org/title/Hostname" title="Hostname">hostname</a> file:
+</p>
+<pre>/etc/hostname</pre>
+<pre><i>yourhostname</i>
+</pre>
+<p>Complete the <a href="https://wiki.archlinux.org/title/Network_configuration" title="Network configuration">network configuration</a> for the newly installed environment. That may include installing suitable <a href="https://wiki.archlinux.org/title/Network_management" title="Network management">network management</a> software, configuring it if necessary and enabling its systemd unit so that it starts at boot.
+</p>
+<h3><span id="Initramfs">Initramfs</span></h3>
+<p>Creating a new <i>initramfs</i> is usually not required, because <a href="https://wiki.archlinux.org/title/Mkinitcpio" title="Mkinitcpio">mkinitcpio</a> was run on installation of the <a href="https://wiki.archlinux.org/title/Kernel" title="Kernel">kernel</a> package with <i>pacstrap</i>.
+</p><p>For <a href="https://wiki.archlinux.org/title/Install_Arch_Linux_on_LVM#Adding_mkinitcpio_hooks" title="Install Arch Linux on LVM">LVM</a>, <a href="https://wiki.archlinux.org/title/Dm-crypt" title="Dm-crypt">system encryption</a> or <a href="https://wiki.archlinux.org/title/RAID#Configure_mkinitcpio" title="RAID">RAID</a>, modify <span title="$ man 5 mkinitcpio.conf"><a rel="nofollow" href="https://man.archlinux.org/man/mkinitcpio.conf.5">mkinitcpio.conf(5)</a></span> and recreate the initramfs image:
+</p>
+<pre># mkinitcpio -P
+</pre>
+<h3><span id="Root_password">Root password</span></h3>
+<p>Set the root <a href="https://wiki.archlinux.org/title/Password" title="Password">password</a>:
+</p>
+<pre># passwd
+</pre>
+<h3><span id="Boot_loader">Boot loader</span></h3>
+<p>Choose and install a Linux-capable <a href="https://wiki.archlinux.org/title/Boot_loader" title="Boot loader">boot loader</a>.
+</p>
+<h2><span id="Reboot">Reboot</span></h2>
+<p>Exit the chroot environment by typing <code>exit</code> or pressing <code>Ctrl+d</code>.
+</p><p>Optionally manually unmount all the partitions with <code>umount -R /mnt</code>: this allows noticing any &#34;busy&#34; partitions, and finding the cause with <span title="$ man 1 fuser"><a rel="nofollow" href="https://man.archlinux.org/man/fuser.1">fuser(1)</a></span>.
+</p><p>Finally, restart the machine by typing <code>reboot</code>: any partitions still mounted will be automatically unmounted by <i>systemd</i>. Remember to remove the installation medium and then login into the new system with the root account.
+</p>
+<h2><span id="Post-installation">Post-installation</span></h2>
+<p>See <a href="https://wiki.archlinux.org/title/General_recommendations" title="General recommendations">General recommendations</a> for system management directions and post-installation tutorials (like creating unprivileged user accounts, setting up a graphical user interface, sound or a touchpad).
+</p><p>For a list of applications that may be of interest, see <a href="https://wiki.archlinux.org/title/List_of_applications" title="List of applications">List of applications</a>.
+</p>
+
+
+
+
+</div></div>

@@ -1,0 +1,425 @@
+---
+url: https://ishadeed.com/article/grid-layout-flexbox-components/
+title: Grid for layout, Flexbox for components
+archived_at: 2025-02-13T00:25:18.029017213+08:00
+---
+<div id="readability-page-1" class="page"><div data-astro-cid-bvzihdzo="">   <p>My brother is a fresh computer engineering graduate and he is currently finishing his internship in front-end development. He learned about both CSS grid and flexbox, but I noticed a pattern that I see a lot on the web. He can’t decide when to use grid or flexbox. For example, he used CSS grid to layout a website header and mentioned that the process wasn’t smooth as he played with <code>grid-column</code> and tried to fine-tune it until it looks like the design.</p>
+<p>To be honest, I don’t like that, and I also researched about a resource that he can use to learn the differences between grid and flexbox, with examples on both, but I couldn’t find any. I decided to write an in-depth article that covers everything about that topic. I hope you found it clear!</p>
+<h2 id="introduction">Introduction</h2>
+<p>Before diving into concepts and examples, I want to make sure that you understand the main difference between CSS grid and flexbox. CSS Grid is a multi-dimension layout module, which means that it has columns and rows. Flexbox can lay out its child items either as columns or rows, but not both.</p>
+<p>If you don’t know about CSS grid and flexbox, I recommend reading <a href="https://ishadeed.com/article/learn-box-alignment/">this visual article</a> by yours truly. If you know them, that’s cool, let’s dive into differentiating between them, and when to use each one and why.</p>
+<h2 id="the-difference-between-grid-and-flexbox">The Difference Between Grid and Flexbox</h2>
+<p>Let me be clear about that, there is no direct way to decide between CSS grid and flexbox. Adding on that, there is no <strong>correct</strong> or <strong>incorrect</strong> way to use them. This article is a kind of guide that <strong>recommends</strong> using a technique for a specific use-case. I will explain the general concept, and then go into examples, and the rest is on you to explore and experiment more.</p>
+<pre data-language="css"><code is:raw=""><span>/* Flexbox wrapper */</span>
+<span>.wrapper</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+<span>}</span>
+
+<span>/* Grid wrapper */</span>
+<span>.wrapper</span> <span>{</span>
+  <span>display</span><span>:</span> grid<span>;</span>
+  <span>grid-template-columns</span><span>:</span> 2fr 1fr<span>;</span>
+  <span>grid-gap</span><span>:</span> 16px<span>;</span>
+<span>}</span>
+</code></pre>
+<p><img src="https://ishadeed.com/assets/grid-flex/grid-vs-flexbox.png" alt=""/></p>
+<p>Did you notice something? Flexbox is laying out an inline list of elements, while CSS grid made them a grid of columns and rows. Flexbox is aligning the alignment in a row. That can be a column if we want.</p>
+<pre data-language="css"><code is:raw=""><span>/* Flexbox wrapper */</span>
+<span>.wrapper</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>flex-direction</span><span>:</span> column<span>;</span>
+<span>}</span>
+</code></pre>
+<p><img src="https://ishadeed.com/assets/grid-flex/grid-vs-flexbox-1.png" alt=""/></p>
+<h2 id="how-to-decide-which-to-use">How To Decide Which To Use</h2>
+<p>Deciding between CSS grid and flexbox can be a bit hard (sometimes), especially if you are new to CSS. I can hear you! Here are some initial kick-off questions that I ask myself when choosing between them:</p>
+<ul>
+<li>How the component child items are displayed? Inline or as columns and rows?</li>
+<li>How the component is expected to work on various screen sizes?</li>
+</ul>
+<p>Most of the time, if the component you are viewing has all of its child items displayed inline, then most probably flexbox is the best solution here. Consider the following example:</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/decide-1.png" alt=""/></p>
+<p>However, if you see columns and rows, then CSS grid is the solution for your case.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/decide-2.png" alt=""/></p>
+<p>Now that I explained the main difference between them, let’s move on to more specific examples and learn how to decide.</p>
+<h2 id="use-cases-and-examples">Use Cases and Examples</h2>
+<p>In the following section, I will discuss in detail about different use-cases for both flexbox and grid.</p>
+<h3 id="css-grid">CSS Grid</h3>
+<h4 id="main-and-sidebar">Main and Sidebar</h4>
+<p>When you have a sidebar and main, CSS grid is a perfect solution for building them. Consider the following mockup:</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/grid-use-1.png" alt=""/></p>
+<p>Here is how I would do this in CSS:</p>
+<pre data-language="html"><code is:raw=""><span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>wrapper<span>&#34;</span></span><span>&gt;</span></span>
+  <span><span><span>&lt;</span>aside</span><span>&gt;</span></span>Sidebar<span><span><span>&lt;/</span>aside</span><span>&gt;</span></span>
+  <span><span><span>&lt;</span>main</span><span>&gt;</span></span>Main<span><span><span>&lt;/</span>main</span><span>&gt;</span></span>
+<span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+</code></pre>
+<pre data-language="css"><code is:raw=""><span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 800px<span>)</span></span> <span>{</span>
+  <span>.wrapper</span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+    <span>grid-template-columns</span><span>:</span> 200px 1fr<span>;</span>
+    <span>grid-gap</span><span>:</span> 16px<span>;</span>
+  <span>}</span>
+
+  <span>aside</span> <span>{</span>
+    <span>align-self</span><span>:</span> start<span>;</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<p>If <code>align-self</code> weren’t used for the <code>&lt;aside&gt;</code> element, the height of it will be as equal to the main element, no matter the content length.</p>
+<h4 id="cards-grid">Cards Grid</h4>
+<p>As discussed at the beginning of the article, CSS grid is self-explanatory from its name, so using it for laying out a cards grid is a perfect usage of it.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/grid-use-2.png" alt=""/></p>
+<p>Here is how I would implement the layout:</p>
+<pre data-language="css"><code is:raw=""><span>.wrapper</span> <span>{</span>
+  <span>display</span><span>:</span> grid<span>;</span>
+  <span>grid-template-columns</span><span>:</span> <span>repeat</span><span>(</span>auto-fit<span>,</span> <span>minmax</span><span>(</span>200px<span>,</span> 1fr<span>)</span><span>)</span><span>;</span>
+  <span>grid-gap</span><span>:</span> 16px<span>;</span>
+<span>}</span>
+</code></pre>
+<p>The column width will be at least <code>200px</code>, and if space is not enough, it will wrap cards into a new line. It’s worth mentioning that the above can cause horizontal scrolling if the viewport width is less than <code>200px</code>.</p>
+<p>A simple solution is to add the grid definition only when the viewport width is enough. See below:</p>
+<pre data-language="css"><code is:raw=""><span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 800px<span>)</span></span> <span>{</span>
+  <span>.wrapper</span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+    <span>grid-template-columns</span><span>:</span> <span>repeat</span><span>(</span>auto-fit<span>,</span> <span>minmax</span><span>(</span>200px<span>,</span> 1fr<span>)</span><span>)</span><span>;</span>
+    <span>grid-gap</span><span>:</span> 16px<span>;</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<h4 id="section-layout">Section Layout</h4>
+<p>In the following design, we can use grid twice, the first use is to divide the area into two areas (the contact us sidebar, the form), and the second use is to the form grid itself.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/grid-use-3.png" alt=""/></p>
+<p>I can’t emphasis how CSS grid is perfect for that. Here is how to do this in CSS:</p>
+<pre data-language="css"><code is:raw=""><span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 800px<span>)</span></span> <span>{</span>
+  <span>.wrapper</span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+    <span>grid-template-columns</span><span>:</span> 200px 1fr<span>;</span>
+  <span>}</span>
+
+  <span>.form-wrapper</span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+    <span>grid-template-columns</span><span>:</span> 1fr 1fr<span>;</span>
+    <span>grid-gap</span><span>:</span> 16px<span>;</span>
+  <span>}</span>
+
+  <span>.form-message,
+  .form-button</span> <span>{</span>
+    <span>grid-column</span><span>:</span> 1 / 3<span>;</span> <span>/* let them take the full width */</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<p>This example is borrowed from <a href="https://webdesign.tutsplus.com/tutorials/how-to-build-web-form-layouts-with-css-grid--cms-28776">my article</a> on Envato about building web form layouts with CSS grid. I recommend giving it a read.</p>
+<h3 id="css-flexbox">CSS Flexbox</h3>
+<h4 id="website-navigation">Website Navigation</h4>
+<p>For 90% of the time, website navigation should be built with CSS flexbox. The most common pattern is having the logo on the left, and the navigation on the right. That is perfect for flexbox.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-1.png" alt=""/></p>
+<p>In the example above, all you need to set if the following:</p>
+<pre data-language="css"><code is:raw=""><span>.site-header</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>flex-wrap</span><span>:</span> wrap<span>;</span>
+  <span>justify-content</span><span>:</span> space-between<span>;</span>
+<span>}</span>
+</code></pre>
+<p>The same concept can work on the following design as well.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-2.png" alt=""/></p>
+<p>Notice how the navigation structure got a bit different, but the spacing between the items is still done with the <code>justify-content</code> property.</p>
+<h4 id="actions-list">Actions List</h4>
+<p>When you hear a list, the first thing that you might think about is a vertical list. However, a list could be displayed inline, so I just wanted to make sure that this is clear.</p>
+<p>An example of an action list is something that we can borrow from Facebook or Twitter. The action list consists of action buttons that the user can take. See the screenshots below:</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-3.png" alt=""/></p>
+<p>As you see, the items are displayed next to each other, and they are distributed horizontally. Flexbox is perfect for that! That’s one of the core uses of it.</p>
+<pre data-language="css"><code is:raw=""><span>.actions-list</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+<span>}</span>
+
+<span>.actions-list__item</span> <span>{</span>
+  <span>flex</span><span>:</span> 1<span>;</span> <span>/* expand the items to take the available space equally between them */</span>
+<span>}</span>
+</code></pre>
+<p>Another variation of this is a modal action button or a modal header.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-4.png" alt=""/></p>
+<p>Both of the modal header and footer have child elements that are displayed inline. As you see, the spacing between them is done as below.</p>
+<p>For the modal header, it looks like this:</p>
+<pre data-language="css"><code is:raw=""><span>.modal-header</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>justify-content</span><span>:</span> space-between<span>;</span>
+<span>}</span>
+</code></pre>
+<p>And for the footer, it’s a bit different. The “Cancel” action uses an auto margin to push itself to the right. I wrote a <a href="https://ishadeed.com/article/auto-css/">detailed article</a> about that.</p>
+<pre data-language="css"><code is:raw=""><span>.cancel__action</span> <span>{</span>
+  <span>margin-left</span><span>:</span> auto<span>;</span>
+<span>}</span>
+</code></pre>
+<p>The naming of the <code>.cancel__action</code> might not be perfect here, but I don’t want to get into CSS naming conventions for this article.</p>
+<h4 id="form-elements">Form Elements</h4>
+<p>A combination of an input field with a button next to it is a perfect use-case for Flexbox. Consider the figure below:</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-5.png" alt=""/></p>
+<p>In the first form, the input is taking all the remaining space, making it take a dynamic width.
+The same thing applies to the second form (Facebook messenger), the text field is taking all the remaining space. Let’s take a closer look.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-6.png" alt=""/></p>
+<pre data-language="css"><code is:raw=""><span>.input</span> <span>{</span>
+  <span>flex</span><span>:</span> 1 1 auto<span>;</span>
+<span>}</span>
+</code></pre>
+<p>Notice how without using <code>flex: 1 1 auto</code> on the text field, it won’t expand and fill the remaining space.</p>
+<h4 id="thread-and-comments">Thread and Comments</h4>
+<p>Another common use-case for flexbox is comment threads. Consider the following example.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-7.png" alt=""/></p>
+<p>We have the user photo, and the comment itself. The comment is taking the remaining space from its parent element. That’s a perfect use for flexbox.</p>
+<h4 id="card-components">Card Components</h4>
+<p>A card component has many variations, but the most common design is something like the mockup below.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-8.png" alt=""/></p>
+<p>On the left, the card child items are stacked because the direction of the flex wrapper is <code>column</code>. While on the right, it’s the opposite. The direction used is <code>row</code>, and keep in mind that the row is the default for flexbox.</p>
+<pre data-language="css"><code is:raw=""><span>.card</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>flex-direction</span><span>:</span> column<span>;</span>
+<span>}</span>
+
+<span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 800px<span>)</span></span> <span>{</span>
+  <span>.card</span> <span>{</span>
+    <span>flex-direction</span><span>:</span> row<span>;</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<p>Another common variation for a card is having an icon with a text label below it. It could be a button, link, or just for decoration. Consider the following mockup:</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-9.png" alt=""/></p>
+<p>Notice how the icon and text label is centered horizontally and vertically. Thanks to flexbox, this is easy to do.</p>
+<pre data-language="css"><code is:raw=""><span>.card</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>flex-direction</span><span>:</span> column<span>;</span>
+  <span>align-items</span><span>:</span> center<span>;</span>
+<span>}</span>
+</code></pre>
+<p>The inline style will be by default, we just need to remove the <code>flex-direction: column</code> and leave it to the default value (row).</p>
+
+<p>When it comes to elements that take the full width of screen and have items that should fill all the available space, then flexbox is the perfect tool here.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-10.png" alt=""/></p>
+<p>In the example above, each item should fill the available space, and they should be equal in width. By setting the wrapper display to <code>flex</code>, this can be easily done.</p>
+<pre data-language="css"><code is:raw=""><span>.tabs__item</span> <span>{</span>
+  <span>flex-grow</span><span>:</span> 1<span>;</span>
+<span>}</span>
+</code></pre>
+<p>That technique is used in React Native framework to build the tab bar for mobile applications. Here is a code example that does the same as above in React Native. The code is borrowed from <a href="https://reactnative.dev/docs/flexbox">this</a> resource.</p>
+<pre data-language="js"><code is:raw=""><span>import</span> React <span>from</span> <span>&#34;react&#34;</span>
+<span>import</span> <span>{</span> View <span>}</span> <span>from</span> <span>&#34;react-native&#34;</span>
+
+<span>export</span> <span>default</span> <span>FlexDirectionBasics</span> <span>=</span> <span>(</span><span>)</span> <span>=&gt;</span> <span>{</span>
+  <span>return</span> <span>(</span>
+    <span>&lt;</span>View style<span>=</span><span>{</span><span>{</span> <span>flex</span><span>:</span> <span>1</span><span>,</span> <span>flexDirection</span><span>:</span> <span>&#34;row&#34;</span> <span>}</span><span>}</span><span>&gt;</span>
+      <span>&lt;</span>View
+        style<span>=</span><span>{</span><span>{</span>
+          <span>flex</span><span>:</span> <span>1</span><span>,</span>
+          <span>width</span><span>:</span> <span>50</span><span>,</span>
+          <span>height</span><span>:</span> <span>50</span><span>,</span>
+          <span>backgroundColor</span><span>:</span> <span>&#34;powderblue&#34;</span><span>,</span>
+        <span>}</span><span>}</span>
+      <span>/</span><span>&gt;</span>
+      <span>&lt;</span>View
+        style<span>=</span><span>{</span><span>{</span>
+          <span>flex</span><span>:</span> <span>1</span><span>,</span>
+          <span>width</span><span>:</span> <span>50</span><span>,</span>
+          <span>height</span><span>:</span> <span>50</span><span>,</span>
+          <span>backgroundColor</span><span>:</span> <span>&#34;skyblue&#34;</span><span>,</span>
+        <span>}</span><span>}</span>
+      <span>/</span><span>&gt;</span>
+      <span>&lt;</span>View
+        style<span>=</span><span>{</span><span>{</span>
+          <span>flex</span><span>:</span> <span>1</span><span>,</span>
+          <span>width</span><span>:</span> <span>50</span><span>,</span>
+          <span>height</span><span>:</span> <span>50</span><span>,</span>
+          <span>backgroundColor</span><span>:</span> <span>&#34;steelblue&#34;</span><span>,</span>
+        <span>}</span><span>}</span>
+      <span>/</span><span>&gt;</span>
+    <span>&lt;</span><span>/</span>View<span>&gt;</span>
+  <span>)</span>
+<span>}</span>
+</code></pre>
+<h4 id="features-list">Features List</h4>
+<p>What I like the most about flexbox is the ability to reverse the direction of the elements. The default flexbox direction is row, but we can reverse it as below.</p>
+<pre data-language="css"><code is:raw=""><span>.item</span> <span>{</span>
+  <span>flex-direction</span><span>:</span> row-reverse<span>;</span>
+<span>}</span>
+</code></pre>
+<p>In the mockup below, notice how the even item is reversed, this is done with the technique above. It’s very useful.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-11.png" alt=""/></p>
+<h4 id="centering-a-sections-content">Centering a Section’s Content</h4>
+<p>Let’s consider that we have a hero section, and the content needs to be centered horizontally and vertically. The horizontal centering might be easy as it could be done with text alignment.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/flexbox-use-12.png" alt=""/></p>
+<pre data-language="css"><code is:raw=""><span>.hero</span> <span>{</span>
+  <span>text-align</span><span>:</span> center<span>;</span>
+<span>}</span>
+</code></pre>
+<p>But how to use flexbox to center the elements vertically? Here is what’s needed.</p>
+<pre data-language="css"><code is:raw=""><span>.hero</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>flex-direction</span><span>:</span> column<span>;</span>
+  <span>align-items</span><span>:</span> center<span>;</span> <span>/* centers items horizontally */</span>
+  <span>justify-content</span><span>:</span> center<span>;</span> <span>/* centers items vertically */</span>
+  <span>text-align</span><span>:</span> center<span>;</span>
+<span>}</span>
+</code></pre>
+<h2 id="combining-css-grid-and-flexbox">Combining CSS Grid and Flexbox</h2>
+<p>Not only each layout module has its use-cases, but we can use both of them. When I think about combining them, the first use-case I got is a list of cards. Grid is used to lay out the cards, and flexbox is used for the card component itself.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/grid-and-flex.png" alt=""/></p>
+<p>Here are the requirements for the layout:</p>
+<ul>
+<li>The height of the cards for each row should be equal</li>
+<li>The read more link should be positioned at the end of the card, no matter its height.</li>
+<li>The grid should use <code>minmax()</code> function</li>
+</ul>
+<pre data-language="html"><code is:raw=""><span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>wrapper<span>&#34;</span></span><span>&gt;</span></span>
+  <span><span><span>&lt;</span>article</span> <span>class</span><span><span>=</span><span>&#34;</span>card<span>&#34;</span></span><span>&gt;</span></span>
+    <span><span><span>&lt;</span>img</span> <span>src</span><span><span>=</span><span>&#34;</span>sunrise.jpg<span>&#34;</span></span> <span>alt</span><span><span>=</span><span>&#34;</span><span>&#34;</span></span> <span>/&gt;</span></span>
+    <span><span><span>&lt;</span>div</span> <span>class</span><span><span>=</span><span>&#34;</span>card__content<span>&#34;</span></span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>h2</span><span>&gt;</span></span><span>&lt;!-- Title --&gt;</span><span><span><span>&lt;/</span>h2</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>p</span><span>&gt;</span></span><span>&lt;!-- Desc --&gt;</span><span><span><span>&lt;/</span>p</span><span>&gt;</span></span>
+      <span><span><span>&lt;</span>p</span> <span>class</span><span><span>=</span><span>&#34;</span>card_link<span>&#34;</span></span><span>&gt;</span></span><span><span><span>&lt;</span>a</span> <span>href</span><span><span>=</span><span>&#34;</span>#<span>&#34;</span></span><span>&gt;</span></span>Read more<span><span><span>&lt;/</span>a</span><span>&gt;</span></span><span><span><span>&lt;/</span>p</span><span>&gt;</span></span>
+    <span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+  <span><span><span>&lt;/</span>article</span><span>&gt;</span></span>
+<span><span><span>&lt;/</span>div</span><span>&gt;</span></span>
+</code></pre>
+<pre data-language="css"><code is:raw=""><span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 500px<span>)</span></span> <span>{</span>
+  <span>.wrapper</span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+    <span>grid-template-columns</span><span>:</span> <span>repeat</span><span>(</span>auto-fill<span>,</span> <span>minmax</span><span>(</span>200px<span>,</span> 1fr<span>)</span><span>)</span><span>;</span>
+    <span>grid-gap</span><span>:</span> 16px<span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span>.card</span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span> <span>/* [1] */</span>
+  <span>flex-direction</span><span>:</span> column<span>;</span> <span>/* [2] */</span>
+<span>}</span>
+
+<span>.card__content</span> <span>{</span>
+  <span>flex-grow</span><span>:</span> 1<span>;</span> <span>/* [3] */</span>
+  <span>display</span><span>:</span> flex<span>;</span> <span>/* [4] */</span>
+  <span>flex-direction</span><span>:</span> column<span>;</span>
+<span>}</span>
+
+<span>.card__link</span> <span>{</span>
+  <span>margin-top</span><span>:</span> auto<span>;</span> <span>/* [5] */</span>
+<span>}</span>
+</code></pre>
+<p>Let me explain the CSS above.</p>
+<ol>
+<li>Making the card as a flexbox wrapper.</li>
+<li>The direction is column, which means the card elements are stacked.</li>
+<li>Letting the card content expand and fill the remaining space.</li>
+<li>Making the card content as a flexbox wrapper.</li>
+<li>Finally, using <code>margin-top: auto</code> to push the link down. This will keep it positioned at the end regardless of the card height.</li>
+</ol>
+<p>As you saw, combining CSS grid and flexbox isn’t hard. These two tools can give us many ways to implement layouts on the web. Let’s use them correctly, and combine them <strong>only</strong> when needed as above.</p>
+<h2 id="fallback-and-supporting-old-browsers">Fallback and Supporting Old Browsers</h2>
+<h3 id="using-css-supports">Using CSS <code>@supports</code></h3>
+<p>A couple of months ago, I got a tweet saying that my website is broken in IE11. After checking it, I noticed a very weird behavior. All the website content is collapsed into the top left area. My website wasn’t usable!</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/ishadeed-ie11.png" alt=""/></p>
+<p>Yes, this is my website - a front-end developer website, on IE11. At first, I was confused, why is that happening? I remembered that CSS grid is supported in IE11, but that’s the old version of it that was released by Microsoft. The solution is very simple, which is to use <code>@supports</code> to only use CSS grid for new browsers.</p>
+<pre data-language="css"><code is:raw=""><span><span>@supports</span> <span>(</span><span>grid-area</span><span>:</span> auto<span>)</span></span> <span>{</span>
+  <span>body</span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<p>Let me explain it. I used <code>grid-area</code> because it’s supported only in the new CSS grid spec, from March 2017 till today. Since IE doesn’t support <code>@supports</code> query, the whole rule will be ignored. As a result, the new CSS grid will be used for supporting browsers only.</p>
+<h3 id="using-flexbox-as-a-fallback-for-css-grid">Using Flexbox as a Fallback For CSS Grid</h3>
+<p>If flexbox is not suitable for displaying a grid of items, that doesn’t mean it’s not good for fallback. You can use flexbox as a fallback for CSS grid for non-supporting browsers. I worked on a <a href="https://shadeed.github.io/grid-to-flex/">tool</a> that does exactly that.</p>
+<pre data-language="css"><code is:raw=""><span><span>@mixin</span> <span>grid</span><span>(</span><span>)</span></span> <span>{</span>
+  <span>display</span><span>:</span> flex<span>;</span>
+  <span>flex-wrap</span><span>:</span> wrap<span>;</span>
+
+  <span><span>@supports</span> <span>(</span><span>grid-area</span><span>:</span> auto<span>)</span></span> <span>{</span>
+    <span>display</span><span>:</span> grid<span>;</span>
+    <span>grid-gap</span><span>:</span> 16px 16px<span>;</span>
+  <span>}</span>
+<span>}</span>
+
+<span><span>@mixin</span> <span>gridAuto</span><span>(</span><span>)</span></span> <span>{</span>
+  <span>margin-left</span><span>:</span> -16px<span>;</span>
+
+  <span>&gt; *</span> <span>{</span>
+    <span>margin-bottom</span><span>:</span> 16px<span>;</span>
+    <span>margin-left</span><span>:</span> 16px<span>;</span>
+  <span>}</span>
+
+  <span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 320px<span>)</span></span> <span>{</span>
+    <span>&gt; *</span> <span>{</span>
+      <span>width: calc((99% / #</span><span>{</span>2<span>}</span><span>)</span> - 16px<span>)</span><span>;</span>
+      <span>flex: 0 0 calc((99% / #</span><span>{</span>2<span>}</span><span>)</span> - 16px<span>)</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+
+  <span><span>@media</span> <span>(</span><span>min-width</span><span>:</span> 768px<span>)</span></span> <span>{</span>
+    <span>&gt; *</span> <span>{</span>
+      <span>width: calc((99% / #</span><span>{</span>3<span>}</span><span>)</span> - 16px<span>)</span><span>;</span>
+      <span>flex: 0 0 calc((99% / #</span><span>{</span>3<span>}</span><span>)</span> - 16px<span>)</span><span>;</span>
+    <span>}</span>
+  <span>}</span>
+
+  <span><span>@supports</span> <span>(</span><span>grid-area</span><span>:</span> auto<span>)</span></span> <span>{</span>
+    <span>grid-template-columns</span><span>:</span> <span>repeat</span><span>(</span>auto-fit<span>,</span> <span>minmax</span><span>(</span>200px<span>,</span> 1fr<span>)</span><span>)</span><span>;</span>
+    <span>margin-left</span><span>:</span> 0<span>;</span>
+
+    <span>&gt; *</span> <span>{</span>
+      <span>width</span><span>:</span> auto<span>;</span>
+      <span>margin-left</span><span>:</span> 0<span>;</span>
+      <span>margin-bottom</span><span>:</span> 0<span>;</span>
+    <span>}</span>
+  <span>}</span>
+<span>}</span>
+</code></pre>
+<p>The fallback code above works as below:</p>
+<ol>
+<li>Add <code>display: flex</code> and <code>flex-wrap: wrap</code> to the wrapper element.</li>
+<li>Checks if CSS grid is supported, if yes, then <code>display: grid</code> will be used instead.</li>
+<li>By using the selector <code>&gt; *</code>, we can select the direct child elements of the wrapper. Upon selecting them, we can add a specific width or size to each one.</li>
+<li>Of course, the margin between each one is needed and will be replaced with <code>grid-gap</code> in case CSS grid is supported.</li>
+</ol>
+<p>Here is an example of how to use the Sass mixin.</p>
+<pre data-language="scss"><code is:raw=""><span>.wrapper </span><span>{</span>
+  <span>@include</span> <span>grid</span><span>(</span><span>)</span><span>;</span>
+  <span>@include</span> <span>gridAuto</span><span>(</span><span>)</span><span>;</span>
+<span>}</span>
+</code></pre>
+<p><a href="https://codepen.io/shadeed/pen/XWrLmYe">Demo</a></p>
+<h2 id="when-things-go-wrong-for-both-grid-and-flexbox">When things go wrong for both grid and flexbox</h2>
+<p>As I was doing a code review for my brother, I noticed a couple of incorrect uses for either CSS grid or flexbox and I thought that it might be useful if I highlighted some of them.</p>
+
+<p>One of the motivations for this article was this mistake. I noticed that my brother is using CSS grid to implement a website header.</p>
+<p>He mentioned things like “it was complex, css grid is hard.. etc”. As a result of using an incorrect layout method, he got an idea that CSS grid is complex. It’s not, and all of his confusion came from the fact of using it for something that is not suitable.</p>
+<p>Consider the following example that I noticed.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/incorrect-use-1.png" alt=""/></p>
+<pre data-language="css"><code is:raw=""><span>.site-header</span> <span>{</span>
+  <span>display</span><span>:</span> grid<span>;</span>
+  <span>grid-template-columns</span><span>:</span> 1fr 1fr 1fr 1fr 1fr 1fr<span>;</span>
+<span>}</span>
+
+<span>.site-nav</span> <span>{</span>
+  <span>display</span><span>:</span> grid<span>;</span>
+  <span>grid-template-columns</span><span>:</span> 1fr 1fr 1fr 1fr<span>;</span>
+<span>}</span>
+</code></pre>
+<p>CSS grid was used twice, the first time is for the whole header, and the second one is for the navigation. He used <code>grid-column</code> to fine-tune the spacing between the elements, and other weird things that I can’t remember, but you got the point!</p>
+<h3 id="using-css-grid-for-tabs">Using CSS Grid for tabs</h3>
+<p>Another incorrect usage for CSS grid is applying it on a tabs component. Consider the following mockup.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/incorrect-use-2.png" alt=""/></p>
+<p>The incorrect CSS code looks like this:</p>
+<pre data-language="css"><code is:raw=""><span>.tabs-wrapper</span> <span>{</span>
+  <span>display</span><span>:</span> grid<span>;</span>
+  <span>grid-template-columns</span><span>:</span> 1fr 1fr 1fr<span>;</span>
+<span>}</span>
+</code></pre>
+<p>From the code above, I can see that the developer assumed the tabs count is only three. As a result, he used <code>1fr 1fr 1fr</code> for laying out the columns. This can easily break if the columns count changed.</p>
+<h3 id="overusing-flexbox-or-grid">Overusing Flexbox or Grid</h3>
+<p>Remember that old layout method might be perfect for the job. Overusing flexbox or grid can increase the complexity of your CSS by time. I don’t mean they are complex, but using them <strong>correctly</strong> and in the right context as explained from the examples in this article is much better.</p>
+<p>For example, you have the following hero section with a request to horizontal center all the content of it.</p>
+<p><img src="https://ishadeed.com/assets/grid-flex/hero-centered.png" alt=""/></p>
+<p>This can be done by using <code>text-align: center</code>. Why using flexbox when there is an easier solution?</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Phew, that was a lot about the differences between using CSS grid and flexbox. That topic was in mind for a long time, and I’m glad that I got the chance to write about it. Please don’t hesitate to provide feedback either by email or twitter <a href="https://twitter.com/shadeed9">@shadeed9</a>!</p>
+<p>Thank you for reading.</p>
+<h2 id="im-writing-an-ebook">I’m writing an ebook</h2>
+<p>I’m excited to let you know that I’m writing an ebook about Debugging CSS.</p>
+<p><img src="https://ishadeed.com/assets/css-mistakes/debugging-css.png" alt=""/></p>
+<p>If you’re interested, head over to <a href="https://debuggingcss.com/">debuggingcss.com</a> and subscribe for updates about the book.</p> </div></div>
